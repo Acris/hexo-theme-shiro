@@ -1,0 +1,23 @@
+# Navigation menu
+menu:
+  home: /
+  archives: /archives
+  categories: /categories
+  tags: /tags
+
+# RSS link
+rss: /atom.xml
+
+# Favicon path
+favicon: /favicon.png
+
+# Google Analytics ID
+google_analytics:
+
+# Google Site Verification
+google_site_verification:
+
+# Disqus comment system
+disqus:
+  enable: false
+  shortname:

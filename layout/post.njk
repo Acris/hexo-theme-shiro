@@ -1,0 +1,44 @@
+{% extends "_layout.njk" %}
+
+{% block content %}
+<article class="py-2">
+    <header class="text-center mb-8">
+        <h1 class="font-bold text-[1.8rem] sm:text-[2rem] md:text-[2.4rem] leading-snug text-slate-900 mb-4">
+            {{ page.title }}
+        </h1>
+        <p class="text-sm text-slate-500">
+            <a href="{{ url_for('archives/' + date(page.date, 'YYYY')) + '/' }}" class="num hover:text-slate-700 transition-colors">{{ date(page.date, 'YYYY-MM-DD') }}</a>
+            {% if page.categories and page.categories.length > 0 %}
+             · 
+             {% for cat in page.categories.toArray() %}
+             <a class="text-slate-600 hover:text-slate-800 transition-colors underline-offset-4 decoration-slate-300 hover:underline" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
+             {% if not loop.last %} / {% endif %}
+             {% endfor %}
+            {% endif %}
+        </p>
+    </header>
+
+    <div class="prose prose-slate prose-lg mx-auto font-serif text-slate-800 hover:prose-a:text-sky-700 prose-headings:font-serif prose-headings:font-medium prose-blockquote:border-l-4 prose-blockquote:border-slate-300 prose-blockquote:pl-4 prose-blockquote:italic">
+        {{ page.content }}
+    </div>
+
+    <!-- Post Navigation -->
+    <div class="mt-12 pt-8 border-t border-slate-200/70 flex justify-between items-center text-sm md:text-base">
+        {% if page.prev %}
+        <a href="{{ url_for(page.prev.path) }}" class="group flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-left max-w-[45%]">
+             <span aria-hidden="true">&larr;</span>
+             <span class="line-clamp-1 group-hover:underline decoration-slate-300 underline-offset-4">{{ page.prev.title }}</span>
+        </a>
+        {% else %}
+        <div></div>
+        {% endif %}
+
+        {% if page.next %}
+        <a href="{{ url_for(page.next.path) }}" class="group flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-right max-w-[45%]">
+            <span class="line-clamp-1 group-hover:underline decoration-slate-300 underline-offset-4">{{ page.next.title }}</span>
+            <span aria-hidden="true">&rarr;</span>
+        </a>
+        {% endif %}
+    </div>
+</article>
+{% endblock %}

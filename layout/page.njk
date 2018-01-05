@@ -1,0 +1,15 @@
+{% extends "_layout.njk" %}
+
+{% block content %}
+<article class="py-2">
+    <header class="text-center mb-8">
+        <h1 class="font-bold text-[1.8rem] sm:text-[2rem] md:text-[2.4rem] leading-snug text-slate-900 mb-4">
+            {{ page.title }}
+        </h1>
+    </header>
+
+    <div class="prose prose-slate prose-lg mx-auto font-serif text-slate-800 hover:prose-a:text-sky-700 prose-headings:font-serif prose-headings:font-medium prose-blockquote:border-l-4 prose-blockquote:border-slate-300 prose-blockquote:pl-4 prose-blockquote:italic">
+        {{ page.content }}
+    </div>
+</article>
+{% endblock %}

@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --paper: #ffffff;
+        --ink-2: #2b3036;
+        --softBorder: rgba(17, 24, 39, .06);
+        --focus: rgba(31, 35, 40, .18);
+        --seal: #b0171a;
+
+        --shadowA: 0 1px 1px rgba(16, 24, 40, .06);
+        --shadowB: 0 10px 30px rgba(16, 24, 40, .08);
+        --shadowC: 0 35px 70px rgba(16, 24, 40, .06);
+    }
+
+    body {
+        font-family: "Shippori Mincho", "Noto Serif JP", ui-serif, Georgia, "Times New Roman", serif;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .title-font {
+        font-family: "Yuji Syuku", "Shippori Mincho", ui-serif, serif;
+    }
+
+    .num {
+        font-variant-numeric: oldstyle-nums;
+    }
+
+    .eng-serif {
+        font-family: "EB Garamond", "Cormorant Garamond", ui-serif, serif;
+    }
+
+    .fog-bg {
+        background:
+            radial-gradient(1200px 500px at 50% -100px, rgba(255, 255, 255, .70), rgba(255, 255, 255, 0) 65%),
+            radial-gradient(900px 400px at 90% 10%, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 55%),
+            linear-gradient(180deg, #f4f5f6 0%, #f0f1f2 55%, #f4f5f6 100%);
+    }
+
+    .paper {
+        background-color: var(--paper);
+        position: relative;
+        isolation: isolate;
+        box-shadow: var(--shadowA), var(--shadowB), var(--shadowC);
+        border: 1px solid var(--softBorder);
+    }
+
+    .paper::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: .22;
+        mix-blend-mode: multiply;
+        background-image:
+            radial-gradient(circle at 20% 30%, rgba(0, 0, 0, .06) 0 0.6px, transparent 0.8px),
+            radial-gradient(circle at 80% 70%, rgba(0, 0, 0, .05) 0 0.7px, transparent 0.9px),
+            radial-gradient(circle at 40% 60%, rgba(0, 0, 0, .04) 0 0.6px, transparent 0.9px);
+        background-size: 120px 120px, 160px 160px, 220px 220px;
+        background-position: 0 0, 40px 30px, 80px 60px;
+        filter: blur(.2px);
+        z-index: -1;
+    }
+
+    .focus-elegant:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, .85), 0 0 0 4px var(--focus);
+        border-color: rgba(31, 35, 40, .22);
+    }
+
+    .ink-btn {
+        position: relative;
+        overflow: hidden;
+        transition: all 260ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .ink-btn:hover {
+        background-color: var(--ink-2);
+        color: rgba(255, 255, 255, .96);
+        border-color: rgba(31, 35, 40, .75);
+        box-shadow: 0 4px 12px rgba(16, 24, 40, .14);
+        filter: saturate(1.02);
+    }
+
+    .ink-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(16, 24, 40, .12);
+    }
+
+    .menu-panel {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-6px);
+        transition: max-height 260ms ease, opacity 220ms ease, transform 220ms ease;
+        overflow: hidden;
+    }
+
+    .menu-panel[data-open="true"] {
+        max-height: 340px;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            transition: none !important;
+            scroll-behavior: auto !important;
+        }
+
+        .menu-panel {
+            transform: none !important;
+        }
+
+        .ink-btn:active {
+            transform: none !important;
+        }
+    }
+
+    .pagination .page-number,
+    .pagination .extend {
+        @apply text-slate-500 hover:text-slate-900 transition-colors hover:underline underline-offset-4 decoration-slate-300;
+    }
+
+    .pagination .page-number {
+        @apply num;
+        /* Apply oldstyle nums font */
+    }
+
+    .pagination .page-number.current {
+        @apply text-slate-800 underline underline-offset-4 decoration-slate-600 cursor-default;
+    }
+
+    .pagination .space {
+        @apply select-none text-slate-300;
+    }
+}

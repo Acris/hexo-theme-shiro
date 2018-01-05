@@ -1,0 +1,14 @@
+menu:
+  home: Accueil
+  archives: Archives
+  categories: Catégories
+  tags: Tags
+  menu: Menu
+
+page:
+  prev: Précédent
+  next: Suivant
+
+index:
+  read_more: Lire la suite
+  pagination: Pagination

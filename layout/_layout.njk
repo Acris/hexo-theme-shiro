@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="{{ config.language }}" class="h-full scroll-smooth">
+{% include "_partial/head.njk" %}
+
+<body class="h-full fog-bg text-slate-800">
+    <!-- SVGs: Shared Definitions -->
+    <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true" style="position:absolute;">
+        <defs>
+            <filter id="seal-roughness" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+            </filter>
+            <filter id="text-erosion">
+                <feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
+
+        <!-- Paper Card -->
+        <div
+            class="paper mx-auto w-full max-w-4xl rounded-2xl px-5 sm:px-8 md:px-12 lg:px-14 pt-10 pb-6 md:pt-12 md:pb-8">
+
+            {% include "_partial/header.njk" %}
+
+            <!-- Main Content -->
+            <main class="mt-8 md:mt-10 border-t border-slate-200/70 pt-8 md:pt-10">
+                {% block content %}{% endblock %}
+            </main>
+
+            {% include "_partial/footer.njk" %}
+        </div>
+
+        <!-- Note Text -->
+        <div class="mt-4 text-center">
+            <p class="title-font text-xs sm:text-sm text-slate-400/70 tracking-[0.2em] font-light select-none">
+                白は、余白の名。
+            </p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('js/main.js') }}"></script>
+</body>
+</html>

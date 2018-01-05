@@ -1,0 +1,63 @@
+{% extends "_layout.njk" %}
+
+{% block content %}
+<section class="max-w-3xl mx-auto">
+    <header class="text-center mb-10">
+        <h1 class="font-bold text-[1.8rem] sm:text-[2rem] md:text-[2.2rem] leading-snug text-slate-900">
+            {% if page.year and is_archive() %}
+            {{ __('menu.archives') }}: {{ page.year }}
+            {% else %}
+            {{ __('menu.archives') }}
+            {% endif %}
+        </h1>
+        <div class="mt-4 flex items-center justify-center gap-3" aria-hidden="true">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 max-w-[120px]"></div>
+            <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
+                <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
+                <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
+                <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
+            </svg>
+            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-slate-300 max-w-[120px]"></div>
+        </div>
+    </header>
+
+    <div class="space-y-16 max-w-2xl mx-auto">
+        {% set currentYear = "" %}
+        {% for post in site.posts.sort('date', -1).toArray() %}
+            {% set isShown = true %}
+            {% if page.year and post.date.year() != page.year %}
+                {% set isShown = false %}
+            {% endif %}
+            {% if page.month and (post.date.month() + 1) != page.month %}
+                {% set isShown = false %}
+            {% endif %}
+            
+            {% if isShown %}
+                {% set postYear = date(post.date, 'YYYY') %}
+                {% if currentYear != postYear %}
+                    {% if currentYear != "" %}</div></div>{% endif %}
+                    {% set currentYear = postYear %}
+                    <div class="relative">
+                        <h2 class="flex items-center gap-2 text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">
+                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ currentYear }}
+                        </h2>
+                        <div class="space-y-4">
+                {% endif %}
+                
+                <article class="flex items-baseline gap-6 group">
+                    <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="flex-shrink-0 text-sm font-medium text-slate-400 w-12 text-right num">
+                        {{ date(post.date, 'MM-DD') }}
+                    </time>
+                    <h3 class="text-base font-normal text-slate-700 hover:text-slate-900 transition-colors">
+                        <a href="{{ url_for(post.path) }}" class="hover:underline decoration-slate-300 underline-offset-4">{{ post.title }}</a>
+                    </h3>
+                </article>
+            {% endif %}
+        {% endfor %}
+        {% if currentYear != "" %}</div></div>{% endif %}
+    </div>
+</section>
+{% endblock %}
