@@ -1,0 +1,11 @@
+categories: Categories
+search: Search
+tags: Tags
+tagcloud: Tag Cloud
+prev: Prev
+next: Next
+comment: Comments
+archive: Archives
+category: "Category: %s"
+tag: "Tag: %s"
+page: "Page %d"

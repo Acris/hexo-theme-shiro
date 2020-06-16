@@ -1,0 +1,20 @@
+favicon: /favicon.ico
+
+menu:
+  home: /
+  categories: /categories
+  archives: /archives
+  tags: /tags
+
+rss: /atom.xml
+
+footer:
+  since: 2015
+
+disqus:
+  enable: false
+  shortname:
+
+google_analytics:
+
+google_site_verification:
