@@ -1,62 +1,18 @@
 {% extends "_layout.njk" %}
+{% import "_macro/ui.njk" as ui %}
 
 {% block content %}
     {% if page.posts and page.posts.length > 0 %}
     {% for post in page.posts.toArray() %}
-    <article class="py-2">
-        <header class="text-center">
-            <h2 class="font-bold text-[1.35rem] sm:text-[1.45rem] md:text-[1.6rem] leading-snug text-slate-900 hover:text-slate-600 transition-colors">
-                <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
-            </h2>
-            <p class="mt-2 text-sm text-slate-500">
-                <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="num hover:text-slate-700 transition-colors">{{ date(post.date, 'YYYY-MM-DD') }}</a>
-                {% if post.categories and post.categories.length > 0 %}
-                 · <a class="text-slate-600 hover:text-slate-800 transition-colors underline-offset-4 decoration-slate-300 hover:underline" href="{{ url_for(post.categories.data[0].path) }}">{{ post.categories.data[0].name }}</a>
-                {% endif %}
-            </p>
-        </header>
-        <div class="mt-4 leading-relaxed text-slate-700 text-center">
-            {% if post.excerpt %}
-                {{ post.excerpt }}
-            {% else %}
-                {{ post.content | striptags | truncate(140) }}
-            {% endif %}
-        </div>
-        <div class="mt-6 text-center">
-            <a href="{{ url_for(post.path) }}"
-                class="focus-elegant ink-btn inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-sm transition-all duration-200">
-                {{ __('index.read_more') }}
-            </a>
-        </div>
-    </article>
+        {% include "_partial/components/post-card.njk" %}
 
-    {% if not loop.last %}
-    <!-- Divider -->
-    <div class="my-8 flex items-center justify-center gap-3" aria-hidden="true">
-        <div class="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 max-w-[120px]"></div>
-        <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
-            <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
-            <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-            <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-        </svg>
-        <div class="h-px flex-1 bg-gradient-to-l from-transparent to-slate-300 max-w-[120px]"></div>
-    </div>
-    {% endif %}
+        {% if not loop.last %}
+            {{ ui.divider("my-8") }}
+        {% endif %}
     {% endfor %}
     {% else %}
-        {% include "_partial/empty.njk" %}
+        {% include "_partial/common/empty.njk" %}
     {% endif %}
 
-    <!-- Pagination -->
-    {% if page.total > 1 %}
-    <section class="mt-8 md:mt-10" aria-label="{{ __('index.pagination') }}">
-        <div class="pagination flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm md:text-base font-medium">
-            {{ paginator({
-                prev_text: __('page.prev'),
-                next_text: __('page.next'),
-                escape: false
-            }) }}
-        </div>
-    </section>
-    {% endif %}
+    {% include "_partial/common/pagination.njk" %}
 {% endblock %}

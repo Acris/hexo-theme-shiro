@@ -1,3 +1,4 @@
+{% import "_macro/ui.njk" as ui %}
 <header class="relative">
     <div class="relative flex items-start justify-center">
         <div class="text-center">
@@ -9,14 +10,7 @@
                 <!-- Seal: Mathematically Centered -->
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
-                    <svg width="52" height="52" viewBox="0 0 100 100" aria-label="朱印：白" title="朱印：白"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
-                            fill="var(--seal)" filter="url(#seal-roughness)" opacity="0.92" />
-                        <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
-                            font-family="'Yuji Syuku', serif" font-size="42" fill="rgba(255,255,255,0.92)"
-                            filter="url(#text-erosion)" style="user-select: none;">白</text>
-                    </svg>
+                    {{ ui.seal() }}
                 </div>
             </div>
             <p class="mt-3 text-sm sm:text-[0.95rem] leading-relaxed text-slate-500">
@@ -36,12 +30,7 @@
             <span class="font-serif text-base leading-none tracking-widest">{{ __('menu.menu') }}</span>
             <span class="text-slate-400 hidden md:inline" aria-hidden="true">/</span>
             <span class="num text-xs tracking-wide hidden md:inline">{{ __('menu.menu') }}</span>
-            <svg class="h-4 w-4 text-slate-500 transition-transform duration-200" id="menuChevron"
-                viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd"
-                    d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
-                    clip-rule="evenodd" />
-            </svg>
+            {{ ui.icon_chevron_down() }}
         </button>
     </div>
 

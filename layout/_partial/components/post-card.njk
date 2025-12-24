@@ -1,0 +1,22 @@
+{% from "_macro/ui.njk" import meta with context %}
+<article class="py-2">
+    <header class="text-center">
+        <h2 class="font-bold text-[1.35rem] sm:text-[1.45rem] md:text-[1.6rem] leading-snug text-slate-900 hover:text-slate-600 transition-colors">
+            <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
+        </h2>
+        {{ meta(post) }}
+    </header>
+    <div class="mt-4 leading-relaxed text-slate-700 text-center">
+        {% if post.excerpt %}
+            {{ post.excerpt }}
+        {% else %}
+            {{ post.content | striptags | truncate(150) }}
+        {% endif %}
+    </div>
+    <div class="mt-6 text-center">
+        <a href="{{ url_for(post.path) }}"
+            class="focus-elegant ink-btn inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-sm transition-all duration-200">
+            {{ __('index.read_more') }}
+        </a>
+    </div>
+</article>

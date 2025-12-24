@@ -1,4 +1,5 @@
 {% extends "_layout.njk" %}
+{% from "_macro/ui.njk" import divider, render_tag with context %}
 
 {% block content %}
 <section class="max-w-3xl mx-auto">
@@ -10,30 +11,30 @@
             {{ __('menu.tags') }}
             {% endif %}
         </h1>
-        <div class="mt-4 flex items-center justify-center gap-3" aria-hidden="true">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 max-w-[120px]"></div>
-            <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
-                <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
-                <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-                <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
-            </svg>
-            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-slate-300 max-w-[120px]"></div>
-        </div>
+        {{ divider() }}
     </header>
 
     {% if is_tag() %}
-        {% include "_partial/post-list.njk" %}
+        {% import "_macro/archive.njk" as archive with context %}
+        {% set t = site.tags.findOne({name: page.tag}) %}
+        {% if t and t.posts.length > 0 %}
+            {{ archive.render_list(t.posts.sort('date', -1)) }}
+        {% else %}
+            {% include "_partial/common/empty.njk" %}
+        {% endif %}
     {% else %}
         <!-- Tag Cloud -->
+        {% if site.tags.length > 0 %}
         <div class="text-center mt-12 mb-16">
             <div class="flex flex-wrap justify-center gap-3">
                 {% for tag in site.tags.toArray() %}
-                <a href="{{ url_for(tag.path) }}" class="inline-block px-4 py-2 rounded-md border border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-all duration-200 text-sm shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                    {{ tag.name }} <span class="text-slate-400 ml-1 text-xs">{{ tag.length }}</span>
-                </a>
+                {{ render_tag(tag, true) }}
                 {% endfor %}
             </div>
         </div>
+        {% else %}
+            {% include "_partial/common/empty.njk" %}
+        {% endif %}
     {% endif %}
 </section>
 {% endblock %}
