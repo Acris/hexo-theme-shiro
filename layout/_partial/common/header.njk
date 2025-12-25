@@ -16,6 +16,15 @@
             <p class="mt-3 text-sm sm:text-[0.95rem] leading-relaxed text-slate-500">
                 {{ config.subtitle }}
             </p>
+            {% if theme.rss %}
+            <div class="mt-3 sm:mt-4 flex justify-center">
+                <a class="group inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 hover:bg-white hover:text-slate-800 hover:border-slate-300 hover:shadow-sm transition-all duration-300"
+                    href="{{ url_for(theme.rss) }}" target="_blank">
+                    {{ ui.icon_rss() }}
+                    <span>RSS</span>
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </header>
