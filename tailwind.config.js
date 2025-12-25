@@ -8,7 +8,7 @@ module.exports = {
         extend: {
             colors: {
                 paper: '#ffffff',
-                'ink-2': '#2b3036',
+                ink: '#2b3036',
                 seal: '#b0171a',
             },
             fontFamily: {
@@ -22,7 +22,7 @@ module.exports = {
             DEFAULT: {
                 css: {
                     'h1, h2, h3, h4': {
-                        color: theme('colors.ink-2'),
+                        color: theme('colors.ink'),
                         fontFamily: theme('fontFamily.title'),
                         fontWeight: '700',
                     },
@@ -73,20 +73,22 @@ module.exports = {
                         paddingLeft: '1em',
                     },
                     'strong': {
-                        color: theme('colors.ink-2'),
+                        color: theme('colors.ink'),
                         fontWeight: '600',
                     },
                     'code': {
                         color: theme('colors.seal'),
-                        fontWeight: '600',
+                        fontWeight: '700',
                         fontSize: '0.875em',
                         fontFamily: theme('fontFamily.eng'),
+                        paddingLeft: '0.25em',
+                        paddingRight: '0.25em',
                     },
                     'code::before': {
-                        content: '"`"',
+                        content: 'none',
                     },
                     'code::after': {
-                        content: '"`"',
+                        content: 'none',
                     },
                     'img': {
                         marginTop: '2em',
@@ -98,6 +100,13 @@ module.exports = {
                         borderColor: theme('colors.slate.200'),
                         marginTop: '3em',
                         marginBottom: '3em',
+                    },
+                    'p': {
+                        marginTop: '1.25em',
+                        marginBottom: '1.25em',
+                        textIndent: '2em',
+                        lineHeight: '1.9',
+                        textAlign: 'justify',
                     },
                     'ul': {
                         marginTop: '1.25em',
@@ -115,13 +124,6 @@ module.exports = {
                         marginTop: '0.5em',
                         marginBottom: '0.5em',
                         paddingLeft: '0.375em',
-                    },
-                    'p': {
-                        marginTop: '1.25em',
-                        marginBottom: '1.25em',
-                        textIndent: '2em',
-                        lineHeight: '1.9',
-                        textAlign: 'justify',
                     },
                     // Fix for Hexo's highlight.js line numbers and code block alignment
                     '.highlight': {

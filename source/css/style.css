@@ -5,7 +5,7 @@
 @layer base {
     :root {
         --paper: #ffffff;
-        --ink-2: #2b3036;
+        --ink: #2b3036;
         --softBorder: rgba(17, 24, 39, .06);
         --focus: rgba(31, 35, 40, .18);
         --seal: #b0171a;
@@ -22,16 +22,8 @@
         -moz-osx-font-smoothing: grayscale;
     }
 
-    .title-font {
-        font-family: "Yuji Syuku", "Shippori Mincho", ui-serif, serif;
-    }
-
     .num {
         font-variant-numeric: oldstyle-nums;
-    }
-
-    .eng-serif {
-        font-family: "EB Garamond", "Cormorant Garamond", ui-serif, serif;
     }
 
     .fog-bg {
@@ -79,7 +71,7 @@
     }
 
     .ink-btn:hover {
-        background-color: var(--ink-2);
+        background-color: var(--ink);
         color: rgba(255, 255, 255, .96);
         border-color: rgba(31, 35, 40, .75);
         box-shadow: 0 4px 12px rgba(16, 24, 40, .14);
