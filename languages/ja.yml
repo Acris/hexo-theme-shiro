@@ -1,14 +1,6 @@
-menu:
-  home: ホーム
-  archives: アーカイブ
-  categories: カテゴリー
-  tags: タグ
-  menu: メニュー
-
 page:
   prev: 前へ
   next: 次へ
 
 index:
   read_more: 続きを読む
-  pagination: ページ

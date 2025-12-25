@@ -5,8 +5,8 @@
   "repository": "https://github.com/Acris/hexo-theme-shiro.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "tailwindcss -i ./source/css/style.css -o ./source/css/style.min.css --minify",
-    "watch:css": "tailwindcss -i ./source/css/style.css -o ./source/css/style.min.css --watch"
+    "build:css": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --minify",
+    "watch:css": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch"
   },
   "keywords": [
     "hexo",

@@ -6,17 +6,21 @@
         </h2>
         {{ meta(post) }}
     </header>
-    <div class="mt-4 leading-relaxed text-slate-700 text-center">
+    <div class="mt-4 prose prose-slate prose-lg mx-auto font-serif text-slate-800 hover:prose-a:text-sky-700 prose-headings:font-serif prose-headings:font-medium prose-blockquote:border-l-4 prose-blockquote:border-slate-300 prose-blockquote:pl-4 prose-blockquote:italic">
         {% if post.excerpt %}
             {{ post.excerpt }}
+        {% elif theme.excerpt.fallback.enabled %}
+            {{ post.content | striptags | truncate(theme.excerpt.fallback.length) }}
         {% else %}
-            {{ post.content | striptags | truncate(150) }}
+            {{ post.content }}
         {% endif %}
     </div>
+    {% if theme.excerpt.fallback.enabled or post.excerpt %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
             class="focus-elegant ink-btn inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-sm transition-all duration-200">
             {{ __('index.read_more') }}
         </a>
     </div>
+    {% endif %}
 </article>

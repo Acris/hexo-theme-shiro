@@ -1,20 +1,44 @@
 # Navigation menu
 menu:
-  home: /
-  archives: /archives
-  categories: /categories
-  tags: /tags
+  - name: Home
+    url: /
+  - name: Archives
+    url: /archives
+  - name: Categories
+    url: /categories
+  - name: Tags
+    url: /tags
+#  - name: About
+#    url: /about
+#  - name: GitHub
+#    url: https://github.com
+#    # Open in new tab
+#    target: _blank
 
-# RSS link
-rss: /atom.xml
+site:
+  favicon: /favicon.ico
+  rss:
+    enabled: false
+    path: /atom.xml
 
-# Favicon path
-favicon: /favicon.png
+# Analytics
+analytics:
+  # Only support Google Analytics 4
+  google:
+    enabled: false
+    id: ""
 
-# Google Analytics ID
-google_analytics:
+# Comment systems
+comments:
+  enabled: false
+  provider: disqus
+  disqus:
+    shortname: ""
 
-# Disqus comment system
-disqus:
-  enable: false
-  shortname:
+# Excerpt settings
+excerpt:
+  # If post has <!-- more -->, use it.
+  # Otherwise fallback to auto-truncated excerpt.
+  fallback:
+    enabled: true
+    length: 200

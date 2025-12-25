@@ -104,7 +104,6 @@ module.exports = {
                     'p': {
                         marginTop: '1.25em',
                         marginBottom: '1.25em',
-                        textIndent: '2em',
                         lineHeight: '1.9',
                         textAlign: 'justify',
                     },

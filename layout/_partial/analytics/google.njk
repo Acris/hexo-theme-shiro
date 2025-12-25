@@ -1,0 +1,11 @@
+{% if theme.analytics.google.enabled and theme.analytics.google.id %}
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ theme.analytics.google.id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', '{{ theme.analytics.google.id }}');
+  </script>
+{% endif %}

@@ -92,7 +92,7 @@
     }
 
     .menu-panel[data-open="true"] {
-        max-height: 340px;
+        max-height: 70vh;
         opacity: 1;
         transform: translateY(0);
     }

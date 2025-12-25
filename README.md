@@ -1,61 +1,156 @@
 # Hexo Theme Shiro (白)
 
-A clean, elegant, and robust Hexo theme inspired by Japanese aesthetics involved with whitespace (余白). Built with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
+A clean, elegant, and robust Hexo theme involved with whitespace (余白). Built
+with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
+
+Made by Acris with ❤️
 
 ## Features
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
 - **Responsive**: Fully responsive design for mobile and desktop.
 - **Tailwind CSS**: Modern utility-first CSS framework.
-- **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`), and French (`fr`).
+- **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
+  and French (`fr`).
 - **Fast**: Optimized for performance with minimal Javascript.
 
 ## Installation
 
 1. Clone the repository into your Hexo theme directory:
    ```bash
-   git clone https://github.com/Acris/hexo-theme-shiro.git themes/shiro
+   git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
    ```
 
-2. Install dependencies:
-   ```bash
-   cd themes/shiro
-   npm install
-   ```
-   *Note: This theme requires `tailwindcss` processing. The `postinstall` or build scripts should handle this, or you can run `npm run build:css` manually.*
-
-3. Enable the theme in your Hexo root `_config.yml`:
+2. Enable the theme in your Hexo root `_config.yml`:
    ```yaml
    theme: shiro
    ```
 
+3. Create a dedicated theme config file `_config.shiro.yml` in your site root (Supported since Hexo 5.0.0). This file
+   will have higher priority than the theme's default config.
+
 ## Configuration
 
-Copy the `_config.yml` from the theme directory to your site's `source/_data/shiro.yml` (recommended) or modify `themes/shiro/_config.yml`.
+Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your site root.
 
 ```yaml
-# Menu Configuration
+# Navigation menu
 menu:
-  Home: /
-  Archives: /archives
-  # ...
+  - name: Home
+    url: /
+  - name: Archives
+    url: /archives
+  - name: Categories
+    url: /categories
+  - name: Tags
+    url: /tags
+  # - name: External Link
+  #   url: https://example.com
+  #   target: _blank
 
-# Language (en or zh-CN)
-language: zh-CN
+site:
+  favicon: /favicon.ico
+  rss:
+    enabled: false
+    path: /atom.xml
+
+# Analytics
+analytics:
+  # Only support Google Analytics 4
+  google:
+    enabled: false
+    id: ""
+
+# Comment systems
+comments:
+  enabled: false
+  provider: disqus
+  disqus:
+    shortname: ""
+
+# Excerpt settings
+excerpt:
+  fallback:
+    enabled: true
+    length: 200
 ```
+
+### Creating Pages (Tags & Categories)
+
+Since Hexo does not generate 'all tags' or 'all categories' pages by default, you need to create them manually if you
+wish to use them in the menu.
+
+1. Create the pages:
+   ```bash
+   hexo new page tags
+   hexo new page categories
+   ```
+
+2. Modify `source/tags/index.md`:
+   ```yaml
+   ---
+   title: Tags
+   layout: tag
+   ---
+   ```
+
+3. Modify `source/categories/index.md`:
+   ```yaml
+   ---
+   title: Categories
+   layout: category
+   ---
+   ```
 
 ## Development
 
-1. Install dependencies:
+If you want to modify the theme source code or contribute:
+
+1. Install dependencies in the theme directory:
    ```bash
+   cd themes/shiro
    npm install
    ```
 
-2. Watch for CSS changes:
+2. Build CSS (Tailwind):
+   ```bash
+   npm run build:css
+   ```
+
+3. Watch for CSS changes during development:
    ```bash
    npm run watch:css
    ```
 
+## Thanks
+
+<a href="https://jb.gg/OpenSource?from=shadowsocks-asuswrt-merlin">
+  <img alt="JetBrains" src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" width="100">
+</a>
+
 ## License
 
-MIT
+```
+MIT License
+
+Copyright (c) 2025 Acris Liu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+```
