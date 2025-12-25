@@ -1,5 +1,5 @@
 {% macro svg_filters() %}
-<svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true" style="position:absolute;">
+<svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
     <defs>
         <filter id="seal-roughness" x="-20%" y="-20%" width="140%" height="140%">
             <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise" />
@@ -17,22 +17,22 @@
 <svg width="52" height="52" viewBox="0 0 100 100" aria-label="朱印：{{ title }}" title="朱印：{{ title }}"
     xmlns="http://www.w3.org/2000/svg">
     <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
-        fill="var(--seal)" filter="url(#seal-roughness)" opacity="0.92" />
+        fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
         font-family="'Yuji Syuku', serif" font-size="42" fill="rgba(255,255,255,0.92)"
-        filter="url(#text-erosion)" style="user-select: none;">{{ title }}</text>
+        filter="url(#text-erosion)" class="select-none">{{ title }}</text>
 </svg>
 {% endmacro %}
 
 {% macro divider(class="my-4") %}
 <div class="{{ class }} flex items-center justify-center gap-3" aria-hidden="true">
-    <div class="h-px flex-1 bg-gradient-to-r from-transparent to-slate-300 max-w-[120px]"></div>
+    <div class="h-px flex-1 bg-linear-to-r from-transparent to-slate-300 max-w-[120px]"></div>
     <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
         <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
         <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
         <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
     </svg>
-    <div class="h-px flex-1 bg-gradient-to-l from-transparent to-slate-300 max-w-[120px]"></div>
+    <div class="h-px flex-1 bg-linear-to-l from-transparent to-slate-300 max-w-[120px]"></div>
 </div>
 {% endmacro %}
 
@@ -45,13 +45,13 @@
 </svg>
 {% endmacro %}
 
-{% macro icon_folder(class="w-4 h-4 text-slate-400 flex-shrink-0") %}
+{% macro icon_folder(class="w-4 h-4 text-slate-400 shrink-0") %}
 <svg class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
 </svg>
 {% endmacro %}
 
-{% macro icon_nav_arrow(class="w-4 h-4 text-slate-400 flex-shrink-0") %}
+{% macro icon_nav_arrow(class="w-4 h-4 text-slate-400 shrink-0") %}
 <svg class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 </svg>
@@ -74,24 +74,24 @@
 {% macro meta(post, show_all_cats=false, class="mt-2") %}
 <div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500">
     <div class="flex items-center gap-1.5">
-        <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="num text-slate-600 hover:text-slate-800 transition-colors underline-offset-4 decoration-slate-300 hover:underline">{{ date(post.date, 'YYYY-MM-DD') }}</a>
+        <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted">{{ date(post.date, 'YYYY-MM-DD') }}</a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         <span class="text-slate-300" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
             </svg>
             {% if show_all_cats %}
                 {% for cat in post.categories.toArray() %}
-                    <a class="text-slate-600 hover:text-slate-800 transition-colors underline-offset-4 decoration-slate-300 hover:underline" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
+                    <a class="link-muted" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
                     {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
                 {% endfor %}
             {% else %}
-                <a class="text-slate-600 hover:text-slate-800 transition-colors underline-offset-4 decoration-slate-300 hover:underline" href="{{ url_for(post.categories.data[0].path) }}">{{ post.categories.data[0].name }}</a>
+                <a class="link-muted" href="{{ url_for(post.categories.data[0].path) }}">{{ post.categories.data[0].name }}</a>
             {% endif %}
         </div>
     {% endif %}
@@ -99,7 +99,7 @@
 {% endmacro %}
 
 {% macro render_tag(tag, show_count=false) %}
-<a href="{{ url_for(tag.path) }}" class="inline-flex items-center px-3 py-1.5 rounded-md border border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-all duration-200 text-sm">
+<a href="{{ url_for(tag.path) }}" class="tag-pill">
     <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-2"></span>
     {{ tag.name }}
     {% if show_count %}

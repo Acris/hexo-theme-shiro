@@ -117,14 +117,14 @@ If you want to modify the theme source code or contribute:
    npm install
    ```
 
-2. Build CSS (Tailwind):
+2. Watch for CSS changes during development:
    ```bash
-   npm run build:css
+   npm run dev
    ```
 
-3. Watch for CSS changes during development:
+3. Build CSS (Tailwind):
    ```bash
-   npm run watch:css
+   npm run build
    ```
 
 ## Thanks

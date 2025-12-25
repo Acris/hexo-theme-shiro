@@ -4,7 +4,7 @@
 {% block content %}
 <section class="max-w-3xl mx-auto">
     <header class="text-center mb-10">
-        <h1 class="font-bold text-[1.8rem] sm:text-[2rem] md:text-[2.2rem] leading-snug text-slate-900">
+        <h1 class="section-title">
             {% if is_category() and page.category %}
             {{ __('nav.categories') }}: {{ page.category }}
             {% else %}
@@ -27,18 +27,18 @@
             <div class="space-y-16 max-w-2xl mx-auto">
                 {% for cat in site.categories.toArray() %}
                 <div id="cat-{{ cat.name }}" class="scroll-mt-24">
-                    <h2 class="flex items-center gap-2 text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">
+                    <h2 class="section-heading">
                         {{ ui.icon_folder() }}
                         {{ cat.name }}
                     </h2>
                     <div class="space-y-4">
                         {% for post in cat.posts.toArray() %}
-                        <article class="flex items-baseline gap-6 group">
-                            <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="flex-shrink-0 text-sm font-medium text-slate-400 w-12 text-right num">
+                        <article class="archive-item group">
+                            <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
                                 {{ date(post.date, 'MM-DD') }}
                             </time>
-                            <h3 class="text-base font-normal text-slate-700 hover:text-slate-900 transition-colors">
-                                <a href="{{ url_for(post.path) }}" class="hover:underline decoration-slate-300 underline-offset-4">{{ post.title }}</a>
+                            <h3 class="archive-title">
+                                <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
                             </h3>
                         </article>
                         {% endfor %}

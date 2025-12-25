@@ -1,12 +1,12 @@
 {% from "_macro/ui.njk" import meta with context %}
 <article class="py-2">
-    <header class="text-center">
-        <h2 class="font-bold text-[1.35rem] sm:text-[1.45rem] md:text-[1.6rem] leading-snug text-slate-900 hover:text-slate-600 transition-colors">
+    <header class="text-center mb-4">
+        <h2 class="card-title">
             <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
         </h2>
         {{ meta(post) }}
     </header>
-    <div class="mt-4 prose prose-slate prose-lg mx-auto font-serif text-slate-800 hover:prose-a:text-sky-700 prose-headings:font-serif prose-headings:font-medium prose-blockquote:border-l-4 prose-blockquote:border-slate-300 prose-blockquote:pl-4 prose-blockquote:italic">
+    <div class="prose prose-slate prose-shiro">
         {% if post.excerpt %}
             {{ post.excerpt }}
         {% elif theme.excerpt.fallback.enabled %}
@@ -18,7 +18,7 @@
     {% if theme.excerpt.fallback.enabled or post.excerpt %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
-            class="focus-elegant ink-btn inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-sm transition-all duration-200">
+            class="focus-elegant btn-ink">
             {{ __('index.read_more') }}
         </a>
     </div>

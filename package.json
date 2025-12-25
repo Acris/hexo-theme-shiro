@@ -4,9 +4,8 @@
   "description": "A pure and simple theme for Hexo.",
   "repository": "https://github.com/Acris/hexo-theme-shiro.git",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --minify",
-    "watch:css": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch"
+    "dev": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch",
+    "build": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --minify"
   },
   "keywords": [
     "hexo",
@@ -19,9 +18,8 @@
   "author": "Acris Liu",
   "license": "MIT",
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/typography": "^0.5.19",
-    "autoprefixer": "^10.4.23",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^4.1.18"
   }
 }
