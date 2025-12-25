@@ -1,6 +1,6 @@
 <footer class="mt-8 md:mt-10 border-t border-slate-200/70 pt-8 md:pt-10">
     <div class="text-center text-sm text-slate-500 leading-relaxed">
-        <p>&copy; <span class="num">{{ date(null, 'YYYY') }}</span> {{ config.title }}</p>
+        <p>&copy; <span class="num">{{ date(null, 'YYYY') }}</span> {{ config.title | default("白夜書簡", true) }}</p>
         <p class="font-eng text-[0.8rem] tracking-wide opacity-90">Elegant theme by <a href="https://github.com/Acris/hexo-theme-shiro" target="_blank" rel="noopener noreferrer" class="hover:text-slate-700 transition-colors underline-offset-4 hover:underline decoration-slate-300">Shiro</a> · Made by <a href="https://acris.me" target="_blank" rel="noopener noreferrer" class="hover:text-slate-700 transition-colors underline-offset-4 hover:underline decoration-slate-300">Acris</a>
                         with <span aria-label="love" title="love">❤️</span></p>
     </div>

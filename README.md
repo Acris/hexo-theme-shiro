@@ -36,20 +36,25 @@ Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your 
 ```yaml
 # Navigation menu
 menu:
-  - name: Home
-    url: /
-  - name: Archives
-    url: /archives
-  - name: Categories
-    url: /categories
-  - name: Tags
-    url: /tags
-  # - name: External Link
-  #   url: https://example.com
-  #   target: _blank
+#  - name: Home
+#    url: /
+#  - name: Archives
+#    url: /archives
+#  - name: Categories
+#    url: /categories
+#  - name: Tags
+#    url: /tags
+#  - name: About
+#    url: /about
+#  - name: GitHub
+#    url: https://github.com
+#    # Open in new tab
+#    target: _blank
 
 site:
-  favicon: /favicon.ico
+  favicon: /favicon.svg
+  # Whether to display the seal (stamp) in the header
+  seal: true
   rss:
     enabled: false
     path: /atom.xml

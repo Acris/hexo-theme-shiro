@@ -5,16 +5,18 @@
             <div class="relative inline-block">
                 <h1
                     class="font-title text-[2.2rem] sm:text-[2.55rem] md:text-[3.1rem] leading-[1.18] tracking-wide text-slate-900">
-                    <a href="{{ url_for('/') }}">{{ config.title }}</a>
+                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </h1>
                 <!-- Seal: Mathematically Centered -->
+                {% if theme.site.seal %}
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
                     {{ ui.seal() }}
                 </div>
+                {% endif %}
             </div>
             <p class="mt-3 text-sm sm:text-[0.95rem] leading-relaxed text-slate-500">
-                {{ config.subtitle }}
+                {{ config.subtitle | default("以夜為箋，寄心成簡。", true) }}
             </p>
             {% if theme.site.rss.enabled %}
             <div class="mt-3 sm:mt-4 flex justify-center">
@@ -30,15 +32,15 @@
 </header>
 
 <!-- Navigation -->
-<nav class="mt-8 md:mt-10" aria-label="Menu">
+<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}">
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn"
             class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-4 py-2 text-sm text-slate-700 shadow-sm backdrop-blur-sm"
             aria-expanded="false" aria-controls="mobileMenu">
-            <span class="font-serif text-base leading-none tracking-widest">Menu</span>
+            <span class="font-serif text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
             <span class="text-slate-400 hidden md:inline" aria-hidden="true">/</span>
-            <span class="num text-xs tracking-wide hidden md:inline">Menu</span>
+            <span class="num text-xs tracking-wide hidden md:inline">{{ __('nav.menu') }}</span>
             {{ ui.icon_chevron_down() }}
         </button>
     </div>

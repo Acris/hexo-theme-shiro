@@ -1,13 +1,13 @@
 # Navigation menu
 menu:
-  - name: Home
-    url: /
-  - name: Archives
-    url: /archives
-  - name: Categories
-    url: /categories
-  - name: Tags
-    url: /tags
+#  - name: Home
+#    url: /
+#  - name: Archives
+#    url: /archives
+#  - name: Categories
+#    url: /categories
+#  - name: Tags
+#    url: /tags
 #  - name: About
 #    url: /about
 #  - name: GitHub
@@ -16,7 +16,9 @@ menu:
 #    target: _blank
 
 site:
-  favicon: /favicon.ico
+  favicon: /favicon.svg
+  # Whether to display the seal (stamp) in the header
+  seal: true
   rss:
     enabled: false
     path: /atom.xml

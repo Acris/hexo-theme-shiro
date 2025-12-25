@@ -6,9 +6,9 @@
     <header class="text-center mb-10">
         <h1 class="font-bold text-[1.8rem] sm:text-[2rem] md:text-[2.2rem] leading-snug text-slate-900">
             {% if page.tag and is_tag() %}
-            {{ __('menu.tags') }}: {{ page.tag }}
+            {{ __('nav.tags') }}: {{ page.tag }}
             {% else %}
-            {{ __('menu.tags') }}
+            {{ __('nav.tags') }}
             {% endif %}
         </h1>
         {{ divider() }}

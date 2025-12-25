@@ -1,3 +1,9 @@
+nav:
+  menu: Menu
+  archives: Archives
+  categories: Categories
+  tags: Tags
+
 page:
   prev: Previous
   next: Next

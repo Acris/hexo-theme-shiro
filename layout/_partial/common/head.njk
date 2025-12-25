@@ -1,7 +1,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% if is_home() %}{{ config.title }}{% elif is_post() %}{{ page.title }} | {{ config.title }}{% else %}{{ page.title }} | {{ config.title }}{% endif %}</title>
+    <title>{% if is_home() %}{{ config.title | default("白夜書簡", true) }}{% elif is_post() %}{{ page.title }} | {{ config.title | default("白夜書簡", true) }}{% else %}{{ page.title }} | {{ config.title | default("白夜書簡", true) }}{% endif %}</title>
 
     <!-- Favicon -->
     {% if theme.site.favicon %}

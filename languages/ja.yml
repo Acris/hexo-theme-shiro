@@ -1,3 +1,9 @@
+nav:
+  menu: メニュー
+  archives: アーカイブ
+  categories: カテゴリー
+  tags: タグ
+
 page:
   prev: 前へ
   next: 次へ
