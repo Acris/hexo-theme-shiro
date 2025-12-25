@@ -2,7 +2,7 @@
 {% from "_macro/ui.njk" import meta, render_tag with context %}
 
 {% block content %}
-<article class="py-2">
+<article class="content-article">
     <header class="text-center mb-8">
         <h1 class="page-title mb-4">
             {{ page.title }}
@@ -10,7 +10,7 @@
         {{ meta(page, true, "mb-4") }}
     </header>
 
-    <div class="prose prose-slate prose-shiro">
+    <div class="prose-shiro">
         {{ page.content }}
     </div>
 
@@ -28,7 +28,7 @@
         {% if page.prev %}
         <a href="{{ url_for(page.prev.path) }}" class="post-nav-link group text-left">
              <span aria-hidden="true">&larr;</span>
-             <span class="line-clamp-1 group-hover:underline decoration-slate-300 underline-offset-4">{{ page.prev.title }}</span>
+             <span class="post-nav-title">{{ page.prev.title }}</span>
         </a>
         {% else %}
         <div></div>
@@ -36,7 +36,7 @@
 
         {% if page.next %}
         <a href="{{ url_for(page.next.path) }}" class="post-nav-link group text-right">
-            <span class="line-clamp-1 group-hover:underline decoration-slate-300 underline-offset-4">{{ page.next.title }}</span>
+            <span class="post-nav-title">{{ page.next.title }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
         {% endif %}

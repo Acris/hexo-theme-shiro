@@ -17,8 +17,8 @@
             {% endif %}
             
             <article class="archive-item group">
-                <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
-                    {{ date(post.date, 'MM-DD') }}
+                <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                    {{ date(post.date, 'YYYY/MM/DD') }}
                 </time>
                 <h3 class="archive-title">
                     <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>

@@ -1,4 +1,8 @@
-# Hexo Theme Shiro (白)
+# Shiro (白)
+
+<p align="center">
+  <img alt="Shiro" src="https://github.com/user-attachments/assets/0c6d7836-5750-40df-9940-d795fcbc6851" />
+</p>
 
 A clean, elegant, and robust Hexo theme involved with whitespace (余白). Built
 with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
@@ -129,8 +133,8 @@ If you want to modify the theme source code or contribute:
 
 ## Thanks
 
-<a href="https://jb.gg/OpenSource?from=shadowsocks-asuswrt-merlin">
-  <img alt="JetBrains" src="https://www.jetbrains.com/company/brand/img/jetbrains_logo.png" width="100">
+<a href="https://jb.gg/OpenSource?from=hexo-theme-shiro">
+  <img alt="IntelliJ IDEA" src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA_icon.png" width="100">
 </a>
 
 ## License

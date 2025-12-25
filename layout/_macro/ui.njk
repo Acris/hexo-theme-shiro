@@ -19,20 +19,20 @@
     <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
         fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
-        font-family="'Yuji Syuku', serif" font-size="42" fill="rgba(255,255,255,0.92)"
-        filter="url(#text-erosion)" class="select-none">{{ title }}</text>
+        font-size="42" fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)"
+        class="seal-text select-none">{{ title }}</text>
 </svg>
 {% endmacro %}
 
 {% macro divider(class="my-4") %}
 <div class="{{ class }} flex items-center justify-center gap-3" aria-hidden="true">
-    <div class="h-px flex-1 bg-linear-to-r from-transparent to-slate-300 max-w-[120px]"></div>
+    <div class="h-px flex-1 bg-linear-to-r from-transparent to-slate-300 max-w-divider"></div>
     <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
         <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
         <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
         <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
     </svg>
-    <div class="h-px flex-1 bg-linear-to-l from-transparent to-slate-300 max-w-[120px]"></div>
+    <div class="h-px flex-1 bg-linear-to-l from-transparent to-slate-300 max-w-divider"></div>
 </div>
 {% endmacro %}
 
@@ -77,7 +77,7 @@
         <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-        <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted">{{ date(post.date, 'YYYY-MM-DD') }}</a>
+        <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted">{{ date(post.date, 'YYYY/MM/DD') }}</a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         <span class="text-slate-300" aria-hidden="true">•</span>

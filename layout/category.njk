@@ -2,8 +2,8 @@
 {% import "_macro/ui.njk" as ui %}
 
 {% block content %}
-<section class="max-w-3xl mx-auto">
-    <header class="text-center mb-10">
+<section class="section-shell">
+    <header class="section-header">
         <h1 class="section-title">
             {% if is_category() and page.category %}
             {{ __('nav.categories') }}: {{ page.category }}
@@ -32,10 +32,10 @@
                         {{ cat.name }}
                     </h2>
                     <div class="space-y-4">
-                        {% for post in cat.posts.toArray() %}
+                        {% for post in cat.posts.sort('date', -1).toArray() %}
                         <article class="archive-item group">
-                            <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
-                                {{ date(post.date, 'MM-DD') }}
+                            <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                                {{ date(post.date, 'YYYY/MM/DD') }}
                             </time>
                             <h3 class="archive-title">
                                 <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>

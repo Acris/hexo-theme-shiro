@@ -1,12 +1,12 @@
 {% from "_macro/ui.njk" import meta with context %}
-<article class="py-2">
+<article class="content-article">
     <header class="text-center mb-4">
         <h2 class="card-title">
             <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
         </h2>
         {{ meta(post) }}
     </header>
-    <div class="prose prose-slate prose-shiro">
+    <div class="prose-shiro">
         {% if post.excerpt %}
             {{ post.excerpt }}
         {% elif theme.excerpt.fallback.enabled %}
