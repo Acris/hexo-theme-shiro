@@ -20,11 +20,11 @@
     --font-code: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', ui-monospace, monospace;
     --font-eng: 'Cormorant Garamond', 'IM Fell English', serif;
     --font-serif: 'Cardo', 'Spectral', 'Zen Old Mincho', 'Shippori Mincho',
-        'Noto Serif JP', 'Noto Serif SC', serif;
+    'Noto Serif JP', 'Noto Serif SC', serif;
     --font-title: 'Yuji Syuku', 'Yuji Boku', 'Zen Old Mincho', 'Noto Serif JP', serif;
 
     --shadow-paper: 0 1px 1px rgba(16, 24, 40, 0.06), 0 10px 30px rgba(16, 24, 40, 0.08),
-        0 35px 70px rgba(16, 24, 40, 0.06);
+    0 35px 70px rgba(16, 24, 40, 0.06);
     --shadow-ink: 0 4px 12px rgba(16, 24, 40, 0.14);
     --shadow-ink-pressed: 0 2px 8px rgba(16, 24, 40, 0.12);
     --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -274,9 +274,41 @@
         @apply select-none text-slate-300;
     }
 
+    /* LightGallery */
+    .lg-outer {
+        font-family: var(--font-serif);
+        @apply text-gray-100;
+        letter-spacing: 0.02em;
+    }
+
+    .lg-sub-html {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        padding: 0.75rem 1.25rem;
+        letter-spacing: 0.04em;
+    }
+
+    .lg-sub-html p {
+        margin: 0;
+    }
+
+    .lg-toolbar .lg-icon,
+    .lg-next,
+    .lg-prev {
+        @apply text-gray-200;
+        opacity: 0.85;
+    }
+
+    .lg-toolbar .lg-icon:hover,
+    .lg-next:hover,
+    .lg-prev:hover {
+        @apply text-slate-50;
+        opacity: 1;
+    }
+
+    /* Force safe colors to prevent oklch inheritance/parsing issues */
     #disqus_thread,
     #disqus_recommendations {
-        /* Force safe colors to prevent oklch inheritance/parsing issues */
         @apply bg-paper text-ink;
     }
 }
