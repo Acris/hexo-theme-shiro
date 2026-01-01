@@ -1,13 +1,18 @@
 # Shiro (白)
 
 <p align="center">
-  <img alt="Shiro" src="https://github.com/user-attachments/assets/9184c7c2-c4e0-4b2d-b583-b70ef2c86c6d" />
+  <img alt="Shiro" src="https://github.com/user-attachments/assets/9184c7c2-c4e0-4b2d-b583-b70ef2c86c6d" width="1000" />
 </p>
 
 A clean, elegant, and robust Hexo theme involved with whitespace (余白). Built
 with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
 
 Made by Acris with ❤️
+
+<p align="center">
+  <a href="https://github.com/Acris/hexo-theme-shiro/releases/latest" target="_blank"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/Acris/hexo-theme-shiro?logo=github"/></a>
+  <a href="https://www.npmjs.com/package/hexo-theme-shiro" target="_blank"><img alt="NPM Version" src="https://img.shields.io/npm/v/hexo-theme-shiro?logo=npm"/></a>
+</p>
 
 ## Features
 
@@ -20,22 +25,55 @@ Made by Acris with ❤️
 
 ## Installation
 
-1. Clone the repository into your Hexo theme directory:
-   ```bash
-   git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
-   ```
+### Install
 
-2. Enable the theme in your Hexo root `_config.yml`:
-   ```yaml
-   theme: shiro
-   ```
+If you're using Hexo 5.0 or later, the simplest way to install is through npm:
 
-3. Create a dedicated theme config file `_config.shiro.yml` in your site root (Supported since Hexo 5.0.0). This file
-   will have higher priority than the theme's default config.
+```bash
+npm i hexo-theme-shiro
+```
+
+Install via git:
+
+```bash
+git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
+```
+
+If you would like to enable the RSS, the hexo-generator-feed plugin is also required.
+
+### Enable
+
+Modify theme setting in `_config.yml` to `shiro`:
+
+```diff
+_config.yml
+- theme: some-theme
++ theme: shiro
+```
+
+### Update
+
+Install the latest version through npm:
+
+```bash
+npm i hexo-theme-shiro@latest
+```
+
+Or update to the latest `main` branch via git:
+
+```bash
+cd themes/shiro
+git pull
+```
 
 ## Configuration
 
-Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your site root.
+### Config file
+
+Create a dedicated theme config file `_config.shiro.yml` in your site root (Supported since Hexo 5.0.0). This file will
+have higher priority than the theme's default config.
+
+Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your site root:
 
 ```yaml
 # Navigation menu
