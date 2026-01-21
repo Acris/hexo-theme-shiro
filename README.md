@@ -59,9 +59,11 @@ site:
   favicon: /favicon.svg
   # Whether to display the seal (stamp) in the header
   seal: true
+  seal_text: 白
   rss:
     enabled: false
     path: /atom.xml
+  notetext: "白は、余白の名。"
 
 # Analytics
 analytics:
@@ -82,6 +84,7 @@ excerpt:
   fallback:
     enabled: true
     length: 200
+  show_read_more: true
 ```
 
 ### Creating Pages (Tags & Categories)

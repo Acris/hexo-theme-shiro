@@ -47,4 +47,5 @@ excerpt:
   fallback:
     enabled: true
     length: 200
+  # Whether to display the "Read More" button
   show_read_more: true
