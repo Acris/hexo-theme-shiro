@@ -15,12 +15,14 @@
             {{ post.content }}
         {% endif %}
     </div>
-    {% if theme.excerpt.fallback.enabled or post.excerpt %}
-    <div class="mt-6 text-center">
-        <a href="{{ url_for(post.path) }}"
-            class="focus-elegant btn-ink">
-            {{ __('index.read_more') }}
-        </a>
-    </div>
+    {% if theme.excerpt.show_read_more %}
+        {% if theme.excerpt.fallback.enabled or post.excerpt %}
+        <div class="mt-6 text-center">
+            <a href="{{ url_for(post.path) }}"
+                class="focus-elegant btn-ink">
+                {{ __('index.read_more') }}
+            </a>
+        </div>
+        {% endif %}
     {% endif %}
 </article>

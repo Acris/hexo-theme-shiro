@@ -10,7 +10,7 @@
                 {% if theme.site.seal %}
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
-                    {{ ui.seal() }}
+                    {{ ui.seal(theme.site.seal_text | default("白")) }}
                 </div>
                 {% endif %}
             </div>
