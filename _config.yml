@@ -26,6 +26,10 @@ site:
     path: /atom.xml
   notetext: "白は、余白の名。"
 
+article:
+  # Whether to display the TOC button in the post page
+  show_toc: true
+
 # Analytics
 analytics:
   # Only support Google Analytics 4

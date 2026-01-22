@@ -17,6 +17,11 @@
             <!-- Main Content -->
             <main class="section-divider">
                 {% block content %}{% endblock %}
+
+                <!-- Floating TOC button -->
+                {% if theme.article.show_toc and is_post() %}
+                {{ ui.toc_button(toc(page.content)) }}
+                {% endif %}
             </main>
 
             {% include "_partial/common/footer.njk" %}
