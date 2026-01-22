@@ -68,3 +68,15 @@ Fixed so it remains visible when scrolling; JS aligns it to the paper's right ed
 #tocPanel .toc li { margin: 0.25rem 0; line-height: 1.6; }
 #tocPanel .toc > ol,
 #tocPanel .toc > ul { padding-left: 0; }
+
+/* Content width override */
+.prose-shiro {
+    width: 100%;
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .prose-shiro {
+        max-width: 80% !important;
+    }
+}
