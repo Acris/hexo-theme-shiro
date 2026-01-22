@@ -20,7 +20,7 @@
 
                 <!-- Floating TOC button -->
                 {% if theme.article.show_toc and is_post() %}
-                {{ ui.toc_button(toc(page.content)) }}
+                {{ ui.toc_button(toc(page.content, {list_number: false})) }}
                 {% endif %}
             </main>
 
