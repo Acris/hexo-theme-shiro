@@ -61,5 +61,10 @@ Fixed so it remains visible when scrolling; JS aligns it to the paper's right ed
 }
 
 /* Ensure TOC lists are readable */
-#tocPanel .toc { margin: 0; padding: 0 0 0.25rem 0.75rem; }
+#tocPanel .toc { margin: 0; padding: 0 0 0.25rem 0.75rem; font-size: 0.875rem; }
 #tocPanel .toc a { color: inherit; text-decoration: none; }
+#tocPanel .toc ol,
+#tocPanel .toc ul { padding-left: 1.25rem; margin: 0.25rem 0; }
+#tocPanel .toc li { margin: 0.25rem 0; line-height: 1.6; }
+#tocPanel .toc > ol,
+#tocPanel .toc > ul { padding-left: 0; }
