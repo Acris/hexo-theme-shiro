@@ -1,5 +1,5 @@
 /* Floating TOC button (FAB)
-Fixed so it remains visible when scrolling; JS aligns it to the paper's right edge */
+Fixed so it remains visible when scrolling; JS aligns it to the paper's right edge and constrains it within paper boundaries */
 #tocFab {
     position: fixed;
     right: 1rem;
@@ -16,12 +16,13 @@ Fixed so it remains visible when scrolling; JS aligns it to the paper's right ed
     z-index: 9999;
     border: 1px solid rgba(15,23,42,0.06);
     cursor: pointer;
+    transition: bottom 0.15s ease, opacity 0.15s ease;
 }
 #tocFab svg { width: 20px; height: 20px; }
 #tocFab:focus { outline: 2px solid rgba(96,165,250,0.7); outline-offset: 2px; }
 
 /* TOC panel
-    Fixed so it remains visible; JS aligns horizontally with the paper */
+    Fixed so it remains visible; JS aligns horizontally with the paper and positions it above the button */
 #tocPanel {
     position: fixed;
     right: 1rem;
@@ -36,7 +37,7 @@ Fixed so it remains visible when scrolling; JS aligns it to the paper's right ed
     box-shadow: 0 10px 30px rgba(2,6,23,0.45);
     z-index: 9998;
     transform-origin: bottom right;
-    transition: transform .18s ease, opacity .18s ease;
+    transition: transform .18s ease, opacity .18s ease, bottom 0.15s ease;
     opacity: 0;
     transform: translateY(8px) scale(.98);
     pointer-events: none;
@@ -79,4 +80,18 @@ Fixed so it remains visible when scrolling; JS aligns it to the paper's right ed
     .prose-shiro {
         max-width: 80% !important;
     }
+}
+
+/* Footer seal size override */
+footer span[aria-label="love"] {
+    width: 0.75rem;
+    height: 0.75rem;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+footer span[aria-label="love"] svg {
+    width: 100%;
+    height: 100%;
+    display: block;
 }

@@ -58,6 +58,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 const rightPx = offsetRight + margin;
                 tocBtn.style.right = rightPx + 'px';
                 tocPanel.style.right = rightPx + 'px';
+                // Constrain TOC button within paper boundaries
+                const fabHeight = tocBtn.offsetHeight || 35;
+                const fabBottomMargin = 16; // default 1rem
+                const minTop = 16; // minimum distance from paper top
+                // Calculate ideal bottom position
+                let bottomPos = fabBottomMargin;
+                // Check if paper bottom is above viewport bottom
+                const paperBottom = rect.bottom;
+                const viewportHeight = window.innerHeight;
+
+                if (paperBottom < viewportHeight) {
+                    // Paper's bottom is visible, constrain button to not go below it
+                    const maxBottom = viewportHeight - paperBottom;
+                    bottomPos = Math.max(maxBottom + fabBottomMargin, fabBottomMargin);
+                }
+
+                // Check if button would go above paper's top
+                const buttonTop = viewportHeight - bottomPos - fabHeight;
+                if (buttonTop < rect.top + minTop) {
+                    // Adjust to stay below paper's top
+                    bottomPos = viewportHeight - rect.top - minTop - fabHeight;
+                }
+
+                // Hide button if paper is completely out of view or too small
+                if (rect.bottom < 0 || rect.top > viewportHeight || rect.height < fabHeight + minTop + fabBottomMargin) {
+                    tocBtn.style.opacity = '0';
+                    tocBtn.style.pointerEvents = 'none';
+                } else {
+                    tocBtn.style.opacity = '1';
+                    tocBtn.style.pointerEvents = 'auto';
+                }
+
+                tocBtn.style.bottom = bottomPos + 'px';
+                // Keep panel aligned with button
+                tocPanel.style.bottom = (bottomPos + fabHeight + 12) + 'px';
+
                 // overlay should cover the paper area — position it relative to viewport so make it full screen
                 if (tocOverlay) {
                     // keep overlay fixed to viewport to cover entire screen for easier click-to-close
