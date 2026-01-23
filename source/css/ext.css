@@ -95,3 +95,37 @@ footer span[aria-label="love"] svg {
     height: 100%;
     display: block;
 }
+
+/* Code copy button */
+.prose-shiro .highlight {
+    position: relative;
+}
+
+.prose-shiro .highlight .copy-btn {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 0.25rem;
+    color: #64748b;
+    font-size: 0.7rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.prose-shiro .highlight:hover .copy-btn {
+    opacity: 1;
+}
+
+.prose-shiro .highlight .copy-btn:hover {
+    background: #fff;
+    color: #475569;
+}
+
+.prose-shiro .highlight .copy-btn.copied {
+    background: #10b981;
+    color: white;
+}

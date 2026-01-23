@@ -142,4 +142,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Code Copy Functionality
+    document.querySelectorAll('.prose-shiro .highlight').forEach((block) => {
+        if (block.querySelector('.copy-btn')) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'copy-btn';
+        btn.textContent = 'Copy';
+        block.appendChild(btn);
+
+        btn.onclick = async () => {
+            try {
+                const lines = block.querySelectorAll('.code .line');
+                const code = lines.length 
+                    ? Array.from(lines).map(l => l.textContent).join('\n')
+                    : (block.querySelector('.code pre')?.textContent || block.querySelector('pre')?.textContent || '');
+                await navigator.clipboard.writeText(code);
+                btn.textContent = '✓';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch (e) {
+                btn.textContent = '✗';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            }
+        };
+    });
 });
