@@ -1,18 +1,18 @@
 # Shiro (白)
 
-<p align="center">
+<div style="text-align: center">
   <img alt="Shiro" src="https://github.com/user-attachments/assets/9184c7c2-c4e0-4b2d-b583-b70ef2c86c6d" width="1000" />
-</p>
+</div>
 
 A clean, elegant, and robust Hexo theme involved with whitespace (余白). Built
 with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
 
 Made by Acris with ❤️
 
-<p align="center">
+<div style="text-align: center">
   <a href="https://github.com/Acris/hexo-theme-shiro/releases/latest" target="_blank"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/Acris/hexo-theme-shiro?logo=github"/></a>
   <a href="https://www.npmjs.com/package/hexo-theme-shiro" target="_blank"><img alt="NPM Version" src="https://img.shields.io/npm/v/hexo-theme-shiro?logo=npm"/></a>
-</p>
+</div>
 
 ## Features
 
@@ -115,8 +115,18 @@ comments:
   disqus:
     shortname: ""
 
+# Table of Contents (TOC)
+toc:
+  enabled: true
+  # Max heading depth: 2 = h2, 3 = h2+h3, 4 = h2+h3+h4
+  depth: 3
+  # Minimum number of headings to show TOC
+  min_headings: 3
+
 # Excerpt settings
 excerpt:
+  # If post has <!-- more -->, use it.
+  # Otherwise fallback to auto-truncated excerpt.
   fallback:
     enabled: true
     length: 200

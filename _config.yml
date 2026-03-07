@@ -37,6 +37,14 @@ comments:
   disqus:
     shortname: ""
 
+# Table of Contents (TOC)
+toc:
+  enabled: true
+  # Max heading depth: 2 = h2, 3 = h2+h3, 4 = h2+h3+h4
+  depth: 3
+  # Minimum number of headings to show TOC
+  min_headings: 3
+
 # Excerpt settings
 excerpt:
   # If post has <!-- more -->, use it.

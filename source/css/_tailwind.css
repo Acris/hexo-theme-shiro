@@ -335,6 +335,126 @@
         @apply bg-paper text-ink;
     }
 
+    /* ── TOC: Sidebar (xl+ screens) ── */
+    .toc-sidebar {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        /* Position relative to the paper card (max-w-4xl = 896px) */
+        right: max(1rem, calc((100vw - 896px) / 2 - 220px));
+        width: 200px;
+        max-height: 60vh;
+        overflow-y: auto;
+        z-index: 30;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    .toc-sidebar-inner {
+        @apply border border-soft-border rounded-lg p-4;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    .toc-sidebar-title {
+        @apply font-title text-xs tracking-wide text-slate-400 mb-3 pb-3 text-center;
+
+        &::before {
+            content: "—\00a0";
+            @apply text-slate-300;
+        }
+
+        &::after {
+            content: "\00a0—";
+            @apply text-slate-300;
+        }
+    }
+
+    /* ── TOC: Inline (small screens) ── */
+    .toc-inline {
+        @apply border border-soft-border rounded-lg overflow-hidden;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(6px);
+    }
+
+    .toc-toggle {
+        @apply w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-500 transition-colors hover:text-slate-700;
+    }
+
+    .toc-toggle-title {
+        @apply font-title text-xs tracking-wide;
+
+        &::before {
+            content: "—\00a0";
+            @apply text-slate-300;
+        }
+
+        &::after {
+            content: "\00a0—";
+            @apply text-slate-300;
+        }
+    }
+
+    .toc-inline .toc-body {
+        @apply px-4 overflow-hidden transition-all duration-300 ease-soft;
+        max-height: 0;
+        opacity: 0;
+
+        &[data-open="true"] {
+            /* max-height set dynamically by JS for smooth animation */
+            opacity: 1;
+            @apply pb-4;
+        }
+    }
+
+    /* ── TOC: Shared list styles ── */
+    .toc-list {
+        @apply list-none p-0 m-0 space-y-1;
+    }
+
+    .toc-item {
+        @apply leading-snug;
+
+        &[data-level="0"] {
+            @apply pl-3;
+            border-left: 2px solid transparent;
+        }
+
+        &[data-level="1"] {
+            @apply pl-5;
+            border-left: 2px solid var(--color-slate-100);
+        }
+
+        &[data-level="2"] {
+            @apply pl-6;
+            border-left: 2px solid var(--color-slate-100);
+        }
+    }
+
+    .toc-link {
+        @apply block py-1 text-slate-500 no-underline transition-colors duration-200 ease-soft;
+        font-family: var(--font-serif);
+        font-size: 0.8rem;
+        line-height: 1.6;
+
+        &:hover {
+            @apply text-slate-800;
+        }
+
+        &.active {
+            color: var(--color-seal);
+            @apply font-medium;
+        }
+    }
+
+    .toc-item:has(> .toc-link.active) {
+        border-left: 2px solid var(--color-seal);
+    }
+
     .prose-shiro {
         @apply mx-auto font-serif leading-relaxed prose prose-slate;
         --tw-prose-body: var(--color-slate-800);

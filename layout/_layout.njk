@@ -3,7 +3,7 @@
 <html lang="{{ config.language }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
-<body class="h-full fog-bg text-slate-800">
+<body class="h-full fog-bg text-slate-800"{% if theme.toc.enabled %} data-toc-depth="{{ theme.toc.depth | default(3) }}" data-toc-min="{{ theme.toc.min_headings | default(3) }}"{% endif %}>
     {{ ui.svg_filters() }}
 
     <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
@@ -34,6 +34,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/lightgallery.min.js" integrity="sha512-n02TbYimj64qb98ed5WwkNiSw/i9Xlvv4Ehvhg0jLp3qMAMWCYUHbOMbppZ0vimtyiyw9NqNqxUZC4hq86f4aQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ url_for('js/lightgallery.js') }}"></script>
     <script src="{{ url_for('js/clipboard.js') }}"></script>
+    {% if theme.toc.enabled %}
+    <script src="{{ url_for('js/toc.js') }}"></script>
+    {% endif %}
     <script src="{{ url_for('js/main.js') }}"></script>
 </body>
 </html>

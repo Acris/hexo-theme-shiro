@@ -12,4 +12,7 @@ page:
 index:
   read_more: Read More
 
+toc:
+  title: Contents
+
 empty: Nothing here yet.

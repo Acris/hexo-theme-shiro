@@ -12,4 +12,7 @@ page:
 index:
   read_more: 阅读全文
 
+toc:
+  title: 目录
+
 empty: 暂无墨迹，静待笔落。

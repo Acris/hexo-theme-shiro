@@ -1,6 +1,6 @@
 .sass-cache/
 *.css.map
-.idea
+.idea/
 *.iml
 logs
 *.log
@@ -44,4 +44,4 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-.junie
+.junie/

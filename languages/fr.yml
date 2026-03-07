@@ -12,4 +12,7 @@ page:
 index:
   read_more: Lire la suite
 
+toc:
+  title: Sommaire
+
 empty: Rien ici pour le moment.

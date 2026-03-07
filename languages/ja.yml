@@ -12,4 +12,7 @@ page:
 index:
   read_more: 続きを読む
 
+toc:
+  title: 目次
+
 empty: まだ何もありません。
