@@ -332,6 +332,29 @@
             @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
         }
 
+        & .copy-btn {
+            @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-white/70 p-1.5 text-slate-300 opacity-0 shadow-xs backdrop-blur-xs transition-all duration-300 ease-soft;
+            border-radius: 2px;
+
+            &:hover {
+                @apply border-slate-400/50 text-slate-500 bg-white/90;
+            }
+
+            &.copied {
+                border-color: var(--color-seal);
+                color: var(--color-seal);
+                opacity: 0.85;
+            }
+        }
+
+        & .highlight:hover .copy-btn {
+            @apply opacity-70;
+
+            &:hover {
+                @apply opacity-100;
+            }
+        }
+
         & code {
             padding-inline: 0.25em;
 
