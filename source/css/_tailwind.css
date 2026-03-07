@@ -309,6 +309,11 @@
 
         & .highlight:not(.not-prose) {
             @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-slate-700 shadow-sm;
+            width: calc(100% + 7rem);
+            margin-left: -3.5rem;
+            margin-right: -3.5rem;
+            max-width: calc(100vw - 2rem);
+            padding: 0;
         }
 
         & .highlight table {
