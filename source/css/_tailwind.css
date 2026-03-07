@@ -476,10 +476,6 @@
 
         & .highlight:not(.not-prose) {
             @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-slate-700 shadow-sm;
-            width: calc(100% + 7rem);
-            margin-left: -3.5rem;
-            margin-right: -3.5rem;
-            max-width: calc(100vw - 2rem);
             padding: 0;
         }
 
@@ -499,28 +495,6 @@
             @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
         }
 
-        & .copy-btn {
-            @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-white/70 p-1.5 text-slate-300 opacity-0 shadow-xs backdrop-blur-xs transition-all duration-300 ease-soft;
-            border-radius: 2px;
-
-            &:hover {
-                @apply border-slate-400/50 text-slate-500 bg-white/90;
-            }
-
-            &.copied {
-                border-color: var(--color-seal);
-                color: var(--color-seal);
-                opacity: 0.85;
-            }
-        }
-
-        & .highlight:hover .copy-btn {
-            @apply opacity-70;
-
-            &:hover {
-                @apply opacity-100;
-            }
-        }
 
         & code {
             padding-inline: 0.25em;
@@ -529,6 +503,39 @@
             &::after {
                 content: "";
             }
+        }
+    }
+}
+
+.highlight-wrapper {
+    @apply relative;
+
+    @media (min-width: 768px) {
+        width: calc(100% + 7rem);
+        margin-left: -3.5rem;
+        margin-right: -3.5rem;
+    }
+
+    & > .copy-btn {
+        @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-white/70 p-1.5 text-slate-300 opacity-0 shadow-xs backdrop-blur-xs transition-all duration-300 ease-soft;
+        border-radius: 2px;
+
+        &:hover {
+            @apply border-slate-400/50 text-slate-500 bg-white/90;
+        }
+
+        &.copied {
+            border-color: var(--color-seal);
+            color: var(--color-seal);
+            opacity: 0.85;
+        }
+    }
+
+    &:hover > .copy-btn {
+        @apply opacity-70;
+
+        &:hover {
+            @apply opacity-100;
         }
     }
 }

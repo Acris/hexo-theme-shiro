@@ -25,7 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        block.style.position = 'relative';
-        block.appendChild(btn);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'highlight-wrapper';
+        block.parentNode.insertBefore(wrapper, block);
+        wrapper.appendChild(block);
+        wrapper.appendChild(btn);
     });
 });
