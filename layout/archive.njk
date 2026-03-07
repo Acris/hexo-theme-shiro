@@ -1,6 +1,8 @@
 {% extends "_layout.njk" %}
 
 {% block content %}
+{% import "_macro/ui.njk" as ui %}
+{% import "_macro/archive.njk" as archive with context %}
 <section class="section-shell">
     <header class="section-header">
         <h1 class="section-title">
@@ -12,9 +14,6 @@
         </h1>
         {{ ui.divider() }}
     </header>
-
-    {% import "_macro/archive.njk" as archive with context %}
-    {% import "_macro/ui.njk" as ui %}
 
     {% set posts = page.posts.sort('date', -1) %}
 

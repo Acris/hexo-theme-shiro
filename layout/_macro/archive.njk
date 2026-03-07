@@ -1,30 +1,52 @@
 {% import "_macro/ui.njk" as ui %}
 
 {% macro render_list(posts) %}
+    {% set allPosts = posts.toArray() %}
+    {# Collect unique years in order #}
+    {% set years = [] %}
+    {% for post in allPosts %}
+        {% set y = date(post.date, 'YYYY') %}
+        {% if y not in years %}
+            {% set _ = years.push(y) %}
+        {% endif %}
+    {% endfor %}
     <div class="space-y-16 max-w-2xl mx-auto">
-        {% set currentYear = "" %}
-        {% for post in posts.toArray() %}
-            {% set postYear = date(post.date, 'YYYY') %}
-            {% if currentYear != postYear %}
-                {% if currentYear != "" %}</div></div>{% endif %}
-                {% set currentYear = postYear %}
-                <div class="relative">
-                    <h2 class="section-heading">
-                        {{ ui.icon_nav_arrow() }}
-                        {{ currentYear }}
-                    </h2>
-                    <div class="space-y-4">
-            {% endif %}
-            
-            <article class="archive-item group">
-                <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
-                    {{ date(post.date, 'YYYY/MM/DD') }}
-                </time>
-                <h3 class="archive-title">
-                    <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
-                </h3>
-            </article>
+        {% for year in years %}
+        <div class="relative">
+            <h2 class="section-heading">
+                {{ ui.icon_nav_arrow() }}
+                {{ year }}
+            </h2>
+            <div class="space-y-4">
+                {% for post in allPosts %}
+                    {% if date(post.date, 'YYYY') == year %}
+                    <article class="archive-item group">
+                        <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                            {{ date(post.date, 'YYYY/MM/DD') }}
+                        </time>
+                        <h3 class="archive-title">
+                            <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
+                        </h3>
+                    </article>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
-        {% if currentYear != "" %}</div></div>{% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_simple_list(posts) %}
+    <div class="space-y-4">
+        {% for post in posts.toArray() %}
+        <article class="archive-item group">
+            <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                {{ date(post.date, 'YYYY/MM/DD') }}
+            </time>
+            <h3 class="archive-title">
+                <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
+            </h3>
+        </article>
+        {% endfor %}
     </div>
 {% endmacro %}

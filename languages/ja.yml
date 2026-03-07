@@ -7,6 +7,9 @@ nav:
 page:
   prev: 前へ
   next: 次へ
+  pagination: ページネーション
 
 index:
   read_more: 続きを読む
+
+empty: まだ何もありません。

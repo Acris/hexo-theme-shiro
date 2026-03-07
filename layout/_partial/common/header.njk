@@ -38,9 +38,7 @@
             class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-4 py-2 text-sm text-slate-700 shadow-xs backdrop-blur-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
-            <span class="text-slate-400 hidden md:inline" aria-hidden="true">/</span>
-            <span class="oldstyle-nums text-xs tracking-wide hidden md:inline">{{ __('nav.menu') }}</span>
-            {{ ui.icon_chevron_down() }}
+            {{ ui.icon_chevron_down(id="menuChevron") }}
         </button>
     </div>
 

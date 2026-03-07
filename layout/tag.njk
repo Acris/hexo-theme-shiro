@@ -27,6 +27,7 @@
         {% if site.tags.length > 0 %}
         <div class="text-center mt-12 mb-16">
             <div class="flex flex-wrap justify-center gap-3">
+                {# Sort by post count descending; tags with equal count retain alphabetical order (stable sort) #}
                 {% set tags = site.tags.sort('name', 1).sort('length', -1) %}
                 {% for tag in tags.toArray() %}
                 {{ render_tag(tag, true) }}

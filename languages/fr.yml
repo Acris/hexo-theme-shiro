@@ -7,6 +7,9 @@ nav:
 page:
   prev: Précédent
   next: Suivant
+  pagination: Pagination
 
 index:
   read_more: Lire la suite
+
+empty: Rien ici pour le moment.

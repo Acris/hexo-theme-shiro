@@ -15,7 +15,7 @@
             {{ post.content }}
         {% endif %}
     </div>
-    {% if theme.excerpt.fallback.enabled or post.excerpt %}
+    {% if post.excerpt or (theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length) %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
             class="focus-elegant btn-ink">

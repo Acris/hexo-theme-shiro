@@ -1,5 +1,6 @@
 {% extends "_layout.njk" %}
 {% import "_macro/ui.njk" as ui %}
+{% import "_macro/archive.njk" as archive with context %}
 
 {% block content %}
 <section class="section-shell">
@@ -15,7 +16,6 @@
     </header>
 
     {% if is_category() %}
-        {% import "_macro/archive.njk" as archive with context %}
         {% set cat = site.categories.findOne({name: page.category}) %}
         {% if cat and cat.posts.length > 0 %}
             {{ archive.render_list(cat.posts.sort('date', -1)) }}
@@ -31,18 +31,7 @@
                         {{ ui.icon_folder() }}
                         {{ cat.name }}
                     </h2>
-                    <div class="space-y-4">
-                        {% for post in cat.posts.sort('date', -1).toArray() %}
-                        <article class="archive-item group">
-                            <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
-                                {{ date(post.date, 'YYYY/MM/DD') }}
-                            </time>
-                            <h3 class="archive-title">
-                                <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
-                            </h3>
-                        </article>
-                        {% endfor %}
-                    </div>
+                    {{ archive.render_simple_list(cat.posts.sort('date', -1)) }}
                 </div>
                 {% endfor %}
             </div>

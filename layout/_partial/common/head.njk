@@ -1,15 +1,63 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% if is_home() %}{{ config.title | default("白夜書簡", true) }}{% elif is_post() %}{{ page.title }} | {{ config.title | default("白夜書簡", true) }}{% else %}{{ page.title }} | {{ config.title | default("白夜書簡", true) }}{% endif %}</title>
+    {% set page_title %}{% if is_home() %}{{ config.title | default("白夜書簡", true) }}{% else %}{{ page.title }} | {{ config.title | default("白夜書簡", true) }}{% endif %}{% endset %}
+    <title>{{ page_title }}</title>
+
+    <!-- SEO Meta -->
+    {% set meta_description = page.description or page.excerpt or config.description or '' %}
+    {% if meta_description %}
+    <meta name="description" content="{{ strip_html(meta_description) | truncate(200) }}" />
+    {% endif %}
+    {% if page.keywords %}
+    <meta name="keywords" content="{{ page.keywords }}" />
+    {% elif page.tags and page.tags.length %}
+    <meta name="keywords" content="{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}" />
+    {% elif config.keywords %}
+    <meta name="keywords" content="{{ config.keywords }}" />
+    {% endif %}
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ url }}" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
+    <meta property="og:title" content="{{ page_title }}" />
+    {% if meta_description %}
+    <meta property="og:description" content="{{ strip_html(meta_description) | truncate(200) }}" />
+    {% endif %}
+    <meta property="og:url" content="{{ url }}" />
+    <meta property="og:site_name" content="{{ config.title }}" />
+    {% if page.photos and page.photos.length %}
+    <meta property="og:image" content="{{ page.photos[0] }}" />
+    {% endif %}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ page_title }}" />
+    {% if meta_description %}
+    <meta name="twitter:description" content="{{ strip_html(meta_description) | truncate(200) }}" />
+    {% endif %}
+    {% if page.photos and page.photos.length %}
+    <meta name="twitter:image" content="{{ page.photos[0] }}" />
+    {% endif %}
 
     <!-- Favicon -->
     {% if theme.site.favicon %}
     <link rel="icon" href="{{ url_for(theme.site.favicon) }}" />
     {% endif %}
 
+    <!-- RSS -->
+    {% if theme.site.rss.enabled %}
+    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ url_for(theme.site.rss.path | default('/atom.xml')) }}" />
+    {% endif %}
+
+    <!-- Preconnect for Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/2.8.3/css/lightgallery.min.css" integrity="sha512-QMCloGTsG2vNSnHcsxYTapI6pFQNnUP6yNizuLL5Wh3ha6AraI6HrJ3ABBaw6SIUHqlSTPQDs/SydiR98oTeaQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ url_for('css/style.min.css') }}">
 
     <!-- Analytics -->

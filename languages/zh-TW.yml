@@ -7,6 +7,9 @@ nav:
 page:
   prev: 上一頁
   next: 下一頁
+  pagination: 分頁導航
 
 index:
   read_more: 閱讀全文
+
+empty: 暫無墨跡，靜待筆落。

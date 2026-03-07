@@ -36,8 +36,8 @@
 </div>
 {% endmacro %}
 
-{% macro icon_chevron_down(class="h-4 w-4") %}
-<svg class="{{ class }} text-slate-500 transition-transform duration-200" id="menuChevron"
+{% macro icon_chevron_down(class="h-4 w-4", id="") %}
+<svg class="{{ class }} text-slate-500 transition-transform duration-200"{% if id %} id="{{ id }}"{% endif %}
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path fill-rule="evenodd"
         d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
@@ -74,24 +74,21 @@
 {% macro meta(post, show_all_cats=false, class="mt-2") %}
 <div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500">
     <div class="flex items-center gap-1.5">
-        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
+        {{ icon_nav_arrow() }}
         <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted">{{ date(post.date, 'YYYY/MM/DD') }}</a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         <span class="text-slate-300" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-            </svg>
+            {{ icon_folder() }}
             {% if show_all_cats %}
                 {% for cat in post.categories.toArray() %}
                     <a class="link-muted" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
                     {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
                 {% endfor %}
             {% else %}
-                <a class="link-muted" href="{{ url_for(post.categories.data[0].path) }}">{{ post.categories.data[0].name }}</a>
+                {% set first_cat = post.categories.toArray()[0] %}
+                <a class="link-muted" href="{{ url_for(first_cat.path) }}">{{ first_cat.name }}</a>
             {% endif %}
         </div>
     {% endif %}

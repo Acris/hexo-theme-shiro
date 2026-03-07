@@ -1,4 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Cascadia+Code:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&family=IM+Fell+English:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Spectral:wght@400;500;600&family=Yuji+Boku&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;500;600&display=swap");
+/* Critical fonts: body & headings */
+@import url("https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Yuji+Boku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&display=swap");
+/* Secondary fonts: code & decorative English */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IM+Fell+English:ital@0;1&family=Fira+Code:wght@400;500;600&family=Cascadia+Code:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import 'tailwindcss';
 
 @plugin "@tailwindcss/typography";
@@ -102,47 +105,50 @@
 
     .paper {
         @apply relative isolate border border-soft-border bg-paper shadow-paper;
-    }
 
-    .paper::before {
-        content: "";
-        @apply absolute inset-0 pointer-events-none mix-blend-multiply;
-        z-index: -1;
-        opacity: 0.22;
-        filter: blur(0.2px);
-        background-image: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.06) 0 0.6px, transparent 0.8px), radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.05) 0 0.7px, transparent 0.9px), radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.04) 0 0.6px, transparent 0.9px);
-        background-size: 120px 120px, 160px 160px, 220px 220px;
-        background-position: 0 0, 40px 30px, 80px 60px;
+        &::before {
+            content: "";
+            @apply absolute inset-0 pointer-events-none mix-blend-multiply;
+            z-index: -1;
+            opacity: 0.22;
+            filter: blur(0.2px);
+            background-image: radial-gradient(circle at 20% 30%, rgba(0, 0, 0, 0.06) 0 0.6px, transparent 0.8px), radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.05) 0 0.7px, transparent 0.9px), radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.04) 0 0.6px, transparent 0.9px);
+            background-size: 120px 120px, 160px 160px, 220px 220px;
+            background-position: 0 0, 40px 30px, 80px 60px;
+        }
     }
 
     .btn-ink {
         @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs transition-all duration-200 ease-soft;
-    }
 
-    .btn-ink:hover {
-        @apply border-slate-800/75 bg-ink text-white/95 shadow-ink saturate-105;
-    }
+        &:hover {
+            @apply border-slate-800/75 bg-ink text-white/95 shadow-ink saturate-105;
+        }
 
-    .btn-ink:active {
-        @apply translate-y-px shadow-ink-pressed;
+        &:active {
+            @apply translate-y-px shadow-ink-pressed;
+        }
     }
 
     .menu-panel {
         @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0 transition-menu duration-260 ease-out;
+
+        &[data-open="true"] {
+            @apply translate-y-0 opacity-100;
+            max-height: 70vh;
+        }
     }
 
-    .menu-panel[data-open="true"] {
-        @apply translate-y-0 opacity-100;
-        max-height: 70vh;
-    }
-
+    /* Reset transform positions for reduced-motion (base layer only disables transitions, not transforms) */
     @media (prefers-reduced-motion: reduce) {
         .menu-panel {
             @apply translate-y-0;
         }
 
-        .btn-ink:active {
-            @apply translate-y-0;
+        .btn-ink {
+            &:active {
+                @apply translate-y-0;
+            }
         }
     }
 
@@ -257,65 +263,29 @@
         }
     }
 
-    .pagination .page-number,
-    .pagination .extend {
-        @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-slate-900 hover:underline;
-    }
+    .pagination {
+        & .page-number,
+        & .extend {
+            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-slate-900 hover:underline;
+        }
 
-    .pagination .page-number {
-        @apply oldstyle-nums;
-    }
+        & .page-number {
+            @apply oldstyle-nums;
 
-    .pagination .page-number.current {
-        @apply cursor-default text-slate-800 underline underline-offset-4 decoration-slate-600;
-    }
+            &.current {
+                @apply cursor-default text-slate-800 underline underline-offset-4 decoration-slate-600;
+            }
+        }
 
-    .pagination .space {
-        @apply select-none text-slate-300;
-    }
-
-    /* LightGallery */
-    .lg-outer {
-        font-family: var(--font-serif);
-        @apply text-gray-100;
-        letter-spacing: 0.02em;
-    }
-
-    .lg-sub-html {
-        font-size: 0.95rem;
-        line-height: 1.7;
-        padding: 0.75rem 1.25rem;
-        letter-spacing: 0.04em;
-    }
-
-    .lg-sub-html p {
-        margin: 0;
-    }
-
-    .lg-toolbar .lg-icon,
-    .lg-next,
-    .lg-prev {
-        @apply text-gray-200;
-        opacity: 0.85;
-    }
-
-    .lg-toolbar .lg-icon:hover,
-    .lg-next:hover,
-    .lg-prev:hover {
-        @apply text-slate-50;
-        opacity: 1;
+        & .space {
+            @apply select-none text-slate-300;
+        }
     }
 
     /* Force safe colors to prevent oklch inheritance/parsing issues */
     #disqus_thread,
     #disqus_recommendations {
         @apply bg-paper text-ink;
-    }
-}
-
-@layer utilities {
-    .focus-elegant:focus-visible {
-        @apply border-slate-800/20 outline-none ring-2 ring-white/85 ring-offset-2 ring-offset-focus-ring;
     }
 
     .prose-shiro {
@@ -336,35 +306,41 @@
         --tw-prose-pre-bg: var(--color-slate-900);
         --tw-prose-th-borders: var(--color-slate-300);
         --tw-prose-td-borders: var(--color-slate-200);
-    }
 
-    .prose-shiro .highlight:not(.not-prose) {
-        @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-slate-700 shadow-sm;
-    }
+        & .highlight:not(.not-prose) {
+            @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-slate-700 shadow-sm;
+        }
 
-    .prose-shiro .highlight table {
-        @apply my-0 w-full border-collapse;
-    }
+        & .highlight table {
+            @apply my-0 w-full border-collapse;
+        }
 
-    .prose-shiro .highlight td {
-        @apply border-0 p-0;
-    }
+        & .highlight td {
+            @apply border-0 p-0;
+        }
 
-    .prose-shiro .highlight td.gutter {
-        @apply w-10 min-w-10 select-none border-r border-slate-200 bg-slate-100 text-right text-slate-400;
-    }
+        & .highlight td.gutter {
+            @apply w-10 min-w-10 select-none border-r border-slate-200 bg-slate-100 text-right text-slate-400;
+        }
 
-    .prose-shiro .highlight pre {
-        @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
-    }
+        & .highlight pre {
+            @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
+        }
 
-    .prose-shiro code {
-        padding-inline: 0.25em;
-    }
+        & code {
+            padding-inline: 0.25em;
 
-    .prose-shiro code::before,
-    .prose-shiro code::after {
-        content: "";
+            &::before,
+            &::after {
+                content: "";
+            }
+        }
+    }
+}
+
+@layer utilities {
+    .focus-elegant:focus-visible {
+        @apply border-slate-800/20 outline-none ring-2 ring-white/85 ring-offset-2 ring-offset-focus-ring;
     }
 
     .text-footnote {
@@ -381,5 +357,35 @@
 
     .max-w-divider {
         max-width: 120px;
+    }
+}
+
+/* LightGallery overrides (outside @layer to ensure higher specificity than third-party styles) */
+.lg-outer {
+    font-family: var(--font-serif);
+    @apply text-gray-100;
+    letter-spacing: 0.02em;
+}
+
+.lg-sub-html {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+
+    & p {
+        margin: 0;
+    }
+}
+
+.lg-toolbar .lg-icon,
+.lg-next,
+.lg-prev {
+    @apply text-gray-200;
+    opacity: 0.85;
+
+    &:hover {
+        @apply text-slate-50;
+        opacity: 1;
     }
 }
