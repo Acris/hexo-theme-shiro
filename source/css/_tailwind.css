@@ -100,7 +100,54 @@
     }
 
     .fog-bg {
-        background: radial-gradient(1200px 500px at 50% -100px, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 65%), radial-gradient(900px 400px at 90% 10%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%), linear-gradient(180deg, #f4f5f6 0%, #f0f1f2 55%, #f4f5f6 100%);
+        background:
+            /* Washi paper fiber texture — dual-layer uneven horizontal strands */
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.012) 2px,
+                rgba(0, 0, 0, 0.012) 3px
+            ),
+            repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 5px,
+                rgba(0, 0, 0, 0.008) 5px,
+                rgba(0, 0, 0, 0.008) 6px
+            ),
+            /* Subtle cross-fiber — sparser for natural feel */
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 6px,
+                rgba(0, 0, 0, 0.006) 6px,
+                rgba(0, 0, 0, 0.006) 7px
+            ),
+            /* Warm color patches — simulates uneven pulp distribution */
+            radial-gradient(ellipse 600px 400px at 30% 50%, rgba(180, 160, 130, 0.03), transparent 70%),
+            radial-gradient(ellipse 500px 350px at 70% 40%, rgba(160, 150, 130, 0.025), transparent 60%),
+            /* Micro grain — larger repeat size to reduce pattern visibility */
+            radial-gradient(circle at 30% 40%, rgba(0, 0, 0, 0.015) 0 1px, transparent 1px),
+            radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.012) 0 1px, transparent 1px),
+            radial-gradient(circle at 50% 20%, rgba(0, 0, 0, 0.01) 0 1px, transparent 1px),
+            /* Original fog gradients */
+            radial-gradient(1200px 500px at 50% -100px, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0) 65%),
+            radial-gradient(900px 400px at 90% 10%, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%),
+            /* Warm washi base tone */
+            linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
+        background-size:
+            5px 5px,
+            8px 8px,
+            13px 13px,
+            auto,
+            auto,
+            200px 200px,
+            300px 300px,
+            400px 400px,
+            auto,
+            auto,
+            auto;
     }
 
     .paper {
