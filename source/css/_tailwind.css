@@ -557,6 +557,8 @@
 
         & code {
             padding-inline: 0.25em;
+            overflow-wrap: break-word;
+            word-break: break-word;
 
             &::before,
             &::after {
