@@ -638,7 +638,7 @@
    Dark Mode — 「夜の白」
    Cool neutral gray tones for comfortable night reading.
    Three-layer depth: deep bg → card surface → inset elements.
-   Clean neutral grays with vermillion accent color preserved.
+   Clean neutral grays with vermilion accent color preserved.
    Applied via .dark class on <html>.
    ══════════════════════════════════════════════════════════════ */
 
@@ -894,7 +894,7 @@
     --tw-prose-bullets: var(--color-text-subtle);
     --tw-prose-hr: var(--color-border-strong);
     --tw-prose-quotes: var(--color-text-muted);
-    /* Intentional design choice: vermillion border adds personality in dark mode,
+    /* Intentional design choice: vermilion border adds personality in dark mode,
        contrasting with the neutral slate border used in light mode */
     --tw-prose-quote-borders: var(--color-seal);
     --tw-prose-captions: var(--color-text-muted);

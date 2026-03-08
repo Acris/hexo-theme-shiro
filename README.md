@@ -4,7 +4,7 @@
   <img alt="Shiro" src="https://github.com/user-attachments/assets/9184c7c2-c4e0-4b2d-b583-b70ef2c86c6d" width="1000" />
 </div>
 
-A clean, elegant, and robust Hexo theme involved with whitespace (余白). Built
+A clean, elegant, and robust Hexo theme inspired by whitespace (余白). Built
 with [Nunjucks](https://mozilla.github.io/nunjucks/) and [Tailwind CSS](https://tailwindcss.com/).
 
 Made by Acris with ❤️
@@ -14,6 +14,8 @@ Made by Acris with ❤️
   <a href="https://www.npmjs.com/package/hexo-theme-shiro" target="_blank"><img alt="NPM Version" src="https://img.shields.io/npm/v/hexo-theme-shiro?logo=npm"/></a>
 </div>
 
+**[Live Demo](https://acris.me)**
+
 ## Features
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
@@ -22,10 +24,16 @@ Made by Acris with ❤️
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`).
 - **Dark Mode**: Elegant dark theme with warm neutral tones, 3-state toggle (system/light/dark).
-- **Reading Progress Bar**: Thin vermillion progress bar at the top of the page.
+- **Table of Contents**: Auto-generated sidebar TOC for articles with configurable heading depth.
+- **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **Fast**: Optimized for performance with minimal Javascript.
+- **Image Lightbox**: Click to zoom images in articles via [LightGallery](https://www.lightgalleryjs.com/).
+- **Disqus Comments**: Lazy-loaded Disqus comment integration via `IntersectionObserver`.
+- **Google Analytics**: GA4 support with non-blocking script loading.
+- **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
+- **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, adding a traditional touch.
+- **Fast**: Optimized for performance with minimal JavaScript.
 
 ## Installation
 
@@ -43,7 +51,11 @@ Install via git:
 git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
 ```
 
-If you would like to enable the RSS, the hexo-generator-feed plugin is also required.
+If you would like to enable RSS, install the feed plugin:
+
+```bash
+npm install hexo-generator-feed --save
+```
 
 ### Enable
 
@@ -91,14 +103,14 @@ site:
 
 # Navigation menu
 menu:
-#  - name: Home
-#    url: /
-#  - name: Archives
-#    url: /archives
-#  - name: Categories
-#    url: /categories
-#  - name: Tags
-#    url: /tags
+  - name: Home
+    url: /
+  - name: Archives
+    url: /archives
+  - name: Categories
+    url: /categories
+  - name: Tags
+    url: /tags
 #  - name: About
 #    url: /about
 #  - name: GitHub
@@ -130,7 +142,7 @@ dark_mode:
   default: light
   toggle: true
 
-# Reading progress bar (thin vermillion bar at top of page)
+# Reading progress bar (thin vermilion bar at top of page)
 progress_bar:
   enabled: true
 
@@ -184,6 +196,30 @@ wish to use them in the menu.
 
 If you want to modify the theme source code or contribute:
 
+### Project Structure
+
+```
+hexo-theme-shiro/
+├── layout/                 # Nunjucks templates
+│   ├── _layout.njk         # Base layout
+│   ├── _macro/             # Reusable macros (ui, archive)
+│   ├── _partial/           # Partials (head, header, footer, components, comments, analytics)
+│   ├── index.njk           # Home page
+│   ├── post.njk            # Article page
+│   ├── page.njk            # Standalone page
+│   ├── archive.njk         # Archive page
+│   ├── tag.njk             # Tag page
+│   └── category.njk        # Category page
+├── source/
+│   ├── css/_tailwind.css   # Tailwind CSS source (compiled to style.min.css)
+│   └── js/                 # Client-side scripts
+├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
+├── _config.yml             # Theme default config
+└── package.json
+```
+
+### Getting Started
+
 1. Install dependencies in the theme directory:
    ```bash
    cd themes/shiro
@@ -195,12 +231,22 @@ If you want to modify the theme source code or contribute:
    npm run dev
    ```
 
-3. Build CSS (Tailwind):
+3. Build CSS (Tailwind) for production:
    ```bash
    npm run build
    ```
 
+Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerate `style.min.css`.
+
+### Adding a New Language
+
+1. Create a new YAML file in `languages/` (e.g., `ko.yml`).
+2. Copy the structure from `languages/en.yml` and translate all values.
+3. Ensure all top-level keys (`nav`, `page`, `index`, `toc`, `empty`, `back_to_top`, `theme`) are present.
+
 ## Thanks
+
+Thanks to [JetBrains](https://jb.gg/OpenSource?from=hexo-theme-shiro) for providing open source licenses.
 
 <a href="https://jb.gg/OpenSource?from=hexo-theme-shiro">
   <img alt="IntelliJ IDEA" src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA_icon.png" width="100">
@@ -208,27 +254,4 @@ If you want to modify the theme source code or contribute:
 
 ## License
 
-```
-MIT License
-
-Copyright (c) 2025 Acris Liu
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-```
+[MIT License](LICENSE)

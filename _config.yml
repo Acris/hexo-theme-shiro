@@ -9,18 +9,18 @@ site:
 
 # Navigation menu
 menu:
-#  - name: Home
-#    url: /
-#  - name: Archives
-#    url: /archives
-#  - name: Categories
-#    url: /categories
-#  - name: Tags
-#    url: /tags
+  - name: Home
+    url: /
+  - name: Archives
+    url: /archives
+  - name: Categories
+    url: /categories
+  - name: Tags
+    url: /tags
 #  - name: About
 #    url: /about
 #  - name: GitHub
-#    url: https://github.com
+#    url: https://github.com/Acris/hexo-theme-shiro
 #    # Open in new tab
 #    target: _blank
 
@@ -48,7 +48,7 @@ dark_mode:
   default: light
   toggle: true
 
-# Reading progress bar (thin vermillion bar at top of page)
+# Reading progress bar (thin vermilion bar at top of page)
 progress_bar:
   enabled: true
 
