@@ -54,7 +54,7 @@ git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
 If you would like to enable RSS, install the feed plugin:
 
 ```bash
-npm install hexo-generator-feed --save
+npm i hexo-generator-feed
 ```
 
 ### Enable
