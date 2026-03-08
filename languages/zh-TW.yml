@@ -1,5 +1,5 @@
 nav:
-  menu: 菜單
+  menu: 選單
   archives: 歸檔
   categories: 分類
   tags: 標籤
@@ -10,9 +10,19 @@ page:
   pagination: 分頁導航
 
 index:
-  read_more: 閱讀全文
+  read_more: 閱讀更多
 
 toc:
   title: 目錄
 
-empty: 暫無墨跡，靜待筆落。
+empty: 這裡還沒有內容。
+
+
+
+back_to_top: 回到頂部
+
+
+theme:
+  light: 淺色
+  dark: 深色
+  system: 跟隨系統

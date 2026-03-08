@@ -6,6 +6,7 @@
         </h2>
         {{ meta(post) }}
     </header>
+    {% set has_excerpt = post.excerpt or (theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length) %}
     <div class="prose-shiro">
         {% if post.excerpt %}
             {{ post.excerpt }}
@@ -15,7 +16,7 @@
             {{ post.content }}
         {% endif %}
     </div>
-    {% if post.excerpt or (theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length) %}
+    {% if has_excerpt %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
             class="focus-elegant btn-ink">

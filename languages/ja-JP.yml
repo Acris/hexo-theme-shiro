@@ -1,1 +1,28 @@
-ja.yml
+nav:
+  menu: メニュー
+  archives: アーカイブ
+  categories: カテゴリー
+  tags: タグ
+
+page:
+  prev: 前へ
+  next: 次へ
+  pagination: ページネーション
+
+index:
+  read_more: 続きを読む
+
+toc:
+  title: 目次
+
+empty: まだ何もありません。
+
+
+
+back_to_top: トップへ戻る
+
+
+theme:
+  light: ライト
+  dark: ダーク
+  system: システム

@@ -1,5 +1,6 @@
-{% import "_macro/ui.njk" as ui %}
+{% import "_macro/ui.njk" as ui with context %}
 <header class="relative">
+
     <div class="relative flex items-start justify-center">
         <div class="text-center">
             <div class="relative inline-block">
@@ -17,15 +18,30 @@
             <p class="site-subtitle">
                 {{ config.subtitle | default("以夜為箋，寄心成簡。", true) }}
             </p>
-            {% if theme.site.rss.enabled %}
-            <div class="mt-3 sm:mt-4 flex justify-center">
-                <a class="group inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 hover:bg-white hover:text-slate-800 hover:border-slate-300 hover:shadow-xs transition-all duration-300"
+            <div class="mt-3 sm:mt-4 flex justify-center gap-2">
+                {% if theme.site.rss.enabled %}
+                <a class="group header-pill-btn"
                     href="{{ url_for(theme.site.rss.path) }}" target="_blank">
                     {{ ui.icon_rss() }}
                     <span>RSS</span>
                 </a>
+                {% endif %}
+                {% if theme.dark_mode.toggle !== false %}
+                <button id="themeToggle" class="group header-pill-btn" aria-label="{{ __('theme.system') }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                    <svg data-icon="system" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
+                        <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <svg data-icon="light" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <svg data-icon="dark" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </header>
@@ -35,7 +51,7 @@
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn"
-            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/60 px-4 py-2 text-sm text-slate-700 shadow-xs backdrop-blur-xs"
+            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/70 px-4 py-2 text-sm text-slate-700 shadow-xs backdrop-blur-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
             {{ ui.icon_chevron_down(id="menuChevron") }}
@@ -46,10 +62,10 @@
     <div class="hidden md:block">
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             {% for item in theme.menu %}
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-slate-900 transition-colors"
+            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
-            <li class="text-slate-300 select-none" aria-hidden="true">/</li>
+            <li class="text-slate-400 select-none" aria-hidden="true">/</li>
             {% endif %}
             {% endfor %}
         </ul>
@@ -58,9 +74,9 @@
     <!-- Mobile Menu Panel -->
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
-            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-white/70 backdrop-blur-xs shadow-xs">
+            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/70 backdrop-blur-xs shadow-xs">
             {% for item in theme.menu %}
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:bg-slate-50/80 transition-colors"
+            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
             <li class="h-px bg-slate-200/70" aria-hidden="true"></li>

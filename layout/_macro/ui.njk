@@ -57,7 +57,7 @@
 </svg>
 {% endmacro %}
 
-{% macro icon_rss(class="w-3 h-3 group-hover:text-orange-500 transition-colors duration-300") %}
+{% macro icon_rss(class="w-3 h-3 group-hover:text-[var(--color-seal)] transition-colors duration-300") %}
 <svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4 11a9 9 0 0 1 9 9"></path>
     <path d="M4 4a16 16 0 0 1 16 16"></path>
@@ -72,7 +72,7 @@
 {% endmacro %}
 
 {% macro meta(post, show_all_cats=false, class="mt-2") %}
-<div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500">
+<div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500 flex-wrap">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow() }}
         <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted">{{ date(post.date, 'YYYY/MM/DD') }}</a>

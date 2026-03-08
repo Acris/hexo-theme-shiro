@@ -1,5 +1,5 @@
 {% extends "_layout.njk" %}
-{% import "_macro/ui.njk" as ui %}
+{% import "_macro/ui.njk" as ui with context %}
 
 {% block content %}
     {% if page.posts and page.posts.length > 0 %}

@@ -2,7 +2,7 @@ nav:
   menu: Menu
   archives: Archives
   categories: Catégories
-  tags: Étiquettes
+  tags: Tags
 
 page:
   prev: Précédent
@@ -16,3 +16,13 @@ toc:
   title: Sommaire
 
 empty: Rien ici pour le moment.
+
+
+
+back_to_top: Retour en haut
+
+
+theme:
+  light: Clair
+  dark: Sombre
+  system: Système

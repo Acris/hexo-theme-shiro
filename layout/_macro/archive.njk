@@ -1,38 +1,35 @@
-{% import "_macro/ui.njk" as ui %}
+{% import "_macro/ui.njk" as ui with context %}
 
 {% macro render_list(posts) %}
     {% set allPosts = posts.toArray() %}
-    {# Collect unique years in order #}
-    {% set years = [] %}
-    {% for post in allPosts %}
-        {% set y = date(post.date, 'YYYY') %}
-        {% if y not in years %}
-            {% set _ = years.push(y) %}
-        {% endif %}
-    {% endfor %}
     <div class="space-y-16 max-w-2xl mx-auto">
-        {% for year in years %}
-        <div class="relative">
-            <h2 class="section-heading">
-                {{ ui.icon_nav_arrow() }}
-                {{ year }}
-            </h2>
-            <div class="space-y-4">
-                {% for post in allPosts %}
-                    {% if date(post.date, 'YYYY') == year %}
-                    <article class="archive-item group">
-                        <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
-                            {{ date(post.date, 'YYYY/MM/DD') }}
-                        </time>
-                        <h3 class="archive-title">
-                            <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
-                        </h3>
-                    </article>
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
+        {% set currentYear = '' %}
+        {% for post in allPosts %}
+            {% set y = date(post.date, 'YYYY') %}
+            {% if y != currentYear %}
+                {% if currentYear != '' %}
+                </div></div>{# close .space-y-4 + .relative #}
+                {% endif %}
+                {% set currentYear = y %}
+                <div class="relative">{# year group wrapper — closed when year changes or after loop #}
+                <h2 class="section-heading">
+                    {{ ui.icon_nav_arrow() }}
+                    {{ y }}
+                </h2>
+                <div class="space-y-4">
+            {% endif %}
+            <article class="archive-item group">
+                <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                    {{ date(post.date, 'YYYY/MM/DD') }}
+                </time>
+                <h3 class="archive-title">
+                    <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
+                </h3>
+            </article>
         {% endfor %}
+        {% if currentYear != '' %}
+            </div></div>{# close .space-y-4 + .relative #}
+        {% endif %}
     </div>
 {% endmacro %}
 

@@ -1,10 +1,11 @@
-document.addEventListener('DOMContentLoaded', () => {
+;(() => {
     const tocSidebar = document.getElementById('tocSidebar');
     const tocInline = document.getElementById('tocInline');
     const prose = document.querySelector('.prose-shiro');
     if (!prose || (!tocSidebar && !tocInline)) return;
 
-    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const prefersReduced = window.__prefersReduced;
+    // Defaults match _config.yml toc.depth and toc.min_headings; keep in sync if changed
     const maxDepth = parseInt(document.body.dataset.tocDepth || '3', 10);
     const minHeadings = parseInt(document.body.dataset.tocMin || '3', 10);
 
@@ -120,26 +121,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const headingArr = Array.from(headings);
     let ticking = false;
 
+    // Cache heading positions using getBoundingClientRect + scrollY for accurate
+    // absolute positions (offsetTop is relative to offsetParent, which may not be <body>)
+    let headingPositions = headingArr.map(h => ({ id: h.id, top: h.getBoundingClientRect().top + window.scrollY }));
+    function cachePositions() {
+        headingPositions = headingArr.map(h => ({ id: h.id, top: h.getBoundingClientRect().top + window.scrollY }));
+    }
+    let debounceTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(cachePositions, 200);
+    }, { passive: true });
+
+    // Re-cache positions after images load (they change page layout)
+    // Uses the same debounce as resize to avoid rapid successive calls
+    // when multiple images load nearly simultaneously
+    function debouncedCachePositions() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(cachePositions, 200);
+    }
+    document.querySelectorAll('.prose-shiro img').forEach(img => {
+        if (!img.complete) img.addEventListener('load', debouncedCachePositions, { once: true });
+    });
+
     function updateActiveHeading() {
         const scrollY = window.scrollY;
         const offset = 100; // px from top
         let currentId = '';
 
-        for (let i = headingArr.length - 1; i >= 0; i--) {
-            if (headingArr[i].getBoundingClientRect().top + window.scrollY - offset <= scrollY) {
-                currentId = headingArr[i].id;
+        for (let i = headingPositions.length - 1; i >= 0; i--) {
+            if (headingPositions[i].top - offset <= scrollY) {
+                currentId = headingPositions[i].id;
                 break;
             }
         }
 
         // If scrolled to very top, no active heading
-        if (!currentId && scrollY < (headingArr[0] ? headingArr[0].offsetTop - offset : 200)) {
+        if (!currentId && scrollY < (headingPositions[0] ? headingPositions[0].top - offset : 200)) {
             currentId = '';
         }
 
         allLinks.forEach((link) => {
             link.classList.toggle('active', link.dataset.target === currentId);
         });
+
+        // Scroll active TOC item into view within the sidebar
+        if (currentId && tocSidebar) {
+            const activeLink = tocSidebar.querySelector('.toc-link.active');
+            const scrollContainer = tocSidebar.querySelector('.toc-sidebar-inner .toc-body');
+            if (activeLink && scrollContainer) {
+                const linkRect = activeLink.getBoundingClientRect();
+                const containerRect = scrollContainer.getBoundingClientRect();
+                if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
+                    activeLink.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
+                }
+            }
+        }
+
         ticking = false;
     }
 
@@ -167,9 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sidebar fade-in animation
     if (tocSidebar && !prefersReduced) {
         tocSidebar.style.opacity = '0';
+        // Uses --ease-soft from @theme in _tailwind.css
         tocSidebar.style.transition = 'opacity 0.4s var(--ease-soft)';
         requestAnimationFrame(() => {
             tocSidebar.style.opacity = '1';
         });
     }
-});
+})();

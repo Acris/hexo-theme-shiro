@@ -21,6 +21,10 @@ Made by Acris with ❤️
 - **Tailwind CSS**: Modern utility-first CSS framework.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`).
+- **Dark Mode**: Elegant dark theme with warm neutral tones, 3-state toggle (system/light/dark).
+- **Reading Progress Bar**: Thin vermillion progress bar at the top of the page.
+- **Back to Top**: Smooth scroll back-to-top button.
+- **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **Fast**: Optimized for performance with minimal Javascript.
 
 ## Installation
@@ -76,6 +80,15 @@ have higher priority than the theme's default config.
 Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your site root:
 
 ```yaml
+# Site
+site:
+  favicon: /favicon.svg
+  # Whether to display the seal (stamp) in the header
+  seal: true
+  rss:
+    enabled: false
+    path: /atom.xml
+
 # Navigation menu
 menu:
 #  - name: Home
@@ -93,27 +106,13 @@ menu:
 #    # Open in new tab
 #    target: _blank
 
-site:
-  favicon: /favicon.svg
-  # Whether to display the seal (stamp) in the header
-  seal: true
-  rss:
-    enabled: false
-    path: /atom.xml
-
-# Analytics
-analytics:
-  # Only support Google Analytics 4
-  google:
-    enabled: false
-    id: ""
-
-# Comment systems
-comments:
-  enabled: false
-  provider: disqus
-  disqus:
-    shortname: ""
+# Excerpt settings
+excerpt:
+  # If post has <!-- more -->, use it.
+  # Otherwise fallback to auto-truncated excerpt.
+  fallback:
+    enabled: true
+    length: 200
 
 # Table of Contents (TOC)
 toc:
@@ -123,13 +122,35 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
-# Excerpt settings
-excerpt:
-  # If post has <!-- more -->, use it.
-  # Otherwise fallback to auto-truncated excerpt.
-  fallback:
-    enabled: true
-    length: 200
+# Dark mode
+# Default theme: system (follow OS), light, or dark
+# When toggle is false, the theme toggle button is hidden and the default theme is always used.
+# If toggle is disabled, it is recommended to set default to "light" to match the theme's design.
+dark_mode:
+  default: light
+  toggle: true
+
+# Reading progress bar (thin vermillion bar at top of page)
+progress_bar:
+  enabled: true
+
+# Back to top button
+back_to_top:
+  enabled: true
+
+# Comment systems
+comments:
+  enabled: false
+  provider: disqus
+  disqus:
+    shortname: ""
+
+# Analytics
+analytics:
+  # Only support Google Analytics 4
+  google:
+    enabled: false
+    id: ""
 ```
 
 ### Creating Pages (Tags & Categories)

@@ -16,3 +16,13 @@ toc:
   title: Contents
 
 empty: Nothing here yet.
+
+
+
+back_to_top: Back to Top
+
+
+theme:
+  light: Light
+  dark: Dark
+  system: System

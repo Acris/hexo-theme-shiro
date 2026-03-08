@@ -16,3 +16,13 @@ toc:
   title: 目次
 
 empty: まだ何もありません。
+
+
+
+back_to_top: トップへ戻る
+
+
+theme:
+  light: ライト
+  dark: ダーク
+  system: システム

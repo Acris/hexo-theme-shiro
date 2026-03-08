@@ -1,8 +1,16 @@
-document.addEventListener('DOMContentLoaded', () => {
+;(() => {
     const highlights = document.querySelectorAll('.prose-shiro .highlight');
     if (!highlights.length) return;
 
     highlights.forEach((block) => {
+        // Skip empty code blocks
+        const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
+        if (!codeEl || !codeEl.textContent.trim()) return;
+
+        // Detect code language from Hexo's class names (e.g., "highlight javascript")
+        const langMatch = block.className.match(/\bhighlight\s+(\S+)/);
+        const lang = langMatch ? langMatch[1] : '';
+
         const btn = document.createElement('button');
         btn.className = 'copy-btn';
         btn.setAttribute('aria-label', 'Copy code');
@@ -11,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerHTML = iconCopy;
 
         btn.addEventListener('click', () => {
+            // Prefer td.code (table-based line numbers) to avoid copying line numbers;
+            // do NOT use combined selector "td.code pre, pre" — it may match the
+            // line-number <pre> first when no td.code exists in the DOM order.
             const code = block.querySelector('td.code pre') || block.querySelector('pre');
             if (!code) return;
 
@@ -22,6 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.innerHTML = iconCopy;
                     btn.classList.remove('copied');
                 }, 2000);
+            }).catch(() => {
+                console.warn('Clipboard write failed');
             });
         });
 
@@ -30,5 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
         block.parentNode.insertBefore(wrapper, block);
         wrapper.appendChild(block);
         wrapper.appendChild(btn);
+
+        if (lang) {
+            const label = document.createElement('span');
+            label.className = 'code-lang';
+            label.textContent = lang;
+            wrapper.appendChild(label);
+        }
     });
-});
+})();

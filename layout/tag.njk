@@ -1,5 +1,5 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import divider, render_tag with context %}
+{% import "_macro/ui.njk" as ui with context %}
 
 {% block content %}
 <section class="section-shell">
@@ -11,7 +11,7 @@
             {{ __('nav.tags') }}
             {% endif %}
         </h1>
-        {{ divider() }}
+        {{ ui.divider() }}
     </header>
 
     {% if is_tag() %}
@@ -30,7 +30,7 @@
                 {# Sort by post count descending; tags with equal count retain alphabetical order (stable sort) #}
                 {% set tags = site.tags.sort('name', 1).sort('length', -1) %}
                 {% for tag in tags.toArray() %}
-                {{ render_tag(tag, true) }}
+                {{ ui.render_tag(tag, true) }}
                 {% endfor %}
             </div>
         </div>

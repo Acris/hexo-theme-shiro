@@ -1,1 +1,28 @@
-fr.yml
+nav:
+  menu: Menu
+  archives: Archives
+  categories: Catégories
+  tags: Tags
+
+page:
+  prev: Précédent
+  next: Suivant
+  pagination: Pagination
+
+index:
+  read_more: Lire la suite
+
+toc:
+  title: Sommaire
+
+empty: Rien ici pour le moment.
+
+
+
+back_to_top: Retour en haut
+
+
+theme:
+  light: Clair
+  dark: Sombre
+  system: Système

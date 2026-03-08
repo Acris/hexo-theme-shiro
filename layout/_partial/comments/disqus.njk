@@ -8,20 +8,26 @@
 
     (function() {
         var d = document, s = d.createElement('script');
-        s.src = 'https://{{ theme.comments.disqus.shortname }}.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
+        {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
+        s.src = 'https://' + {{ theme.comments.disqus.shortname | dump | safe }} + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', Date.now());
         
         var disqus_thread = d.getElementById('disqus_thread');
+        if (!disqus_thread) return;
+
+        if (!('IntersectionObserver' in window)) {
+            (d.head || d.body).appendChild(s);
+            return;
+        }
+
         var observer = new IntersectionObserver(function(entries) {
+            /* threshold 0.1 = load when 10% visible, not at first pixel */
             if (entries[0].isIntersecting) {
                 (d.head || d.body).appendChild(s);
                 observer.disconnect();
             }
-        });
-        
-        if (disqus_thread) {
-            observer.observe(disqus_thread);
-        }
+        }, { threshold: 0.1 });
+        observer.observe(disqus_thread);
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>

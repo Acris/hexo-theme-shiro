@@ -1,13 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
+;(() => {
     const containers = document.querySelectorAll('.prose-shiro');
     if (!containers.length || typeof window.lightGallery !== 'function') return;
 
-    const escapeHtml = (value) => value
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    const escapeHtml = (value) => {
+        const d = document.createElement('div');
+        d.textContent = value || '';
+        return d.innerHTML;
+    };
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
@@ -50,4 +49,4 @@ document.addEventListener('DOMContentLoaded', () => {
             download: false
         });
     });
-});
+})();
