@@ -49,7 +49,7 @@
     <script defer src="{{ url_for('js/lightgallery.js') }}"></script>
     <script defer src="{{ url_for('js/clipboard.js') }}"></script>
     {% endif %}
-    {% if theme.toc.enabled %}
+    {% if theme.toc.enabled and (is_post() or is_page()) %}
     <script defer src="{{ url_for('js/toc.js') }}"></script>
     {% endif %}
     {% if (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}

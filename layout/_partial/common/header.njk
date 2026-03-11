@@ -51,7 +51,7 @@
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn"
-            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/70 px-4 py-2 text-sm text-slate-700 shadow-xs backdrop-blur-xs"
+            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
             {{ ui.icon_chevron_down(id="menuChevron") }}
@@ -74,7 +74,7 @@
     <!-- Mobile Menu Panel -->
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
-            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/70 backdrop-blur-xs shadow-xs">
+            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
             {% for item in theme.menu %}
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>

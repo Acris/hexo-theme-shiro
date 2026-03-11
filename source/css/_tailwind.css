@@ -494,7 +494,7 @@
 
     /* ── Back to Top ── */
     .back-to-top {
-        @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/80 text-slate-400 shadow-sm backdrop-blur-xs duration-300 ease-soft;
+        @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm duration-300 ease-soft;
         transition-property: opacity, transform, color, border-color, box-shadow;
 
         &:hover {
@@ -838,7 +838,7 @@
 
 .dark .menu-panel ul {
     border-color: var(--color-border-strong);
-    background-color: rgba(30, 30, 30, 0.95);
+    background-color: var(--color-bg-panel);
 }
 
 .dark .menu-panel a {
