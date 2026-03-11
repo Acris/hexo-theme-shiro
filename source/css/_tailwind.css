@@ -881,7 +881,7 @@
 .dark .toc-toggle-title { &::before, &::after { color: var(--color-border-strong); } }
 .dark .toc-link { &::before { background-color: var(--color-seal); } }
 .dark .toc-sidebar .toc-link {
-    color: var(--color-text-subtle);
+    color: var(--color-text-muted);
     &:hover { color: var(--color-seal); }
     &.active { color: var(--color-seal); }
 }
