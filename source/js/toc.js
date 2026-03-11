@@ -24,7 +24,7 @@
         return text.trim()
             .toLowerCase()
             .replace(/[\s]+/g, '-')
-            .replace(/[^\w\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf-]/g, '')
+            .replace(/[^\w\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\uAC00-\uD7AF-]/g, '')
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '')
             || 'heading';
@@ -52,18 +52,25 @@
         if (lvl < minLevel) minLevel = lvl;
     });
 
-    // Build TOC HTML
+    // Build TOC DOM to avoid innerHTML XSS risks
     function buildToc() {
-        let html = '<ul class="toc-list">';
+        const ul = document.createElement('ul');
+        ul.className = 'toc-list';
         headings.forEach((h) => {
             const level = parseInt(h.tagName[1], 10);
             const indent = level - minLevel;
-            html += '<li class="toc-item" data-level="' + indent + '">' +
-                '<a class="toc-link" href="#' + h.id + '" data-target="' + h.id + '">' +
-                h.textContent.trim() + '</a></li>';
+            const li = document.createElement('li');
+            li.className = 'toc-item';
+            li.dataset.level = indent;
+            const a = document.createElement('a');
+            a.className = 'toc-link';
+            a.href = '#' + h.id;
+            a.dataset.target = h.id;
+            a.textContent = h.textContent.trim();
+            li.appendChild(a);
+            ul.appendChild(li);
         });
-        html += '</ul>';
-        return html;
+        return ul;
     }
 
     const tocHtml = buildToc();
@@ -71,13 +78,13 @@
     // Populate sidebar TOC
     if (tocSidebar) {
         const sidebarList = tocSidebar.querySelector('.toc-body');
-        if (sidebarList) sidebarList.innerHTML = tocHtml;
+        if (sidebarList) { sidebarList.textContent = ''; sidebarList.appendChild(tocHtml.cloneNode(true)); }
     }
 
     // Populate inline TOC
     if (tocInline) {
         const inlineList = tocInline.querySelector('.toc-body');
-        if (inlineList) inlineList.innerHTML = tocHtml;
+        if (inlineList) { inlineList.textContent = ''; inlineList.appendChild(tocHtml.cloneNode(true)); }
 
         // Toggle inline TOC with dynamic max-height
         const toggleBtn = tocInline.querySelector('.toc-toggle');

@@ -6,17 +6,20 @@
         </h2>
         {{ meta(post) }}
     </header>
-    {% set has_excerpt = post.excerpt or (theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length) %}
+    {% if post.excerpt %}
+        {% set show_excerpt = true %}
+        {% set excerpt_content = post.excerpt %}
+    {% elif theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length %}
+        {% set show_excerpt = true %}
+        {% set excerpt_content = post.content | striptags | truncate(theme.excerpt.fallback.length) %}
+    {% else %}
+        {% set show_excerpt = false %}
+        {% set excerpt_content = post.content %}
+    {% endif %}
     <div class="prose-shiro">
-        {% if post.excerpt %}
-            {{ post.excerpt }}
-        {% elif theme.excerpt.fallback.enabled %}
-            {{ post.content | striptags | truncate(theme.excerpt.fallback.length) }}
-        {% else %}
-            {{ post.content }}
-        {% endif %}
+        {{ excerpt_content }}
     </div>
-    {% if has_excerpt %}
+    {% if show_excerpt %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
             class="focus-elegant btn-ink">

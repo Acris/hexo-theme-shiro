@@ -1,6 +1,7 @@
 <footer class="section-divider">
     <div class="text-center text-sm text-slate-500 leading-relaxed">
-        <p>&copy; <span class="oldstyle-nums">{{ date(null, 'YYYY') }}</span> {{ config.title | default("白夜書簡", true) }}</p>
+        {% set current_year = date(null, 'YYYY') %}
+        <p>&copy; <span class="oldstyle-nums">{% if theme.site.since and theme.site.since != current_year %}{{ theme.site.since }}–{% endif %}{{ current_year }}</span> {{ config.title | default("白夜書簡", true) }}</p>
         <p class="font-eng text-footnote tracking-wide opacity-90">Elegant theme by <a href="https://github.com/Acris/hexo-theme-shiro" target="_blank" rel="noopener noreferrer" class="link-muted">Shiro</a> · Made by <a href="https://acris.me" target="_blank" rel="noopener noreferrer" class="link-muted">Acris</a>
                         with <span aria-label="love" title="love">❤️</span></p>
     </div>

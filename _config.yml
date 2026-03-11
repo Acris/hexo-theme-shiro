@@ -1,6 +1,8 @@
 # Site
 site:
   favicon: /favicon.svg
+  # Year the site was created; displayed in footer as "since–current" (omit to show current year only)
+  # since: 2020
   # Whether to display the seal (stamp) in the header
   seal: true
   rss:

@@ -28,6 +28,28 @@
     <meta name="keywords" content="{{ config.keywords }}" />
     {% endif %}
 
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ page_title }}" />
+    {% if clean_description %}
+    <meta property="og:description" content="{{ clean_description }}" />
+    {% endif %}
+    <meta property="og:url" content="{{ url }}" />
+    <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
+    <meta property="og:site_name" content="{{ site_title }}" />
+    {% if page.photos and page.photos.length %}
+    <meta property="og:image" content="{{ page.photos[0] }}" />
+    {% endif %}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ page_title }}" />
+    {% if clean_description %}
+    <meta name="twitter:description" content="{{ clean_description }}" />
+    {% endif %}
+    {% if page.photos and page.photos.length %}
+    <meta name="twitter:image" content="{{ page.photos[0] }}" />
+    {% endif %}
+
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url }}" />
 

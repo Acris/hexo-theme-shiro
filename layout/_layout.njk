@@ -43,7 +43,8 @@
     {% endif %}
 
     <!-- Scripts -->
-    <script>window.__i18n = { clipboard_copy: "{{ __('clipboard_copy') }}", clipboard_copied: "{{ __('clipboard_copied') }}", gallery_visit_source: "{{ __('gallery_visit_source') }}" };</script>
+    {% set i18n_data = { clipboard_copy: __('clipboard_copy'), clipboard_copied: __('clipboard_copied'), gallery_visit_source: __('gallery_visit_source') } %}
+    <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js"></script>
     <script defer src="{{ url_for('js/lightgallery.js') }}"></script>
     <script defer src="{{ url_for('js/clipboard.js') }}"></script>

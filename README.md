@@ -95,6 +95,8 @@ Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your 
 # Site
 site:
   favicon: /favicon.svg
+  # Year the site was created; displayed in footer as "since–current" (omit to show current year only)
+  # since: 2020
   # Whether to display the seal (stamp) in the header
   seal: true
   rss:
@@ -114,7 +116,7 @@ menu:
 #  - name: About
 #    url: /about
 #  - name: GitHub
-#    url: https://github.com
+#    url: https://github.com/Acris/hexo-theme-shiro
 #    # Open in new tab
 #    target: _blank
 
@@ -242,7 +244,7 @@ Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerat
 
 1. Create a new YAML file in `languages/` (e.g., `ko.yml`).
 2. Copy the structure from `languages/en.yml` and translate all values.
-3. Ensure all top-level keys (`nav`, `page`, `index`, `toc`, `empty`, `back_to_top`, `theme`) are present.
+3. Ensure all top-level keys (`back_to_top`, `clipboard_copy`, `clipboard_copied`, `empty`, `gallery_visit_source`, `index`, `nav`, `page`, `theme`, `toc`) are present.
 
 ## Thanks
 
