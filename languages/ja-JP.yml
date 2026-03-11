@@ -1,28 +1,30 @@
-nav:
-  menu: メニュー
-  archives: アーカイブ
-  categories: カテゴリー
-  tags: タグ
+back_to_top: トップへ戻る
 
-page:
-  prev: 前へ
-  next: 次へ
-  pagination: ページネーション
+clipboard_copy: コードをコピー
+clipboard_copied: コピーしました
+
+empty: まだ何もありません。
+
+gallery_visit_source: 元のページを見る
 
 index:
   read_more: 続きを読む
 
-toc:
-  title: 目次
+nav:
+  archives: アーカイブ
+  categories: カテゴリー
+  menu: メニュー
+  tags: タグ
 
-empty: まだ何もありません。
-
-
-
-back_to_top: トップへ戻る
-
+page:
+  next: 次へ
+  pagination: ページネーション
+  prev: 前へ
 
 theme:
-  light: ライト
   dark: ダーク
+  light: ライト
   system: システム
+
+toc:
+  title: 目次

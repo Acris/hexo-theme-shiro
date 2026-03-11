@@ -1,28 +1,30 @@
-nav:
-  menu: Menu
-  archives: Archives
-  categories: Catégories
-  tags: Tags
+back_to_top: Retour en haut
 
-page:
-  prev: Précédent
-  next: Suivant
-  pagination: Pagination
+clipboard_copy: Copier le code
+clipboard_copied: Copié
+
+empty: Rien ici pour le moment.
+
+gallery_visit_source: Voir la page source
 
 index:
   read_more: Lire la suite
 
-toc:
-  title: Sommaire
+nav:
+  archives: Archives
+  categories: Catégories
+  menu: Menu
+  tags: Tags
 
-empty: Rien ici pour le moment.
-
-
-
-back_to_top: Retour en haut
-
+page:
+  next: Suivant
+  pagination: Pagination
+  prev: Précédent
 
 theme:
-  light: Clair
   dark: Sombre
+  light: Clair
   system: Système
+
+toc:
+  title: Sommaire

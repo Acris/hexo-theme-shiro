@@ -19,7 +19,7 @@
                 <div class="space-y-4">
             {% endif %}
             <article class="archive-item group">
-                <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+                <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
                     {{ date(post.date, 'YYYY/MM/DD') }}
                 </time>
                 <h3 class="archive-title">
@@ -37,7 +37,7 @@
     <div class="space-y-4">
         {% for post in posts.toArray() %}
         <article class="archive-item group">
-            <time datetime="{{ date(post.date, 'YYYY/MM/DD') }}" class="archive-date">
+            <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
                 {{ date(post.date, 'YYYY/MM/DD') }}
             </time>
             <h3 class="archive-title">

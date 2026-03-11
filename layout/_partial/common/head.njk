@@ -7,8 +7,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Google Fonts: async preload to avoid render-blocking; merged into a single request.
          Note: onload inline handler may be blocked under strict CSP; use JS font loader if CSP is required. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Yuji+Boku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&family=IM+Fell+English:ital@0;1&display=swap" onload="this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Yuji+Boku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&family=IM+Fell+English:ital@0;1&display=swap" /></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;500;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;500;600&family=Noto+Serif+JP:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" /></noscript>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {% set site_title = config.title | default("白夜書簡", true) %}
     {% set page_title %}{% if is_home() %}{{ site_title }}{% else %}{{ page.title }} | {{ site_title }}{% endif %}{% endset %}
@@ -42,8 +42,6 @@
     {% endif %}
 
     <!-- CSS -->
-    {% if is_post() or is_page() %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" />
-    {% endif %}
     <link rel="stylesheet" href="{{ url_for('css/style.min.css') }}">
 </head>

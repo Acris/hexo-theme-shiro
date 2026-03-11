@@ -34,10 +34,10 @@
     --color-code-gutter: #f1f5f9;
 
     --font-code: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
-    --font-eng: 'Cormorant Garamond', 'IM Fell English', serif;
-    --font-serif: 'Cardo', 'Spectral', 'Zen Old Mincho', 'Shippori Mincho',
+    --font-eng: 'Cormorant Garamond', serif;
+    --font-serif: 'Cardo', 'Spectral', 'Zen Old Mincho',
     'Noto Serif JP', 'Noto Serif SC', serif;
-    --font-title: 'Yuji Syuku', 'Yuji Boku', 'Zen Old Mincho', 'Noto Serif JP', serif;
+    --font-title: 'Yuji Syuku', 'Zen Old Mincho', 'Noto Serif JP', serif;
 
     --shadow-paper: 0 1px 1px rgba(16, 24, 40, 0.06), 0 10px 30px rgba(16, 24, 40, 0.08),
     0 35px 70px rgba(16, 24, 40, 0.06);
@@ -168,7 +168,8 @@
     }
 
     .btn-ink {
-        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs transition-all duration-200 ease-soft;
+        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft;
+        transition-property: color, background-color, border-color, box-shadow, transform;
 
         &:hover {
             @apply border-[var(--color-seal)] bg-[var(--color-seal)] text-white/95 shadow-ink saturate-105;
@@ -180,7 +181,8 @@
     }
 
     .header-pill-btn {
-        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 transition-all duration-300;
+        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300;
+        transition-property: color, background-color, border-color, box-shadow;
 
         &:hover {
             @apply bg-paper text-[var(--color-seal)] shadow-xs;
@@ -256,7 +258,8 @@
     }
 
     .tag-pill {
-        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 transition-all duration-200 hover:border-[var(--color-seal)]/50 hover:text-[var(--color-seal)];
+        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-[var(--color-seal)]/50 hover:text-[var(--color-seal)];
+        transition-property: color, border-color;
     }
 
     .content-article {
@@ -416,7 +419,8 @@
     }
 
     .toc-inline .toc-body {
-        @apply px-4 overflow-hidden transition-all duration-300 ease-soft;
+        @apply px-4 overflow-hidden duration-300 ease-soft;
+        transition-property: max-height, opacity, padding;
         max-height: 0;
         opacity: 0;
 
@@ -456,7 +460,8 @@
 
         &::before {
             content: '';
-            @apply absolute rounded-full transition-all duration-200 ease-soft;
+            @apply absolute rounded-full duration-200 ease-soft;
+            transition-property: opacity, transform;
             left: -0.65rem;
             top: 50%;
             width: 4px;
@@ -584,14 +589,15 @@
     @apply relative;
     width: 100%;
 
-    @media (min-width: 768px) {
+    @media (min-width: 1024px) {
         width: calc(100% + 7rem);
         margin-left: -3.5rem;
         margin-right: -3.5rem;
     }
 
     & > .copy-btn {
-        @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-paper/70 p-1.5 text-slate-300 opacity-0 shadow-xs backdrop-blur-xs transition-all duration-300 ease-soft;
+        @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-paper/90 p-1.5 text-slate-300 opacity-0 shadow-xs duration-300 ease-soft;
+        transition-property: opacity, color, border-color, background-color;
         border-radius: 2px;
 
         &:hover {
