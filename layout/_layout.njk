@@ -6,7 +6,7 @@
 <body class="h-full fog-bg text-slate-800"{% if theme.toc.enabled %} data-toc-depth="{{ theme.toc.depth | default(3) }}" data-toc-min="{{ theme.toc.min_headings | default(3) }}"{% endif %}>
     {{ ui.svg_filters() }}
 
-    {% if theme.progress_bar.enabled %}
+    {% if theme.progress_bar.enabled and (is_post() or is_page()) %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
     {% endif %}
 
@@ -52,7 +52,7 @@
     {% if theme.toc.enabled %}
     <script defer src="{{ url_for('js/toc.js') }}"></script>
     {% endif %}
-    {% if theme.progress_bar.enabled or theme.back_to_top.enabled %}
+    {% if (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}
     <script defer src="{{ url_for('js/progress.js') }}"></script>
     {% endif %}
     {% if theme.dark_mode.toggle !== false %}
