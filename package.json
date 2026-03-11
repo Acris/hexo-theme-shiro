@@ -3,6 +3,10 @@
   "version": "1.2.0",
   "description": "A pure and simple theme for Hexo.",
   "repository": "https://github.com/Acris/hexo-theme-shiro.git",
+  "homepage": "https://github.com/Acris/hexo-theme-shiro",
+  "bugs": {
+    "url": "https://github.com/Acris/hexo-theme-shiro/issues"
+  },
   "scripts": {
     "dev": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch",
     "build": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --minify"

@@ -13,6 +13,7 @@
         if (bar) {
             if (docHeight <= 0) {
                 bar.style.opacity = '0';
+                bar.style.transform = 'scaleX(0)';
             } else {
                 bar.style.opacity = '1';
                 const progress = Math.min(scrollY / docHeight, 1);

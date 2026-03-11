@@ -8,7 +8,8 @@
             {% set y = date(post.date, 'YYYY') %}
             {% if y != currentYear %}
                 {% if currentYear != '' %}
-                </div></div>{# close .space-y-4 + .relative #}
+                </div>{# close .space-y-4 #}
+                </div>{# close .relative #}
                 {% endif %}
                 {% set currentYear = y %}
                 <div class="relative">{# year group wrapper — closed when year changes or after loop #}
@@ -28,7 +29,8 @@
             </article>
         {% endfor %}
         {% if currentYear != '' %}
-            </div></div>{# close .space-y-4 + .relative #}
+            </div>{# close .space-y-4 #}
+            </div>{# close .relative #}
         {% endif %}
     </div>
 {% endmacro %}

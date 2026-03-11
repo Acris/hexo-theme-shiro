@@ -1,6 +1,6 @@
 {% import "_macro/ui.njk" as ui with context %}
 <!doctype html>
-<html lang="{{ config.language }}" class="h-full scroll-smooth">
+<html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
 <body class="h-full fog-bg text-slate-800"{% if theme.toc.enabled %} data-toc-depth="{{ theme.toc.depth | default(3) }}" data-toc-min="{{ theme.toc.min_headings | default(3) }}"{% endif %}>
@@ -43,11 +43,15 @@
     {% endif %}
 
     <!-- Scripts -->
+    <!-- CSP fallback: promote preloaded font stylesheets if onload was blocked -->
+    <script>document.querySelectorAll('link[rel="preload"][as="style"]').forEach(function(l){l.rel='stylesheet'});</script>
+    {% if is_home() or is_post() or is_page() %}
     {% set i18n_data = { clipboard_copy: __('clipboard_copy'), clipboard_copied: __('clipboard_copied'), gallery_visit_source: __('gallery_visit_source') } %}
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js"></script>
     <script defer src="{{ url_for('js/lightgallery.js') }}"></script>
     <script defer src="{{ url_for('js/clipboard.js') }}"></script>
+    {% endif %}
     {% if theme.toc.enabled and (is_post() or is_page()) %}
     <script defer src="{{ url_for('js/toc.js') }}"></script>
     {% endif %}
@@ -57,7 +61,7 @@
     {% if theme.dark_mode.toggle !== false %}
     <script defer src="{{ url_for('js/theme-toggle.js') }}"></script>
     {% endif %}
-    <script defer src="{{ url_for('js/main.js') }}"></script>
+    <script defer src="{{ url_for('js/mobile-menu.js') }}"></script>
     {% include "_partial/analytics/google.njk" %}
 </body>
 </html>

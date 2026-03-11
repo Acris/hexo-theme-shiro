@@ -1,5 +1,5 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import meta, render_tag, icon_chevron_down with context %}
+{% from "_macro/ui.njk" import meta, render_tag with context %}
 
 {% block content %}
 <article class="content-article">
@@ -12,22 +12,7 @@
 
 
     {% if theme.toc.enabled %}
-    <!-- Inline TOC (small screens < xl) -->
-    <div id="tocInline" class="toc-inline xl:hidden mb-8">
-        <button class="toc-toggle" aria-expanded="false" aria-controls="tocInlineBody">
-            <span class="toc-toggle-title">{{ __('toc.title') }}</span>
-            {{ icon_chevron_down("toc-chevron h-4 w-4") }}
-        </button>
-        <div class="toc-body" id="tocInlineBody" data-open="false"></div>
-    </div>
-
-    <!-- Sidebar TOC (xl+ screens) -->
-    <aside id="tocSidebar" class="toc-sidebar hidden xl:block" aria-label="{{ __('toc.title') }}">
-        <div class="toc-sidebar-inner">
-            <p class="toc-sidebar-title">{{ __('toc.title') }}</p>
-            <div class="toc-body"></div>
-        </div>
-    </aside>
+    {% include "_partial/components/toc.njk" %}
     {% endif %}
 
     <div class="prose-shiro">
@@ -59,6 +44,8 @@
             <span class="post-nav-title">{{ page.next.title }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
+        {% else %}
+        <div></div>
         {% endif %}
     </div>
 

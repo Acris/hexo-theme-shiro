@@ -5,6 +5,32 @@
     const i18nCopy = () => (window.__i18n && window.__i18n.clipboard_copy) || 'Copy code';
     const i18nCopied = () => (window.__i18n && window.__i18n.clipboard_copied) || 'Copied';
 
+    // Clipboard write with fallback for insecure contexts (HTTP)
+    function copyText(text) {
+        // Clipboard API requires secure context (HTTPS) or localhost
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        // Fallback: create a temporary element and use Selection API + execCommand.
+        // execCommand is deprecated but remains the only synchronous clipboard
+        // mechanism for insecure contexts; no modern replacement exists.
+        return new Promise((resolve, reject) => {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy') ? resolve() : reject();
+            } catch (_) {
+                reject();
+            } finally {
+                document.body.removeChild(ta);
+            }
+        });
+    }
+
     highlights.forEach((block) => {
         // Skip empty code blocks
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
@@ -29,7 +55,7 @@
             if (!code) return;
 
             const text = code.textContent;
-            navigator.clipboard.writeText(text).then(() => {
+            copyText(text).then(() => {
                 btn.innerHTML = iconDone;
                 btn.classList.add('copied');
                 btn.setAttribute('aria-label', i18nCopied());

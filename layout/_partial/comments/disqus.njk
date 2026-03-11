@@ -2,7 +2,7 @@
 <div id="disqus_thread" class="mt-10"></div>
 <script>
     var disqus_config = function () {
-        this.page.url = {{ page.permalink | dump | safe }};
+        this.page.url = {{ (page.permalink or url) | dump | safe }};
         this.page.identifier = {{ url_for(page.path) | dump | safe }};
     };
 

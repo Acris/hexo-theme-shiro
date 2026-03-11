@@ -1,5 +1,5 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import icon_chevron_down with context %}
+{% from "_macro/ui.njk" import meta, render_tag with context %}
 
 {% block content %}
 <article class="content-article">
@@ -7,30 +7,27 @@
         <h1 class="page-title mb-4">
             {{ page.title }}
         </h1>
+        {% if page.date %}
+        {{ meta(page, true, "mb-4") }}
+        {% endif %}
     </header>
 
     {% if theme.toc.enabled %}
-    <!-- Inline TOC (small screens < xl) -->
-    <div id="tocInline" class="toc-inline xl:hidden mb-8">
-        <button class="toc-toggle" aria-expanded="false" aria-controls="tocInlineBody">
-            <span class="toc-toggle-title">{{ __('toc.title') }}</span>
-            {{ icon_chevron_down("toc-chevron h-4 w-4") }}
-        </button>
-        <div class="toc-body" id="tocInlineBody" data-open="false"></div>
-    </div>
-
-    <!-- Sidebar TOC (xl+ screens) -->
-    <aside id="tocSidebar" class="toc-sidebar hidden xl:block" aria-label="{{ __('toc.title') }}">
-        <div class="toc-sidebar-inner">
-            <p class="toc-sidebar-title">{{ __('toc.title') }}</p>
-            <div class="toc-body"></div>
-        </div>
-    </aside>
+    {% include "_partial/components/toc.njk" %}
     {% endif %}
 
     <div class="prose-shiro">
         {{ page.content }}
     </div>
+
+    <!-- Tags -->
+    {% if page.tags and page.tags.length > 0 %}
+    <div class="mt-8 flex flex-wrap gap-2">
+        {% for tag in page.tags.toArray() %}
+        {{ render_tag(tag, false) }}
+        {% endfor %}
+    </div>
+    {% endif %}
 
     {% include "_partial/comments/disqus.njk" %}
 </article>

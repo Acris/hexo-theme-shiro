@@ -42,19 +42,8 @@
         if (linkedUrl) {
             const label = escapeHtml(i18nVisitSource());
             const safeUrl = escapeAttr(linkedUrl);
-            html += `<a href="${safeUrl}" target="_blank" `
-                + `rel="noopener noreferrer" `
-                + `style="display:inline-flex;align-items:center;gap:6px;`
-                + `margin-top:10px;padding:6px 18px;`
-                + `background:rgba(255,255,255,.12);`
-                + `border:1px solid rgba(255,255,255,.25);border-radius:20px;`
-                + `color:rgba(255,255,255,.88);font-size:13px;`
-                + `text-decoration:none;backdrop-filter:blur(4px);`
-                + `transition:background .2s,border-color .2s;" `
-                + `onmouseenter="this.style.background='rgba(255,255,255,.22)';`
-                + `this.style.borderColor='rgba(255,255,255,.45)'" `
-                + `onmouseleave="this.style.background='rgba(255,255,255,.12)';`
-                + `this.style.borderColor='rgba(255,255,255,.25)'">`
+            html += `<a class="lg-source-btn" href="${safeUrl}" target="_blank" `
+                + `rel="noopener noreferrer">`
                 + `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" `
                 + `stroke="currentColor" stroke-width="2" stroke-linecap="round" `
                 + `stroke-linejoin="round">`
@@ -112,6 +101,9 @@
         return link;
     };
 
+    // Track instances for proper cleanup (e.g., Pjax/SPA navigation)
+    const instances = [];
+
     containers.forEach((container) => {
         const images = container.querySelectorAll('img');
         if (!images.length) return;
@@ -120,9 +112,15 @@
             ensureLink(container, img);
         });
 
-        window.lightGallery(container, {
+        instances.push(window.lightGallery(container, {
             selector: 'a[data-lg-item]',
             download: false
-        });
+        }));
     });
+
+    // Destroy instances on Pjax navigation to prevent memory leaks
+    document.addEventListener('pjax:send', () => {
+        instances.forEach(i => { if (i && i.destroy) i.destroy(); });
+        instances.length = 0;
+    }, { once: true });
 })();

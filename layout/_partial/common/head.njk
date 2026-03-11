@@ -15,10 +15,12 @@
     <title>{{ page_title }}</title>
 
     <!-- SEO Meta -->
-    {% set meta_description = page.description or page.excerpt or config.description or '' %}
-    {% set clean_description = strip_html(meta_description) | truncate(200) %}
-    {% if meta_description %}
-    <meta name="description" content="{{ clean_description }}" />
+    {% set clean_desc = clean_description(page, config) %}
+    {% if clean_desc %}
+    <meta name="description" content="{{ clean_desc }}" />
+    {% endif %}
+    {% if page.author or config.author %}
+    <meta name="author" content="{{ page.author or config.author }}" />
     {% endif %}
     {% if page.keywords %}
     <meta name="keywords" content="{{ page.keywords }}" />
@@ -30,24 +32,25 @@
 
     <!-- Open Graph -->
     <meta property="og:title" content="{{ page_title }}" />
-    {% if clean_description %}
-    <meta property="og:description" content="{{ clean_description }}" />
+    {% if clean_desc %}
+    <meta property="og:description" content="{{ clean_desc }}" />
     {% endif %}
     <meta property="og:url" content="{{ url }}" />
     <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
     <meta property="og:site_name" content="{{ site_title }}" />
-    {% if page.photos and page.photos.length %}
-    <meta property="og:image" content="{{ page.photos[0] }}" />
+    {% set og_img = og_image(page) %}
+    {% if og_img %}
+    <meta property="og:image" content="{{ og_img }}" />
     {% endif %}
 
     <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="{% if og_img %}summary_large_image{% else %}summary{% endif %}" />
     <meta name="twitter:title" content="{{ page_title }}" />
-    {% if clean_description %}
-    <meta name="twitter:description" content="{{ clean_description }}" />
+    {% if clean_desc %}
+    <meta name="twitter:description" content="{{ clean_desc }}" />
     {% endif %}
-    {% if page.photos and page.photos.length %}
-    <meta name="twitter:image" content="{{ page.photos[0] }}" />
+    {% if og_img %}
+    <meta name="twitter:image" content="{{ og_img }}" />
     {% endif %}
 
     <!-- Canonical URL -->
@@ -64,6 +67,8 @@
     {% endif %}
 
     <!-- CSS -->
+    {% if is_home() or is_post() or is_page() %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" />
+    {% endif %}
     <link rel="stylesheet" href="{{ url_for('css/style.min.css') }}">
 </head>

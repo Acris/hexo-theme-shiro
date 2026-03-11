@@ -4,9 +4,15 @@
     <div class="relative flex items-start justify-center">
         <div class="text-center">
             <div class="relative inline-block">
+                {% if is_home() %}
                 <h1 class="site-title">
                     <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </h1>
+                {% else %}
+                <p class="site-title">
+                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
+                </p>
+                {% endif %}
                 <!-- Seal: Mathematically Centered -->
                 {% if theme.site.seal %}
                 <div
@@ -65,7 +71,7 @@
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-[var(--color-seal)] transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
-            <li class="text-slate-400 select-none" aria-hidden="true">/</li>
+            <li class="nav-divider text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
             {% endfor %}
         </ul>
@@ -79,7 +85,7 @@
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-[var(--color-seal)] hover:bg-[var(--color-seal)]/5 transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
-            <li class="h-px bg-slate-200/70" aria-hidden="true"></li>
+            <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             {% endif %}
             {% endfor %}
         </ul>

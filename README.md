@@ -104,6 +104,8 @@ site:
     path: /atom.xml
 
 # Navigation menu
+# The "name" field accepts any text — use your preferred language.
+# Examples: "Home" (English), "首页" (Chinese), "ホーム" (Japanese)
 menu:
   - name: Home
     url: /
@@ -212,6 +214,8 @@ hexo-theme-shiro/
 │   ├── archive.njk         # Archive page
 │   ├── tag.njk             # Tag page
 │   └── category.njk        # Category page
+├── scripts/
+│   └── helpers.js          # Custom Hexo helpers (clean_description, og_image, etc.)
 ├── source/
 │   ├── css/_tailwind.css   # Tailwind CSS source (compiled to style.min.css)
 │   └── js/                 # Client-side scripts

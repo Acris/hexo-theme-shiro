@@ -78,13 +78,12 @@
     // Populate sidebar TOC
     if (tocSidebar) {
         const sidebarList = tocSidebar.querySelector('.toc-body');
-        if (sidebarList) { sidebarList.textContent = ''; sidebarList.appendChild(tocHtml.cloneNode(true)); }
+        if (sidebarList) { sidebarList.textContent = ''; sidebarList.appendChild(tocInline ? tocHtml.cloneNode(true) : tocHtml); }
     }
 
-    // Populate inline TOC
     if (tocInline) {
         const inlineList = tocInline.querySelector('.toc-body');
-        if (inlineList) { inlineList.textContent = ''; inlineList.appendChild(tocHtml.cloneNode(true)); }
+        if (inlineList) { inlineList.textContent = ''; inlineList.appendChild(tocHtml); }
 
         // Toggle inline TOC with dynamic max-height
         const toggleBtn = tocInline.querySelector('.toc-toggle');
@@ -150,6 +149,11 @@
     document.querySelectorAll('.prose-shiro img').forEach(img => {
         if (!img.complete) img.addEventListener('load', debouncedCachePositions, { once: true });
     });
+
+    // Re-cache after web fonts finish loading (line-height changes shift headings)
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(debouncedCachePositions);
+    }
 
     function updateActiveHeading() {
         const scrollY = window.scrollY;

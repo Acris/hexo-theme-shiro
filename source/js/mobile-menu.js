@@ -39,9 +39,9 @@
             }
         });
 
-        // Close when clicking outside
+        // Close when clicking outside (skip if already closed)
         document.addEventListener('click', (e) => {
-            if (!btn.contains(e.target) && !panel.contains(e.target)) {
+            if (panel.dataset.open === 'true' && !btn.contains(e.target) && !panel.contains(e.target)) {
                 setOpen(false);
             }
         });

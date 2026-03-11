@@ -7,6 +7,7 @@
     const btn = document.getElementById('themeToggle');
     if (!btn) return;
 
+    const html = document.documentElement;
     const states = ['system', 'light', 'dark'];
 
     // Cache SVG icon references once to avoid repeated DOM queries in updateIcon
@@ -27,7 +28,6 @@
     }
 
     function apply(state) {
-        const html = document.documentElement;
         if (state === 'dark') {
             html.classList.add('dark');
             html.style.colorScheme = 'dark';
@@ -47,7 +47,6 @@
         const next = states[(states.indexOf(current) + 1) % states.length];
         localStorage.setItem('theme', next);
 
-        const html = document.documentElement;
         html.classList.add('theme-transition');
         apply(next);
         // 350ms matches .theme-transition duration in _tailwind.css

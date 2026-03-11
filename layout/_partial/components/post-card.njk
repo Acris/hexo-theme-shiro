@@ -11,10 +11,10 @@
         {% set excerpt_content = post.excerpt %}
     {% elif theme.excerpt.fallback.enabled and (post.content | striptags | length) > theme.excerpt.fallback.length %}
         {% set show_excerpt = true %}
-        {% set excerpt_content = post.content | striptags | truncate(theme.excerpt.fallback.length) %}
+        {% set excerpt_content = '<p>' + (post.content | striptags | truncate(theme.excerpt.fallback.length)) + '</p>' %}
     {% else %}
         {% set show_excerpt = false %}
-        {% set excerpt_content = post.content %}
+        {% set excerpt_content = strip_id(post.content) %}
     {% endif %}
     <div class="prose-shiro">
         {{ excerpt_content }}
