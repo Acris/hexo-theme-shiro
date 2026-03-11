@@ -14,7 +14,7 @@ Made by Acris with ❤️
   <a href="https://www.npmjs.com/package/hexo-theme-shiro" target="_blank"><img alt="NPM Version" src="https://img.shields.io/npm/v/hexo-theme-shiro?logo=npm"/></a>
 </div>
 
-**[Live Demo](https://acris.me)**
+**[Live Demo](https://acris.me/2026/03/07/Introducing-Hexo-Theme-Shiro/)**
 
 ## Features
 
