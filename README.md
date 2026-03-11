@@ -140,6 +140,8 @@ toc:
 
 # Dark mode
 # Default theme: system (follow OS), light, or dark
+# When default is "system", the toggle cycles through 3 states: system → light → dark.
+# When default is "light" or "dark", the toggle switches between light ↔ dark only (no system option).
 # When toggle is false, the theme toggle button is hidden and the default theme is always used.
 # If toggle is disabled, it is recommended to set default to "light" to match the theme's design.
 dark_mode:

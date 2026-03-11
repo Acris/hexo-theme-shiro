@@ -986,10 +986,43 @@
     }
 }
 
-/* Theme switching transition — only key elements to avoid performance issues.
-   Background transitions slower (0.4s) for a gentle fade;
-   text color leads (0.15s) so content is readable immediately.
-   Duration must stay in sync with setTimeout in theme-toggle.js (~350ms). */
+/* Theme toggle icon visibility — driven by data-theme-state on <html>,
+   set by the FOUC inline script in <head> before any rendering occurs.
+   This avoids extra inline <script> tags and eliminates icon flash on navigation. */
+#themeToggle [data-icon] { display: none; }
+html[data-theme-state="system"] #themeToggle [data-icon="system"],
+html[data-theme-state="light"] #themeToggle [data-icon="light"],
+html[data-theme-state="dark"] #themeToggle [data-icon="dark"] { display: block; }
+
+/* Theme switching — View Transitions API (circle-expand from toggle button).
+   Browsers that support startViewTransition get a clip-path circle animation;
+   others fall back to the .theme-transition class-based color fade below.
+   Duration must stay in sync with setTimeout in theme-toggle.js (~450ms). */
+
+/* View Transitions: circle-expand animation from toggle button position */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+    clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
+    animation: vt-expand 0.5s ease-out forwards;
+}
+@keyframes vt-expand {
+    to { clip-path: circle(150% at var(--toggle-x, 50%) var(--toggle-y, 50%)); }
+}
+
+/* Respect prefers-reduced-motion for View Transitions */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none !important;
+        clip-path: none !important;
+    }
+}
+
+/* Fallback: class-based transition for browsers without View Transitions API */
 html.theme-transition,
 html.theme-transition body,
 html.theme-transition .fog-bg,
@@ -1004,6 +1037,24 @@ html.theme-transition .back-to-top,
 html.theme-transition .progress-bar {
     transition: background-color 0.4s ease, color 0.15s ease, border-color 0.35s ease, box-shadow 0.4s ease !important;
     transition-delay: 0s !important;
+}
+
+/* Disable fallback transitions when user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    html.theme-transition,
+    html.theme-transition body,
+    html.theme-transition .fog-bg,
+    html.theme-transition .paper,
+    html.theme-transition header,
+    html.theme-transition footer,
+    html.theme-transition nav,
+    html.theme-transition main,
+    html.theme-transition .prose-shiro,
+    html.theme-transition .toc-sidebar,
+    html.theme-transition .back-to-top,
+    html.theme-transition .progress-bar {
+        transition: none !important;
+    }
 }
 
 /* LightGallery overrides (outside @layer to ensure higher specificity than third-party styles) */

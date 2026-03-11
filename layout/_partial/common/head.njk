@@ -1,7 +1,7 @@
 <head>
     <meta charset="utf-8" />
     <!-- FOUC prevention: apply dark mode class before first paint -->
-    <script>(function(){var d='{{ theme.dark_mode.default | default("system", true) }}';window.__themeDefault=d;var t=localStorage.getItem('theme')||d;var k=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)document.documentElement.classList.add('dark');document.documentElement.style.colorScheme=k?'dark':'light';window.__prefersReduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;})()</script>
+    <script>(function(){var d='{{ theme.dark_mode.default | default("system", true) }}';window.__themeDefault=d;var s=d==='system'?['system','light','dark']:['light','dark'];var t=localStorage.getItem('theme');if(!t||s.indexOf(t)===-1)t=d;var h=document.documentElement;h.setAttribute('data-theme-state',t);var k=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)h.classList.add('dark');h.style.colorScheme=k?'dark':'light';})()</script>
     <!-- Preconnect for Google Fonts (before any CSS to maximize benefit) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

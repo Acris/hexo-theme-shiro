@@ -33,16 +33,19 @@
                 </a>
                 {% endif %}
                 {% if theme.dark_mode.toggle !== false %}
-                <button id="themeToggle" class="group header-pill-btn" aria-label="{{ __('theme.system') }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                {% set dm_default = theme.dark_mode.default | default("system", true) %}
+                <button id="themeToggle" class="group header-pill-btn" aria-label="{{ __('theme.' + dm_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                    {% if dm_default == "system" %}
                     <svg data-icon="system" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
                         <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
-                    <svg data-icon="light" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    {% endif %}
+                    <svg data-icon="light" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
                         <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
                     </svg>
-                    <svg data-icon="dark" class="w-3.5 h-3.5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <svg data-icon="dark" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
