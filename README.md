@@ -1,5 +1,7 @@
 # Shiro (白)
 
+**English | [简体中文](README_CN.md)**
+
 <div style="text-align: center">
   <img alt="Shiro" src="https://github.com/user-attachments/assets/a039b7ff-f510-41b7-be88-27f262ca1dc3" width="1000" />
 </div>
@@ -67,20 +69,24 @@ _config.yml
 + theme: shiro
 ```
 
-### Update
+### 🛠️ Upgrade
 
-Install the latest version through npm:
+To update your theme to the latest version, use the method matching your installation:
+
+**npm**
 
 ```bash
 npm i hexo-theme-shiro@latest
 ```
 
-Or update to the latest `main` branch via git:
+**Git**
 
 ```bash
 cd themes/shiro
 git pull
 ```
+
+> **Note:** After upgrading, review the [default `_config.yml`](_config.yml) for any new or changed options, and update your `_config.shiro.yml` accordingly.
 
 ## Configuration
 
@@ -131,7 +137,8 @@ excerpt:
   # Otherwise fallback to auto-truncated excerpt.
   fallback:
     enabled: true
-    length: 200  # Characters (not words)
+    # Number of characters to truncate (not words)
+    length: 200
 
 # Table of Contents (TOC)
 toc:
@@ -160,6 +167,9 @@ back_to_top:
   enabled: true
 
 # Comment systems
+# Currently supports Disqus. Set enabled to true and provide your Disqus shortname.
+# To get a shortname, register at https://disqus.com/admin/create/ and note the
+# unique shortname assigned to your site (e.g., "my-blog-name").
 comments:
   enabled: false
   provider: disqus
@@ -167,8 +177,11 @@ comments:
     shortname: ""
 
 # Analytics
+# Currently supports Google Analytics 4 (GA4).
+# To get a GA4 Measurement ID, go to https://analytics.google.com/,
+# create a property, then find the ID (format: G-XXXXXXXXXX) under
+# Admin > Data Streams > Web > Measurement ID.
 analytics:
-  # Only support Google Analytics 4
   google:
     enabled: false
     id: ""  # e.g., "G-XXXXXXXXXX"
@@ -220,7 +233,7 @@ hexo-theme-shiro/
 │   ├── tag.njk             # Tag page
 │   └── category.njk        # Category page
 ├── scripts/
-│   └── helpers.js          # Custom Hexo helpers (clean_description, og_image, etc.)
+│   └── helpers.js          # Custom Hexo helpers and generators (clean_description, og_image, favicon_svg, etc.)
 ├── source/
 │   ├── css/_tailwind.css   # Tailwind CSS source (compiled to style.min.css)
 │   └── js/                 # Client-side scripts
