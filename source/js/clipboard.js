@@ -49,7 +49,12 @@
         btn.innerHTML = iconCopy;
 
         btn.addEventListener('click', () => {
-            const text = codeEl.textContent;
+            // Hexo highlight wraps each line in <span class="line">;
+            // plain textContent concatenates them without newlines.
+            const lines = codeEl.querySelectorAll('.line');
+            const text = lines.length
+                ? Array.from(lines, l => l.textContent).join('\n')
+                : codeEl.textContent;
             copyText(text).then(() => {
                 btn.innerHTML = iconDone;
                 btn.classList.add('copied');
