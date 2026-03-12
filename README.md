@@ -1,7 +1,7 @@
 # Shiro (白)
 
 <div style="text-align: center">
-  <img alt="Shiro" src="https://github.com/user-attachments/assets/9184c7c2-c4e0-4b2d-b583-b70ef2c86c6d" width="1000" />
+  <img alt="Shiro" src="https://github.com/user-attachments/assets/a039b7ff-f510-41b7-be88-27f262ca1dc3" width="1000" />
 </div>
 
 A clean, elegant, and robust Hexo theme inspired by whitespace (余白). Built
