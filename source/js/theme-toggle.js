@@ -16,7 +16,8 @@
         : ['light', 'dark'];
 
     function getState() {
-        const saved = localStorage.getItem('theme');
+        var saved;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
         if (saved && states.includes(saved)) return saved;
         return defaultTheme;
     }
@@ -44,29 +45,26 @@
         updateIcon(state);
     }
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     function cycle(e) {
         const current = getState();
         const next = states[(states.indexOf(current) + 1) % states.length];
-        localStorage.setItem('theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
 
         // Skip all animation when user prefers reduced motion
-        if (prefersReduced.matches) {
+        if (reducedMotionQuery.matches) {
             apply(next);
             return;
         }
 
-        // Use View Transitions API for circle-expand effect (Chrome 111+, Safari 18+)
+        // Use View Transitions API for cross-fade effect (Chrome 111+, Safari 18+)
         if (document.startViewTransition) {
-            // Pass click coordinates for the circle origin
-            const rect = btn.getBoundingClientRect();
-            const x = e ? (rect.left + rect.width / 2) : (window.innerWidth / 2);
-            const y = e ? (rect.top + rect.height / 2) : (window.innerHeight / 2);
-            html.style.setProperty('--toggle-x', x + 'px');
-            html.style.setProperty('--toggle-y', y + 'px');
-
-            document.startViewTransition(() => apply(next));
+            try {
+                document.startViewTransition(() => apply(next));
+            } catch (e) {
+                apply(next);
+            }
         } else {
             // Fallback: CSS class-based transition
             html.classList.add('theme-transition');

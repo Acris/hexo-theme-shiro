@@ -1,4 +1,4 @@
-{% import "_macro/ui.njk" as ui with context %}
+{% from "_macro/ui.njk" import icon_nav_arrow with context %}
 
 {% macro render_list(posts) %}
     {% set allPosts = posts.toArray() %}
@@ -14,7 +14,7 @@
                 {% set currentYear = y %}
                 <div class="relative">{# year group wrapper — closed when year changes or after loop #}
                 <h2 class="section-heading">
-                    {{ ui.icon_nav_arrow() }}
+                    {{ icon_nav_arrow() }}
                     {{ y }}
                 </h2>
                 <div class="space-y-4">

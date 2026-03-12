@@ -1,7 +1,7 @@
-{% import "_macro/ui.njk" as ui with context %}
+{% from "_macro/ui.njk" import icon_empty with context %}
 <div class="py-10 text-center text-slate-400">
     <div class="mb-3">
-        {{ ui.icon_empty() }}
+        {{ icon_empty() }}
     </div>
     <p class="text-lg tracking-widest opacity-80">{{ __('empty') }}</p>
 </div>

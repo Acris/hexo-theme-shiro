@@ -4,10 +4,10 @@
     const prose = document.querySelector('.prose-shiro');
     if (!prose || (!tocSidebar && !tocInline)) return;
 
-    const prefersReduced = window.__prefersReduced;
-    // Defaults match _config.yml toc.depth and toc.min_headings; keep in sync if changed
-    const maxDepth = parseInt(document.body.dataset.tocDepth || '3', 10);
-    const minHeadings = parseInt(document.body.dataset.tocMin || '3', 10);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const tocCfg = window.__tocConfig || {};
+    const maxDepth = tocCfg.depth || 3;
+    const minHeadings = tocCfg.minHeadings || 3;
 
     const levels = [];
     for (let i = 1; i <= maxDepth; i++) levels.push('h' + (i + 1));
@@ -102,21 +102,20 @@
                 }
                 toggleBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
                 const chevron = toggleBtn.querySelector('.toc-chevron');
-                if (chevron && !prefersReduced) {
+                if (chevron && !reducedMotion.matches) {
                     chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
                 }
             });
         }
     }
 
-    // Smooth scroll (respects prefers-reduced-motion)
-    const scrollBehavior = prefersReduced ? 'auto' : 'smooth';
+    // Smooth scroll (respects prefers-reduced-motion, checked at click time)
     document.querySelectorAll('.toc-link').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const target = document.getElementById(link.dataset.target);
             if (target) {
-                target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
                 history.replaceState(null, '', '#' + link.dataset.target);
             }
         });
@@ -184,7 +183,7 @@
                 const linkRect = activeLink.getBoundingClientRect();
                 const containerRect = scrollContainer.getBoundingClientRect();
                 if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-                    activeLink.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
+                    activeLink.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'auto' : 'smooth' });
                 }
             }
         }
@@ -207,19 +206,15 @@
         const hashTarget = document.getElementById(location.hash.slice(1));
         if (hashTarget) {
             setTimeout(() => {
-                hashTarget.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
                 updateActiveHeading();
             }, 100);
         }
     }
 
     // Sidebar fade-in animation
-    if (tocSidebar && !prefersReduced) {
-        tocSidebar.style.opacity = '0';
-        // Uses --ease-soft from @theme in _tailwind.css
-        tocSidebar.style.transition = 'opacity 0.4s var(--ease-soft)';
-        requestAnimationFrame(() => {
-            tocSidebar.style.opacity = '1';
-        });
+    if (tocSidebar && !reducedMotion.matches) {
+        tocSidebar.classList.add('toc-fade-in');
+        requestAnimationFrame(() => tocSidebar.classList.add('toc-visible'));
     }
 })();

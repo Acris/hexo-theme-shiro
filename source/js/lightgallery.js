@@ -88,6 +88,10 @@
 
             // Set lightgallery attributes; original href is preserved
             setLgAttributes(existing, src, caption, linkedUrl);
+            if (!existing.getAttribute('aria-label')) {
+                var viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+                existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
+            }
             return existing;
         }
 
@@ -97,6 +101,8 @@
         img.parentNode.insertBefore(link, img);
         link.appendChild(img);
 
+        var viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+        link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
         setLgAttributes(link, src, caption, null);
         return link;
     };
@@ -118,9 +124,10 @@
         }));
     });
 
-    // Destroy instances on Pjax navigation to prevent memory leaks
+    // Destroy instances on Pjax navigation to prevent memory leaks.
+    // Currently unused — reserved for future Pjax/SPA support.
     document.addEventListener('pjax:send', () => {
         instances.forEach(i => { if (i && i.destroy) i.destroy(); });
         instances.length = 0;
-    }, { once: true });
+    });
 })();

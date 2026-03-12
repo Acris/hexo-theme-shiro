@@ -14,10 +14,10 @@
         {% set excerpt_content = '<p>' + (post.content | striptags | truncate(theme.excerpt.fallback.length)) + '</p>' %}
     {% else %}
         {% set show_excerpt = false %}
-        {% set excerpt_content = strip_id(post.content) %}
+        {% set excerpt_content = post.content %}
     {% endif %}
     <div class="prose-shiro">
-        {{ excerpt_content }}
+        {{ excerpt_content | safe }}
     </div>
     {% if show_excerpt %}
     <div class="mt-6 text-center">

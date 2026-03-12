@@ -1,10 +1,12 @@
-{% import "_macro/ui.njk" as ui with context %}
+{% from "_macro/ui.njk" import svg_filters %}
 <!doctype html>
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
-<body class="h-full fog-bg text-slate-800"{% if theme.toc.enabled %} data-toc-depth="{{ theme.toc.depth | default(3) }}" data-toc-min="{{ theme.toc.min_headings | default(3) }}"{% endif %}>
-    {{ ui.svg_filters() }}
+<body class="h-full fog-bg text-slate-800">
+    {% if theme.site.seal %}
+    {{ svg_filters() }}
+    {% endif %}
 
     {% if theme.progress_bar.enabled and (is_post() or is_page()) %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
@@ -27,8 +29,8 @@
         </div>
 
         <!-- Note Text — decorative aside, not part of main content or footer -->
-        <aside class="mt-4 text-center" aria-hidden="true">
-            <p class="site-note font-title text-xs sm:text-sm text-slate-400/70 tracking-note font-light select-none">
+        <aside class="mt-4 text-center" aria-hidden="true" role="presentation">
+            <p class="site-note font-title text-xs sm:text-sm text-slate-400/70 tracking-note font-light select-none" lang="ja">
                 白は、余白の名。
             </p>
         </aside>
@@ -36,32 +38,35 @@
 
     {% if theme.back_to_top.enabled %}
     <button id="backToTop" class="back-to-top" data-visible="false" aria-label="{{ __('back_to_top') }}">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
     </button>
     {% endif %}
 
     <!-- Scripts -->
-    <!-- CSP fallback: promote preloaded font stylesheets if onload was blocked -->
-    <script>document.querySelectorAll('link[rel="preload"][as="style"]').forEach(function(l){l.rel='stylesheet'});</script>
-    {% if is_home() or is_post() or is_page() %}
-    {% set i18n_data = { clipboard_copy: __('clipboard_copy'), clipboard_copied: __('clipboard_copied'), gallery_visit_source: __('gallery_visit_source') } %}
+    {% set i18n_data = { clipboard_copy: __('clipboard_copy'), clipboard_copied: __('clipboard_copied'), gallery_visit_source: __('gallery_visit_source'), gallery_view_image: __('gallery_view_image') } %}
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
-    <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js"></script>
+    {% if is_home() or is_post() or is_page() %}
+    <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" integrity="sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO" crossorigin="anonymous"></script>
     <script defer src="{{ url_for('js/lightgallery.js') }}"></script>
     <script defer src="{{ url_for('js/clipboard.js') }}"></script>
     {% endif %}
     {% if theme.toc.enabled and (is_post() or is_page()) %}
+    {% set toc_config = { depth: theme.toc.depth | default(3), minHeadings: theme.toc.min_headings | default(3) } %}
+    <script>window.__tocConfig = {{ toc_config | dump | safe }};</script>
     <script defer src="{{ url_for('js/toc.js') }}"></script>
     {% endif %}
-    {% if (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}
+    {% set needs_progress_js = (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}
+    {% if needs_progress_js %}
     <script defer src="{{ url_for('js/progress.js') }}"></script>
     {% endif %}
-    {% if theme.dark_mode.toggle !== false %}
+    {% if theme.dark_mode.toggle != false %}
     <script defer src="{{ url_for('js/theme-toggle.js') }}"></script>
     {% endif %}
+    {% if theme.menu and theme.menu.length %}
     <script defer src="{{ url_for('js/mobile-menu.js') }}"></script>
+    {% endif %}
     {% include "_partial/analytics/google.njk" %}
 </body>
 </html>

@@ -14,7 +14,7 @@
 {% endmacro %}
 
 {% macro seal(title="白") %}
-<svg width="52" height="52" viewBox="0 0 100 100" aria-label="朱印：{{ title }}" title="朱印：{{ title }}"
+<svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg">
     <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
         fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
@@ -27,7 +27,7 @@
 {% macro divider(class="my-4") %}
 <div class="{{ class }} flex items-center justify-center gap-3" aria-hidden="true">
     <div class="h-px flex-1 bg-linear-to-r from-transparent to-slate-300 max-w-divider"></div>
-    <svg class="h-4 w-10 flex-none text-slate-300" viewBox="0 0 40 10">
+    <svg class="h-4 w-10 shrink-0 text-slate-300" viewBox="0 0 40 10">
         <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
         <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
         <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
@@ -36,7 +36,7 @@
 </div>
 {% endmacro %}
 
-{% macro icon_chevron_down(class="h-4 w-4", id="") %}
+{% macro icon_chevron_down(class="size-4", id="") %}
 <svg class="{{ class }} text-slate-500 transition-transform duration-200"{% if id %} id="{{ id }}"{% endif %}
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path fill-rule="evenodd"
@@ -45,28 +45,48 @@
 </svg>
 {% endmacro %}
 
-{% macro icon_folder(class="w-4 h-4 text-slate-400 shrink-0") %}
-<svg class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+{% macro icon_folder(class="size-4 text-slate-400 shrink-0", id="") %}
+<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
 </svg>
 {% endmacro %}
 
-{% macro icon_nav_arrow(class="w-4 h-4 text-slate-400 shrink-0") %}
-<svg class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+{% macro icon_nav_arrow(class="size-4 text-slate-400 shrink-0", id="") %}
+<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 </svg>
 {% endmacro %}
 
-{% macro icon_rss(class="w-3 h-3 group-hover:text-[var(--color-seal)] transition-colors duration-300") %}
-<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+{% macro icon_theme_system(class="size-3.5") %}
+<svg data-icon="system" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
+    <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+{% endmacro %}
+
+{% macro icon_theme_light(class="size-3.5") %}
+<svg data-icon="light" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+{% endmacro %}
+
+{% macro icon_theme_dark(class="size-3.5") %}
+<svg data-icon="dark" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% endmacro %}
+
+{% macro icon_rss(class="size-3 group-hover:text-seal transition-colors duration-300") %}
+<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M4 11a9 9 0 0 1 9 9"></path>
     <path d="M4 4a16 16 0 0 1 16 16"></path>
     <circle cx="5" cy="19" r="1"></circle>
 </svg>
 {% endmacro %}
 
-{% macro icon_empty(class="h-10 w-10 mx-auto opacity-30") %}
-<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+{% macro icon_empty(class="size-10 mx-auto opacity-30") %}
+<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
 </svg>
 {% endmacro %}
@@ -97,7 +117,7 @@
 
 {% macro render_tag(tag, show_count=false) %}
 <a href="{{ url_for(tag.path) }}" class="tag-pill">
-    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-2"></span>
+    <span class="size-1.5 rounded-full bg-slate-400 mr-2"></span>
     {{ tag.name }}
     {% if show_count %}
         <span class="text-slate-400 ml-1 text-xs">{{ tag.length }}</span>

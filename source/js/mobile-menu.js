@@ -5,12 +5,16 @@
     const chevron = document.getElementById('menuChevron');
 
     if (btn && panel && chevron) {
-        const prefersReduced = window.__prefersReduced;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         function setOpen(open) {
             panel.dataset.open = open ? "true" : "false";
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-            chevron.style.transform = (open && !prefersReduced) ? 'rotate(180deg)' : (prefersReduced ? 'none' : 'rotate(0deg)');
+            if (reducedMotion.matches) {
+                chevron.style.transform = 'none';
+            } else {
+                chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+            }
         }
 
         btn.addEventListener('click', (e) => {
@@ -24,7 +28,7 @@
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') { setOpen(false); btn.focus(); }
+            if (e.key === 'Escape' && panel.dataset.open === 'true') { setOpen(false); btn.focus(); }
             // Focus trap: cycle Tab within open menu
             if (e.key === 'Tab' && panel.dataset.open === 'true') {
                 const focusable = panel.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');

@@ -5,7 +5,8 @@ clipboard_copied: 已复制
 
 empty: 这里还没有内容。
 
-gallery_visit_source: 查看原始页面
+gallery_visit_source: 查看原始链接
+gallery_view_image: 查看图片
 
 index:
   read_more: 阅读更多

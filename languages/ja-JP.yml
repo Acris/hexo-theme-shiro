@@ -5,7 +5,8 @@ clipboard_copied: コピーしました
 
 empty: まだ何もありません。
 
-gallery_visit_source: 元のページを見る
+gallery_visit_source: 元のリンクを見る
+gallery_view_image: 画像を見る
 
 index:
   read_more: 続きを読む

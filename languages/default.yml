@@ -5,7 +5,8 @@ clipboard_copied: Copied
 
 empty: Nothing here yet.
 
-gallery_visit_source: View Source Page
+gallery_visit_source: View Source Link
+gallery_view_image: View image
 
 index:
   read_more: Read More

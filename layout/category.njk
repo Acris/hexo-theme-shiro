@@ -1,6 +1,6 @@
 {% extends "_layout.njk" %}
-{% import "_macro/ui.njk" as ui with context %}
-{% import "_macro/archive.njk" as archive with context %}
+{% from "_macro/ui.njk" import divider, icon_folder with context %}
+{% from "_macro/archive.njk" import render_list, render_simple_list with context %}
 
 {% block content %}
 <section class="section-shell">
@@ -12,26 +12,26 @@
             {{ __('nav.categories') }}
             {% endif %}
         </h1>
-        {{ ui.divider() }}
+        {{ divider() }}
     </header>
 
     {% if is_category() %}
         {% set cat = site.categories.findOne({name: page.category}) %}
         {% if cat and cat.posts.length > 0 %}
-            {{ archive.render_list(cat.posts.sort('date', -1)) }}
+            {{ render_list(cat.posts.sort('date', -1)) }}
         {% else %}
             {% include "_partial/common/empty.njk" %}
         {% endif %}
     {% else %}
         {% if site.categories.length > 0 %}
             <div class="space-y-16 max-w-2xl mx-auto">
-                {% for cat in site.categories.toArray() %}
-                <div id="cat-{{ cat.slug or (cat.name | slugize) }}" class="scroll-mt-24">
+                {% for cat in site.categories.toArray() | sort(false, false, "name") %}
+                <div id="cat-{{ cat.slug }}" class="scroll-mt-24">
                     <h2 class="section-heading">
-                        {{ ui.icon_folder() }}
+                        {{ icon_folder() }}
                         {{ cat.name }}
                     </h2>
-                    {{ archive.render_simple_list(cat.posts.sort('date', -1)) }}
+                    {{ render_simple_list(cat.posts.sort('date', -1)) }}
                 </div>
                 {% endfor %}
             </div>

@@ -50,6 +50,14 @@
     transition-property: max-height, opacity, transform;
 }
 
+@utility transition-interactive {
+    transition-property: color, background-color, border-color, box-shadow, transform;
+}
+
+@utility transition-visual {
+    transition-property: opacity, transform, color, background-color, border-color, box-shadow;
+}
+
 @layer base {
     ::-webkit-scrollbar {
         width: 10px;
@@ -98,7 +106,7 @@
 
     pre,
     code {
-        font-family: var(--font-code);
+        @apply font-code;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -113,7 +121,7 @@
 
 @layer components {
     .seal-text {
-        font-family: var(--font-title);
+        @apply font-title;
     }
 
     .fog-bg {
@@ -168,11 +176,10 @@
     }
 
     .btn-ink {
-        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft;
-        transition-property: color, background-color, border-color, box-shadow, transform;
+        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive;
 
         &:hover {
-            @apply border-[var(--color-seal)] bg-[var(--color-seal)] text-white/95 shadow-ink saturate-105;
+            @apply border-seal bg-seal text-white/95 shadow-ink saturate-105;
         }
 
         &:active {
@@ -181,11 +188,10 @@
     }
 
     .header-pill-btn {
-        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300;
-        transition-property: color, background-color, border-color, box-shadow;
+        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
 
         &:hover {
-            @apply bg-paper text-[var(--color-seal)] shadow-xs;
+            @apply bg-paper text-seal shadow-xs;
             border-color: color-mix(in srgb, var(--color-seal) 30%, transparent);
         }
     }
@@ -213,20 +219,28 @@
     }
 
     .site-title {
-        @apply font-title tracking-wide text-slate-900 text-[2.2rem] leading-[1.18];
+        @apply font-title tracking-wide text-slate-900 text-[2.2rem] leading-[1.18] sm:text-[2.55rem] md:text-[3.1rem];
     }
 
     .site-subtitle {
-        @apply mt-3 text-sm leading-relaxed text-slate-500;
+        @apply mt-3 text-sm leading-relaxed text-slate-500 sm:text-[0.95rem];
     }
 
     .page-title,
     .section-title {
-        @apply font-bold leading-snug text-slate-900 text-[1.8rem];
+        @apply font-bold leading-snug text-slate-900 text-[1.8rem] sm:text-[2rem];
+    }
+
+    .page-title {
+        @apply md:text-[2.4rem];
+    }
+
+    .section-title {
+        @apply md:text-[2.2rem];
     }
 
     .card-title {
-        @apply font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-[var(--color-seal)];
+        @apply font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem];
     }
 
     .section-heading {
@@ -242,23 +256,23 @@
     }
 
     .archive-title {
-        @apply text-base font-normal text-slate-700 transition-colors group-hover:text-[var(--color-seal)];
+        @apply text-base font-normal text-slate-700 transition-colors group-hover:text-seal;
     }
 
     .post-nav-link {
-        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-[var(--color-seal)] max-w-[45%];
+        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-seal max-w-[45%];
     }
 
     .link-muted {
-        @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-[var(--color-seal)] hover:underline;
+        @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
     }
 
     .link-underline {
-        @apply underline-offset-4 decoration-slate-300 transition-colors hover:underline hover:text-[var(--color-seal)] hover:decoration-[var(--color-seal)]/40;
+        @apply underline-offset-4 decoration-slate-300 transition-colors hover:underline hover:text-seal hover:decoration-seal/40;
     }
 
     .tag-pill {
-        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-[var(--color-seal)]/50 hover:text-[var(--color-seal)];
+        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-seal/50 hover:text-seal;
         transition-property: color, border-color;
     }
 
@@ -279,59 +293,20 @@
     }
 
     .post-nav-title {
-        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-[var(--color-seal)]/40;
-    }
-
-    @media (min-width: 640px) {
-        .site-title {
-            font-size: 2.55rem;
-        }
-
-        .site-subtitle {
-            font-size: 0.95rem;
-        }
-
-        .page-title,
-        .section-title {
-            font-size: 2rem;
-        }
-
-        .card-title {
-            font-size: 1.45rem;
-        }
-    }
-
-    @media (min-width: 768px) {
-        .site-title {
-            font-size: 3.1rem;
-        }
-
-        .page-title {
-            font-size: 2.4rem;
-        }
-
-        .section-title {
-            font-size: 2.2rem;
-        }
-
-        .card-title {
-            font-size: 1.6rem;
-        }
+        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40;
     }
 
     .pagination {
         & .page-number,
         & .extend {
-            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-[var(--color-seal)] hover:underline;
+            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
         }
 
         & .page-number {
             @apply oldstyle-nums;
 
             &.current {
-                @apply cursor-default underline underline-offset-4;
-                color: var(--color-seal);
-                text-decoration-color: var(--color-seal);
+                @apply cursor-default underline underline-offset-4 text-seal decoration-seal;
             }
         }
 
@@ -348,28 +323,30 @@
 
     /* ── TOC: Sidebar (xl+ screens) ── */
     .toc-sidebar {
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
+        @apply fixed top-1/2 z-30 -translate-y-1/2;
         /* Position relative to the paper card (max-w-4xl = 896px) */
         right: max(1rem, calc((100vw - 896px) / 2 - 220px));
         width: 200px;
-        z-index: 30;
     }
 
     .toc-sidebar-inner {
-        @apply border border-soft-border rounded-lg;
+        @apply border border-soft-border rounded-lg flex flex-col overflow-hidden;
         background: var(--color-bg-panel);
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         max-height: 60vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+    }
+
+    .toc-fade-in {
+        opacity: 0;
+        transition: opacity 0.4s var(--ease-soft);
+    }
+
+    .toc-fade-in.toc-visible {
+        opacity: 1;
     }
 
     .toc-sidebar-title {
-        @apply font-title text-xs tracking-wide text-slate-400 pb-3 text-center;
-        flex-shrink: 0;
+        @apply font-title text-xs tracking-wide text-slate-400 text-center shrink-0;
         padding: 1rem 1rem 0.75rem 1rem;
 
         &::before {
@@ -384,8 +361,7 @@
     }
 
     .toc-sidebar-inner .toc-body {
-        flex: 1;
-        overflow-y: auto;
+        @apply flex-1 overflow-y-auto;
         scrollbar-width: none;
         padding: 0 1rem 1rem 1rem;
 
@@ -401,7 +377,7 @@
     }
 
     .toc-toggle {
-        @apply w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-500 transition-colors hover:text-[var(--color-seal)];
+        @apply w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-500 transition-colors hover:text-seal;
     }
 
     .toc-toggle-title {
@@ -453,30 +429,28 @@
     }
 
     .toc-link {
-        @apply block py-1 text-slate-500 no-underline transition-colors duration-200 ease-soft relative;
-        font-family: var(--font-serif);
+        @apply block py-1 text-slate-500 no-underline transition-colors duration-200 ease-soft relative font-serif;
         font-size: 0.8rem;
         line-height: 1.6;
 
         &::before {
             content: '';
-            @apply absolute rounded-full duration-200 ease-soft;
+            @apply absolute rounded-full duration-200 ease-soft bg-seal;
             transition-property: opacity, transform;
             left: -0.65rem;
             top: 50%;
             width: 4px;
             height: 4px;
-            background-color: var(--color-seal);
             opacity: 0;
             transform: translateY(-50%) scale(0);
         }
 
         &:hover {
-            color: var(--color-seal);
+            @apply text-seal;
         }
 
         &.active {
-            color: var(--color-seal);
+            @apply text-seal;
             @apply font-medium;
 
             &::before {
@@ -488,36 +462,28 @@
 
     /* ── Progress Bar ── */
     .progress-bar {
-        @apply fixed top-0 left-0 right-0 z-50;
+        @apply fixed top-0 inset-x-0 z-50 bg-seal origin-left pointer-events-none;
         height: 2px;
-        background: var(--color-seal);
-        transform-origin: left;
         transform: scaleX(0);
         transition: transform 0.15s linear;
-        pointer-events: none;
     }
 
     /* ── Back to Top ── */
     .back-to-top {
-        @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm duration-300 ease-soft;
-        transition-property: opacity, transform, color, border-color, box-shadow;
+        @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
+        transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        will-change: opacity;
 
         &:hover {
-            @apply border-[var(--color-seal)]/30 text-[var(--color-seal)] shadow-md;
+            @apply border-seal/30 text-seal shadow-md;
         }
 
         &[data-visible="false"] {
-            @apply opacity-0 pointer-events-none translate-y-2;
+            @apply opacity-0 pointer-events-none;
         }
 
         &[data-visible="true"] {
-            @apply opacity-100 translate-y-0;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .back-to-top {
-            @apply translate-y-0;
+            @apply opacity-100 pointer-events-auto;
         }
     }
 
@@ -542,7 +508,7 @@
         --tw-prose-td-borders: var(--color-slate-200);
 
         & a:hover {
-            color: var(--color-seal);
+            @apply text-seal;
         }
 
         & .highlight:not(.not-prose) {
@@ -596,19 +562,16 @@
     }
 
     & > .copy-btn {
-        @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-paper/90 p-1.5 text-slate-300 opacity-0 shadow-xs duration-300 ease-soft;
-        transition-property: opacity, color, border-color, background-color;
+        @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-paper/90 p-1.5 text-slate-300 opacity-0 shadow-xs duration-300 ease-soft transition-visual;
         border-radius: 2px;
 
         &:hover {
             border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
-            color: var(--color-seal);
-            @apply bg-paper/90;
+            @apply text-seal bg-paper/90;
         }
 
         &.copied {
-            border-color: var(--color-seal);
-            color: var(--color-seal);
+            @apply border-seal text-seal;
             opacity: 0.85;
         }
     }
@@ -622,8 +585,7 @@
     }
 
     & > .code-lang {
-        @apply absolute bottom-2 right-2 select-none pointer-events-none;
-        font-family: var(--font-code);
+        @apply absolute bottom-2 right-2 select-none pointer-events-none font-code;
         font-size: 0.65rem;
         letter-spacing: 0.04em;
         color: var(--color-text-faint);
@@ -769,31 +731,17 @@
    Only overrides that can't be handled by variable swaps alone.
    ────────────────────────────────────────────── */
 
-/* Dark: Typography — uses semantic text hierarchy variables */
-.dark .site-title { color: var(--color-text-heading); }
-.dark .site-subtitle { color: var(--color-text-muted); }
-.dark .page-title,
-.dark .section-title { color: var(--color-text-heading); }
-
-.dark .card-title {
-    color: var(--color-ink);
-    &:hover { color: var(--color-seal); }
-}
+/* Dark: Typography — only overrides that differ from auto-adapted slate values.
+   .site-title (slate-900), .site-subtitle (slate-500), .page-title/.section-title (slate-900),
+   .archive-date (slate-400), .archive-title (slate-700) auto-adapt via --color-slate-* overrides. */
 
 .dark .section-heading {
-    color: var(--color-ink);
     border-color: var(--color-border-strong);
-}
-
-.dark .archive-date { color: var(--color-text-subtle); }
-.dark .archive-title {
-    color: var(--color-text-body);
-    .group:hover & { color: var(--color-seal); }
 }
 
 .dark .post-nav-link {
     color: var(--color-text-muted);
-    &:hover { color: var(--color-seal); }
+    &:hover { @apply text-seal; }
 }
 
 .dark .post-nav-title {
@@ -804,13 +752,15 @@
 .dark .link-muted {
     color: var(--color-text-muted);
     text-decoration-color: var(--color-border-strong);
-    &:hover { color: var(--color-seal); }
+    &:hover { @apply text-seal; }
 }
 
+/* Intentional: 40% matches light mode's Tailwind decoration-[var(--color-seal)]/40;
+   uses color-mix here because Tailwind opacity syntax is unavailable in plain CSS blocks */
 .dark .link-underline {
     text-decoration-color: var(--color-border-strong);
     &:hover {
-        color: var(--color-seal);
+        @apply text-seal;
         text-decoration-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
     }
 }
@@ -819,7 +769,7 @@
     border-color: var(--color-border-strong);
     background-color: var(--color-bg-inset);
     color: var(--color-text-muted);
-    &:hover { border-color: var(--color-seal); color: var(--color-seal); }
+    &:hover { @apply border-seal text-seal; }
 }
 
 .dark .section-divider { border-color: var(--color-border-decorative); }
@@ -829,8 +779,7 @@
     border-color: var(--color-border-strong);
     color: var(--color-text-body);
     &:hover {
-        border-color: var(--color-seal);
-        background-color: var(--color-seal);
+        @apply border-seal bg-seal;
         color: var(--color-slate-950);
     }
 }
@@ -849,7 +798,7 @@
 
 .dark .menu-panel a {
     color: var(--color-text-body);
-    &:hover { background-color: color-mix(in srgb, var(--color-seal) 8%, transparent); color: var(--color-seal); }
+    &:hover { background-color: color-mix(in srgb, var(--color-seal) 8%, transparent); @apply text-seal; }
 }
 
 .dark .menu-panel li[aria-hidden="true"] { background-color: var(--color-bg-inset); }
@@ -863,9 +812,9 @@
     & .extend {
         color: var(--color-text-muted);
         text-decoration-color: var(--color-border-strong);
-        &:hover { color: var(--color-seal); }
+        &:hover { @apply text-seal; }
     }
-    & .page-number.current { color: var(--color-seal); text-decoration-color: var(--color-seal); }
+    & .page-number.current { @apply text-seal decoration-seal; }
     & .space { color: var(--color-border-strong); }
 }
 
@@ -882,13 +831,12 @@
 }
 
 .dark .toc-inline { background: var(--color-bg-panel); @apply border-soft-border; }
-.dark .toc-toggle { color: var(--color-text-muted); &:hover { color: var(--color-seal); } }
+.dark .toc-toggle { color: var(--color-text-muted); &:hover { @apply text-seal; } }
 .dark .toc-toggle-title { &::before, &::after { color: var(--color-border-strong); } }
-.dark .toc-link { &::before { background-color: var(--color-seal); } }
 .dark .toc-sidebar .toc-link {
     color: var(--color-text-muted);
-    &:hover { color: var(--color-seal); }
-    &.active { color: var(--color-seal); }
+    &:hover { @apply text-seal; }
+    &.active { @apply text-seal; }
 }
 
 /* Dark: back to top */
@@ -896,7 +844,7 @@
     border-color: var(--color-border-strong);
     background-color: var(--color-bg-panel);
     color: var(--color-text-muted);
-    &:hover { border-color: var(--color-seal); color: var(--color-seal); }
+    &:hover { @apply border-seal text-seal; }
 }
 
 /* Dark: prose (article content) */
@@ -914,13 +862,12 @@
        contrasting with the neutral slate border used in light mode */
     --tw-prose-quote-borders: var(--color-seal);
     --tw-prose-captions: var(--color-text-muted);
-    --tw-prose-code: var(--color-seal);
     --tw-prose-pre-code: var(--color-text-body);
     --tw-prose-pre-bg: var(--color-code-bg);
     --tw-prose-th-borders: var(--color-border-strong);
     --tw-prose-td-borders: var(--color-border-decorative);
 
-    & a:hover { color: var(--color-seal); }
+    & a:hover { @apply text-seal; }
 
     & .highlight:not(.not-prose) {
         border-color: var(--color-border-strong);
@@ -942,8 +889,7 @@
         background-color: var(--color-bg-overlay);
         color: var(--color-text-subtle);
         &:hover {
-            border-color: var(--color-seal);
-            color: var(--color-seal);
+            @apply border-seal text-seal;
             background-color: var(--color-bg-panel);
         }
     }
@@ -971,7 +917,7 @@
 .dark body { color: var(--color-text-body); }
 
 /* Dark: desktop nav */
-.dark nav ul.flex > li > a { color: var(--color-text-muted); &:hover { color: var(--color-seal); } }
+.dark nav ul.flex > li > a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
 .dark nav ul.flex > li.nav-divider { color: var(--color-border-strong); }
 
 /* Dark: header pill buttons (RSS + theme toggle) */
@@ -980,7 +926,7 @@
     background-color: var(--color-bg-inset);
     color: var(--color-text-subtle);
     &:hover {
-        color: var(--color-seal);
+        @apply text-seal;
         border-color: color-mix(in srgb, var(--color-seal) 30%, transparent);
         background-color: var(--color-bg-overlay);
     }
@@ -989,28 +935,34 @@
 /* Theme toggle icon visibility — driven by data-theme-state on <html>,
    set by the FOUC inline script in <head> before any rendering occurs.
    This avoids extra inline <script> tags and eliminates icon flash on navigation. */
-#themeToggle [data-icon] { display: none; }
+#themeToggle [data-icon] { @apply hidden; }
 html[data-theme-state="system"] #themeToggle [data-icon="system"],
 html[data-theme-state="light"] #themeToggle [data-icon="light"],
-html[data-theme-state="dark"] #themeToggle [data-icon="dark"] { display: block; }
+html[data-theme-state="dark"] #themeToggle [data-icon="dark"] { @apply block; }
 
-/* Theme switching — View Transitions API (circle-expand from toggle button).
-   Browsers that support startViewTransition get a clip-path circle animation;
+/* Theme switching — View Transitions API (cross-fade).
+   Browsers that support startViewTransition get a smooth opacity fade;
    others fall back to the .theme-transition class-based color fade below.
    Duration must stay in sync with setTimeout in theme-toggle.js (~450ms). */
 
-/* View Transitions: circle-expand animation from toggle button position */
+/* View Transitions: cross-fade animation for theme switching */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-    animation: none;
     mix-blend-mode: normal;
 }
-::view-transition-new(root) {
-    clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
-    animation: vt-expand 0.5s ease-out forwards;
+::view-transition-old(root) {
+    animation: vt-fade-out 0.35s ease-in-out forwards;
 }
-@keyframes vt-expand {
-    to { clip-path: circle(150% at var(--toggle-x, 50%) var(--toggle-y, 50%)); }
+::view-transition-new(root) {
+    animation: vt-fade-in 0.35s ease-in-out forwards;
+}
+@keyframes vt-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@keyframes vt-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* Respect prefers-reduced-motion for View Transitions */
@@ -1018,11 +970,13 @@ html[data-theme-state="dark"] #themeToggle [data-icon="dark"] { display: block; 
     ::view-transition-old(root),
     ::view-transition-new(root) {
         animation: none !important;
-        clip-path: none !important;
     }
 }
 
 /* Fallback: class-based transition for browsers without View Transitions API */
+html.theme-transition { --tt: background-color 0.4s ease, color 0.15s ease, border-color 0.35s ease, box-shadow 0.4s ease; }
+@media (prefers-reduced-motion: reduce) { html.theme-transition { --tt: none; } }
+
 html.theme-transition,
 html.theme-transition body,
 html.theme-transition .fog-bg,
@@ -1035,31 +989,13 @@ html.theme-transition .prose-shiro,
 html.theme-transition .toc-sidebar,
 html.theme-transition .back-to-top,
 html.theme-transition .progress-bar {
-    transition: background-color 0.4s ease, color 0.15s ease, border-color 0.35s ease, box-shadow 0.4s ease !important;
+    transition: var(--tt) !important;
     transition-delay: 0s !important;
-}
-
-/* Disable fallback transitions when user prefers reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    html.theme-transition,
-    html.theme-transition body,
-    html.theme-transition .fog-bg,
-    html.theme-transition .paper,
-    html.theme-transition header,
-    html.theme-transition footer,
-    html.theme-transition nav,
-    html.theme-transition main,
-    html.theme-transition .prose-shiro,
-    html.theme-transition .toc-sidebar,
-    html.theme-transition .back-to-top,
-    html.theme-transition .progress-bar {
-        transition: none !important;
-    }
 }
 
 /* LightGallery overrides (outside @layer to ensure higher specificity than third-party styles) */
 .lg-outer {
-    font-family: var(--font-serif);
+    @apply font-serif;
     color: #f0ede9;
     letter-spacing: 0.02em;
 }

@@ -5,6 +5,8 @@ site:
   # since: 2020
   # Whether to display the seal (stamp) in the header
   seal: true
+  # Text displayed inside the seal stamp and favicon (single character recommended)
+  seal_text: "白"
   rss:
     enabled: false
     path: /atom.xml
@@ -32,6 +34,7 @@ excerpt:
   # Otherwise fallback to auto-truncated excerpt.
   fallback:
     enabled: true
+    # Number of characters to truncate (not words)
     length: 200
 
 # Table of Contents (TOC)
@@ -61,6 +64,9 @@ back_to_top:
   enabled: true
 
 # Comment systems
+# Currently supports Disqus. Set enabled to true and provide your Disqus shortname.
+# To get a shortname, register at https://disqus.com/admin/create/ and note the
+# unique shortname assigned to your site (e.g., "my-blog-name").
 comments:
   enabled: false
   provider: disqus
@@ -68,9 +74,12 @@ comments:
     shortname: ""
 
 # Analytics
+# Currently supports Google Analytics 4 (GA4).
+# To get a GA4 Measurement ID, go to https://analytics.google.com/,
+# create a property, then find the ID (format: G-XXXXXXXXXX) under
+# Admin > Data Streams > Web > Measurement ID.
 analytics:
-  # Only support Google Analytics 4
   google:
     enabled: false
-    id: ""
+    id: ""  # e.g., "G-XXXXXXXXXX"
 

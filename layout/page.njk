@@ -1,34 +1,7 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import meta, render_tag with context %}
 
 {% block content %}
-<article class="content-article">
-    <header class="text-center mb-8">
-        <h1 class="page-title mb-4">
-            {{ page.title }}
-        </h1>
-        {% if page.date %}
-        {{ meta(page, true, "mb-4") }}
-        {% endif %}
-    </header>
-
-    {% if theme.toc.enabled %}
-    {% include "_partial/components/toc.njk" %}
-    {% endif %}
-
-    <div class="prose-shiro">
-        {{ page.content }}
-    </div>
-
-    <!-- Tags -->
-    {% if page.tags and page.tags.length > 0 %}
-    <div class="mt-8 flex flex-wrap gap-2">
-        {% for tag in page.tags.toArray() %}
-        {{ render_tag(tag, false) }}
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    {% include "_partial/comments/disqus.njk" %}
-</article>
+{% set article_show_meta = true %}
+{% set article_extra = "" %}
+{% include "_partial/components/article.njk" %}
 {% endblock %}

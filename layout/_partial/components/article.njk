@@ -1,0 +1,38 @@
+{# Shared article structure for post.njk and page.njk.
+   Expects: page, theme, and macros (meta, render_tag) to be available in context.
+   Variables (set before include):
+     - article_show_meta: whether to show date/category meta (default: true)
+     - article_extra: extra HTML to insert after tags (e.g. post navigation) #}
+{% from "_macro/ui.njk" import meta, render_tag with context %}
+
+<article class="content-article">
+    <header class="text-center mb-8">
+        <h1 class="page-title mb-4">
+            {{ page.title }}
+        </h1>
+        {% if article_show_meta %}
+        {{ meta(page, true, "mb-4") }}
+        {% endif %}
+    </header>
+
+    {% if theme.toc.enabled %}
+    {% include "_partial/components/toc.njk" %}
+    {% endif %}
+
+    <div class="prose-shiro">
+        {{ page.content }}
+    </div>
+
+    <!-- Tags -->
+    {% if page.tags and page.tags.length > 0 %}
+    <div class="mt-8 flex flex-wrap gap-2">
+        {% for tag in page.tags.toArray() %}
+        {{ render_tag(tag, false) }}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {{ article_extra | safe }}
+
+    {% include "_partial/comments/disqus.njk" %}
+</article>

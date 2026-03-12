@@ -32,7 +32,7 @@ Made by Acris with ❤️
 - **Disqus Comments**: Lazy-loaded Disqus comment integration via `IntersectionObserver`.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
-- **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, adding a traditional touch.
+- **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
 - **Fast**: Optimized for performance with minimal JavaScript.
 
 ## Installation
@@ -99,6 +99,8 @@ site:
   # since: 2020
   # Whether to display the seal (stamp) in the header
   seal: true
+  # Text displayed inside the seal stamp and favicon (single character recommended)
+  seal_text: "白"
   rss:
     enabled: false
     path: /atom.xml
@@ -123,12 +125,13 @@ menu:
 #    target: _blank
 
 # Excerpt settings
+# Priority: <!-- more --> tag > auto-truncation (when fallback.enabled: true) > full content.
 excerpt:
   # If post has <!-- more -->, use it.
   # Otherwise fallback to auto-truncated excerpt.
   fallback:
     enabled: true
-    length: 200
+    length: 200  # Characters (not words)
 
 # Table of Contents (TOC)
 toc:
@@ -168,7 +171,7 @@ analytics:
   # Only support Google Analytics 4
   google:
     enabled: false
-    id: ""
+    id: ""  # e.g., "G-XXXXXXXXXX"
 ```
 
 ### Creating Pages (Tags & Categories)
@@ -250,7 +253,7 @@ Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerat
 
 1. Create a new YAML file in `languages/` (e.g., `ko.yml`).
 2. Copy the structure from `languages/en.yml` and translate all values.
-3. Ensure all top-level keys (`back_to_top`, `clipboard_copy`, `clipboard_copied`, `empty`, `gallery_visit_source`, `index`, `nav`, `page`, `theme`, `toc`) are present.
+3. Ensure all top-level keys (`back_to_top`, `clipboard_copy`, `clipboard_copied`, `empty`, `gallery_view_image`, `gallery_visit_source`, `index`, `nav`, `page`, `theme`, `toc`) are present.
 
 ## Thanks
 
