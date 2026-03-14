@@ -29,7 +29,7 @@
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
 - **图片灯箱**：通过 [LightGallery](https://www.lightgalleryjs.com/) 点击放大文章中的图片。
-- **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 Giscus（GitHub Discussions）评论系统。
+- **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 giscus（GitHub Discussions）评论系统。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
@@ -170,7 +170,7 @@ back_to_top:
 # Disqus：在 https://disqus.com/admin/create/ 注册，
 # 并记下分配给你站点的唯一 shortname（例如 "my-blog-name"）。
 #
-# Giscus：基于 GitHub Discussions 的评论系统。
+# giscus：基于 GitHub Discussions 的评论系统。
 # 前往 https://giscus.app/ 生成你的配置值。
 # 确保你的仓库是公开的并且已启用 Discussions。
 comments:
@@ -180,7 +180,7 @@ comments:
   disqus:
     shortname: ""
   giscus:
-    # Giscus 脚本 URL（自托管或默认）
+    # giscus 脚本 URL（自托管或默认）
     src: https://giscus.app/client.js
     # GitHub 仓库（例如 "owner/repo"）
     repo: ""
@@ -202,7 +202,7 @@ comments:
     input_position: bottom
     # 语言代码（例如 en、zh-CN、ja）
     lang: en
-    # Giscus 主题 CSS URL 或内置主题名（例如 light、dark、preferred_color_scheme）
+    # giscus 主题 CSS URL 或内置主题名（例如 light、dark、preferred_color_scheme）
     # 默认使用通过 jsDelivr CDN 分发的 Shiro 自定义主题。
     theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.3.0/source/css/giscus.css
     # true 启用懒加载（添加 data-loading="lazy"）

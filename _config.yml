@@ -70,7 +70,7 @@ back_to_top:
 # Disqus: register at https://disqus.com/admin/create/ and note the
 # unique shortname assigned to your site (e.g., "my-blog-name").
 #
-# Giscus: a comment system powered by GitHub Discussions.
+# giscus: a comment system powered by GitHub Discussions.
 # Go to https://giscus.app/ to generate your configuration values.
 # Make sure your repository is public and has Discussions enabled.
 comments:
@@ -80,7 +80,7 @@ comments:
   disqus:
     shortname: ""
   giscus:
-    # Giscus script URL (self-hosted or default)
+    # giscus script URL (self-hosted or default)
     src: https://giscus.app/client.js
     # GitHub repo (e.g., "owner/repo")
     repo: ""
@@ -102,7 +102,7 @@ comments:
     input_position: bottom
     # Language code (e.g., en, zh-CN, ja)
     lang: en
-    # Giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
+    # giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
     # Default uses the bundled Shiro custom theme via jsDelivr CDN.
     theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.3.0/source/css/giscus.css
     # true to enable lazy loading (adds data-loading="lazy")

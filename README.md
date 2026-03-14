@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **Image Lightbox**: Click to zoom images in articles via [LightGallery](https://www.lightgalleryjs.com/).
-- **Comments**: Disqus (lazy-loaded via `IntersectionObserver`) and Giscus (GitHub Discussions) comment systems.
+- **Comments**: Disqus (lazy-loaded via `IntersectionObserver`) and giscus (GitHub Discussions) comment systems.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
@@ -173,7 +173,7 @@ back_to_top:
 # Disqus: register at https://disqus.com/admin/create/ and note the
 # unique shortname assigned to your site (e.g., "my-blog-name").
 #
-# Giscus: a comment system powered by GitHub Discussions.
+# giscus: a comment system powered by GitHub Discussions.
 # Go to https://giscus.app/ to generate your configuration values.
 # Make sure your repository is public and has Discussions enabled.
 comments:
@@ -183,7 +183,7 @@ comments:
   disqus:
     shortname: ""
   giscus:
-    # Giscus script URL (self-hosted or default)
+    # giscus script URL (self-hosted or default)
     src: https://giscus.app/client.js
     # GitHub repo (e.g., "owner/repo")
     repo: ""
@@ -205,7 +205,7 @@ comments:
     input_position: bottom
     # Language code (e.g., en, zh-CN, ja)
     lang: en
-    # Giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
+    # giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
     # Default uses the bundled Shiro custom theme via jsDelivr CDN.
     theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.3.0/source/css/giscus.css
     # true to enable lazy loading (adds data-loading="lazy")
