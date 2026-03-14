@@ -16,7 +16,7 @@
         : ['light', 'dark'];
 
     function getState() {
-        var saved;
+        let saved;
         try { saved = localStorage.getItem('theme'); } catch (e) {}
         if (saved && states.includes(saved)) return saved;
         return defaultTheme;

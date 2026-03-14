@@ -2,24 +2,24 @@
 
 hexo.extend.helper.register('first_image', function (content) {
     if (!content) return '';
-    var match = content.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
+    const match = content.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
     return match ? match[1] : '';
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {
-    var raw = page.description || page.excerpt || config.description || '';
-    var text = this.strip_html(raw).replace(/\s+/g, ' ').trim();
+    const raw = page.description || page.excerpt || config.description || '';
+    const text = this.strip_html(raw).replace(/\s+/g, ' ').trim();
     if (!text) return '';
     return text.length > 200 ? text.substring(0, 200) + '...' : text;
 });
 
 hexo.extend.helper.register('copyright_year', function (since) {
-    var current = new Date().getFullYear().toString();
+    const current = new Date().getFullYear().toString();
     return (since && since.toString() !== current) ? since + '\u2013' + current : current;
 });
 
 hexo.extend.helper.register('build_page_title', function (page, config) {
-    var site = config.title || '';
+    const site = config.title || '';
     if (this.is_home()) return site;
     if (page.title) return page.title + ' | ' + site;
     if (this.is_archive()) return this.__('nav.archives') + (page.year ? ': ' + page.year : '') + ' | ' + site;
@@ -30,10 +30,10 @@ hexo.extend.helper.register('build_page_title', function (page, config) {
 
 // Generate favicon.svg dynamically from seal_text config
 hexo.extend.generator.register('favicon_svg', function (locals) {
-    var themeConfig = this.theme.config || this.config.theme_config || {};
-    var text = (themeConfig.site && themeConfig.site.seal_text) || '白';
-    var color = '#b0171a';
-    var svg = '<svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    const themeConfig = this.theme.config || this.config.theme_config || {};
+    const text = (themeConfig.site && themeConfig.site.seal_text) || '白';
+    const color = '#b0171a';
+    const svg = '<svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
         + '<defs>'
         + '<style>@font-face{font-family:\'Yuji Syuku\';font-style:normal;font-weight:400;'
         + 'src:url(https://fonts.gstatic.com/l/font?kit=BngNUXdTV3vO6Lw5ApOPqPf4xUcYXA&amp;skey=9ffd14150d67040a&amp;v=v8) format(\'truetype\');}</style>'
@@ -53,25 +53,15 @@ hexo.extend.generator.register('favicon_svg', function (locals) {
     return { path: 'favicon.svg', data: svg };
 });
 
-hexo.extend.helper.register('giscus_theme_url', function () {
-    var fs = require('fs');
-    var path = require('path');
-    // Read version from theme's package.json for jsDelivr CDN URL (npm source)
-    var pkgPath = path.join(hexo.theme_dir, 'package.json');
-    var pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    var version = pkg.version;
-    return 'https://cdn.jsdelivr.net/npm/hexo-theme-shiro@' + version + '/source/css/giscus.css';
-});
-
 hexo.extend.helper.register('og_image', function (page) {
-    var src = '';
+    let src = '';
     if (page.photos && page.photos.length) src = page.photos[0];
     else src = this.first_image(page.content);
     if (!src) return '';
     // Ensure absolute URL for Open Graph
     if (src.indexOf('//') === 0) return 'https:' + src;
     if (!/^https?:\/\//.test(src)) {
-        var base = this.config.url.replace(/\/$/, '');
+        const base = this.config.url.replace(/\/$/, '');
         return base + this.url_for(src);
     }
     return src;

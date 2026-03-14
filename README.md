@@ -50,7 +50,7 @@ npm i hexo-theme-shiro
 Install via git:
 
 ```bash
-git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
+git clone -b main --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
 ```
 
 If you would like to enable RSS, install the feed plugin:
@@ -205,6 +205,9 @@ comments:
     input_position: bottom
     # Language code (e.g., en, zh-CN, ja)
     lang: en
+    # Giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
+    # Default uses the bundled Shiro custom theme via jsDelivr CDN.
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.3.0/source/css/giscus.css
     # true to enable lazy loading (adds data-loading="lazy")
     lazy_loading: false
 

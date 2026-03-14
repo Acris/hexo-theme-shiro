@@ -7,12 +7,12 @@
     };
 
     (function() {
-        var d = document, s = d.createElement('script');
+        const d = document, s = d.createElement('script');
         {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
         s.src = 'https://' + {{ theme.comments.disqus.shortname | dump | safe }} + '.disqus.com/embed.js';
         s.setAttribute('data-timestamp', Date.now());
         
-        var disqus_thread = d.getElementById('disqus_thread');
+        const disqus_thread = d.getElementById('disqus_thread');
         if (!disqus_thread) return;
 
         if (!('IntersectionObserver' in window)) {
@@ -20,7 +20,7 @@
             return;
         }
 
-        var observer = new IntersectionObserver(function(entries) {
+        const observer = new IntersectionObserver(function(entries) {
             /* threshold 0 = load as soon as the container enters the viewport */
             if (entries[0].isIntersecting) {
                 (d.head || d.body).appendChild(s);

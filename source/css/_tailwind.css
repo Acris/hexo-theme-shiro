@@ -769,18 +769,19 @@
 .dark .section-divider { border-color: var(--color-border-decorative); }
 
 /* ── Giscus comment system ── */
+/* Fix: round width down to nearest 2px to prevent sub-pixel rendering
+   from clipping the comment box's right border inside the iframe.
+   See: https://github.com/hugo-fixit/FixIt/commit/16c903f */
 .giscus, .giscus-frame {
     width: round(down, 100%, 2px);
 }
 
 .giscus {
     @apply mt-10 border-t border-slate-200/70 pt-8 md:mt-12 md:pt-10;
-    & .giscus-frame { color-scheme: light; }
 }
 
 .dark .giscus {
     border-color: var(--color-border-decorative);
-    & .giscus-frame { color-scheme: dark; }
 }
 
 /* Dark: buttons */
@@ -921,11 +922,6 @@
 /* ── Disqus comment system ── */
 #disqus_thread,
 #disqus_recommendations {
-    @apply bg-paper text-ink;
-}
-
-.dark #disqus_thread,
-.dark #disqus_recommendations {
     @apply bg-paper text-ink;
 }
 

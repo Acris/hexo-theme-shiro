@@ -89,7 +89,7 @@
             // Set lightgallery attributes; original href is preserved
             setLgAttributes(existing, src, caption, linkedUrl);
             if (!existing.getAttribute('aria-label')) {
-                var viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+                const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
                 existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
             }
             return existing;
@@ -101,7 +101,7 @@
         img.parentNode.insertBefore(link, img);
         link.appendChild(img);
 
-        var viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+        const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
         setLgAttributes(link, src, caption, null);
         return link;

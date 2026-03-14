@@ -48,7 +48,7 @@ npm i hexo-theme-shiro
 通过 git 安装：
 
 ```bash
-git clone --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
+git clone -b main --depth=1 https://github.com/Acris/hexo-theme-shiro.git themes/shiro
 ```
 
 如果你想启用 RSS，请安装 feed 插件：
@@ -202,6 +202,9 @@ comments:
     input_position: bottom
     # 语言代码（例如 en、zh-CN、ja）
     lang: en
+    # Giscus 主题 CSS URL 或内置主题名（例如 light、dark、preferred_color_scheme）
+    # 默认使用通过 jsDelivr CDN 分发的 Shiro 自定义主题。
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.3.0/source/css/giscus.css
     # true 启用懒加载（添加 data-loading="lazy"）
     lazy_loading: false
 

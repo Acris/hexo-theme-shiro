@@ -15,7 +15,7 @@
         // execCommand is deprecated but remains the only synchronous clipboard
         // mechanism for insecure contexts; no modern replacement exists.
         return new Promise((resolve, reject) => {
-            var ta = document.createElement('textarea');
+            const ta = document.createElement('textarea');
             ta.value = text;
             ta.setAttribute('readonly', '');
             ta.style.cssText = 'position:fixed;left:-9999px;opacity:0';
