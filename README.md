@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **Image Lightbox**: Click to zoom images in articles via [LightGallery](https://www.lightgalleryjs.com/).
-- **Disqus Comments**: Lazy-loaded Disqus comment integration via `IntersectionObserver`.
+- **Comments**: Disqus (lazy-loaded via `IntersectionObserver`) and Giscus (GitHub Discussions) comment systems.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
@@ -167,14 +167,48 @@ back_to_top:
   enabled: true
 
 # Comment systems
-# Currently supports Disqus. Set enabled to true and provide your Disqus shortname.
-# To get a shortname, register at https://disqus.com/admin/create/ and note the
+# Supported providers: disqus, giscus
+# Set enabled to true and choose a provider.
+#
+# Disqus: register at https://disqus.com/admin/create/ and note the
 # unique shortname assigned to your site (e.g., "my-blog-name").
+#
+# Giscus: a comment system powered by GitHub Discussions.
+# Go to https://giscus.app/ to generate your configuration values.
+# Make sure your repository is public and has Discussions enabled.
 comments:
   enabled: false
-  provider: disqus
+  # disqus or giscus
+  provider: giscus
   disqus:
     shortname: ""
+  giscus:
+    # Giscus script URL (self-hosted or default)
+    src: https://giscus.app/client.js
+    # GitHub repo (e.g., "owner/repo")
+    repo: ""
+    # Repository ID from https://giscus.app
+    repo_id: ""
+    # Discussion category name (e.g., "Announcements")
+    category: ""
+    # Category ID from https://giscus.app
+    category_id: ""
+    # pathname, url, title, og:title, specific, number
+    mapping: pathname
+    # 1 to enable strict title matching
+    strict: 0
+    # 1 to enable reactions
+    reactions_enabled: 1
+    # 1 to emit discussion metadata
+    emit_metadata: 0
+    # bottom or top
+    input_position: bottom
+    # light, dark, preferred_color_scheme, etc.
+    theme: preferred_color_scheme
+    # Language code (e.g., en, zh-CN, ja)
+    lang: en
+    # true to enable lazy loading (adds data-loading="lazy")
+    lazy_loading: false
 
 # Analytics
 # Currently supports Google Analytics 4 (GA4).
@@ -184,7 +218,8 @@ comments:
 analytics:
   google:
     enabled: false
-    id: ""  # e.g., "G-XXXXXXXXXX"
+    # e.g., "G-XXXXXXXXXX"
+    id: ""
 ```
 
 ### Creating Pages (Tags & Categories)

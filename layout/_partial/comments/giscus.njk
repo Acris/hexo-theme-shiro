@@ -1,0 +1,20 @@
+{% if theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
+<div class="giscus mt-10"></div>
+<script
+    src="{{ theme.comments.giscus.src | default('https://giscus.app/client.js') }}"
+    data-repo="{{ theme.comments.giscus.repo }}"
+    data-repo-id="{{ theme.comments.giscus.repo_id }}"
+    data-category="{{ theme.comments.giscus.category }}"
+    data-category-id="{{ theme.comments.giscus.category_id }}"
+    data-mapping="{{ theme.comments.giscus.mapping | default('pathname') }}"
+    data-strict="{{ theme.comments.giscus.strict | default('0') }}"
+    data-reactions-enabled="{{ theme.comments.giscus.reactions_enabled | default('1') }}"
+    data-emit-metadata="{{ theme.comments.giscus.emit_metadata | default('0') }}"
+    data-input-position="{{ theme.comments.giscus.input_position | default('bottom') }}"
+    data-theme="{{ theme.comments.giscus.theme | default('preferred_color_scheme') }}"
+    data-lang="{{ theme.comments.giscus.lang | default('en') }}"
+    {% if theme.comments.giscus.lazy_loading %}data-loading="lazy"{% endif %}
+    crossorigin="anonymous"
+    async>
+</script>
+{% endif %}

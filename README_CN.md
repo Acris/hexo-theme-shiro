@@ -29,7 +29,7 @@
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
 - **图片灯箱**：通过 [LightGallery](https://www.lightgalleryjs.com/) 点击放大文章中的图片。
-- **Disqus 评论**：通过 `IntersectionObserver` 懒加载 Disqus 评论集成。
+- **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 Giscus（GitHub Discussions）评论系统。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
@@ -164,14 +164,48 @@ back_to_top:
   enabled: true
 
 # 评论系统
-# 目前支持 Disqus。将 enabled 设为 true 并提供你的 Disqus shortname。
-# 要获取 shortname，请在 https://disqus.com/admin/create/ 注册，
+# 支持的评论服务：disqus、giscus
+# 将 enabled 设为 true 并选择一个评论服务。
+#
+# Disqus：在 https://disqus.com/admin/create/ 注册，
 # 并记下分配给你站点的唯一 shortname（例如 "my-blog-name"）。
+#
+# Giscus：基于 GitHub Discussions 的评论系统。
+# 前往 https://giscus.app/ 生成你的配置值。
+# 确保你的仓库是公开的并且已启用 Discussions。
 comments:
   enabled: false
-  provider: disqus
+  # disqus 或 giscus
+  provider: giscus
   disqus:
     shortname: ""
+  giscus:
+    # Giscus 脚本 URL（自托管或默认）
+    src: https://giscus.app/client.js
+    # GitHub 仓库（例如 "owner/repo"）
+    repo: ""
+    # 仓库 ID，从 https://giscus.app 获取
+    repo_id: ""
+    # Discussion 分类名称（例如 "Announcements"）
+    category: ""
+    # 分类 ID，从 https://giscus.app 获取
+    category_id: ""
+    # pathname、url、title、og:title、specific、number
+    mapping: pathname
+    # 1 启用严格标题匹配
+    strict: 0
+    # 1 启用表情回应
+    reactions_enabled: 1
+    # 1 发送讨论元数据
+    emit_metadata: 0
+    # bottom 或 top
+    input_position: bottom
+    # light、dark、preferred_color_scheme 等
+    theme: preferred_color_scheme
+    # 语言代码（例如 en、zh-CN、ja）
+    lang: en
+    # true 启用懒加载（添加 data-loading="lazy"）
+    lazy_loading: false
 
 # 统计分析
 # 目前支持 Google Analytics 4（GA4）。
@@ -180,7 +214,8 @@ comments:
 analytics:
   google:
     enabled: false
-    id: ""  # 例如 "G-XXXXXXXXXX"
+    # 例如 "G-XXXXXXXXXX"
+    id: ""
 ```
 
 ### 创建页面（标签和分类）
