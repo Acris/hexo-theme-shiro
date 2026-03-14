@@ -100,8 +100,6 @@ comments:
     emit_metadata: 0
     # bottom or top
     input_position: bottom
-    # light, dark, preferred_color_scheme, etc.
-    theme: preferred_color_scheme
     # Language code (e.g., en, zh-CN, ja)
     lang: en
     # true to enable lazy loading (adds data-loading="lazy")

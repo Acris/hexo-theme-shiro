@@ -53,6 +53,16 @@ hexo.extend.generator.register('favicon_svg', function (locals) {
     return { path: 'favicon.svg', data: svg };
 });
 
+hexo.extend.helper.register('giscus_theme_url', function () {
+    var fs = require('fs');
+    var path = require('path');
+    // Read version from theme's package.json for jsDelivr CDN URL (npm source)
+    var pkgPath = path.join(hexo.theme_dir, 'package.json');
+    var pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    var version = pkg.version;
+    return 'https://cdn.jsdelivr.net/npm/hexo-theme-shiro@' + version + '/source/css/giscus.css';
+});
+
 hexo.extend.helper.register('og_image', function (page) {
     var src = '';
     if (page.photos && page.photos.length) src = page.photos[0];

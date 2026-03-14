@@ -1,20 +1,26 @@
 {% if theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
-<div class="giscus mt-10"></div>
-<script
-    src="{{ theme.comments.giscus.src | default('https://giscus.app/client.js') }}"
-    data-repo="{{ theme.comments.giscus.repo }}"
-    data-repo-id="{{ theme.comments.giscus.repo_id }}"
-    data-category="{{ theme.comments.giscus.category }}"
-    data-category-id="{{ theme.comments.giscus.category_id }}"
-    data-mapping="{{ theme.comments.giscus.mapping | default('pathname') }}"
-    data-strict="{{ theme.comments.giscus.strict | default('0') }}"
-    data-reactions-enabled="{{ theme.comments.giscus.reactions_enabled | default('1') }}"
-    data-emit-metadata="{{ theme.comments.giscus.emit_metadata | default('0') }}"
-    data-input-position="{{ theme.comments.giscus.input_position | default('bottom') }}"
-    data-theme="{{ theme.comments.giscus.theme | default('preferred_color_scheme') }}"
-    data-lang="{{ theme.comments.giscus.lang | default('en') }}"
-    {% if theme.comments.giscus.lazy_loading %}data-loading="lazy"{% endif %}
-    crossorigin="anonymous"
-    async>
+<div class="giscus"></div>
+<script>
+(function() {
+    var themeUrl = {{ giscus_theme_url() | dump | safe }};
+
+    var s = document.createElement('script');
+    s.src = {{ (theme.comments.giscus.src or 'https://giscus.app/client.js') | dump | safe }};
+    s.setAttribute('data-repo', {{ theme.comments.giscus.repo | dump | safe }});
+    s.setAttribute('data-repo-id', {{ theme.comments.giscus.repo_id | dump | safe }});
+    s.setAttribute('data-category', {{ theme.comments.giscus.category | dump | safe }});
+    s.setAttribute('data-category-id', {{ theme.comments.giscus.category_id | dump | safe }});
+    s.setAttribute('data-mapping', {{ (theme.comments.giscus.mapping or 'pathname') | dump | safe }});
+    s.setAttribute('data-strict', {{ (theme.comments.giscus.strict or '0') | dump | safe }});
+    s.setAttribute('data-reactions-enabled', {{ (theme.comments.giscus.reactions_enabled or '1') | dump | safe }});
+    s.setAttribute('data-emit-metadata', {{ (theme.comments.giscus.emit_metadata or '0') | dump | safe }});
+    s.setAttribute('data-input-position', {{ (theme.comments.giscus.input_position or 'bottom') | dump | safe }});
+    s.setAttribute('data-theme', themeUrl);
+    s.setAttribute('data-lang', {{ (theme.comments.giscus.lang or 'en') | dump | safe }});
+    {% if theme.comments.giscus.lazy_loading %}s.setAttribute('data-loading', 'lazy');{% endif %}
+    s.crossOrigin = 'anonymous';
+    s.async = true;
+    document.currentScript.parentElement.appendChild(s);
+})();
 </script>
 {% endif %}

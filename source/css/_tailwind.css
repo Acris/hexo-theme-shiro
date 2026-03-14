@@ -315,12 +315,6 @@
         }
     }
 
-    /* Force safe colors to prevent oklch inheritance/parsing issues */
-    #disqus_thread,
-    #disqus_recommendations {
-        @apply bg-paper text-ink;
-    }
-
     /* ── TOC: Sidebar (xl+ screens) ── */
     .toc-sidebar {
         @apply fixed top-1/2 z-30 -translate-y-1/2;
@@ -774,6 +768,21 @@
 
 .dark .section-divider { border-color: var(--color-border-decorative); }
 
+/* ── Giscus comment system ── */
+.giscus, .giscus-frame {
+    width: round(down, 100%, 2px);
+}
+
+.giscus {
+    @apply mt-10 border-t border-slate-200/70 pt-8 md:mt-12 md:pt-10;
+    & .giscus-frame { color-scheme: light; }
+}
+
+.dark .giscus {
+    border-color: var(--color-border-decorative);
+    & .giscus-frame { color-scheme: dark; }
+}
+
 /* Dark: buttons */
 .dark .btn-ink {
     border-color: var(--color-border-strong);
@@ -909,9 +918,16 @@
 /* Dark: note text below card */
 .dark .site-note { color: color-mix(in srgb, var(--color-text-subtle) 40%, transparent); }
 
-/* Dark: Disqus */
+/* ── Disqus comment system ── */
+#disqus_thread,
+#disqus_recommendations {
+    @apply bg-paper text-ink;
+}
+
 .dark #disqus_thread,
-.dark #disqus_recommendations { @apply bg-paper text-ink; }
+.dark #disqus_recommendations {
+    @apply bg-paper text-ink;
+}
 
 /* Dark: body text */
 .dark body { color: var(--color-text-body); }

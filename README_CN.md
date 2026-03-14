@@ -200,8 +200,6 @@ comments:
     emit_metadata: 0
     # bottom 或 top
     input_position: bottom
-    # light、dark、preferred_color_scheme 等
-    theme: preferred_color_scheme
     # 语言代码（例如 en、zh-CN、ja）
     lang: en
     # true 启用懒加载（添加 data-loading="lazy"）
