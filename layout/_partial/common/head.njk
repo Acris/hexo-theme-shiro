@@ -76,7 +76,7 @@
     {% if is_home() or is_post() or is_page() %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" integrity="sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8" crossorigin="anonymous" />
     {% endif %}
-    <link rel="stylesheet" href="{{ url_for('css/style.min.css') }}">
+    <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
     <!-- CSP fallback: promote preloaded font stylesheets if onload was blocked.
          setTimeout(3000) gives onload enough time to fire first; only unprocessed preloads are promoted. -->
     <script>setTimeout(function(){document.querySelectorAll('link[data-csp-fallback][rel="preload"]').forEach(function(l){l.rel='stylesheet'})},3000)</script>

@@ -1,5 +1,23 @@
 'use strict';
 
+const crypto = require('crypto');
+const pathFn = require('path');
+
+// Cache-busting helper: appends ?v=<hash> to local asset URLs
+hexo.extend.helper.register('versioned_url', function (assetPath) {
+    const url = this.url_for(assetPath);
+    const sourceDir = pathFn.join(hexo.theme_dir, 'source');
+    const filePath = pathFn.join(sourceDir, assetPath);
+    try {
+        const content = require('fs').readFileSync(filePath);
+        const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+        return url + '?v=' + hash;
+    } catch (e) {
+        // File not found at theme level; fall back to plain url_for
+        return url;
+    }
+});
+
 hexo.extend.helper.register('first_image', function (content) {
     if (!content) return '';
     const match = content.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
