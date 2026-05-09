@@ -3,7 +3,7 @@
 **[English](README.md) | 简体中文**
 
 <div style="text-align: center">
-  <img alt="Shiro" src="https://github.com/user-attachments/assets/a039b7ff-f510-41b7-be88-27f262ca1dc3" width="1000" />
+  <img alt="Shiro" src="https://github.com/user-attachments/assets/0040cf16-5971-4888-aad1-d39936cfb346" width="1000" />
 </div>
 
 一个简洁、优雅、健壮的 Hexo 主题，灵感源自留白（余白）。基于 [Nunjucks](https://mozilla.github.io/nunjucks/) 和 [Tailwind CSS](https://tailwindcss.com/) 构建。

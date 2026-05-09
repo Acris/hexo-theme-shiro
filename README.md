@@ -3,7 +3,7 @@
 **English | [简体中文](README_CN.md)**
 
 <div style="text-align: center">
-  <img alt="Shiro" src="https://github.com/user-attachments/assets/a039b7ff-f510-41b7-be88-27f262ca1dc3" width="1000" />
+  <img alt="Shiro" src="https://github.com/user-attachments/assets/0040cf16-5971-4888-aad1-d39936cfb346" width="1000" />
 </div>
 
 A clean, elegant, and robust Hexo theme inspired by whitespace (余白). Built
