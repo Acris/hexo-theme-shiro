@@ -1056,3 +1056,190 @@ html.theme-transition .progress-bar {
         opacity: 1;
     }
 }
+
+/* ── Search modal ──────────────────────────────────────────────────────
+ *
+ * Wrapper styles for the Pagefind-powered search modal. Kept OUTSIDE
+ * `@layer components` so Pagefind's lazy-injected `pagefind-ui.css`
+ * (which lives in the default unlayered cascade) cannot override us.
+ *
+ * Design goals:
+ *   1. Symmetric vertical breathing room (top == bottom).
+ *   2. Seal vermilion (--color-seal) as the only accent (focus ring,
+ *      query highlights, hover, sub-result arrow).
+ *   3. Body-copy typography: same font family + size as article text.
+ */
+
+/* Lock background scroll while any modal is open. The flag is set by
+   search.js (and may be reused by future modals) on <html>. */
+html[data-modal-open="true"] {
+    overflow: hidden;
+}
+
+.search-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    /* Symmetric top/bottom padding — single value applies to both edges. */
+    padding: clamp(1rem, 8vh, 5rem) 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s var(--ease-soft);
+    overscroll-behavior: contain;
+}
+
+.search-modal[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.search-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-ink) 28%, transparent);
+    backdrop-filter: blur(6px) saturate(120%);
+    -webkit-backdrop-filter: blur(6px) saturate(120%);
+}
+
+.dark .search-modal__backdrop {
+    background: color-mix(in srgb, #000 55%, transparent);
+}
+
+.search-modal__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 38rem;
+    max-height: 100%;
+    background: var(--color-paper);
+    color: var(--color-text-body);
+    border: 1px solid var(--color-soft-border);
+    border-radius: 0.875rem;
+    box-shadow: var(--shadow-paper);
+    transform: translateY(-0.5rem);
+    transition: transform 0.2s var(--ease-soft);
+
+    /* Map Pagefind UI tokens to Shiro palette. */
+    --pagefind-ui-primary: var(--color-seal);
+    --pagefind-ui-text: var(--color-text-body);
+    --pagefind-ui-background: var(--color-paper);
+    --pagefind-ui-border: var(--color-soft-border);
+    --pagefind-ui-tag: var(--color-bg-inset);
+    --pagefind-ui-font: var(--font-serif);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 0.5rem;
+    --pagefind-ui-scale: 1;
+}
+
+.search-modal[data-open="true"] .search-modal__panel {
+    transform: translateY(0);
+}
+
+.search-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--color-soft-border);
+}
+
+.search-modal__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-text-heading);
+    text-transform: uppercase;
+}
+
+.search-modal__title::before {
+    content: "";
+    display: inline-block;
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-right: 0.55rem;
+    vertical-align: 0.15em;
+    background: var(--color-seal);
+    border-radius: 9999px;
+}
+
+.search-modal__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 9999px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: 0.15s var(--ease-soft);
+    transition-property: color, background-color, border-color;
+}
+
+.search-modal__close:hover {
+    color: var(--color-seal);
+    background: var(--color-bg-inset);
+    border-color: var(--color-soft-border);
+}
+
+.search-modal__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem 1.25rem 1rem;
+}
+
+/* ── Pagefind Default UI accents (unlayered) ────────────────────────────
+ *
+ * Minimal customizations on top of Pagefind's native styles:
+ *   - Font family inherits from `.search-modal` (`var(--font-serif)`),
+ *     so result text matches the body copy.
+ *   - Seal vermilion (`--color-seal`) is the only accent: focus ring,
+ *     query highlights, link hover, sub-result arrow.
+ *
+ * Font-size, spacing, and layout intentionally left to Pagefind defaults.
+ */
+
+.search-modal .pagefind-ui__search-input:focus,
+.search-modal .pagefind-ui__search-input:focus-visible {
+    outline: none;
+    border-color: var(--color-seal);
+    box-shadow: inset 0 0 0 2px var(--color-seal);
+}
+
+.search-modal .pagefind-ui__result-link:hover {
+    color: var(--color-seal);
+}
+
+/* Highlighted query terms — seal vermilion accent. */
+.search-modal .pagefind-ui__result mark,
+.search-modal .pagefind-ui__result-excerpt mark {
+    background: color-mix(in srgb, var(--color-seal) 18%, transparent);
+    color: var(--color-seal);
+    font-weight: 600;
+    border-radius: 0.15rem;
+    padding: 0 0.1rem;
+}
+
+/* Sub-result leader arrow (\2937 ⤷) tinted seal vermilion. The arrow is
+   rendered via ::before on the nested result's link, not on the nested
+   wrapper itself. Specificity (0,3,1) beats Pagefind's (0,2,1), so no
+   !important needed. */
+.search-modal .pagefind-ui__result-nested .pagefind-ui__result-link::before {
+    color: var(--color-seal);
+}
+
+.search-modal .pagefind-ui__button:hover {
+    color: var(--color-seal);
+    border-color: color-mix(in srgb, var(--color-seal) 45%, var(--color-soft-border));
+}
+

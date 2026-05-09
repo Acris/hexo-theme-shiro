@@ -35,6 +35,7 @@ Made by Acris with ❤️
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
+- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) — index is generated automatically after `hexo generate`, no external service required.
 - **Fast**: Optimized for performance with minimal JavaScript.
 
 ## Installation
@@ -221,6 +222,17 @@ analytics:
     enabled: false
     # e.g., "G-XXXXXXXXXX"
     id: ""
+
+# Site search powered by Pagefind (https://pagefind.app/)
+# Index is built automatically after `hexo generate` and written to `public/pagefind/`.
+# For npm-installed themes the binary is auto-resolved from node_modules; for git-clone
+# installs run `npm install pagefind --save-dev` in your site root, or rely on the
+# `npx --yes pagefind` fallback (requires network on first run).
+search:
+  enabled: false
+  # Force language for tokenization (auto-detected from <html lang> by default).
+  # Override only if Pagefind fails to detect your site language correctly.
+  # force_language: zh
 ```
 
 ### Creating Pages (Tags & Categories)
@@ -249,6 +261,45 @@ wish to use them in the menu.
    layout: category
    ---
    ```
+
+### Search
+
+Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically right after `hexo generate` (and therefore also after `hexo deploy`), so you do not need to run any extra command.
+
+**npm install (recommended)**
+
+When you install the theme via `npm i hexo-theme-shiro`, Pagefind is resolved from your site's `node_modules` if present, otherwise the build hook falls back to `npx --yes pagefind`, which downloads the binary on first run (network required once).
+
+**git clone install**
+
+If you cloned the theme into `themes/shiro/`, install Pagefind once in your **site root** (not the theme directory):
+
+```bash
+npm install pagefind --save-dev
+```
+
+After that `hexo g` will pick it up automatically.
+
+**Configuration (`_config.yml` / `_config.shiro.yml`)**
+
+```yaml
+search:
+  enabled: true
+  # Force language for tokenization (auto-detected from <html lang> by default).
+  # Override only if Pagefind fails to detect your site language correctly.
+  # force_language: zh
+```
+
+Set `search.enabled: false` to disable the feature: the build hook is skipped and the search button is not rendered.
+
+**Local preview**
+
+The hook runs on Hexo's `before_exit` event, scoped to the `generate` (`g`) and `deploy` (`d`) commands — this guarantees `public/` has already been written to disk before Pagefind scans it. `hexo server` renders pages from memory and does **not** trigger this hook, so the search index is not rebuilt during local preview. To preview search locally, run a real build and serve the output:
+
+```bash
+hexo clean && hexo g
+npx serve public
+```
 
 ## Development
 

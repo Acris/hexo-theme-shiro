@@ -44,8 +44,27 @@
     </button>
     {% endif %}
 
+    {% if theme.search.enabled %}
+    {% include "_partial/components/search-modal.njk" %}
+    <script>window.__pagefindBase = "{{ url_for('/pagefind/') }}";</script>
+    {% endif %}
+
     <!-- Scripts -->
-    {% set i18n_data = { clipboard_copy: __('clipboard_copy'), clipboard_copied: __('clipboard_copied'), gallery_visit_source: __('gallery_visit_source'), gallery_view_image: __('gallery_view_image') } %}
+    {% set i18n_data = {
+        clipboard_copy: __('clipboard_copy'),
+        clipboard_copied: __('clipboard_copied'),
+        gallery_visit_source: __('gallery_visit_source'),
+        gallery_view_image: __('gallery_view_image'),
+        search: {
+            button: __('search.button'),
+            placeholder: __('search.placeholder'),
+            close: __('search.close'),
+            zero_results: __('search.zero_results'),
+            one_result: __('search.one_result'),
+            many_results: __('search.many_results'),
+            loading: __('search.loading')
+        }
+    } %}
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     {% if is_home() or is_post() or is_page() %}
     <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" integrity="sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO" crossorigin="anonymous"></script>
@@ -66,6 +85,9 @@
     {% endif %}
     {% if theme.menu and theme.menu.length %}
     <script defer src="{{ versioned_url('js/mobile-menu.js') }}"></script>
+    {% endif %}
+    {% if theme.search.enabled %}
+    <script defer src="{{ versioned_url('js/search.js') }}"></script>
     {% endif %}
     {% include "_partial/analytics/google.njk" %}
 </body>

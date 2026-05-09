@@ -29,3 +29,12 @@ theme:
 
 toc:
   title: 目录
+
+search:
+  button: 搜索
+  placeholder: 搜索文章…
+  close: 关闭
+  zero_results: 未找到与 "[SEARCH_TERM]" 相关的内容
+  one_result: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
+  many_results: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
+  loading: 加载中…

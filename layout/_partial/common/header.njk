@@ -1,5 +1,5 @@
-{% from "_macro/ui.njk" import seal, icon_rss, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark with context %}
-<header class="relative">
+{% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark with context %}
+<header class="relative" data-pagefind-ignore>
 
     <div class="relative flex items-start justify-center">
         <div class="text-center">
@@ -42,13 +42,19 @@
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
+                {% if theme.search.enabled %}
+                <button id="searchToggle" class="group header-pill-btn" aria-label="{{ __('search.button') }}">
+                    {{ icon_search() }}
+                    <span class="sr-only">{{ __('search.button') }}</span>
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>
 </header>
 
 <!-- Navigation -->
-<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}">
+<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn"

@@ -1,5 +1,5 @@
 {% if theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
-<div id="disqus_thread" class="mt-10"></div>
+<div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 <script>
     var disqus_config = function () {
         this.page.url = {{ (page.permalink or url) | dump | safe }};

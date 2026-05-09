@@ -119,3 +119,13 @@ analytics:
     # e.g., "G-XXXXXXXXXX"
     id: ""
 
+# Site search powered by Pagefind (https://pagefind.app/)
+# Index is built automatically after `hexo generate` and written to `public/pagefind/`.
+# For npm-installed themes the binary is auto-resolved from node_modules; for git-clone
+# installs run `npm install pagefind --save-dev` in your site root, or rely on the
+# `npx --yes pagefind` fallback (requires network on first run).
+search:
+  enabled: false
+  # Force language for tokenization (auto-detected from <html lang> by default).
+  # Override only if Pagefind fails to detect your site language correctly.
+  # force_language: zh

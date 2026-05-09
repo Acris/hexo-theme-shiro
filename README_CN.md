@@ -33,6 +33,7 @@
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
+- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——`hexo generate` 之后自动生成索引，无需任何外部服务。
 - **快速**：优化性能，最小化 JavaScript。
 
 ## 安装
@@ -217,6 +218,17 @@ analytics:
     enabled: false
     # 例如 "G-XXXXXXXXXX"
     id: ""
+
+# 站内搜索，由 Pagefind 提供（https://pagefind.app/）
+# 索引会在 `hexo generate` 之后自动构建并写入 `public/pagefind/`。
+# npm 安装的主题会自动从 node_modules 解析二进制；以 git clone 方式安装时，
+# 请在站点根目录执行 `npm install pagefind --save-dev`，或依赖 `npx --yes pagefind`
+# 兜底（首次运行需联网）。
+search:
+  enabled: false
+  # 强制指定分词语言（默认从 <html lang> 自动检测）。
+  # 仅当 Pagefind 无法正确识别站点语言时才需要覆盖。
+  # force_language: zh
 ```
 
 ### 创建页面（标签和分类）
@@ -244,6 +256,45 @@ analytics:
    layout: category
    ---
    ```
+
+### 搜索
+
+Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成（`hexo deploy` 内部也会触发 generate），作者无需记忆任何额外命令。
+
+**npm 安装（推荐）**
+
+通过 `npm i hexo-theme-shiro` 安装时，主题会优先从站点的 `node_modules` 解析 Pagefind；若不存在，则回退到 `npx --yes pagefind`，首次运行需联网下载（之后走 npm 缓存）。
+
+**git clone 安装**
+
+如果你以 `git clone` 方式将主题放在 `themes/shiro/`，请在 **站点根目录**（不是主题目录）安装一次 Pagefind：
+
+```bash
+npm install pagefind --save-dev
+```
+
+之后 `hexo g` 会自动调用它。
+
+**配置（`_config.yml` / `_config.shiro.yml`）**
+
+```yaml
+search:
+  enabled: true
+  # 强制指定分词语言（默认从 <html lang> 自动检测）。
+  # 仅当 Pagefind 无法正确识别站点语言时才需要覆盖。
+  # force_language: zh
+```
+
+将 `search.enabled` 设为 `false` 即可关闭：构建钩子被跳过，搜索按钮也不会渲染。
+
+**本地预览**
+
+该钩子注册在 Hexo 的 `before_exit` 事件上，并仅对 `generate`（`g`）与 `deploy`（`d`）命令生效——这样可以保证 `public/` 已经完整写入磁盘后 Pagefind 才开始扫描。`hexo server` 走内存渲染，不会触发该钩子，因此本地预览时不会重建搜索索引。要本地预览搜索，请走真实构建并用静态服务器：
+
+```bash
+hexo clean && hexo g
+npx serve public
+```
 
 ## 开发
 

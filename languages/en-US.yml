@@ -29,3 +29,12 @@ theme:
 
 toc:
   title: Contents
+
+search:
+  button: Search
+  placeholder: Search posts...
+  close: Close
+  zero_results: No results for "[SEARCH_TERM]"
+  one_result: '[COUNT] result for "[SEARCH_TERM]"'
+  many_results: '[COUNT] results for "[SEARCH_TERM]"'
+  loading: Loading...

@@ -29,3 +29,12 @@ theme:
 
 toc:
   title: Sommaire
+
+search:
+  button: Rechercher
+  placeholder: Rechercher des articles…
+  close: Fermer
+  zero_results: Aucun résultat pour « [SEARCH_TERM] »
+  one_result: '[COUNT] résultat pour « [SEARCH_TERM] »'
+  many_results: '[COUNT] résultats pour « [SEARCH_TERM] »'
+  loading: Chargement…

@@ -1,6 +1,6 @@
 {% from "_macro/ui.njk" import icon_chevron_down with context %}
 <!-- Inline TOC (small screens < xl) -->
-<div id="tocInline" class="toc-inline xl:hidden mb-8">
+<div id="tocInline" class="toc-inline xl:hidden mb-8" data-pagefind-ignore>
     <button class="toc-toggle" aria-expanded="false" aria-controls="tocInlineBody">
         <span class="toc-toggle-title">{{ __('toc.title') }}</span>
         {{ icon_chevron_down("toc-chevron size-4") }}
@@ -9,7 +9,7 @@
 </div>
 
 <!-- Sidebar TOC (xl+ screens) -->
-<aside id="tocSidebar" class="toc-sidebar hidden xl:block" aria-label="{{ __('toc.title') }}">
+<aside id="tocSidebar" class="toc-sidebar hidden xl:block" aria-label="{{ __('toc.title') }}" data-pagefind-ignore>
     <div class="toc-sidebar-inner">
         <p class="toc-sidebar-title">{{ __('toc.title') }}</p>
         <div class="toc-body"></div>

@@ -5,7 +5,7 @@
      - article_extra: extra HTML to insert after tags (e.g. post navigation) #}
 {% from "_macro/ui.njk" import meta, render_tag with context %}
 
-<article class="content-article">
+<article class="content-article" data-pagefind-body>
     <header class="text-center mb-8">
         <h1 class="page-title mb-4">
             {{ page.title }}
