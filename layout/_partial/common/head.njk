@@ -1,15 +1,17 @@
 <head>
     <meta charset="utf-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta name="generator" content="Hexo {{ hexo.version }}" />
     <!-- FOUC prevention: apply dark mode class before first paint.
          Flow: read default → build valid states → read localStorage (try/catch for Safari private mode)
          → validate saved state → set data-theme-state on <html> → resolve effective dark/light
          → add .dark class and colorScheme if needed. -->
     <script>(function(){const d={{ theme.dark_mode.default | default("system", true) | dump | safe }};window.__themeDefault=d;const s=d==='system'?['system','light','dark']:['light','dark'];let sv;try{sv=localStorage.getItem('theme')}catch(e){}if(!sv||s.indexOf(sv)===-1)sv=d;const h=document.documentElement;h.setAttribute('data-theme-state',sv);const k=sv==='dark'||(sv!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)h.classList.add('dark');h.style.colorScheme=k?'dark':'light';})()</script>
-    <!-- Preconnect for Google Fonts (before any CSS to maximize benefit) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Fira+Code:wght@400;500&display=swap" />
+    {% set google_fonts_critical = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&display=swap" %}
+    {% set google_fonts_deferred = "https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=optional&family=Zen+Old+Mincho:wght@400;600&display=swap&family=Noto+Serif+JP:wght@400;600&display=swap&family=Noto+Serif+SC:wght@400;600&display=swap&family=Cormorant+Garamond:wght@400;600&display=swap&family=Fira+Code:wght@400;500&display=swap" %}
+    <link rel="stylesheet" href="{{ google_fonts_critical }}" fetchpriority="high" />
+    <link rel="stylesheet" href="{{ google_fonts_deferred }}" fetchpriority="low" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {# --- SEO Variables --- #}
     {% set site_title = config.title %}

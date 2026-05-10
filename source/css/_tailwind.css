@@ -64,18 +64,8 @@
 
     --font-code: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
     --font-eng: 'Cormorant Garamond', serif;
-    --font-serif: 'Cardo', 'Spectral', 'Zen Old Mincho',
-        'Songti SC', 'Songti TC', 'Hiragino Mincho ProN',
-        'Source Han Serif SC', 'Source Han Serif TC',
-        'Noto Serif CJK SC', 'Noto Serif CJK JP',
-        'STSong', 'SimSun',
-        serif;
-    --font-title: 'Yuji Syuku', 'Zen Old Mincho',
-        'Songti SC', 'Songti TC', 'Hiragino Mincho ProN',
-        'Source Han Serif SC', 'Source Han Serif TC',
-        'Noto Serif CJK SC', 'Noto Serif CJK JP',
-        'STSong', 'SimSun',
-        serif;
+    --font-serif: 'Cardo', 'Zen Old Mincho', 'Noto Serif JP', 'Noto Serif SC', serif;
+    --font-title: 'Yuji Syuku', 'Zen Old Mincho', 'Noto Serif JP', serif;
 
     --shadow-paper: 0 1px 1px rgba(16, 24, 40, 0.06), 0 10px 30px rgba(16, 24, 40, 0.08),
     0 35px 70px rgba(16, 24, 40, 0.06);
