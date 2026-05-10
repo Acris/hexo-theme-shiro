@@ -1,33 +1,71 @@
 {% if theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 <script>
-    var disqus_config = function () {
+    /* Disqus expects this on the global scope.
+       `colorScheme` is read fresh on every (re)load so the iframe always
+       matches the live `<html>.dark` state instead of Disqus's flaky
+       text-contrast auto-detection. */
+    window.disqus_config = function () {
         this.page.url = {{ (page.permalink or url) | dump | safe }};
         this.page.identifier = {{ url_for(page.path) | dump | safe }}.replace(/\/$/, '');
+        this.colorScheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     };
 
     (function() {
-        const d = document, s = d.createElement('script');
-        {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
-        s.src = 'https://' + {{ theme.comments.disqus.shortname | dump | safe }} + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', Date.now());
-        
+        const d = document, w = window;
         const disqus_thread = d.getElementById('disqus_thread');
         if (!disqus_thread) return;
 
-        if (!('IntersectionObserver' in window)) {
+        {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
+        const SHORTNAME = {{ theme.comments.disqus.shortname | dump | safe }};
+        let loaded = false;
+
+        function loadDisqus() {
+            if (loaded) return;
+            loaded = true;
+            const s = d.createElement('script');
+            s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', Date.now());
             (d.head || d.body).appendChild(s);
-            return;
         }
 
-        const observer = new IntersectionObserver(function(entries) {
-            /* threshold 0 = load as soon as the container enters the viewport */
-            if (entries[0].isIntersecting) {
-                (d.head || d.body).appendChild(s);
-                observer.disconnect();
-            }
-        }, { threshold: 0 });
-        observer.observe(disqus_thread);
+        if (!('IntersectionObserver' in w)) {
+            loadDisqus();
+        } else {
+            const io = new IntersectionObserver(function(entries) {
+                /* threshold 0 = load as soon as the container enters the viewport */
+                if (entries[0].isIntersecting) {
+                    loadDisqus();
+                    io.disconnect();
+                }
+            }, { threshold: 0 });
+            io.observe(disqus_thread);
+        }
+
+        /* Re-render Disqus when the site theme toggles between light/dark.
+           Unlike giscus — which lives in a same-origin friendly iframe and
+           re-renders via CSS `color-scheme` propagation — Disqus locks in
+           its color scheme at load time and ignores subsequent changes.
+           Mirror the giscus runtime behavior by calling DISQUS.reset() so
+           the iframe reloads with the new scheme. */
+        const root = d.documentElement;
+        let prevDark = root.classList.contains('dark');
+        let resetTimer;
+        const themeObserver = new MutationObserver(function() {
+            const isDark = root.classList.contains('dark');
+            /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
+            if (isDark === prevDark) return;
+            prevDark = isDark;
+            if (!loaded || !w.DISQUS || typeof w.DISQUS.reset !== 'function') return;
+            /* Debounce rapid toggles and let any view-transition settle first. */
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(function() {
+                try {
+                    w.DISQUS.reset({ reload: true, config: w.disqus_config });
+                } catch (e) { /* swallow — Disqus may not be ready yet */ }
+            }, 200);
+        });
+        themeObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
