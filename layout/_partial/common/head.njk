@@ -9,11 +9,7 @@
     <!-- Preconnect for Google Fonts (before any CSS to maximize benefit) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Google Fonts: async preload to avoid render-blocking; merged into a single request.
-         Note: onload inline handler may be blocked under strict CSP; use JS font loader if CSP is required. -->
-    {% set google_fonts_url = "https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Noto+Serif+JP:wght@400;600&family=Noto+Serif+SC:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Fira+Code:wght@400;500&display=swap" %}
-    <link rel="preload" as="style" href="{{ google_fonts_url }}" onload="this.rel='stylesheet'" data-csp-fallback />
-    <noscript><link rel="stylesheet" href="{{ google_fonts_url }}" /></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&family=Spectral:wght@400;600&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;600&family=Cormorant+Garamond:wght@400;600&family=Fira+Code:wght@400;500&display=swap" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {# --- SEO Variables --- #}
     {% set site_title = config.title %}
@@ -77,7 +73,4 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" integrity="sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8" crossorigin="anonymous" />
     {% endif %}
     <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
-    <!-- CSP fallback: promote preloaded font stylesheets if onload was blocked.
-         setTimeout(3000) gives onload enough time to fire first; only unprocessed preloads are promoted. -->
-    <script>setTimeout(function(){document.querySelectorAll('link[data-csp-fallback][rel="preload"]').forEach(function(l){l.rel='stylesheet'})},3000)</script>
 </head>

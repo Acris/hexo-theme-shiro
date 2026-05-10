@@ -64,7 +64,7 @@ hexo.extend.generator.register('favicon_svg', function (locals) {
         + '</defs>'
         + '<path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z" fill="' + color + '" filter="url(#seal-roughness)" opacity="0.92"/>'
         + '<text x="50" y="50" text-anchor="middle" dominant-baseline="central" '
-        + 'font-family="\'Yuji Syuku\',\'Zen Old Mincho\',\'Noto Serif JP\',serif" font-size="42" '
+        + 'font-family="\'Yuji Syuku\',\'Zen Old Mincho\',\'Songti SC\',\'Hiragino Mincho ProN\',\'Source Han Serif SC\',\'Noto Serif CJK SC\',\'STSong\',serif" font-size="42" '
         + 'fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)" style="user-select:none">'
         + text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
         + '</text></svg>';
