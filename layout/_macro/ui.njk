@@ -124,7 +124,7 @@
 
 {% macro render_tag(tag, show_count=false) %}
 <a href="{{ url_for(tag.path) }}" class="tag-pill">
-    <span class="size-1.5 rounded-full bg-slate-400 mr-2"></span>
+    <span class="size-1.5 rounded-full bg-seal mr-2"></span>
     {{ tag.name }}
     {% if show_count %}
         <span class="text-slate-400 ml-1 text-xs">{{ tag.length }}</span>
