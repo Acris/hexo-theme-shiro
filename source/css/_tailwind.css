@@ -563,6 +563,98 @@
             @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
         }
 
+        /* ── Syntax highlighting (Hexo highlight.js tokens) ──
+           Light palette tuned to Shiro's "warm paper + ink + vermilion seal"
+           aesthetic. Four-color system:
+             - ink (deep slate)  → names / titles / types
+             - seal (vermilion)  → keywords / language constructs
+             - moss (olive ink)  → strings / regex / attrs
+             - ochre (burnt sienna) → numbers / variables / tags
+           Targets the standard token class names emitted by hexo-util's
+           highlight.js wrapper inside `.highlight`. */
+        & .highlight {
+            & .comment,
+            & .quote { color: #a8a29e; font-style: italic; }
+            & .keyword,
+            & .selector-tag,
+            & .literal,
+            & .section,
+            & .link,
+            & .meta-keyword { color: var(--color-seal); }
+            & .string,
+            & .doctag,
+            & .template-tag,
+            & .template-variable,
+            & .regexp,
+            & .meta-string,
+            & .attr { color: #5b6e3a; }
+            & .number,
+            & .symbol,
+            & .bullet { color: #a85a1f; }
+            & .title,
+            & .name,
+            & .selector-id,
+            & .selector-class,
+            & .built_in,
+            & .builtin-name,
+            & .type,
+            & .class .title,
+            & .params { color: var(--color-ink); font-weight: 600; }
+            & .attribute,
+            & .variable,
+            & .tag { color: #8a4a1a; }
+            & .meta { color: #8a8278; }
+            & .addition { color: #4a6b2a; background-color: rgba(91, 110, 58, 0.10); }
+            & .deletion { color: var(--color-seal); background-color: rgba(175, 58, 82, 0.08); }
+            & .emphasis { font-style: italic; }
+            & .strong { font-weight: 600; }
+        }
+
+        /* Hexo `{% codeblock lang Title url %}` renders a <figcaption>
+           inside `.highlight`. Style it as a subtle, paper-toned label. */
+        & .highlight figcaption {
+            @apply flex items-center justify-between px-3 py-1.5 text-xs text-slate-500;
+            background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
+            border-bottom: 1px solid var(--color-slate-200);
+            margin: 0;
+
+            & a {
+                @apply text-slate-500 no-underline;
+                &:hover { @apply text-seal; }
+            }
+        }
+
+        /* Highlighted line (Hexo `mark` argument). Subtle seal-tinted wash. */
+        & .highlight .line.marked {
+            background-color: color-mix(in srgb, var(--color-seal) 8%, transparent);
+        }
+
+        /* Reset pre>code so prose's inline-code styling (seal background,
+           padding) does not leak into highlighted code blocks. */
+        & pre > code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            font-weight: inherit;
+            text-shadow: none;
+            border-radius: 0;
+
+            &::before, &::after { content: ""; }
+        }
+
+        /* GitHub Gist embeds — keep them visually aligned with .highlight. */
+        & .gist {
+            @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-sm shadow-sm;
+
+            & .gist-file { border: 0; margin: 0; }
+            & .gist-data { background: transparent; border-bottom: 1px solid var(--color-slate-200); }
+            & .gist-meta {
+                @apply px-3 py-2 text-xs text-slate-500;
+                background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
+                & a { @apply text-slate-600 no-underline; &:hover { @apply text-seal; } }
+            }
+            & .line-numbers { color: var(--color-slate-400); }
+        }
 
         & code {
             padding-inline: 0.25em;
@@ -927,6 +1019,70 @@
             border-color: var(--color-border-strong);
             background-color: var(--color-code-gutter);
             color: var(--color-text-subtle);
+        }
+
+        /* Dark: syntax highlighting tokens — same four-color system as
+           light, brightened for the dark code background. Avoids blue/purple
+           to stay consistent with the theme's ink + seal identity. */
+        & .highlight {
+            & .comment,
+            & .quote { color: var(--color-text-subtle); font-style: italic; }
+            & .keyword,
+            & .selector-tag,
+            & .literal,
+            & .section,
+            & .link,
+            & .meta-keyword { color: color-mix(in srgb, var(--color-seal) 75%, white); }
+            & .string,
+            & .doctag,
+            & .template-tag,
+            & .template-variable,
+            & .regexp,
+            & .meta-string,
+            & .attr { color: #b5c48a; }
+            & .number,
+            & .symbol,
+            & .bullet { color: #e0a571; }
+            & .title,
+            & .name,
+            & .selector-id,
+            & .selector-class,
+            & .built_in,
+            & .builtin-name,
+            & .type,
+            & .class .title,
+            & .params { color: var(--color-text-heading); font-weight: 600; }
+            & .attribute,
+            & .variable,
+            & .tag { color: #d49a6a; }
+            & .meta { color: var(--color-text-subtle); }
+            & .addition { color: #b5c48a; background-color: rgba(181, 196, 138, 0.10); }
+            & .deletion { color: color-mix(in srgb, var(--color-seal) 75%, white); background-color: rgba(175, 58, 82, 0.15); }
+        }
+
+        /* Dark: figcaption / marked line / gist */
+        & .highlight figcaption {
+            background-color: var(--color-code-gutter);
+            border-bottom-color: var(--color-border-strong);
+            color: var(--color-text-muted);
+            & a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
+        }
+
+        & .highlight .line.marked {
+            background-color: color-mix(in srgb, var(--color-seal) 12%, transparent);
+        }
+
+        & .gist {
+            border-color: var(--color-border-strong);
+            background-color: var(--color-code-bg);
+
+            & .gist-data { border-bottom-color: var(--color-border-strong); }
+            & .gist-meta {
+                background-color: var(--color-code-gutter);
+                color: var(--color-text-muted);
+                & a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
+            }
+            & .line-numbers { color: var(--color-text-subtle); }
         }
     }
 
