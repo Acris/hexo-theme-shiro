@@ -39,6 +39,12 @@ function pageHasCode(page) {
     });
 }
 
+function firstImageSrc(content) {
+    if (!content) return '';
+    const match = String(content).match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
+    return match ? match[1] : '';
+}
+
 function fontFamilyParam(name, weights) {
     const family = name.trim().replace(/\s+/g, '+');
     return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
@@ -89,10 +95,12 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
     }
 });
 
+hexo.extend.helper.register('has_images', function (content) {
+    return !!firstImageSrc(content);
+});
+
 hexo.extend.helper.register('first_image', function (content) {
-    if (!content) return '';
-    const match = content.match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
-    return match ? match[1] : '';
+    return firstImageSrc(content);
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {

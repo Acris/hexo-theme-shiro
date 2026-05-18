@@ -66,9 +66,12 @@
         }
     } %}
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
-    {% if is_home() or is_post() or is_page() %}
+    {% set needs_lightgallery = (is_post() or is_page()) and has_images(page.content) %}
+    {% if needs_lightgallery %}
     <script defer src="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" integrity="sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO" crossorigin="anonymous"></script>
     <script defer src="{{ versioned_url('js/lightgallery.js') }}"></script>
+    {% endif %}
+    {% if is_home() or is_post() or is_page() %}
     <script defer src="{{ versioned_url('js/clipboard.js') }}"></script>
     {% endif %}
     {% if theme.toc.enabled and (is_post() or is_page()) %}
