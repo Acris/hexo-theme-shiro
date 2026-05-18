@@ -3,6 +3,77 @@
 const crypto = require('crypto');
 const pathFn = require('path');
 
+const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
+
+function collectionToArray(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    if (typeof value.toArray === 'function') return value.toArray();
+    return [];
+}
+
+function primaryLanguage(language) {
+    const raw = Array.isArray(language) ? language[0] : language;
+    return (raw || '').toString().trim().toLowerCase();
+}
+
+function cjkFontForLanguage(language) {
+    const lang = primaryLanguage(language);
+    if (/^ja(?:[-_]|$)/.test(lang)) return 'Noto Serif JP';
+    if (/^zh(?:[-_]|$)/.test(lang)) return 'Noto Serif SC';
+    return '';
+}
+
+function hasCodeContent(content) {
+    if (!content) return false;
+    return /<(pre|code)\b|class=["'][^"']*\b(highlight|gist)\b/i.test(String(content));
+}
+
+function pageHasCode(page) {
+    if (!page) return false;
+    if (hasCodeContent(page.content) || hasCodeContent(page.excerpt)) return true;
+
+    return collectionToArray(page.posts).some(post => {
+        if (hasCodeContent(post.excerpt)) return true;
+        return !post.excerpt && hasCodeContent(post.content);
+    });
+}
+
+function fontFamilyParam(name, weights) {
+    const family = name.trim().replace(/\s+/g, '+');
+    return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
+}
+
+function googleFontUrl(families, display) {
+    const params = families.map(item => fontFamilyParam(item.name, item.weights));
+    params.push('display=' + display);
+    return GOOGLE_FONTS_BASE + '?' + params.join('&');
+}
+
+hexo.extend.helper.register('google_font_urls', function (page, config) {
+    const criticalFamilies = [
+        { name: 'Cardo', weights: ['400', '700'] },
+        { name: 'Yuji Syuku' },
+        { name: 'Zen Old Mincho', weights: ['400', '600'] }
+    ];
+
+    const cjkFamily = cjkFontForLanguage(config && config.language);
+    if (cjkFamily) {
+        criticalFamilies.push({ name: cjkFamily, weights: ['400', '600'] });
+    }
+
+    const urls = [
+        googleFontUrl(criticalFamilies, 'swap'),
+        googleFontUrl([{ name: 'Cormorant Garamond', weights: ['400', '600'] }], 'optional')
+    ];
+
+    if (pageHasCode(page)) {
+        urls.push(googleFontUrl([{ name: 'Fira Code', weights: ['400', '500'] }], 'swap'));
+    }
+
+    return urls;
+});
+
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
     const url = this.url_for(assetPath);
