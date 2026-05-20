@@ -1,9 +1,11 @@
 'use strict';
 
 const crypto = require('crypto');
+const fs = require('fs');
 const pathFn = require('path');
 
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
+const assetHashCache = new Map();
 
 function collectionToArray(value) {
     if (!value) return [];
@@ -85,12 +87,21 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
     const url = this.url_for(assetPath);
     const sourceDir = pathFn.join(hexo.theme_dir, 'source');
     const filePath = pathFn.join(sourceDir, assetPath);
+
     try {
-        const content = require('fs').readFileSync(filePath);
+        const stat = fs.statSync(filePath);
+        const cached = assetHashCache.get(filePath);
+        if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) {
+            return cached.hash ? url + '?v=' + cached.hash : url;
+        }
+
+        const content = fs.readFileSync(filePath);
         const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+        assetHashCache.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size, hash });
         return url + '?v=' + hash;
     } catch (e) {
         // File not found at theme level; fall back to plain url_for
+        assetHashCache.set(filePath, { mtimeMs: 0, size: 0, hash: '' });
         return url;
     }
 });
