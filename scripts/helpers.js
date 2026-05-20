@@ -6,6 +6,7 @@ const pathFn = require('path');
 
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
 const assetHashCache = new Map();
+const excerptCache = new WeakMap();
 
 function collectionToArray(value) {
     if (!value) return [];
@@ -75,6 +76,15 @@ function firstImageSrc(content) {
     return match ? match[1] : '';
 }
 
+function truncateText(text, length) {
+    const limit = Math.max(0, Number(length) || 0);
+    if (!limit || text.length <= limit) return text;
+
+    const head = text.substring(0, limit);
+    const boundary = head.lastIndexOf(' ');
+    return (boundary > 0 ? head.substring(0, boundary) : head) + '...';
+}
+
 function fontFamilyParam(name, weights) {
     const family = name.trim().replace(/\s+/g, '+');
     return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
@@ -140,6 +150,35 @@ hexo.extend.helper.register('has_images', function (content) {
 
 hexo.extend.helper.register('first_image', function (content) {
     return firstImageSrc(content);
+});
+
+
+hexo.extend.helper.register('excerpt_for', function (post, length) {
+    if (!post) return { content: '', truncated: false };
+
+    const limit = Math.max(0, Number(length) || 0);
+    const source = post.excerpt || post.content || '';
+    const cacheKey = limit + '|' + (post.excerpt ? 'manual' : 'fallback');
+    const postCache = excerptCache.get(post);
+    const cached = postCache && postCache.get(cacheKey);
+    if (cached && cached.source === source) return cached.result;
+
+    let result;
+    if (post.excerpt) {
+        result = { content: post.excerpt, truncated: true };
+    } else {
+        const plain = this.strip_html(post.content || '').replace(/\s+/g, ' ').trim();
+        if (limit > 0 && plain.length > limit) {
+            result = { content: '<p>' + truncateText(plain, limit) + '</p>', truncated: true };
+        } else {
+            result = { content: post.content || '', truncated: false };
+        }
+    }
+
+    const nextPostCache = postCache || new Map();
+    nextPostCache.set(cacheKey, { source, result });
+    if (!postCache) excerptCache.set(post, nextPostCache);
+    return result;
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {
