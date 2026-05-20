@@ -41,6 +41,34 @@ function pageHasCode(page) {
     });
 }
 
+function tocHeadingLevels(tocConfig) {
+    const maxDepth = Math.max(1, Number(tocConfig && tocConfig.depth) || 3);
+    const levels = [];
+    for (let i = 1; i <= maxDepth; i++) levels.push(i + 1);
+    return levels;
+}
+
+function countTocHeadings(content, tocConfig) {
+    if (!content) return 0;
+    const levels = new Set(tocHeadingLevels(tocConfig));
+    const html = String(content)
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '');
+    const matches = html.matchAll(/<h([2-6])\b[^>]*>/gi);
+    let count = 0;
+    for (const match of matches) {
+        if (levels.has(Number(match[1]))) count++;
+    }
+    return count;
+}
+
+hexo.extend.helper.register('should_render_toc', function (content, tocConfig) {
+    if (!tocConfig || tocConfig.enabled === false) return false;
+    const minHeadings = Math.max(1, Number(tocConfig.min_headings) || 3);
+    return countTocHeadings(content, tocConfig) >= minHeadings;
+});
+
 function firstImageSrc(content) {
     if (!content) return '';
     const match = String(content).match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);

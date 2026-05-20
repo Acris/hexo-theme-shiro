@@ -6,8 +6,8 @@
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const tocCfg = window.__tocConfig || {};
-    const maxDepth = tocCfg.depth || 3;
-    const minHeadings = tocCfg.minHeadings || 3;
+    const maxDepth = Math.max(1, Number(tocCfg.depth) || 3);
+    const minHeadings = Math.max(1, Number(tocCfg.minHeadings) || 3);
 
     const levels = [];
     for (let i = 1; i <= maxDepth; i++) levels.push('h' + (i + 1));
@@ -19,7 +19,6 @@
         return;
     }
 
-    // Generate semantic slug from text content
     function slugify(text) {
         return text.trim()
             .toLowerCase()
@@ -30,7 +29,6 @@
             || 'heading';
     }
 
-    // Ensure all headings have unique IDs (prefer existing, fallback to slug)
     const usedIds = new Set();
     headings.forEach((h) => {
         if (!h.id) {
@@ -45,14 +43,12 @@
         usedIds.add(h.id);
     });
 
-    // Determine the minimum heading level present to normalize indentation
     let minLevel = 6;
     headings.forEach((h) => {
         const lvl = parseInt(h.tagName[1], 10);
         if (lvl < minLevel) minLevel = lvl;
     });
 
-    // Build TOC DOM to avoid innerHTML XSS risks
     function buildToc() {
         const ul = document.createElement('ul');
         ul.className = 'toc-list';
@@ -75,7 +71,6 @@
 
     const tocHtml = buildToc();
 
-    // Populate sidebar TOC
     if (tocSidebar) {
         const sidebarList = tocSidebar.querySelector('.toc-body');
         if (sidebarList) { sidebarList.textContent = ''; sidebarList.appendChild(tocInline ? tocHtml.cloneNode(true) : tocHtml); }
@@ -85,7 +80,6 @@
         const inlineList = tocInline.querySelector('.toc-body');
         if (inlineList) { inlineList.textContent = ''; inlineList.appendChild(tocHtml); }
 
-        // Toggle inline TOC with dynamic max-height
         const toggleBtn = tocInline.querySelector('.toc-toggle');
         const body = tocInline.querySelector('.toc-body');
         if (toggleBtn && body) {
@@ -109,7 +103,6 @@
         }
     }
 
-    // Smooth scroll (respects prefers-reduced-motion, checked at click time)
     document.querySelectorAll('.toc-link').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -121,98 +114,98 @@
         });
     });
 
-    // Scroll tracking: find the heading closest to the top of the viewport
-    const allLinks = document.querySelectorAll('.toc-link');
     const headingArr = Array.from(headings);
-    let ticking = false;
-
-    // Cache heading positions using getBoundingClientRect + scrollY for accurate
-    // absolute positions (offsetTop is relative to offsetParent, which may not be <body>)
-    let headingPositions = headingArr.map(h => ({ id: h.id, top: h.getBoundingClientRect().top + window.scrollY }));
-    function cachePositions() {
-        headingPositions = headingArr.map(h => ({ id: h.id, top: h.getBoundingClientRect().top + window.scrollY }));
-    }
-    let debounceTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(cachePositions, 200);
-    }, { passive: true });
-
-    // Re-cache positions after images load (they change page layout)
-    // Uses the same debounce as resize to avoid rapid successive calls
-    // when multiple images load nearly simultaneously
-    function debouncedCachePositions() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(cachePositions, 200);
-    }
-    document.querySelectorAll('.prose-shiro img').forEach(img => {
-        if (!img.complete) img.addEventListener('load', debouncedCachePositions, { once: true });
+    const linksByTarget = new Map();
+    document.querySelectorAll('.toc-link').forEach((link) => {
+        const target = link.dataset.target;
+        if (!linksByTarget.has(target)) linksByTarget.set(target, []);
+        linksByTarget.get(target).push(link);
     });
 
-    // Re-cache after web fonts finish loading (line-height changes shift headings)
-    if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(debouncedCachePositions);
+    let activeId = '';
+    let updateQueued = false;
+
+    function setLinksActive(id, active) {
+        const links = linksByTarget.get(id) || [];
+        links.forEach(link => link.classList.toggle('active', active));
+    }
+
+    function scrollSidebarActiveLink(id) {
+        if (!id || !tocSidebar) return;
+        const links = linksByTarget.get(id) || [];
+        const activeLink = links.find(link => tocSidebar.contains(link));
+        const scrollContainer = tocSidebar.querySelector('.toc-sidebar-inner .toc-body');
+        if (!activeLink || !scrollContainer) return;
+
+        const linkRect = activeLink.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+        if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
+            activeLink.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        }
+    }
+
+    function setActiveHeading(id) {
+        if (id === activeId) return;
+        if (activeId) setLinksActive(activeId, false);
+        activeId = id;
+        if (activeId) {
+            setLinksActive(activeId, true);
+            scrollSidebarActiveLink(activeId);
+        }
     }
 
     function updateActiveHeading() {
-        const scrollY = window.scrollY;
-        const offset = 100; // px from top
+        const offset = 100;
         let currentId = '';
-
-        for (let i = headingPositions.length - 1; i >= 0; i--) {
-            if (headingPositions[i].top - offset <= scrollY) {
-                currentId = headingPositions[i].id;
+        for (let i = 0; i < headingArr.length; i++) {
+            if (headingArr[i].getBoundingClientRect().top - offset <= 0) {
+                currentId = headingArr[i].id;
+            } else {
                 break;
             }
         }
-
-        // If scrolled to very top, no active heading
-        if (!currentId && scrollY < (headingPositions[0] ? headingPositions[0].top - offset : 200)) {
-            currentId = '';
-        }
-
-        allLinks.forEach((link) => {
-            link.classList.toggle('active', link.dataset.target === currentId);
-        });
-
-        // Scroll active TOC item into view within the sidebar
-        if (currentId && tocSidebar) {
-            const activeLink = tocSidebar.querySelector('.toc-link.active');
-            const scrollContainer = tocSidebar.querySelector('.toc-sidebar-inner .toc-body');
-            if (activeLink && scrollContainer) {
-                const linkRect = activeLink.getBoundingClientRect();
-                const containerRect = scrollContainer.getBoundingClientRect();
-                if (linkRect.top < containerRect.top || linkRect.bottom > containerRect.bottom) {
-                    activeLink.scrollIntoView({ block: 'nearest', behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-                }
-            }
-        }
-
-        ticking = false;
+        setActiveHeading(currentId);
     }
 
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            requestAnimationFrame(updateActiveHeading);
-            ticking = true;
-        }
-    }, { passive: true });
+    function scheduleActiveUpdate() {
+        if (updateQueued) return;
+        updateQueued = true;
+        requestAnimationFrame(() => {
+            updateQueued = false;
+            updateActiveHeading();
+        });
+    }
 
-    // Initial highlight
-    updateActiveHeading();
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(scheduleActiveUpdate, {
+            rootMargin: '-100px 0px -60% 0px',
+            threshold: 0
+        });
+        headingArr.forEach(heading => observer.observe(heading));
+    } else {
+        window.addEventListener('scroll', scheduleActiveUpdate, { passive: true });
+    }
 
-    // Check URL hash on load and scroll to matching heading
+    window.addEventListener('resize', scheduleActiveUpdate, { passive: true });
+    document.querySelectorAll('.prose-shiro img').forEach(img => {
+        if (!img.complete) img.addEventListener('load', scheduleActiveUpdate, { once: true });
+    });
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(scheduleActiveUpdate);
+    }
+
+    scheduleActiveUpdate();
+
     if (location.hash) {
         const hashTarget = document.getElementById(location.hash.slice(1));
         if (hashTarget) {
             setTimeout(() => {
                 hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-                updateActiveHeading();
+                scheduleActiveUpdate();
             }, 100);
         }
     }
 
-    // Sidebar fade-in animation
     if (tocSidebar && !reducedMotion.matches) {
         tocSidebar.classList.add('toc-fade-in');
         requestAnimationFrame(() => tocSidebar.classList.add('toc-visible'));

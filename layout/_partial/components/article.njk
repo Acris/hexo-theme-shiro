@@ -15,7 +15,7 @@
         {% endif %}
     </header>
 
-    {% if theme.toc.enabled %}
+    {% if theme.toc.enabled and should_render_toc(page.content, theme.toc) %}
     {% include "_partial/components/toc.njk" %}
     {% endif %}
 
