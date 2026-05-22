@@ -7,8 +7,11 @@
 
     var i18n = (window.__i18n && window.__i18n.search) || {};
     var base = window.__pagefindBase || '/pagefind/';
+    var searchCss = window.__searchCss || '';
     var loaded = false;
     var loading = null;
+    var cssLoaded = false;
+    var cssLoading = null;
     var lastFocus = null;
 
     function loadAsset(tag, attrs) {
@@ -19,6 +22,27 @@
             el.onerror = reject;
             document.head.appendChild(el);
         });
+    }
+
+    function ensureSearchCss() {
+        if (!searchCss || cssLoaded) return Promise.resolve();
+        if (cssLoading) return cssLoading;
+        var existing = document.querySelector('link[data-shiro-search-css]');
+        if (existing) {
+            cssLoaded = true;
+            return Promise.resolve();
+        }
+        cssLoading = loadAsset('link', {
+            rel: 'stylesheet',
+            href: searchCss,
+            'data-shiro-search-css': 'true'
+        }).then(function () {
+            cssLoaded = true;
+        }).catch(function (e) {
+            cssLoading = null;
+            throw e;
+        });
+        return cssLoading;
     }
 
     function ensurePagefind() {
@@ -55,9 +79,7 @@
         if (input) { try { input.focus(); } catch (_) {} }
     }
 
-    function open() {
-        if (modal.getAttribute('data-open') === 'true') return;
-        lastFocus = document.activeElement;
+    function showModal() {
         modal.setAttribute('data-open', 'true');
         modal.setAttribute('aria-hidden', 'false');
         // Mark <html> as modal-open so CSS can lock body scroll without
@@ -66,6 +88,14 @@
         ensurePagefind().then(function () {
             // Defer to after Pagefind UI mounts
             setTimeout(focusInput, 30);
+        });
+    }
+
+    function open() {
+        if (modal.getAttribute('data-open') === 'true') return;
+        lastFocus = document.activeElement;
+        ensureSearchCss().then(showModal).catch(function () {
+            showModal();
         });
     }
 

@@ -6,6 +6,7 @@
     const cssIntegrity = 'sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8';
     const jsSrc = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
     const jsIntegrity = 'sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO';
+    const themeCssHref = window.__lightgalleryThemeCss || '';
 
     let assetsLoading = null;
     const instances = new Map();
@@ -45,6 +46,17 @@
         });
     }
 
+    function ensureThemeStylesheet() {
+        if (!themeCssHref || document.querySelector('link[data-shiro-lightgallery-theme-css]')) {
+            return Promise.resolve();
+        }
+        return loadAsset('link', {
+            rel: 'stylesheet',
+            href: themeCssHref,
+            'data-shiro-lightgallery-theme-css': 'true'
+        });
+    }
+
     function ensureScript() {
         if (typeof window.lightGallery === 'function') {
             return Promise.resolve();
@@ -71,11 +83,11 @@
 
     function ensureLightGalleryAssets() {
         if (typeof window.lightGallery === 'function') {
-            return ensureStylesheet();
+            return ensureStylesheet().then(ensureThemeStylesheet);
         }
         if (assetsLoading) return assetsLoading;
 
-        assetsLoading = Promise.all([ensureStylesheet(), ensureScript()]).then(() => {
+        assetsLoading = Promise.all([ensureStylesheet().then(ensureThemeStylesheet), ensureScript()]).then(() => {
             if (typeof window.lightGallery !== 'function') {
                 throw new Error('LightGallery failed to load');
             }

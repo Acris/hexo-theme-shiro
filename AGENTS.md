@@ -16,9 +16,12 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `layout/index.njk`, `post.njk`, `page.njk`, `archive.njk`, `tag.njk`, `category.njk` — main page templates.
 - `scripts/helpers.js` — custom Hexo helpers (`should_render_toc`, `google_font_urls`, `versioned_url`, `has_images`, `first_image`, `excerpt_for`, `clean_description`, `copyright_year`, `build_page_title`, `og_image`) and the dynamic `favicon.svg` generator (`favicon_svg`). Treat this list as authoritative — check `scripts/helpers.js` before adding new helpers or duplicating logic.
 - `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against `public/` after `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via `pagefind/package.json` with an `npx --yes pagefind` fallback.
-- `source/css/_tailwind.css` — Tailwind CSS v4 source, theme tokens, component styles, and custom utilities.
-- `source/css/style.min.css` — compiled CSS output generated from `_tailwind.css` by `npm run build`.
-- `source/css/giscus.css` — custom giscus theme stylesheet, also published via jsDelivr; **not** processed by Tailwind.
+- `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`.
+- `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
+- `source/css/search.css` — optional plain CSS for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
+- `source/css/comments.css` — optional plain CSS for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
+- `source/css/lightgallery.css` — optional plain CSS for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
+- `source/css/giscus.css` — custom giscus iframe theme stylesheet, also published via jsDelivr; **not** processed by Tailwind.
 - `source/js/` — lightweight browser scripts: `theme-toggle.js`, `search.js`, `toc.js`, `progress.js` (drives both the progress bar and back-to-top button), `clipboard.js`, `lightgallery.js`, `mobile-menu.js`.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
@@ -37,6 +40,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 
 - Prefer small, focused changes that preserve Hexo theme compatibility.
 - Keep generated output, templates, scripts, config, README docs, and language files consistent.
+- When changing the repository/file layout or adding a new feature, update `README.md`, `README_CN.md`, and `AGENTS.md` in the same change set so project structure and agent guidance stay current.
 - When changing npm dependencies or bumping the package version, update `package.json` and `package-lock.json` together using `npm install` or `npm install --package-lock-only`; avoid manual lockfile edits unless there is a clear reason.
 - When adding config options, update `_config.yml`, `README.md`, `README_CN.md` if needed, and any relevant template or script logic.
 - When adding user-facing strings, update every file in `languages/` and keep the same key structure across locales.

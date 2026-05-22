@@ -317,7 +317,8 @@ hexo-theme-shiro/
 ├── scripts/
 │   └── helpers.js          # 自定义 Hexo 辅助函数和生成器（clean_description、og_image、favicon_svg 等）
 ├── source/
-│   ├── css/_tailwind.css   # Tailwind CSS 源文件（编译为 style.min.css）
+│   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
+│   ├── css/*.css           # 按需加载的可选功能 CSS（搜索、评论、灯箱、giscus）
 │   └── js/                 # 客户端脚本
 ├── languages/              # i18n YAML 文件（en、zh-CN、zh-TW、ja、fr 等）
 ├── _config.yml             # 主题默认配置
@@ -342,7 +343,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-注意：修改 `_tailwind.css` 后，必须运行 `npm run build` 重新生成 `style.min.css`。
+注意：修改 `_tailwind.css` 后，必须运行 `npm run build` 重新生成 `style.min.css`。`source/css/` 下的可选功能 CSS 是普通 CSS，仅在对应功能启用或触发时加载。
 
 ### 添加新语言
 

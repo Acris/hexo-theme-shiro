@@ -5,26 +5,18 @@
  * Uses Tailwind v4's built-in four-layer model only:
  *   theme → base → components → utilities.
  *
- * Functional modules are grouped via section comments throughout the file
- * (e.g. "── Dark mode ──", "── Theme toggle ──", "── Comments ──",
- * "── LightGallery ──", "── Search modal ──") and assigned to whichever
- * built-in layer fits:
+ * This file contains the core theme styles that every page needs. Optional
+ * feature styles live in standalone CSS modules under source/css/:
+ * search.css, lightgallery.css, comments.css, and giscus.css. Those files
+ * are hand-authored plain CSS because they mostly adapt runtime/third-party
+ * UI and do not need Tailwind compilation.
  *
  *   base        Reset, scrollbars, html/body, global modal scroll lock,
  *               and dark-theme root token swap (`.dark { ... }`).
- *   components  All component classes — light theme + dark overrides +
- *               theme toggle + lightgallery + search modal + Pagefind
- *               UI accents.
+ *   components  Core component classes, light theme + dark overrides,
+ *               and theme toggle styles.
  *   utilities   Tailwind utility classes + custom `focus-elegant`
  *               (with its dark variant kept in the same layer).
- *
- * Exception: the "── Comments ──" section (giscus + Disqus) is
- * intentionally **unlayered** and lives at the very bottom of this
- * file, after every `@layer` block. See its block comment for the full
- * rationale. Putting `& .giscus-frame { color-scheme: dark }` inside
- * `@layer components` regressed dark-mode propagation into the giscus
- * iframe, so those rules sit unlayered — and being last in source
- * order keeps them outside (and cascade-after) every named layer.
  */
 @layer theme, base, components, utilities;
 
@@ -513,6 +505,11 @@
         &[data-visible="true"] {
             @apply opacity-100 pointer-events-auto;
         }
+    }
+
+    /* Keep the search modal hidden until search.css is lazy-loaded and opened. */
+    .search-modal:not([data-open="true"]) {
+        display: none;
     }
 
 
@@ -1198,280 +1195,3 @@
         transition-delay: 0s !important;
     }
 }
-
-/* ── LightGallery overrides ────────────────────────────────────────────
- *
- * Cosmetic tweaks on top of LightGallery's bundled stylesheet (loaded
- * from CDN in head.njk): swap to the body serif, soften letter-spacing,
- * and align toolbar icons with our text-body / text-heading tokens.
- */
-
-@layer components {
-    .lg-outer {
-        @apply font-serif;
-        color: #f0ede9;
-        letter-spacing: 0.02em;
-    }
-
-    .lg-sub-html {
-        font-size: 0.95rem;
-        line-height: 1.7;
-        padding: 0.75rem 1.25rem;
-        letter-spacing: 0.04em;
-
-        & p {
-            margin: 0;
-        }
-
-        & .lg-source-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 10px;
-            padding: 6px 18px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 20px;
-            color: rgba(255, 255, 255, 0.88);
-            font-size: 13px;
-            text-decoration: none;
-            transition: background 0.2s, border-color 0.2s;
-
-            &:hover {
-                background: rgba(255, 255, 255, 0.22);
-                border-color: rgba(255, 255, 255, 0.45);
-            }
-        }
-    }
-
-    .lg-toolbar .lg-icon,
-    .lg-next,
-    .lg-prev {
-        color: var(--color-text-body, #d4d0cc);
-        opacity: 0.85;
-
-        &:hover {
-            color: var(--color-text-heading, #e8e5e1);
-            opacity: 1;
-        }
-    }
-}
-
-/* ── Search modal ──────────────────────────────────────────────────────
- *
- * Two style groups, both fully layered:
- *
- *   1. Modal wrapper (`.search-modal`, `__backdrop`, `__panel`,
- *      `__header`, `__title`, `__close`, `__body`) — our own component.
- *   2. Pagefind UI accents (`.search-modal .pagefind-ui__*`) — minimal
- *      seal-vermilion tint on top of Pagefind's lazily-injected default
- *      UI (focus ring, query mark, sub-result arrow, link/button hover).
- *
- * Design goals:
- *   - Symmetric vertical breathing room (top == bottom).
- *   - Seal vermilion (`--color-seal`) as the only accent.
- *   - Body-copy typography: same font family as article text.
- *   - Font-size, spacing, layout left to Pagefind defaults.
- */
-
-@layer components {
-    .search-modal {
-        position: fixed;
-        inset: 0;
-        z-index: 60;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        /* Symmetric top/bottom padding — single value applies to both edges. */
-        padding: clamp(1rem, 8vh, 5rem) 1rem;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s var(--ease-soft);
-        overscroll-behavior: contain;
-    }
-
-    .search-modal[data-open="true"] {
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    .search-modal__backdrop {
-        position: absolute;
-        inset: 0;
-        background: color-mix(in srgb, var(--color-ink) 28%, transparent);
-        backdrop-filter: blur(6px) saturate(120%);
-        -webkit-backdrop-filter: blur(6px) saturate(120%);
-    }
-
-    .dark .search-modal__backdrop {
-        background: color-mix(in srgb, #000 55%, transparent);
-    }
-
-    .search-modal__panel {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-width: 38rem;
-        max-height: 100%;
-        background: var(--color-paper);
-        color: var(--color-text-body);
-        border: 1px solid var(--color-soft-border);
-        border-radius: 0.875rem;
-        box-shadow: var(--shadow-paper);
-        transform: translateY(-0.5rem);
-        transition: transform 0.2s var(--ease-soft);
-
-        /* Map Pagefind UI tokens to Shiro palette. */
-        --pagefind-ui-primary: var(--color-seal);
-        --pagefind-ui-text: var(--color-text-body);
-        --pagefind-ui-background: var(--color-paper);
-        --pagefind-ui-border: var(--color-soft-border);
-        --pagefind-ui-tag: var(--color-bg-inset);
-        --pagefind-ui-font: var(--font-serif);
-        --pagefind-ui-border-width: 1px;
-        --pagefind-ui-border-radius: 0.5rem;
-        --pagefind-ui-scale: 1;
-    }
-
-    .search-modal[data-open="true"] .search-modal__panel {
-        transform: translateY(0);
-    }
-
-    .search-modal__header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        padding: 0.75rem 1.25rem;
-        border-bottom: 1px solid var(--color-soft-border);
-    }
-
-    .search-modal__title {
-        margin: 0;
-        font-size: 0.95rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        color: var(--color-text-heading);
-        text-transform: uppercase;
-    }
-
-    .search-modal__title::before {
-        content: "";
-        display: inline-block;
-        width: 0.4rem;
-        height: 0.4rem;
-        margin-right: 0.55rem;
-        vertical-align: 0.15em;
-        background: var(--color-seal);
-        border-radius: 9999px;
-    }
-
-    .search-modal__close {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        padding: 0;
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: 9999px;
-        color: var(--color-text-muted);
-        cursor: pointer;
-        transition: 0.15s var(--ease-soft);
-        transition-property: color, background-color, border-color;
-    }
-
-    .search-modal__close:hover {
-        color: var(--color-seal);
-        background: var(--color-bg-inset);
-        border-color: var(--color-soft-border);
-    }
-
-    .search-modal__body {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 0.75rem 1.25rem 1rem;
-    }
-
-    /* ── Pagefind UI accents ──
-       Most palette mapping happens via the `--pagefind-ui-*` tokens set
-       on `.search-modal__panel` above. These rules only cover the few
-       states the tokens don't reach: focus ring, query mark, sub-result
-       arrow, and link/button hover. */
-
-    .search-modal .pagefind-ui__search-input:focus,
-    .search-modal .pagefind-ui__search-input:focus-visible {
-        outline: none;
-        border-color: var(--color-seal);
-        box-shadow: inset 0 0 0 2px var(--color-seal);
-    }
-
-    .search-modal .pagefind-ui__result-link:hover {
-        color: var(--color-seal);
-    }
-
-    .search-modal .pagefind-ui__result mark,
-    .search-modal .pagefind-ui__result-excerpt mark {
-        background: color-mix(in srgb, var(--color-seal) 18%, transparent);
-        color: var(--color-seal);
-        font-weight: 600;
-        border-radius: 0.15rem;
-        padding: 0 0.1rem;
-    }
-
-    /* Sub-result leader arrow (\2937 ⤷) tinted seal vermilion. */
-    .search-modal .pagefind-ui__result-nested .pagefind-ui__result-link::before {
-        color: var(--color-seal);
-    }
-
-    .search-modal .pagefind-ui__button:hover {
-        color: var(--color-seal);
-        border-color: color-mix(in srgb, var(--color-seal) 45%, var(--color-soft-border));
-    }
-}
-
-/* ── Comments (unlayered) ─────────────────────────────────────────────
- *
- * Light + dark rules for both comment systems live together so the
- * whole feature can be reasoned about in one place.
- *
- * Why unlayered & placed at the bottom of the file:
- *   The giscus iframe is created at runtime by giscus.app's client.js,
- *   and the `& .giscus-frame { color-scheme: dark }` override inside
- *   `.dark .giscus { ... }` only takes effect reliably when these rules
- *   sit outside any `@layer`. Putting them inside `@layer components`
- *   regressed dark-mode color-scheme propagation into the iframe
- *   (light theme leaked through). Keeping this section unlayered
- *   restores the working pre-refactor behavior; positioning it after
- *   every `@layer` block also keeps the file's cascade-layer region
- *   contiguous and the unlayered exception easy to spot.
- */
-
-/* ── giscus ── */
-/* Fix: round width down to nearest 2px to prevent sub-pixel rendering
-   from clipping the comment box's right border inside the iframe.
-   See: https://github.com/hugo-fixit/FixIt/commit/16c903f */
-.giscus, .giscus-frame {
-    width: round(down, 100%, 2px);
-}
-
-.giscus {
-    @apply mt-10 border-t border-slate-200/70 pt-8 md:mt-12 md:pt-10;
-    & .giscus-frame { color-scheme: light; }
-}
-
-.dark .giscus {
-    border-color: var(--color-border-decorative);
-    & .giscus-frame { color-scheme: dark; }
-}
-
-/* ── Disqus ── */
-#disqus_thread,
-#disqus_recommendations {
-    @apply bg-paper text-ink;
-}
-

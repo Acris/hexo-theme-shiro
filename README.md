@@ -322,7 +322,8 @@ hexo-theme-shiro/
 ├── scripts/
 │   └── helpers.js          # Custom Hexo helpers and generators (clean_description, og_image, favicon_svg, etc.)
 ├── source/
-│   ├── css/_tailwind.css   # Tailwind CSS source (compiled to style.min.css)
+│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
+│   ├── css/*.css           # Optional feature CSS loaded on demand (search, comments, lightbox, giscus)
 │   └── js/                 # Client-side scripts
 ├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
 ├── _config.yml             # Theme default config
@@ -347,7 +348,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerate `style.min.css`.
+Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerate `style.min.css`. Optional feature CSS files under `source/css/` are plain CSS and are loaded only when their feature is enabled or invoked.
 
 ### Adding a New Language
 

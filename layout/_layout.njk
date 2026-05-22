@@ -46,7 +46,7 @@
 
     {% if theme.search.enabled %}
     {% include "_partial/components/search-modal.njk" %}
-    <script>window.__pagefindBase = "{{ url_for('/pagefind/') }}";</script>
+    <script>window.__pagefindBase = "{{ url_for('/pagefind/') }}";window.__searchCss = "{{ versioned_url('css/search.css') }}";</script>
     {% endif %}
 
     <!-- Scripts -->
@@ -68,6 +68,7 @@
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page.content) %}
     {% if needs_lightgallery %}
+    <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.css') }}";</script>
     <script defer src="{{ versioned_url('js/lightgallery.js') }}"></script>
     {% endif %}
     {% if is_home() or is_post() or is_page() %}
