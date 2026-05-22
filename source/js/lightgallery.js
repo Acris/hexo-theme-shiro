@@ -1,6 +1,91 @@
 ;(() => {
     const containers = document.querySelectorAll('.prose-shiro');
-    if (!containers.length || typeof window.lightGallery !== 'function') return;
+    if (!containers.length) return;
+
+    const cssHref = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
+    const cssIntegrity = 'sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8';
+    const jsSrc = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
+    const jsIntegrity = 'sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO';
+
+    let assetsLoading = null;
+    const instances = new Map();
+
+    function loadAsset(tag, attrs) {
+        return new Promise((resolve, reject) => {
+            const el = document.createElement(tag);
+            Object.keys(attrs).forEach((key) => {
+                if (attrs[key] === true) {
+                    el.setAttribute(key, '');
+                } else {
+                    el.setAttribute(key, attrs[key]);
+                }
+            });
+            el.onload = () => {
+                el.dataset.shiroLoaded = 'true';
+                resolve();
+            };
+            el.onerror = (event) => {
+                el.remove();
+                reject(event);
+            };
+            document.head.appendChild(el);
+        });
+    }
+
+    function ensureStylesheet() {
+        if (document.querySelector('link[data-shiro-lightgallery-css]')) {
+            return Promise.resolve();
+        }
+        return loadAsset('link', {
+            rel: 'stylesheet',
+            href: cssHref,
+            integrity: cssIntegrity,
+            crossorigin: 'anonymous',
+            'data-shiro-lightgallery-css': 'true'
+        });
+    }
+
+    function ensureScript() {
+        if (typeof window.lightGallery === 'function') {
+            return Promise.resolve();
+        }
+        const existing = document.querySelector('script[data-shiro-lightgallery-js]');
+        if (existing) {
+            return new Promise((resolve, reject) => {
+                if (typeof window.lightGallery === 'function' || existing.dataset.shiroLoaded === 'true') {
+                    resolve();
+                    return;
+                }
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+            });
+        }
+        return loadAsset('script', {
+            src: jsSrc,
+            integrity: jsIntegrity,
+            crossorigin: 'anonymous',
+            async: true,
+            'data-shiro-lightgallery-js': 'true'
+        });
+    }
+
+    function ensureLightGalleryAssets() {
+        if (typeof window.lightGallery === 'function') {
+            return ensureStylesheet();
+        }
+        if (assetsLoading) return assetsLoading;
+
+        assetsLoading = Promise.all([ensureStylesheet(), ensureScript()]).then(() => {
+            if (typeof window.lightGallery !== 'function') {
+                throw new Error('LightGallery failed to load');
+            }
+        }).catch((error) => {
+            assetsLoading = null;
+            throw error;
+        });
+
+        return assetsLoading;
+    }
 
     // Escape special characters for safe use inside HTML text content
     const escapeHtml = (value) => {
@@ -64,12 +149,15 @@
         const subHtml = buildSubHtml(caption, linkedUrl);
         if (subHtml) {
             link.setAttribute('data-sub-html', subHtml);
+        } else {
+            link.removeAttribute('data-sub-html');
         }
     };
 
     const ensureLink = (container, img) => {
-        // Prefer img.src (always available) over img.currentSrc (empty before load)
-        const src = img.src || img.currentSrc || img.getAttribute('data-src') || '';
+        // Prefer img.currentSrc once available, but keep img.src as the fallback
+        // so lazy images can still open before the browser has selected a source.
+        const src = img.currentSrc || img.src || img.getAttribute('data-src') || '';
         if (!src) return null;
 
         if (isDecorativeImg(img)) return null;
@@ -95,7 +183,7 @@
             return existing;
         }
 
-        // No wrapping <a> — create one
+        // No wrapping <a> - create one
         const link = document.createElement('a');
         link.setAttribute('href', src);
         img.parentNode.insertBefore(link, img);
@@ -107,27 +195,72 @@
         return link;
     };
 
-    // Track instances for proper cleanup (e.g., Pjax/SPA navigation)
-    const instances = [];
+    function galleryItems(container) {
+        return Array.from(container.querySelectorAll('a[data-lg-item]'));
+    }
+
+    function getOrCreateInstance(container) {
+        const existing = instances.get(container);
+        if (existing) return existing;
+        if (typeof window.lightGallery !== 'function') return null;
+
+        const instance = window.lightGallery(container, {
+            selector: 'a[data-lg-item]',
+            download: false
+        });
+        instances.set(container, instance);
+        return instance;
+    }
+
+    function followOriginalLink(link) {
+        const href = link.getAttribute('href');
+        if (!href) return;
+        if (link.target === '_blank') {
+            window.open(href, '_blank', 'noopener');
+            return;
+        }
+        window.location.href = href;
+    }
+
+    function openGallery(container, trigger) {
+        ensureLightGalleryAssets().then(() => {
+            const instance = getOrCreateInstance(container);
+            const index = Math.max(galleryItems(container).indexOf(trigger), 0);
+            if (instance && typeof instance.openGallery === 'function') {
+                instance.openGallery(index);
+            } else {
+                followOriginalLink(trigger);
+            }
+        }).catch(() => {
+            followOriginalLink(trigger);
+        });
+    }
 
     containers.forEach((container) => {
         const images = container.querySelectorAll('img');
         if (!images.length) return;
 
+        const links = [];
         images.forEach((img) => {
-            ensureLink(container, img);
+            const link = ensureLink(container, img);
+            if (link) links.push(link);
         });
+        if (!links.length) return;
 
-        instances.push(window.lightGallery(container, {
-            selector: 'a[data-lg-item]',
-            download: false
-        }));
+        container.addEventListener('click', (event) => {
+            const trigger = event.target.closest && event.target.closest('a[data-lg-item]');
+            if (!trigger || !container.contains(trigger)) return;
+
+            if (instances.has(container)) return;
+            event.preventDefault();
+            openGallery(container, trigger);
+        });
     });
 
     // Destroy instances on Pjax navigation to prevent memory leaks.
-    // Currently unused — reserved for future Pjax/SPA support.
+    // Currently unused - reserved for future Pjax/SPA support.
     document.addEventListener('pjax:send', () => {
         instances.forEach(i => { if (i && i.destroy) i.destroy(); });
-        instances.length = 0;
+        instances.clear();
     });
 })();

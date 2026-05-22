@@ -70,9 +70,5 @@
     {% endif %}
 
     <!-- CSS -->
-    {% set needs_lightgallery = (is_post() or is_page()) and has_images(page.content) %}
-    {% if needs_lightgallery %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" integrity="sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8" crossorigin="anonymous" />
-    {% endif %}
     <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
 </head>
