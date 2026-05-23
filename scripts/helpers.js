@@ -7,6 +7,7 @@ const pathFn = require('path');
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
 const assetHashCache = new Map();
 const excerptCache = new WeakMap();
+const pageAnalysisCache = new WeakMap();
 
 function collectionToArray(value) {
     if (!value) return [];
@@ -32,29 +33,81 @@ function hasCodeContent(content) {
     return /<(pre|code)\b|class=["'][^"']*\b(highlight|gist)\b/i.test(String(content));
 }
 
+function strippedHtml(content) {
+    return String(content || '')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '');
+}
+
+function plainTextFromHtml(content) {
+    return strippedHtml(content)
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function analyzeHtml(content) {
+    const html = String(content || '');
+    const textHtml = strippedHtml(html);
+    const headingCounts = new Map();
+    const matches = textHtml.matchAll(/<h([2-6])\b[^>]*>/gi);
+    for (const match of matches) {
+        const level = Number(match[1]);
+        headingCounts.set(level, (headingCounts.get(level) || 0) + 1);
+    }
+    const firstImage = firstImageSrc(html);
+    const imageMatches = html.match(/<img\b/gi);
+    const plain = textHtml
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+    return {
+        html,
+        description: '',
+        excerpt: '',
+        textCache: new Map(),
+        firstImage,
+        imageCount: imageMatches ? imageMatches.length : 0,
+        hasCode: hasCodeContent(html),
+        headingCounts,
+        plain,
+        plainLength: plain.length,
+        tocCache: new Map()
+    };
+}
+
+function pageAnalysis(page) {
+    if (!page || typeof page !== 'object') return analyzeHtml('');
+
+    const html = String(page.content || '');
+    const excerpt = String(page.excerpt || '');
+    const description = String(page.description || '');
+    const cached = pageAnalysisCache.get(page);
+    if (cached && cached.html === html && cached.excerpt === excerpt && cached.description === description) return cached;
+
+    const analysis = analyzeHtml(html);
+    analysis.excerpt = excerpt;
+    analysis.description = description;
+    if (!analysis.hasCode && excerpt) analysis.hasCode = hasCodeContent(excerpt);
+    pageAnalysisCache.set(page, analysis);
+    return analysis;
+}
+
 function pageHasCode(page) {
     if (!page) return false;
-    if (hasCodeContent(page.content) || hasCodeContent(page.excerpt)) return true;
+    if (pageAnalysis(page).hasCode) return true;
 
-    return collectionToArray(page.posts).some(post => {
-        if (hasCodeContent(post.excerpt)) return true;
-        return !post.excerpt && hasCodeContent(post.content);
-    });
+    return collectionToArray(page.posts).some(post => pageAnalysis(post).hasCode);
 }
 
 function pageLooksLong(page) {
     if (!page || !page.content) return false;
-    const html = String(page.content);
-    const plain = html
-        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-    const imageCount = (html.match(/<img\b/gi) || []).length;
-    const headingCount = countTocHeadings(html, { depth: 6, min_headings: 1 });
+    const analysis = pageAnalysis(page);
+    const headingCount = countTocHeadingsFromAnalysis(analysis, { depth: 6, min_headings: 1 });
 
-    return plain.length >= 1600 || headingCount >= 4 || imageCount >= 3;
+    return analysis.plainLength >= 1600 || headingCount >= 4 || analysis.imageCount >= 3;
 }
 
 function tocHeadingLevels(tocConfig) {
@@ -64,21 +117,10 @@ function tocHeadingLevels(tocConfig) {
     return levels;
 }
 
-function countTocHeadings(content, tocConfig) {
-    if (!content) return 0;
-    const levels = new Set(tocHeadingLevels(tocConfig));
-    const html = String(content)
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, '');
-    const matches = html.matchAll(/<h([2-6])\b[^>]*>/gi);
-    let count = 0;
-    for (const match of matches) {
-        if (levels.has(Number(match[1]))) count++;
-    }
-    return count;
+function countTocHeadingsFromAnalysis(analysis, tocConfig) {
+    const levels = tocHeadingLevels(tocConfig);
+    return levels.reduce((count, level) => count + (analysis.headingCounts.get(level) || 0), 0);
 }
-
 
 function escapeHtml(value) {
     return String(value)
@@ -132,6 +174,14 @@ function slugifyHeading(text) {
 function headingId(attrs) {
     const match = String(attrs).match(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
     return match ? (match[1] || match[2] || match[3] || '') : '';
+}
+
+function tocCacheKey(tocConfig) {
+    if (!tocConfig || tocConfig.enabled === false) return 'disabled';
+    return [
+        'depth=' + (Math.max(1, Number(tocConfig.depth) || 3)),
+        'min=' + (Math.max(1, Number(tocConfig.min_headings) || 3))
+    ].join('|');
 }
 
 function buildToc(content, tocConfig) {
@@ -193,18 +243,41 @@ function buildToc(content, tocConfig) {
     };
 }
 
-hexo.extend.helper.register('should_render_toc', function (content, tocConfig) {
-    return buildToc(content, tocConfig).shouldRender;
+
+function cachedToc(page, tocConfig) {
+    const analysis = pageAnalysis(page);
+    const key = tocCacheKey(tocConfig);
+    const cached = analysis.tocCache.get(key);
+    if (cached) return cached;
+
+    const result = buildToc(analysis.html, tocConfig);
+    analysis.tocCache.set(key, result);
+    return result;
+}
+
+hexo.extend.helper.register('should_render_toc', function (page, tocConfig) {
+    return cachedToc(page, tocConfig).shouldRender;
 });
 
-hexo.extend.helper.register('build_toc', function (content, tocConfig) {
-    return buildToc(content, tocConfig);
+hexo.extend.helper.register('build_toc', function (page, tocConfig) {
+    return cachedToc(page, tocConfig);
 });
 
 function firstImageSrc(content) {
     if (!content) return '';
     const match = String(content).match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
     return match ? match[1] : '';
+}
+
+function cachedStripHtmlText(analysis, field, source, stripHtml) {
+    const raw = String(source || '');
+    const cached = analysis.textCache.get(field);
+    if (cached && cached.source === raw) return cached.text;
+
+    const strip = typeof stripHtml === 'function' ? stripHtml : plainTextFromHtml;
+    const text = String(strip(raw) || '').replace(/\s+/g, ' ').trim();
+    analysis.textCache.set(field, { source: raw, text });
+    return text;
 }
 
 function truncateText(text, length) {
@@ -283,12 +356,12 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
     }
 });
 
-hexo.extend.helper.register('has_images', function (content) {
-    return !!firstImageSrc(content);
+hexo.extend.helper.register('has_images', function (page) {
+    return pageAnalysis(page).imageCount > 0;
 });
 
-hexo.extend.helper.register('first_image', function (content) {
-    return firstImageSrc(content);
+hexo.extend.helper.register('first_image', function (page) {
+    return pageAnalysis(page).firstImage;
 });
 
 
@@ -306,7 +379,8 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
     if (post.excerpt) {
         result = { content: post.excerpt, truncated: true };
     } else {
-        const plain = this.strip_html(post.content || '').replace(/\s+/g, ' ').trim();
+        const analysis = pageAnalysis(post);
+        const plain = cachedStripHtmlText(analysis, 'excerptFallbackPlain', post.content, this.strip_html);
         if (limit > 0 && plain.length > limit) {
             result = { content: '<p>' + truncateText(plain, limit) + '</p>', truncated: true };
         } else {
@@ -321,8 +395,27 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {
-    const raw = page.description || page.excerpt || config.description || '';
-    const text = this.strip_html(raw).replace(/\s+/g, ' ').trim();
+    const analysis = pageAnalysis(page);
+    const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
+        || (typeof this.is_page === 'function' && this.is_page());
+    let raw = '';
+    let cacheField = 'cleanDescription';
+
+    if (page && page.description) {
+        raw = page.description;
+        cacheField = 'cleanDescription:description';
+    } else if (page && page.excerpt) {
+        raw = page.excerpt;
+        cacheField = 'cleanDescription:excerpt';
+    } else if (isReadingPage && page && page.content) {
+        raw = page.content;
+        cacheField = 'cleanDescription:content';
+    } else {
+        raw = config && config.description;
+        cacheField = 'cleanDescription:config';
+    }
+
+    const text = cachedStripHtmlText(analysis, cacheField, raw, this.strip_html);
     if (!text) return '';
     return text.length > 200 ? text.substring(0, 200) + '...' : text;
 });
@@ -368,7 +461,7 @@ hexo.extend.generator.register('favicon_svg', function (locals) {
 hexo.extend.helper.register('og_image', function (page) {
     let src = '';
     if (page.photos && page.photos.length) src = page.photos[0];
-    else src = this.first_image(page.content);
+    else src = this.first_image(page);
     if (!src) return '';
     // Ensure absolute URL for Open Graph
     if (src.indexOf('//') === 0) return 'https:' + src;

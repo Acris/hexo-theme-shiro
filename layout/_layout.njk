@@ -73,7 +73,7 @@
         }
     } %}
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
-    {% set needs_lightgallery = (is_post() or is_page()) and has_images(page.content) %}
+    {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
     {% if needs_lightgallery %}
     <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";</script>
     <script defer src="{{ versioned_url('js/lightgallery.min.js') }}"></script>
@@ -81,7 +81,7 @@
     {% if page_has_code(page) %}
     <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
     {% endif %}
-    {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page.content, theme.toc) %}
+    {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
     {% if needs_toc %}
     <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}
