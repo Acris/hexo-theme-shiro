@@ -248,22 +248,42 @@
         });
     }
 
-    containers.forEach((container) => {
-        const images = container.querySelectorAll('img');
-        if (!images.length) return;
+    function clickedImage(container, event) {
+        const target = event.target;
+        if (!target || !target.closest) return null;
 
-        const links = [];
+        const img = target.closest('img');
+        if (img && container.contains(img)) return img;
+
+        const link = target.closest('a');
+        if (!link || !container.contains(link)) return null;
+        return link.querySelector('img');
+    }
+
+    function prepareGallery(container, activeImage) {
+        const images = container.querySelectorAll('img');
+        let activeLink = null;
+
         images.forEach((img) => {
             const link = ensureLink(container, img);
-            if (link) links.push(link);
+            if (img === activeImage) activeLink = link;
         });
-        if (!links.length) return;
+
+        return activeLink;
+    }
+
+    containers.forEach((container) => {
+        if (!container.querySelector('img')) return;
 
         container.addEventListener('click', (event) => {
-            const trigger = event.target.closest && event.target.closest('a[data-lg-item]');
-            if (!trigger || !container.contains(trigger)) return;
-
             if (instances.has(container)) return;
+
+            const img = clickedImage(container, event);
+            if (!img) return;
+
+            const trigger = prepareGallery(container, img);
+            if (!trigger) return;
+
             event.preventDefault();
             openGallery(container, trigger);
         });
