@@ -268,17 +268,13 @@ Shiro ships with a built-in static site search powered by [Pagefind](https://pag
 
 **npm install (recommended)**
 
-When you install the theme via `npm i hexo-theme-shiro`, Pagefind is resolved from your site's `node_modules` if present, otherwise the build hook falls back to `npx --yes pagefind`, which downloads the binary on first run (network required once).
-
-**git clone install**
-
-If you cloned the theme into `themes/shiro/`, install Pagefind once in your **site root** (not the theme directory):
+For the fastest and most reproducible builds, install Pagefind in your **site root** (not the theme directory):
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-After that `hexo g` will pick it up automatically.
+This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which may download the binary on first run and requires network access. Treat that fallback as a convenience path, not the preferred setup for CI or regular publishing.
 
 **Configuration (`_config.yml` / `_config.shiro.yml`)**
 

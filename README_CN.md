@@ -263,17 +263,13 @@ Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索
 
 **npm 安装（推荐）**
 
-通过 `npm i hexo-theme-shiro` 安装时，主题会优先从站点的 `node_modules` 解析 Pagefind；若不存在，则回退到 `npx --yes pagefind`，首次运行需联网下载（之后走 npm 缓存）。
-
-**git clone 安装**
-
-如果你以 `git clone` 方式将主题放在 `themes/shiro/`，请在 **站点根目录**（不是主题目录）安装一次 Pagefind：
+为了让构建更快、更稳定、也更适合 CI，推荐在 **站点根目录**（不是主题目录）安装 Pagefind：
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-之后 `hexo g` 会自动调用它。
+无论你通过 `npm i hexo-theme-shiro` 安装主题，还是以 `git clone` 方式将主题放在 `themes/shiro/`，都建议这样做。之后 `hexo g` 会自动从站点的 `node_modules` 解析 Pagefind。若没有安装 Pagefind，构建钩子会回退到 `npx --yes pagefind`，首次运行可能需要联网下载；这个 fallback 更适合作为临时便利路径，不建议作为 CI 或日常发布的首选方案。
 
 **配置（`_config.yml` / `_config.shiro.yml`）**
 
