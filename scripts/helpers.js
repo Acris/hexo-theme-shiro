@@ -95,11 +95,32 @@ function pageAnalysis(page) {
     return analysis;
 }
 
-function pageHasCode(page) {
-    if (!page) return false;
-    if (pageAnalysis(page).hasCode) return true;
+function excerptFallbackEnabled(themeConfig) {
+    const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
+    return !fallback || fallback.enabled !== false;
+}
 
-    return collectionToArray(page.posts).some(post => pageAnalysis(post).hasCode);
+function renderedPostCardHasCode(post, themeConfig) {
+    if (!post) return false;
+    if (post.excerpt) return hasCodeContent(post.excerpt);
+    if (excerptFallbackEnabled(themeConfig)) return false;
+    return hasCodeContent(post.content);
+}
+
+function pageHasCode(page, themeConfig, context) {
+    if (!page) return false;
+
+    const isReadingPage = context && (
+        (typeof context.is_post === 'function' && context.is_post())
+        || (typeof context.is_page === 'function' && context.is_page())
+    );
+    if (isReadingPage || !page.posts) return pageAnalysis(page).hasCode;
+
+    if (context && typeof context.is_home === 'function' && context.is_home()) {
+        return collectionToArray(page.posts).some(post => renderedPostCardHasCode(post, themeConfig));
+    }
+
+    return pageAnalysis(page).hasCode;
 }
 
 function pageLooksLong(page) {
@@ -300,7 +321,7 @@ function googleFontUrl(families, display) {
     return GOOGLE_FONTS_BASE + '?' + params.join('&');
 }
 
-hexo.extend.helper.register('google_font_urls', function (page, config) {
+hexo.extend.helper.register('google_font_urls', function (page, config, themeConfig) {
     const criticalFamilies = [
         { name: 'Cardo', weights: ['400', '700'] },
         { name: 'Yuji Syuku' },
@@ -317,15 +338,15 @@ hexo.extend.helper.register('google_font_urls', function (page, config) {
         googleFontUrl([{ name: 'Cormorant Garamond', weights: ['400', '600'] }], 'optional')
     ];
 
-    if (pageHasCode(page)) {
+    if (pageHasCode(page, themeConfig, this)) {
         urls.push(googleFontUrl([{ name: 'Fira Code', weights: ['400', '500'] }], 'swap'));
     }
 
     return urls;
 });
 
-hexo.extend.helper.register('page_has_code', function (page) {
-    return pageHasCode(page);
+hexo.extend.helper.register('page_has_code', function (page, themeConfig) {
+    return pageHasCode(page, themeConfig, this);
 });
 
 hexo.extend.helper.register('page_looks_long', function (page) {

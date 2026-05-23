@@ -78,7 +78,7 @@
     <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";</script>
     <script defer src="{{ versioned_url('js/lightgallery.min.js') }}"></script>
     {% endif %}
-    {% if page_has_code(page) %}
+    {% if page_has_code(page, theme) %}
     <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
     {% endif %}
     {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}

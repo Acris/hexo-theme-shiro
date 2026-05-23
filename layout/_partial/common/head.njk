@@ -8,7 +8,7 @@
          → validate saved state → set data-theme-state on <html> → resolve effective dark/light
          → add .dark class and colorScheme if needed. -->
     <script>(function(){const d={{ theme.dark_mode.default | default("system", true) | dump | safe }};window.__themeDefault=d;const s=d==='system'?['system','light','dark']:['light','dark'];let sv;try{sv=localStorage.getItem('theme')}catch(e){}if(!sv||s.indexOf(sv)===-1)sv=d;const h=document.documentElement;h.setAttribute('data-theme-state',sv);const k=sv==='dark'||(sv!=='light'&&window.matchMedia('(prefers-color-scheme:dark)').matches);if(k)h.classList.add('dark');h.style.colorScheme=k?'dark':'light';})()</script>
-    {% for google_fonts_url in google_font_urls(page, config) %}
+    {% for google_fonts_url in google_font_urls(page, config, theme) %}
     <link rel="stylesheet" href="{{ google_fonts_url }}" />
     {% endfor %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
