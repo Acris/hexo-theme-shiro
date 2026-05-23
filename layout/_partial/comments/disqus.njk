@@ -63,20 +63,17 @@
             io.observe(disqus_thread);
         }
 
-        /* Re-render Disqus when the site theme toggles between light/dark.
-           Unlike giscus — which lives in a same-origin friendly iframe and
-           re-renders via CSS `color-scheme` propagation — Disqus locks in
-           its color scheme at load time and ignores subsequent changes.
-           Mirror the giscus runtime behavior by calling DISQUS.reset() so
-           the iframe reloads with the new scheme. */
+        /* Disqus locks in its color scheme at iframe load time.
+           If the user toggles the site theme after Disqus has loaded, defer
+           the reset until the comments container is near the viewport so
+           offscreen comments do not reload during the theme switch. */
         const root = d.documentElement;
         let prevDark = root.classList.contains('dark');
         let resetTimer;
-        const themeObserver = new MutationObserver(function() {
-            const isDark = root.classList.contains('dark');
-            /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
-            if (isDark === prevDark) return;
-            prevDark = isDark;
+        let resetObserver;
+        let pendingThemeReset = false;
+
+        function resetDisqusForTheme() {
             if (!loaded || !w.DISQUS || typeof w.DISQUS.reset !== 'function') return;
             /* Debounce rapid toggles and let any view-transition settle first. */
             clearTimeout(resetTimer);
@@ -85,6 +82,38 @@
                     w.DISQUS.reset({ reload: true, config: w.disqus_config });
                 } catch (e) { /* swallow — Disqus may not be ready yet */ }
             }, 200);
+        }
+
+        function commentsNearViewport() {
+            const rect = disqus_thread.getBoundingClientRect();
+            return rect.top < w.innerHeight + 200 && rect.bottom > -200;
+        }
+
+        function resetWhenCommentsAreNear() {
+            pendingThemeReset = true;
+            if (commentsNearViewport() || !('IntersectionObserver' in w)) {
+                pendingThemeReset = false;
+                resetDisqusForTheme();
+                return;
+            }
+            if (resetObserver) return;
+            resetObserver = new IntersectionObserver(function(entries) {
+                if (!pendingThemeReset || !entries[0].isIntersecting) return;
+                pendingThemeReset = false;
+                resetObserver.disconnect();
+                resetObserver = null;
+                resetDisqusForTheme();
+            }, { rootMargin: '200px 0px', threshold: 0 });
+            resetObserver.observe(disqus_thread);
+        }
+
+        const themeObserver = new MutationObserver(function() {
+            const isDark = root.classList.contains('dark');
+            /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
+            if (isDark === prevDark) return;
+            prevDark = isDark;
+            if (!loaded) return;
+            resetWhenCommentsAreNear();
         });
         themeObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
     })();
