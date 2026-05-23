@@ -8,8 +8,15 @@
     {{ svg_filters() }}
     {% endif %}
 
-    {% if theme.progress_bar.enabled and (is_post() or is_page()) %}
+    {% set is_reading_page = is_post() or is_page() %}
+    {% set needs_progress_bar = theme.progress_bar.enabled and is_reading_page %}
+    {% set needs_back_to_top = theme.back_to_top.enabled and is_reading_page and page_looks_long(page) %}
+
+    {% if needs_progress_bar %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
+    {% endif %}
+    {% if needs_back_to_top %}
+    <div id="backToTopSentinel" class="back-to-top-sentinel" aria-hidden="true"></div>
     {% endif %}
 
     <div class="min-h-full px-4 pt-14 pb-6 md:pb-5">
@@ -36,7 +43,7 @@
         </aside>
     </div>
 
-    {% if theme.back_to_top.enabled %}
+    {% if needs_back_to_top %}
     <button id="backToTop" class="back-to-top" data-visible="false" aria-label="{{ __('back_to_top') }}">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
@@ -80,8 +87,7 @@
     <script>window.__tocConfig = {{ toc_config | dump | safe }};</script>
     <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}
-    {% set needs_progress_js = (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}
-    {% if needs_progress_js %}
+    {% if needs_progress_bar or needs_back_to_top %}
     <script defer src="{{ versioned_url('js/progress.min.js') }}"></script>
     {% endif %}
     {% if theme.dark_mode.toggle != false %}

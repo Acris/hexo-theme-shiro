@@ -42,6 +42,21 @@ function pageHasCode(page) {
     });
 }
 
+function pageLooksLong(page) {
+    if (!page || !page.content) return false;
+    const html = String(page.content);
+    const plain = html
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const imageCount = (html.match(/<img\b/gi) || []).length;
+    const headingCount = countTocHeadings(html, { depth: 6, min_headings: 1 });
+
+    return plain.length >= 1600 || headingCount >= 4 || imageCount >= 3;
+}
+
 function tocHeadingLevels(tocConfig) {
     const maxDepth = Math.max(1, Number(tocConfig && tocConfig.depth) || 3);
     const levels = [];
@@ -122,6 +137,10 @@ hexo.extend.helper.register('google_font_urls', function (page, config) {
 
 hexo.extend.helper.register('page_has_code', function (page) {
     return pageHasCode(page);
+});
+
+hexo.extend.helper.register('page_looks_long', function (page) {
+    return pageLooksLong(page);
 });
 
 // Cache-busting helper: appends ?v=<hash> to local asset URLs

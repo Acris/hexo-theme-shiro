@@ -488,6 +488,13 @@
         transition: transform 0.15s linear;
     }
 
+    .back-to-top-sentinel {
+        @apply absolute left-0 pointer-events-none;
+        top: 50vh;
+        width: 1px;
+        height: 1px;
+    }
+
     /* ── Back to Top ── */
     .back-to-top {
         @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
