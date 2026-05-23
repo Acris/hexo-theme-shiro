@@ -24,7 +24,7 @@
 - **Tailwind CSS**：现代实用优先的 CSS 框架。
 - **多语言**：支持英语、简体中文（`zh-CN`）、繁体中文（`zh-TW`）、日语（`ja-JP`）和法语（`fr`）。
 - **暗色模式**：优雅的暗色主题，采用暖中性色调，三态切换（系统/亮色/暗色）。
-- **目录**：自动生成侧边栏目录，可配置标题深度。
+- **目录**：构建期生成文章侧边栏目录，可配置标题深度；客户端 JavaScript 仅负责折叠和当前章节高亮。
 - **阅读进度条**：页面顶部的朱红色细进度条。
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
@@ -315,7 +315,7 @@ hexo-theme-shiro/
 │   ├── tag.njk             # 标签页
 │   └── category.njk        # 分类页
 ├── scripts/
-│   └── helpers.js          # 自定义 Hexo 辅助函数和生成器（clean_description、og_image、favicon_svg 等）
+│   └── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
 │   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载

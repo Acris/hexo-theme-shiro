@@ -79,10 +79,126 @@ function countTocHeadings(content, tocConfig) {
     return count;
 }
 
-hexo.extend.helper.register('should_render_toc', function (content, tocConfig) {
-    if (!tocConfig || tocConfig.enabled === false) return false;
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function htmlCodePoint(match, code, radix) {
+    const value = parseInt(code, radix);
+    if (!Number.isFinite(value)) return match;
+    try {
+        return String.fromCodePoint(value);
+    } catch (e) {
+        return match;
+    }
+}
+
+function decodeHtmlEntities(value) {
+    return String(value)
+        .replace(/&#(\d+);/g, (match, code) => htmlCodePoint(match, code, 10))
+        .replace(/&#x([\da-f]+);/gi, (match, code) => htmlCodePoint(match, code, 16))
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+}
+
+function plainHeadingText(html) {
+    return decodeHtmlEntities(String(html)
+        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim());
+}
+
+function slugifyHeading(text) {
+    return String(text).trim()
+        .toLowerCase()
+        .replace(/[\s]+/g, '-')
+        .replace(/[^\w\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\uAC00-\uD7AF-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        || 'heading';
+}
+
+function headingId(attrs) {
+    const match = String(attrs).match(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+    return match ? (match[1] || match[2] || match[3] || '') : '';
+}
+
+function buildToc(content, tocConfig) {
+    const source = String(content || '');
+    if (!tocConfig || tocConfig.enabled === false || !source) {
+        return { shouldRender: false, content: source, html: '' };
+    }
+
+    const levels = new Set(tocHeadingLevels(tocConfig));
     const minHeadings = Math.max(1, Number(tocConfig.min_headings) || 3);
-    return countTocHeadings(content, tocConfig) >= minHeadings;
+    const allIds = new Set();
+    source.replace(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi, (match, doubleQuoted, singleQuoted, unquoted) => {
+        const id = doubleQuoted || singleQuoted || unquoted;
+        if (id) allIds.add(id);
+        return match;
+    });
+
+    const headings = [];
+    let minLevel = 6;
+    const contentWithIds = source.replace(/<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, levelRaw, attrs, inner) => {
+        const level = Number(levelRaw);
+        if (!levels.has(level)) return match;
+
+        const title = plainHeadingText(inner);
+        if (!title) return match;
+
+        let id = headingId(attrs);
+        let nextAttrs = attrs;
+        if (!id) {
+            const base = slugifyHeading(title);
+            id = base;
+            let counter = 1;
+            while (allIds.has(id)) id = base + '-' + counter++;
+            allIds.add(id);
+            nextAttrs = attrs + ' id="' + escapeHtml(id) + '"';
+        }
+
+        if (level < minLevel) minLevel = level;
+        headings.push({ id, level, title });
+        return '<h' + levelRaw + nextAttrs + '>' + inner + '</h' + levelRaw + '>';
+    });
+
+    if (headings.length < minHeadings) {
+        return { shouldRender: false, content: source, html: '' };
+    }
+
+    const items = headings.map(heading => {
+        const indent = Math.max(0, heading.level - minLevel);
+        return '<li class="toc-item" data-level="' + indent + '">'
+            + '<a class="toc-link" href="#' + escapeHtml(heading.id) + '" data-target="' + escapeHtml(heading.id) + '">'
+            + escapeHtml(heading.title)
+            + '</a></li>';
+    }).join('');
+
+    return {
+        shouldRender: true,
+        content: contentWithIds,
+        html: '<ul class="toc-list">' + items + '</ul>'
+    };
+}
+
+hexo.extend.helper.register('should_render_toc', function (content, tocConfig) {
+    return buildToc(content, tocConfig).shouldRender;
+});
+
+hexo.extend.helper.register('build_toc', function (content, tocConfig) {
+    return buildToc(content, tocConfig);
 });
 
 function firstImageSrc(content) {

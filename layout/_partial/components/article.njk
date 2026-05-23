@@ -4,6 +4,7 @@
      - article_show_meta: whether to show date/category meta (default: true)
      - article_extra: extra HTML to insert after tags (e.g. post navigation) #}
 {% from "_macro/ui.njk" import meta, render_tag with context %}
+{% set article_toc = build_toc(page.content, theme.toc) %}
 
 <article class="content-article">
     <header class="text-center mb-8">
@@ -15,12 +16,12 @@
         {% endif %}
     </header>
 
-    {% if theme.toc.enabled and should_render_toc(page.content, theme.toc) %}
+    {% if article_toc.shouldRender %}
     {% include "_partial/components/toc.njk" %}
     {% endif %}
 
     <div class="prose-shiro" data-pagefind-body>
-        {{ page.content }}
+        {{ article_toc.content | safe }}
     </div>
 
     <!-- Tags -->

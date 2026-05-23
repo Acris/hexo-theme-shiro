@@ -26,7 +26,7 @@ Made by Acris with ❤️
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`).
 - **Dark Mode**: Elegant dark theme with warm neutral tones, 3-state toggle (system/light/dark).
-- **Table of Contents**: Auto-generated sidebar TOC for articles with configurable heading depth.
+- **Table of Contents**: Build-time generated sidebar TOC for articles with configurable heading depth; client JavaScript only handles folding and active-section highlighting.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
@@ -320,7 +320,7 @@ hexo-theme-shiro/
 │   ├── tag.njk             # Tag page
 │   └── category.njk        # Category page
 ├── scripts/
-│   └── helpers.js          # Custom Hexo helpers and generators (clean_description, og_image, favicon_svg, etc.)
+│   └── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
 │   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
