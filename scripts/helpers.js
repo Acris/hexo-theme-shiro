@@ -310,6 +310,59 @@ function truncateText(text, length) {
     return (boundary > 0 ? head.substring(0, boundary) : head) + '...';
 }
 
+function excerptTextFromHtml(content, length) {
+    const limit = Math.max(0, Number(length) || 0);
+    const source = String(content || '');
+    const targetLength = limit > 0 ? limit + 40 : 0;
+    let text = '';
+    let i = 0;
+
+    function append(value) {
+        if (!value) return;
+        text += value;
+    }
+
+    while (i < source.length) {
+        if (targetLength && text.replace(/\s+/g, ' ').trim().length > targetLength) break;
+
+        if (source.startsWith('<!--', i)) {
+            const end = source.indexOf('-->', i + 4);
+            i = end === -1 ? source.length : end + 3;
+            continue;
+        }
+
+        const scriptMatch = source.slice(i).match(/^<script\b/i);
+        if (scriptMatch) {
+            const end = source.slice(i).search(/<\/script\s*>/i);
+            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/script\s*>/i)[0].length;
+            append(' ');
+            continue;
+        }
+
+        const styleMatch = source.slice(i).match(/^<style\b/i);
+        if (styleMatch) {
+            const end = source.slice(i).search(/<\/style\s*>/i);
+            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/style\s*>/i)[0].length;
+            append(' ');
+            continue;
+        }
+
+        if (source[i] === '<') {
+            const end = source.indexOf('>', i + 1);
+            i = end === -1 ? source.length : end + 1;
+            append(' ');
+            continue;
+        }
+
+        const nextTag = source.indexOf('<', i);
+        const end = nextTag === -1 ? source.length : nextTag;
+        append(source.slice(i, end));
+        i = end;
+    }
+
+    return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
+}
+
 function fontFamilyParam(name, weights) {
     const family = name.trim().replace(/\s+/g, '+');
     return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
@@ -399,14 +452,15 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
     let result;
     if (post.excerpt) {
         result = { content: post.excerpt, truncated: true };
-    } else {
-        const analysis = pageAnalysis(post);
-        const plain = cachedStripHtmlText(analysis, 'excerptFallbackPlain', post.content, this.strip_html);
-        if (limit > 0 && plain.length > limit) {
+    } else if (limit > 0) {
+        const plain = excerptTextFromHtml(post.content, limit);
+        if (plain.length > limit) {
             result = { content: '<p>' + truncateText(plain, limit) + '</p>', truncated: true };
         } else {
             result = { content: post.content || '', truncated: false };
         }
+    } else {
+        result = { content: post.content || '', truncated: false };
     }
 
     const nextPostCache = postCache || new Map();
