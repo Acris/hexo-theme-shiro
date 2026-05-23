@@ -870,6 +870,30 @@
         }
     }
 
+    @media (max-width: 767px) {
+        .fog-bg::before {
+            content: none;
+        }
+
+        .paper::before {
+            opacity: 0.12;
+            filter: none;
+            mix-blend-mode: normal;
+            background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 32%, rgba(0, 0, 0, 0.025));
+            background-size: auto;
+            background-position: 0 0;
+        }
+
+        .dark .paper::before {
+            opacity: 0.05;
+            filter: none;
+            mix-blend-mode: normal;
+            background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(255, 255, 255, 0.05));
+            background-size: auto;
+            background-position: 0 0;
+        }
+    }
+
     /* ── Dark: Component overrides ──
        Uses semantic variables defined in .dark {} above.
        Only overrides that can't be handled by variable swaps alone.
