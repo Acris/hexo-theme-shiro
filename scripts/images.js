@@ -8,6 +8,7 @@ const DEFAULT_HEADER_BYTES = 64 * 1024;
 const JPEG_HEADER_BYTES = 512 * 1024;
 const SVG_HEADER_BYTES = 16 * 1024;
 const imageMetaCache = new Map();
+const localImageSizeCache = new Map();
 
 function parseAttrs(source) {
     const attrs = [];
@@ -213,13 +214,26 @@ function imageSizeFromFile(filePath) {
     return size;
 }
 
+function localImageSizeCacheKey(src, post) {
+    const source = post && (post.full_source || post.source || '');
+    return [hexo.source_dir, hexo.config.root || '/', source, cleanUrl(src)].join('|');
+}
+
 function localImageSize(src, post) {
+    const cacheKey = localImageSizeCacheKey(src, post);
+    if (localImageSizeCache.has(cacheKey)) return localImageSizeCache.get(cacheKey);
+
     const candidates = localImageCandidates(src, post);
     for (const filePath of candidates) {
         if (!fs.existsSync(filePath)) continue;
         const size = imageSizeFromFile(filePath);
-        if (size && size.width && size.height) return size;
+        if (size && size.width && size.height) {
+            localImageSizeCache.set(cacheKey, size);
+            return size;
+        }
     }
+
+    localImageSizeCache.set(cacheKey, null);
     return null;
 }
 
