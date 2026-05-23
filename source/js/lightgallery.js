@@ -234,9 +234,17 @@
         window.location.href = href;
     }
 
+    function refreshGallery(container) {
+        const instance = instances.get(container);
+        if (instance && typeof instance.refresh === 'function') {
+            try { instance.refresh(); } catch (_) {}
+        }
+    }
+
     function openGallery(container, trigger) {
         ensureLightGalleryAssets().then(() => {
             const instance = getOrCreateInstance(container);
+            refreshGallery(container);
             const index = Math.max(galleryItems(container).indexOf(trigger), 0);
             if (instance && typeof instance.openGallery === 'function') {
                 instance.openGallery(index);
@@ -260,14 +268,36 @@
         return link.querySelector('img');
     }
 
-    function prepareGallery(container, activeImage) {
-        const images = container.querySelectorAll('img');
-        let activeLink = null;
+    function schedule(task) {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(task, { timeout: 1000 });
+        } else {
+            window.setTimeout(() => task(), 48);
+        }
+    }
 
-        images.forEach((img) => {
-            const link = ensureLink(container, img);
-            if (img === activeImage) activeLink = link;
-        });
+    function prepareGalleryBatch(container, images) {
+        const queue = Array.from(images);
+        const run = (deadline) => {
+            const hasTime = () => !deadline || deadline.timeRemaining() > 4;
+            let count = 0;
+            while (queue.length && hasTime() && count < 8) {
+                ensureLink(container, queue.shift());
+                count += 1;
+            }
+            refreshGallery(container);
+            if (queue.length) schedule(run);
+        };
+        schedule(run);
+    }
+
+    function prepareGallery(container, activeImage) {
+        const activeLink = ensureLink(container, activeImage);
+        if (!activeLink) return null;
+
+        const images = Array.from(container.querySelectorAll('img'))
+            .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
+        if (images.length) prepareGalleryBatch(container, images);
 
         return activeLink;
     }
@@ -276,8 +306,6 @@
         if (!container.querySelector('img')) return;
 
         container.addEventListener('click', (event) => {
-            if (instances.has(container)) return;
-
             const img = clickedImage(container, event);
             if (!img) return;
 
@@ -285,6 +313,7 @@
             if (!trigger) return;
 
             event.preventDefault();
+            event.stopImmediatePropagation();
             openGallery(container, trigger);
         });
     });
