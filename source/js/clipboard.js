@@ -34,7 +34,10 @@
     const iconCopy = '<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="14" height="14" rx="1"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg>';
     const iconDone = '<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
 
-    highlights.forEach((block) => {
+    function enhanceBlock(block) {
+        if (!block || block.dataset.clipboardEnhanced === 'true') return;
+        block.dataset.clipboardEnhanced = 'true';
+
         // Skip empty code blocks
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
         if (!codeEl || !codeEl.textContent.trim()) return;
@@ -81,5 +84,29 @@
             label.textContent = lang;
             wrapper.appendChild(label);
         }
-    });
+    }
+
+    function schedule(task) {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(task, { timeout: 800 });
+        } else {
+            window.setTimeout(() => task(), 32);
+        }
+    }
+
+    function scheduleEnhance(blocks) {
+        const queue = Array.from(blocks);
+        const run = (deadline) => {
+            const hasTime = () => !deadline || deadline.timeRemaining() > 4;
+            let count = 0;
+            while (queue.length && hasTime() && count < 6) {
+                enhanceBlock(queue.shift());
+                count += 1;
+            }
+            if (queue.length) schedule(run);
+        };
+        schedule(run);
+    }
+
+    scheduleEnhance(highlights);
 })();
