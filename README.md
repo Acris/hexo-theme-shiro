@@ -30,13 +30,13 @@ Made by Acris with ❤️
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **Image Lightbox**: Click to zoom images in articles via [LightGallery](https://www.lightgalleryjs.com/).
+- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image is kept eager for the initial viewport, and LightGallery is lazy-loaded on interaction.
 - **Comments**: Disqus (lazy-loaded via `IntersectionObserver`) and giscus (GitHub Discussions) comment systems.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
 - **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) — index is generated automatically after `hexo generate`, no external service required.
-- **Fast**: Optimized for performance with minimal JavaScript and cached build-time page analysis for TOC, images, descriptions, excerpts, and feature gates.
+- **Fast**: Optimized for performance with minimal JavaScript, cached build-time page analysis, and content image loading/size hints.
 
 ## Installation
 
@@ -320,7 +320,9 @@ hexo-theme-shiro/
 │   ├── tag.njk             # Tag page
 │   └── category.njk        # Category page
 ├── scripts/
-│   └── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
+│   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
+│   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
+│   └── pagefind.js         # Pagefind indexing hook
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
 │   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files

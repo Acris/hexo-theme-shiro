@@ -28,13 +28,13 @@
 - **阅读进度条**：页面顶部的朱红色细进度条。
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
-- **图片灯箱**：通过 [LightGallery](https://www.lightgalleryjs.com/) 点击放大文章中的图片。
+- **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性；文章首图保留 eager 以照顾首屏，LightGallery 在交互时懒加载。
 - **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 giscus（GitHub Discussions）评论系统。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
 - **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——`hexo generate` 之后自动生成索引，无需任何外部服务。
-- **快速**：优化性能，最小化 JavaScript，并在构建期缓存每个页面的 TOC、图片、描述、摘要和功能门控分析。
+- **快速**：优化性能，最小化 JavaScript，并在构建期缓存页面分析、补充正文图片加载与尺寸提示。
 
 ## 安装
 
@@ -315,7 +315,9 @@ hexo-theme-shiro/
 │   ├── tag.njk             # 标签页
 │   └── category.njk        # 分类页
 ├── scripts/
-│   └── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
+│   ├── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
+│   ├── images.js           # after_post_render 图片加载、解码与尺寸优化
+│   └── pagefind.js         # Pagefind 索引钩子
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
 │   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
