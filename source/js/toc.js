@@ -56,6 +56,10 @@
 
     let activeId = '';
     let updateQueued = false;
+    let activeIndex = -1;
+    const headingIndex = new Map();
+    const passedHeadings = new Set();
+    headingArr.forEach((heading, index) => headingIndex.set(heading.id, index));
 
     function setLinksActive(id, active) {
         const targetLinks = linksByTarget.get(id) || [];
@@ -80,60 +84,91 @@
         if (id === activeId) return;
         if (activeId) setLinksActive(activeId, false);
         activeId = id;
+        activeIndex = id && headingIndex.has(id) ? headingIndex.get(id) : -1;
         if (activeId) {
             setLinksActive(activeId, true);
             scrollSidebarActiveLink(activeId);
         }
     }
 
-    function updateActiveHeading() {
-        const offset = 100;
-        let currentId = '';
-        for (let i = 0; i < headingArr.length; i++) {
-            if (headingArr[i].getBoundingClientRect().top - offset <= 0) {
-                currentId = headingArr[i].id;
-            } else {
-                break;
-            }
-        }
-        setActiveHeading(currentId);
+    function currentPassedHeadingId() {
+        let index = -1;
+        passedHeadings.forEach((id) => {
+            const candidate = headingIndex.get(id);
+            if (candidate > index) index = candidate;
+        });
+        return index >= 0 ? headingArr[index].id : '';
     }
 
-    function scheduleActiveUpdate() {
+    function updateActiveHeadingFromObserver() {
+        setActiveHeading(currentPassedHeadingId());
+    }
+
+    function updateActiveHeadingByPosition() {
+        const offset = 100;
+        let currentIndex = activeIndex;
+        if (currentIndex < 0) currentIndex = 0;
+
+        while (currentIndex + 1 < headingArr.length
+            && headingArr[currentIndex + 1].getBoundingClientRect().top - offset <= 0) {
+            currentIndex += 1;
+        }
+        while (currentIndex >= 0 && headingArr[currentIndex].getBoundingClientRect().top - offset > 0) {
+            currentIndex -= 1;
+        }
+
+        setActiveHeading(currentIndex >= 0 ? headingArr[currentIndex].id : '');
+    }
+
+    function scheduleActiveUpdate(update) {
         if (updateQueued) return;
         updateQueued = true;
         requestAnimationFrame(() => {
             updateQueued = false;
-            updateActiveHeading();
+            update();
         });
     }
 
+    const scheduleObserverUpdate = () => scheduleActiveUpdate(updateActiveHeadingFromObserver);
+    const schedulePositionUpdate = () => scheduleActiveUpdate(updateActiveHeadingByPosition);
+
     if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver(scheduleActiveUpdate, {
-            rootMargin: '-100px 0px -60% 0px',
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                const id = entry.target.id;
+                if (!id) return;
+                if (entry.boundingClientRect.top <= 100 && !entry.isIntersecting) {
+                    passedHeadings.add(id);
+                } else {
+                    passedHeadings.delete(id);
+                }
+            });
+            scheduleObserverUpdate();
+        }, {
+            rootMargin: '-100px 0px 0px 0px',
             threshold: 0
         });
         headingArr.forEach(heading => observer.observe(heading));
+        schedulePositionUpdate();
     } else {
-        window.addEventListener('scroll', scheduleActiveUpdate, { passive: true });
+        window.addEventListener('scroll', schedulePositionUpdate, { passive: true });
+        schedulePositionUpdate();
     }
 
-    window.addEventListener('resize', scheduleActiveUpdate, { passive: true });
+    window.addEventListener('resize', schedulePositionUpdate, { passive: true });
     document.querySelectorAll('.prose-shiro img').forEach(img => {
-        if (!img.complete) img.addEventListener('load', scheduleActiveUpdate, { once: true });
+        if (!img.complete) img.addEventListener('load', schedulePositionUpdate, { once: true });
     });
     if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(scheduleActiveUpdate);
+        document.fonts.ready.then(schedulePositionUpdate);
     }
-
-    scheduleActiveUpdate();
 
     if (location.hash) {
         const hashTarget = document.getElementById(location.hash.slice(1));
         if (hashTarget) {
             setTimeout(() => {
                 hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-                scheduleActiveUpdate();
+                schedulePositionUpdate();
             }, 100);
         }
     }
