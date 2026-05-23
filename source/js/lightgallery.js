@@ -339,10 +339,4 @@
         openFromElement(target);
     }
 
-    // Destroy instances on Pjax navigation to prevent memory leaks.
-    // Currently unused - reserved for future Pjax/SPA support.
-    document.addEventListener('pjax:send', () => {
-        instances.forEach(i => { if (i && i.destroy) i.destroy(); });
-        instances.clear();
-    });
 })();

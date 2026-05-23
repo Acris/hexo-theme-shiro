@@ -67,7 +67,6 @@ function analyzeHtml(content) {
         html,
         description: '',
         excerpt: '',
-        textCache: new Map(),
         tocCache: new Map()
     };
 
@@ -344,17 +343,6 @@ function firstImageSrc(content) {
     if (!content) return '';
     const match = String(content).match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
     return match ? match[1] : '';
-}
-
-function cachedStripHtmlText(analysis, field, source, stripHtml) {
-    const raw = String(source || '');
-    const cached = analysis.textCache.get(field);
-    if (cached && cached.source === raw) return cached.text;
-
-    const strip = typeof stripHtml === 'function' ? stripHtml : plainTextFromHtml;
-    const text = String(strip(raw) || '').replace(/\s+/g, ' ').trim();
-    analysis.textCache.set(field, { source: raw, text });
-    return text;
 }
 
 function cachedCleanDescriptionText(owner, field, source, producer) {

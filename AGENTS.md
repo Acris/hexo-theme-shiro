@@ -23,7 +23,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
 - `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
 - `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `toc`, `progress`, `back-to-top`, `clipboard`, `lightgallery`, `mobile-menu`.
+- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
 - `package.json` — npm scripts and Tailwind development dependencies.

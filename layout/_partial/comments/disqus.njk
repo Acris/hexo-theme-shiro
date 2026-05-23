@@ -1,5 +1,6 @@
 {% if theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
+{% include "_partial/comments/css-loader.njk" %}
 <script>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always
@@ -18,27 +19,8 @@
 
         {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
         const SHORTNAME = {{ theme.comments.disqus.shortname | dump | safe }};
-        const commentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
-        let cssLoading = null;
+        const loadCommentsCss = w.__shiroLoadCommentsCss || function() { return Promise.resolve(); };
         let loaded = false;
-
-        function loadCommentsCss() {
-            if (!commentsCss || d.querySelector('link[data-shiro-comments-css]')) return Promise.resolve();
-            if (cssLoading) return cssLoading;
-            cssLoading = new Promise(function(resolve, reject) {
-                const link = d.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = commentsCss;
-                link.setAttribute('data-shiro-comments-css', 'true');
-                link.onload = resolve;
-                link.onerror = reject;
-                d.head.appendChild(link);
-            }).catch(function(error) {
-                cssLoading = null;
-                throw error;
-            });
-            return cssLoading;
-        }
 
         function loadDisqus() {
             if (loaded) return;
