@@ -5,8 +5,10 @@ const fs = require('fs');
 const pathFn = require('path');
 
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
+const META_DESCRIPTION_LENGTH = 200;
 const assetHashCache = new Map();
 const excerptCache = new WeakMap();
+const cleanDescriptionCache = new WeakMap();
 const pageAnalysisCache = new WeakMap();
 
 function collectionToArray(value) {
@@ -301,6 +303,24 @@ function cachedStripHtmlText(analysis, field, source, stripHtml) {
     return text;
 }
 
+function cachedCleanDescriptionText(owner, field, source, producer) {
+    const raw = String(source || '');
+    if (!owner || typeof owner !== 'object') return producer(raw);
+
+    let cache = cleanDescriptionCache.get(owner);
+    if (!cache) {
+        cache = new Map();
+        cleanDescriptionCache.set(owner, cache);
+    }
+
+    const cached = cache.get(field);
+    if (cached && cached.source === raw) return cached.text;
+
+    const text = producer(raw);
+    cache.set(field, { source: raw, text });
+    return text;
+}
+
 function truncateText(text, length) {
     const limit = Math.max(0, Number(length) || 0);
     if (!limit || text.length <= limit) return text;
@@ -470,11 +490,13 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {
-    const analysis = pageAnalysis(page);
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
+    const strip = typeof this.strip_html === 'function' ? this.strip_html : plainTextFromHtml;
+    let owner = page;
     let raw = '';
     let cacheField = 'cleanDescription';
+    let producer = value => String(strip(value) || '').replace(/\s+/g, ' ').trim();
 
     if (page && page.description) {
         raw = page.description;
@@ -485,14 +507,18 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     } else if (isReadingPage && page && page.content) {
         raw = page.content;
         cacheField = 'cleanDescription:content';
+        producer = value => excerptTextFromHtml(value, META_DESCRIPTION_LENGTH);
     } else {
+        owner = config;
         raw = config && config.description;
         cacheField = 'cleanDescription:config';
     }
 
-    const text = cachedStripHtmlText(analysis, cacheField, raw, this.strip_html);
+    const text = cachedCleanDescriptionText(owner, cacheField, raw, producer);
     if (!text) return '';
-    return text.length > 200 ? text.substring(0, 200) + '...' : text;
+    return text.length > META_DESCRIPTION_LENGTH
+        ? text.substring(0, META_DESCRIPTION_LENGTH) + '...'
+        : text;
 });
 
 hexo.extend.helper.register('copyright_year', function (since) {
