@@ -24,9 +24,6 @@
         loader.defer = true;
         loader.onload = function() {
             removeBootstrapListeners();
-            const pending = window.__shiroLightGalleryAutoOpen;
-            window.__shiroLightGalleryAutoOpen = null;
-            if (pending && window.__shiroLightGalleryOpen) window.__shiroLightGalleryOpen(pending);
         };
         loader.onerror = function() {
             loading = false;

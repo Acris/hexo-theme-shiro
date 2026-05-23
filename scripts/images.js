@@ -90,6 +90,10 @@ function localImageCandidates(src, post) {
 
     const candidates = [];
     const root = (hexo.config.root || '/').replace(/\/+$/, '/');
+    const addCandidate = (filePath) => {
+        if (filePath && !candidates.includes(filePath)) candidates.push(filePath);
+    };
+
     let withoutRoot = urlPath.replace(/^\/+/, '');
     if (root !== '/' && urlPath.indexOf(root) === 0) {
         withoutRoot = urlPath.slice(root.length).replace(/^\/+/, '');
@@ -97,15 +101,15 @@ function localImageCandidates(src, post) {
 
     const postDir = sourceDirForPost(post);
     if (urlPath[0] === '/') {
-        candidates.push(path.join(hexo.source_dir, withoutRoot));
-        if (postDir) candidates.push(path.join(postDir, path.basename(withoutRoot)));
+        addCandidate(path.join(hexo.source_dir, withoutRoot));
+        if (postDir) addCandidate(path.join(postDir, path.basename(withoutRoot)));
     } else {
-        if (postDir) candidates.push(path.resolve(postDir, urlPath));
-        candidates.push(path.join(hexo.source_dir, urlPath));
+        if (postDir) addCandidate(path.resolve(postDir, urlPath));
+        addCandidate(path.join(hexo.source_dir, urlPath));
+        if (withoutRoot !== urlPath) addCandidate(path.join(hexo.source_dir, withoutRoot));
     }
 
-    candidates.push(path.join(hexo.source_dir, withoutRoot));
-    return Array.from(new Set(candidates));
+    return candidates;
 }
 
 function readUInt24LE(buffer, offset) {

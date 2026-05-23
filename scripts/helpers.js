@@ -65,7 +65,6 @@ function analyzeHtml(content) {
 
     const analysis = {
         html,
-        description: '',
         excerpt: '',
         tocCache: new Map()
     };
@@ -139,13 +138,11 @@ function pageAnalysis(page) {
 
     const html = String(page.content || '');
     const excerpt = String(page.excerpt || '');
-    const description = String(page.description || '');
     const cached = pageAnalysisCache.get(page);
-    if (cached && cached.html === html && cached.excerpt === excerpt && cached.description === description) return cached;
+    if (cached && cached.html === html && cached.excerpt === excerpt) return cached;
 
     const analysis = analyzeHtml(html);
     analysis.excerpt = excerpt;
-    analysis.description = description;
     pageAnalysisCache.set(page, analysis);
     return analysis;
 }

@@ -1210,18 +1210,15 @@
     html.theme-transition { --tt: background-color 0.4s ease, color 0.15s ease, border-color 0.35s ease, box-shadow 0.4s ease; }
     @media (prefers-reduced-motion: reduce) { html.theme-transition { --tt: none; } }
 
-    html.theme-transition,
-    html.theme-transition body,
     html.theme-transition .fog-bg,
     html.theme-transition .paper,
-    html.theme-transition header,
-    html.theme-transition footer,
-    html.theme-transition nav,
-    html.theme-transition main,
     html.theme-transition .prose-shiro,
     html.theme-transition .toc-sidebar,
+    html.theme-transition .toc-inline,
+    html.theme-transition .menu-panel,
     html.theme-transition .back-to-top,
-    html.theme-transition .progress-bar {
+    html.theme-transition .progress-bar,
+    html.theme-transition .site-note {
         transition: var(--tt) !important;
         transition-delay: 0s !important;
     }

@@ -288,24 +288,25 @@
             refreshGallery(container);
             if (queue.length) schedule(run);
         };
-        schedule(run);
+        if (queue.length) schedule(run);
+    }
+
+    function prepareRemainingGallery(container, activeImage) {
+        schedule(() => {
+            const images = Array.from(container.querySelectorAll('img'))
+                .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
+            prepareGalleryBatch(container, images);
+        });
     }
 
     function prepareGallery(container, activeImage) {
-        const activeLink = ensureLink(container, activeImage);
-        if (!activeLink) return null;
-
-        const images = Array.from(container.querySelectorAll('img'))
-            .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
-        if (images.length) prepareGalleryBatch(container, images);
-
-        return activeLink;
+        return ensureLink(container, activeImage);
     }
 
     function openFromElement(target) {
         if (!target || !target.closest) return false;
         const container = target.closest('.prose-shiro');
-        if (!container || !container.querySelector('img')) return false;
+        if (!container) return false;
 
         const img = target.tagName === 'IMG' ? target : target.querySelector && target.querySelector('img');
         if (!img || !container.contains(img)) return false;
@@ -314,14 +315,13 @@
         if (!trigger) return false;
 
         openGallery(container, trigger);
+        prepareRemainingGallery(container, img);
         return true;
     }
 
     window.__shiroLightGalleryOpen = openFromElement;
 
     containers.forEach((container) => {
-        if (!container.querySelector('img')) return;
-
         container.addEventListener('click', (event) => {
             const img = clickedImage(container, event);
             if (!img) return;

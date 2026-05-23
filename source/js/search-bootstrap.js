@@ -25,7 +25,6 @@
         loader.defer = true;
         loader.onload = function() {
             removeBootstrapListeners();
-            if (window.__shiroSearchOpen) window.__shiroSearchOpen();
         };
         loader.onerror = function() { loading = false; };
         document.head.appendChild(loader);
