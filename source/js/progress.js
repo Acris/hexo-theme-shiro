@@ -1,10 +1,6 @@
 ;(() => {
     const bar = document.getElementById('progressBar');
-    const backBtn = document.getElementById('backToTop');
-    const sentinel = document.getElementById('backToTopSentinel');
-    if (!bar && !backBtn) return;
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!bar) return;
     let ticking = false;
 
     function updateProgress() {
@@ -28,30 +24,7 @@
         ticking = true;
     }
 
-    if (bar) {
-        window.addEventListener('scroll', scheduleProgressUpdate, { passive: true });
-        window.addEventListener('resize', scheduleProgressUpdate, { passive: true });
-        updateProgress();
-    }
-
-    if (backBtn) {
-        const setBackToTopVisible = (visible) => {
-            backBtn.dataset.visible = visible ? 'true' : 'false';
-        };
-
-        backBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
-        });
-
-        if (sentinel && 'IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-                setBackToTopVisible(!entries[0].isIntersecting);
-            });
-            observer.observe(sentinel);
-        } else {
-            const updateBackToTop = () => setBackToTopVisible(window.scrollY > window.innerHeight * 0.5);
-            window.addEventListener('scroll', updateBackToTop, { passive: true });
-            updateBackToTop();
-        }
-    }
+    window.addEventListener('scroll', scheduleProgressUpdate, { passive: true });
+    window.addEventListener('resize', scheduleProgressUpdate, { passive: true });
+    updateProgress();
 })();

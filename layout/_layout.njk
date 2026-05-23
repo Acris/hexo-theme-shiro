@@ -82,8 +82,11 @@
     {% if needs_toc %}
     <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}
-    {% if needs_progress_bar or needs_back_to_top %}
+    {% if needs_progress_bar %}
     <script defer src="{{ versioned_url('js/progress.min.js') }}"></script>
+    {% endif %}
+    {% if needs_back_to_top %}
+    <script defer src="{{ versioned_url('js/back-to-top.min.js') }}"></script>
     {% endif %}
     {% if theme.dark_mode.toggle != false %}
     <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
