@@ -1,23 +1,20 @@
-(function () {
+;(() => {
     'use strict';
 
-    var modal = document.getElementById('searchModal');
-    var toggle = document.getElementById('searchToggle');
-    if (!toggle) return;
-
-    var i18n = (window.__i18n && window.__i18n.search) || {};
-    var base = window.__pagefindBase || '/pagefind/';
-    var searchCss = window.__searchCss || '';
-    var loaded = false;
-    var loading = null;
-    var cssLoaded = false;
-    var cssLoading = null;
-    var lastFocus = null;
+    let modal = document.getElementById('searchModal');
+    const i18n = (window.__i18n && window.__i18n.search) || {};
+    const base = window.__pagefindBase || '/pagefind/';
+    const searchCss = window.__searchCss || '';
+    let loaded = false;
+    let loading = null;
+    let cssLoaded = false;
+    let cssLoading = null;
+    let lastFocus = null;
 
     function loadAsset(tag, attrs) {
-        return new Promise(function (resolve, reject) {
-            var el = document.createElement(tag);
-            Object.keys(attrs).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+        return new Promise((resolve, reject) => {
+            const el = document.createElement(tag);
+            Object.keys(attrs).forEach(key => el.setAttribute(key, attrs[key]));
             el.onload = resolve;
             el.onerror = reject;
             document.head.appendChild(el);
@@ -27,7 +24,7 @@
     function ensureSearchCss() {
         if (!searchCss || cssLoaded) return Promise.resolve();
         if (cssLoading) return cssLoading;
-        var existing = document.querySelector('link[data-shiro-search-css]');
+        const existing = document.querySelector('link[data-shiro-search-css]');
         if (existing) {
             cssLoaded = true;
             return Promise.resolve();
@@ -36,11 +33,11 @@
             rel: 'stylesheet',
             href: searchCss,
             'data-shiro-search-css': 'true'
-        }).then(function () {
+        }).then(() => {
             cssLoaded = true;
-        }).catch(function (e) {
+        }).catch((error) => {
             cssLoading = null;
-            throw e;
+            throw error;
         });
         return cssLoading;
     }
@@ -49,8 +46,8 @@
         if (loaded) return Promise.resolve();
         if (loading) return loading;
         loading = loadAsset('link', { rel: 'stylesheet', href: base + 'pagefind-ui.css' })
-            .then(function () { return loadAsset('script', { src: base + 'pagefind-ui.js' }); })
-            .then(function () {
+            .then(() => loadAsset('script', { src: base + 'pagefind-ui.js' }))
+            .then(() => {
                 /* global PagefindUI */
                 new PagefindUI({
                     element: '#pagefindContainer',
@@ -70,7 +67,10 @@
                 });
                 loaded = true;
             })
-            .catch(function (e) { loading = null; throw e; });
+            .catch((error) => {
+                loading = null;
+                throw error;
+            });
         return loading;
     }
 
@@ -105,30 +105,35 @@
             + '</div>';
         document.body.appendChild(modal);
 
-        modal.addEventListener('click', function (e) {
-            var t = e.target;
-            if (t && (t.closest && t.closest('[data-search-close]'))) {
-                e.preventDefault();
+        modal.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target && target.closest && target.closest('[data-search-close]')) {
+                event.preventDefault();
                 close();
             }
         });
 
-        modal.addEventListener('keydown', function (e) {
-            if (e.key !== 'Tab') return;
+        modal.addEventListener('keydown', (event) => {
+            if (event.key !== 'Tab') return;
             if (modal.getAttribute('data-open') !== 'true') return;
-            var focusables = modal.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])');
+            const focusables = modal.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])');
             if (!focusables.length) return;
-            var first = focusables[0];
-            var last = focusables[focusables.length - 1];
-            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         });
 
         return modal;
     }
 
     function focusInput() {
-        var input = modal.querySelector('.pagefind-ui__search-input');
+        const input = modal.querySelector('.pagefind-ui__search-input');
         if (input) { try { input.focus(); } catch (_) {} }
     }
 
@@ -139,7 +144,7 @@
         // Mark <html> as modal-open so CSS can lock body scroll without
         // mutating inline styles (lets multiple modals coexist cleanly).
         document.documentElement.setAttribute('data-modal-open', 'true');
-        ensurePagefind().then(function () {
+        ensurePagefind().then(() => {
             // Defer to after Pagefind UI mounts
             setTimeout(focusInput, 30);
         });
@@ -149,7 +154,7 @@
         ensureModal();
         if (modal.getAttribute('data-open') === 'true') return;
         lastFocus = document.activeElement;
-        ensureSearchCss().then(showModal).catch(function () {
+        ensureSearchCss().then(showModal).catch(() => {
             showModal();
         });
     }
@@ -166,25 +171,13 @@
 
     window.__shiroSearchOpen = open;
 
-    toggle.addEventListener('click', function (e) { e.preventDefault(); open(); });
-
-
-    document.addEventListener('keydown', function (e) {
-        var isOpen = modal && modal.getAttribute('data-open') === 'true';
-        if (e.key === 'Escape' && isOpen) {
-            e.preventDefault();
+    document.addEventListener('keydown', (event) => {
+        const isOpen = modal && modal.getAttribute('data-open') === 'true';
+        if (event.key === 'Escape' && isOpen) {
+            event.preventDefault();
             close();
-            return;
-        }
-        if (e.key === '/' && !isOpen && !e.metaKey && !e.ctrlKey && !e.altKey) {
-            var ae = document.activeElement;
-            var tag = ae && ae.tagName;
-            if (ae && (ae.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT')) return;
-            e.preventDefault();
-            open();
         }
     });
-
 
     if (window.__shiroSearchAutoOpen) {
         window.__shiroSearchAutoOpen = false;

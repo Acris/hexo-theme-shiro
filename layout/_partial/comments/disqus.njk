@@ -32,18 +32,7 @@
             loadCommentsCss().then(appendScript).catch(appendScript);
         }
 
-        if (!('IntersectionObserver' in w)) {
-            loadDisqus();
-        } else {
-            const io = new IntersectionObserver(function(entries) {
-                /* threshold 0 = load as soon as the container enters the viewport */
-                if (entries[0].isIntersecting) {
-                    loadDisqus();
-                    io.disconnect();
-                }
-            }, { threshold: 0 });
-            io.observe(disqus_thread);
-        }
+        w.__shiroOnNearViewport(disqus_thread, loadDisqus);
 
         /* Disqus locks in its color scheme at iframe load time.
            If the user toggles the site theme after Disqus has loaded, defer

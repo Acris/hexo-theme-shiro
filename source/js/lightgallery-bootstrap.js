@@ -22,10 +22,10 @@
         const loader = document.createElement('script');
         loader.src = script;
         loader.defer = true;
-        loader.onload = function() {
+        loader.onload = () => {
             removeBootstrapListeners();
         };
-        loader.onerror = function() {
+        loader.onerror = () => {
             loading = false;
             window.__shiroLightGalleryAutoOpen = null;
         };

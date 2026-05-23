@@ -19,4 +19,18 @@ window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || function() {
     });
     return window.__shiroCommentsCssLoading;
 };
+window.__shiroOnNearViewport = window.__shiroOnNearViewport || function(element, callback, options) {
+    const w = window;
+    if (!element || typeof callback !== 'function') return;
+    if (!('IntersectionObserver' in w)) {
+        callback();
+        return;
+    }
+    const io = new IntersectionObserver(function(entries) {
+        if (!entries[0].isIntersecting) return;
+        callback();
+        io.disconnect();
+    }, options || { rootMargin: '200px 0px', threshold: 0 });
+    io.observe(element);
+};
 </script>

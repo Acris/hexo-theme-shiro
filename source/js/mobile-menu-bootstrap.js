@@ -12,19 +12,19 @@
         const loader = document.createElement('script');
         loader.src = script;
         loader.defer = true;
-        loader.onload = function() { window.__shiroMobileMenuLoaded = true; };
-        loader.onerror = function() { loading = false; };
+        loader.onload = () => { window.__shiroMobileMenuLoaded = true; };
+        loader.onerror = () => { loading = false; };
         document.head.appendChild(loader);
     }
 
     if (query.matches) {
         loadMobileMenu();
     } else if (query.addEventListener) {
-        query.addEventListener('change', function onChange(event) {
+        query.addEventListener('change', (event) => {
             if (event.matches) loadMobileMenu();
         }, { once: true });
     } else if (query.addListener) {
-        query.addListener(function(event) {
+        query.addListener((event) => {
             if (event.matches) loadMobileMenu();
         });
     }

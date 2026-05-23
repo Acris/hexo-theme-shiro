@@ -156,9 +156,9 @@
     }
 
     window.addEventListener('resize', schedulePositionUpdate, { passive: true });
-    document.querySelectorAll('.prose-shiro img').forEach(img => {
-        if (!img.complete) img.addEventListener('load', schedulePositionUpdate, { once: true });
-    });
+    if (document.readyState !== 'complete') {
+        window.addEventListener('load', schedulePositionUpdate, { once: true });
+    }
     if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(schedulePositionUpdate);
     }

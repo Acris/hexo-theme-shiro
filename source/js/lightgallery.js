@@ -241,12 +241,13 @@
         }
     }
 
-    function openGallery(container, trigger) {
+    function openGallery(container, trigger, onReady) {
         ensureLightGalleryAssets().then(() => {
             const instance = getOrCreateInstance(container);
             refreshGallery(container);
             const index = Math.max(galleryItems(container).indexOf(trigger), 0);
             if (instance && typeof instance.openGallery === 'function') {
+                if (typeof onReady === 'function') onReady();
                 instance.openGallery(index);
             } else {
                 followOriginalLink(trigger);
@@ -314,8 +315,7 @@
         const trigger = prepareGallery(container, img);
         if (!trigger) return false;
 
-        openGallery(container, trigger);
-        prepareRemainingGallery(container, img);
+        openGallery(container, trigger, () => prepareRemainingGallery(container, img));
         return true;
     }
 

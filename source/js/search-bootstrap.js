@@ -4,15 +4,9 @@
 
     let loading = false;
 
-    function removeBootstrapListeners() {
-        document.removeEventListener('click', handleIntent);
-        document.removeEventListener('keydown', handleIntent);
-    }
-
     function openSearch() {
         if (window.__shiroSearchOpen) {
             window.__shiroSearchOpen();
-            removeBootstrapListeners();
             return;
         }
 
@@ -23,10 +17,10 @@
         const loader = document.createElement('script');
         loader.src = script;
         loader.defer = true;
-        loader.onload = function() {
-            removeBootstrapListeners();
+        loader.onload = () => {
+            loading = false;
         };
-        loader.onerror = function() { loading = false; };
+        loader.onerror = () => { loading = false; };
         document.head.appendChild(loader);
     }
 

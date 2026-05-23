@@ -60,19 +60,35 @@
         many_results: __('search.many_results'),
         loading: __('search.loading')
     } %}
-    <script>window.__i18n=window.__i18n||{};window.__i18n.search={{ search_i18n | dump | safe }};window.__pagefindBase="{{ url_for('/pagefind/') }}";window.__searchCss="{{ versioned_url('css/search.min.css') }}";window.__searchScript="{{ versioned_url('js/search.min.js') }}";</script>
+    <script>
+        window.__i18n = window.__i18n || {};
+        window.__i18n.search = {{ search_i18n | dump | safe }};
+        window.__pagefindBase = "{{ url_for('/pagefind/') }}";
+        window.__searchCss = "{{ versioned_url('css/search.min.css') }}";
+        window.__searchScript = "{{ versioned_url('js/search.min.js') }}";
+    </script>
     <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
     {% endif %}
 
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
     {% if needs_lightgallery %}
-    <script>window.__i18n=window.__i18n||{};window.__i18n.gallery_visit_source={{ __('gallery_visit_source') | dump | safe }};window.__i18n.gallery_view_image={{ __('gallery_view_image') | dump | safe }};window.__lightgalleryThemeCss="{{ versioned_url('css/lightgallery.min.css') }}";window.__lightgalleryScript="{{ versioned_url('js/lightgallery.min.js') }}";</script>
+    <script>
+        window.__i18n = window.__i18n || {};
+        window.__i18n.gallery_visit_source = {{ __('gallery_visit_source') | dump | safe }};
+        window.__i18n.gallery_view_image = {{ __('gallery_view_image') | dump | safe }};
+        window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";
+        window.__lightgalleryScript = "{{ versioned_url('js/lightgallery.min.js') }}";
+    </script>
     <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
     {% endif %}
     {% set needs_clipboard = page_has_code(page, theme) %}
     {% if needs_clipboard %}
-    <script>window.__i18n=window.__i18n||{};window.__i18n.clipboard_copy={{ __('clipboard_copy') | dump | safe }};window.__i18n.clipboard_copied={{ __('clipboard_copied') | dump | safe }};</script>
+    <script>
+        window.__i18n = window.__i18n || {};
+        window.__i18n.clipboard_copy = {{ __('clipboard_copy') | dump | safe }};
+        window.__i18n.clipboard_copied = {{ __('clipboard_copied') | dump | safe }};
+    </script>
     <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
     {% endif %}
     {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
