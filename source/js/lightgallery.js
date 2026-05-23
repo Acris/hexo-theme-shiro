@@ -302,6 +302,23 @@
         return activeLink;
     }
 
+    function openFromElement(target) {
+        if (!target || !target.closest) return false;
+        const container = target.closest('.prose-shiro');
+        if (!container || !container.querySelector('img')) return false;
+
+        const img = target.tagName === 'IMG' ? target : target.querySelector && target.querySelector('img');
+        if (!img || !container.contains(img)) return false;
+
+        const trigger = prepareGallery(container, img);
+        if (!trigger) return false;
+
+        openGallery(container, trigger);
+        return true;
+    }
+
+    window.__shiroLightGalleryOpen = openFromElement;
+
     containers.forEach((container) => {
         if (!container.querySelector('img')) return;
 
@@ -309,14 +326,18 @@
             const img = clickedImage(container, event);
             if (!img) return;
 
-            const trigger = prepareGallery(container, img);
-            if (!trigger) return;
-
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            openGallery(container, trigger);
+            if (openFromElement(img)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
         });
     });
+
+    if (window.__shiroLightGalleryAutoOpen) {
+        const target = window.__shiroLightGalleryAutoOpen;
+        window.__shiroLightGalleryAutoOpen = null;
+        openFromElement(target);
+    }
 
     // Destroy instances on Pjax navigation to prevent memory leaks.
     // Currently unused - reserved for future Pjax/SPA support.

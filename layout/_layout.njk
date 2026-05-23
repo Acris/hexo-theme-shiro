@@ -73,8 +73,7 @@
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
     {% if needs_lightgallery %}
-    <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";</script>
-    <script defer src="{{ versioned_url('js/lightgallery.min.js') }}"></script>
+    <script>window.__lightgalleryThemeCss="{{ versioned_url('css/lightgallery.min.css') }}";window.__lightgalleryScript="{{ versioned_url('js/lightgallery.min.js') }}";(function(){var l=false;function c(){document.removeEventListener('click',k,true);}function o(t){if(window.__shiroLightGalleryOpen){window.__shiroLightGalleryOpen(t);c();return;}window.__shiroLightGalleryAutoOpen=t;if(l)return;l=true;var s=document.createElement('script');s.src=window.__lightgalleryScript;s.defer=true;s.onload=function(){c();if(window.__shiroLightGalleryOpen&&window.__shiroLightGalleryAutoOpen){var a=window.__shiroLightGalleryAutoOpen;window.__shiroLightGalleryAutoOpen=null;window.__shiroLightGalleryOpen(a);}};s.onerror=function(){l=false;window.__shiroLightGalleryAutoOpen=null;};document.head.appendChild(s);}function k(e){var t=e.target;if(!t||!t.closest)return;var p=t.closest('.prose-shiro');if(!p)return;var img=t.closest('img');if(!img||!p.contains(img))return;e.preventDefault();e.stopImmediatePropagation();o(img);}document.addEventListener('click',k,true);})();</script>
     {% endif %}
     {% if page_has_code(page, theme) %}
     <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
