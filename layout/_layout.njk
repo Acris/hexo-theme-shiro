@@ -8,9 +8,8 @@
     {{ svg_filters() }}
     {% endif %}
 
-    {% set is_reading_page = is_post() or is_page() %}
-    {% set needs_progress_bar = theme.progress_bar.enabled and is_reading_page %}
-    {% set needs_back_to_top = theme.back_to_top.enabled and is_reading_page and page_looks_long(page) %}
+    {% set needs_progress_bar = theme.progress_bar.enabled and is_post() %}
+    {% set needs_back_to_top = theme.back_to_top.enabled and (is_home() or (is_post() and page_looks_long(page))) %}
 
     {% if needs_progress_bar %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
