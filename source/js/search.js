@@ -3,7 +3,7 @@
 
     var modal = document.getElementById('searchModal');
     var toggle = document.getElementById('searchToggle');
-    if (!modal || !toggle) return;
+    if (!toggle) return;
 
     var i18n = (window.__i18n && window.__i18n.search) || {};
     var base = window.__pagefindBase || '/pagefind/';
@@ -74,12 +74,66 @@
         return loading;
     }
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function ensureModal() {
+        if (modal) return modal;
+
+        modal = document.createElement('div');
+        modal.id = 'searchModal';
+        modal.className = 'search-modal';
+        modal.setAttribute('data-open', 'false');
+        modal.setAttribute('aria-hidden', 'true');
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'searchModalTitle');
+        modal.innerHTML = '<div class="search-modal__backdrop" data-search-close></div>'
+            + '<div class="search-modal__panel" role="document">'
+            + '<div class="search-modal__header">'
+            + '<h2 id="searchModalTitle" class="search-modal__title">' + escapeHtml(i18n.button || 'Search') + '</h2>'
+            + '<button type="button" class="search-modal__close" data-search-close aria-label="' + escapeHtml(i18n.close || 'Close') + '">'
+            + '<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">'
+            + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"></path>'
+            + '</svg></button></div>'
+            + '<div class="search-modal__body"><div id="pagefindContainer"></div></div>'
+            + '</div>';
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', function (e) {
+            var t = e.target;
+            if (t && (t.closest && t.closest('[data-search-close]'))) {
+                e.preventDefault();
+                close();
+            }
+        });
+
+        modal.addEventListener('keydown', function (e) {
+            if (e.key !== 'Tab') return;
+            if (modal.getAttribute('data-open') !== 'true') return;
+            var focusables = modal.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusables.length) return;
+            var first = focusables[0];
+            var last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        });
+
+        return modal;
+    }
+
     function focusInput() {
         var input = modal.querySelector('.pagefind-ui__search-input');
         if (input) { try { input.focus(); } catch (_) {} }
     }
 
     function showModal() {
+        ensureModal();
         modal.setAttribute('data-open', 'true');
         modal.setAttribute('aria-hidden', 'false');
         // Mark <html> as modal-open so CSS can lock body scroll without
@@ -92,6 +146,7 @@
     }
 
     function open() {
+        ensureModal();
         if (modal.getAttribute('data-open') === 'true') return;
         lastFocus = document.activeElement;
         ensureSearchCss().then(showModal).catch(function () {
@@ -100,7 +155,7 @@
     }
 
     function close() {
-        if (modal.getAttribute('data-open') !== 'true') return;
+        if (!modal || modal.getAttribute('data-open') !== 'true') return;
         modal.setAttribute('data-open', 'false');
         modal.setAttribute('aria-hidden', 'true');
         document.documentElement.removeAttribute('data-modal-open');
@@ -109,18 +164,13 @@
         }
     }
 
+    window.__shiroSearchOpen = open;
+
     toggle.addEventListener('click', function (e) { e.preventDefault(); open(); });
 
-    modal.addEventListener('click', function (e) {
-        var t = e.target;
-        if (t && (t.closest && t.closest('[data-search-close]'))) {
-            e.preventDefault();
-            close();
-        }
-    });
 
     document.addEventListener('keydown', function (e) {
-        var isOpen = modal.getAttribute('data-open') === 'true';
+        var isOpen = modal && modal.getAttribute('data-open') === 'true';
         if (e.key === 'Escape' && isOpen) {
             e.preventDefault();
             close();
@@ -135,15 +185,9 @@
         }
     });
 
-    // Focus trap inside modal
-    modal.addEventListener('keydown', function (e) {
-        if (e.key !== 'Tab') return;
-        if (modal.getAttribute('data-open') !== 'true') return;
-        var focusables = modal.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])');
-        if (!focusables.length) return;
-        var first = focusables[0];
-        var last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
+
+    if (window.__shiroSearchAutoOpen) {
+        window.__shiroSearchAutoOpen = false;
+        open();
+    }
 })();

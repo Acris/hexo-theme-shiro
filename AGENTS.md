@@ -10,7 +10,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `layout/_layout.njk` — base HTML layout, shared page shell, conditional script loading, and global i18n data injection.
 - `layout/_macro/` — shared Nunjucks macros: `ui.njk` (e.g., `svg_filters` used by the seal) and `archive.njk` (archive list rendering).
 - `layout/_partial/common/` — shared shell partials: `head.njk`, `header.njk`, `footer.njk`, `pagination.njk`, `empty.njk`.
-- `layout/_partial/components/` — page components: `article.njk`, `post-card.njk`, `search-modal.njk`, `toc.njk`.
+- `layout/_partial/components/` — page components: `article.njk`, `post-card.njk`, `toc.njk`.
 - `layout/_partial/comments/` — comment providers: `disqus.njk`, `giscus.njk`.
 - `layout/_partial/analytics/` — analytics providers: `google.njk`.
 - `layout/index.njk`, `post.njk`, `page.njk`, `archive.njk`, `tag.njk`, `category.njk` — main page templates.
