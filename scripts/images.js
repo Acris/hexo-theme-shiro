@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 
 const DEFAULT_IMAGE_SIZES = '(min-width: 768px) 672px, calc(100vw - 2rem)';
+const DEFAULT_HEADER_BYTES = 64 * 1024;
+const JPEG_HEADER_BYTES = 512 * 1024;
+const SVG_HEADER_BYTES = 16 * 1024;
 const imageMetaCache = new Map();
 
 function parseAttrs(source) {
@@ -175,11 +178,33 @@ function webpSize(buffer) {
     return null;
 }
 
+function imageHeaderLimit(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+    if (ext === '.jpg' || ext === '.jpeg') return JPEG_HEADER_BYTES;
+    if (ext === '.svg') return SVG_HEADER_BYTES;
+    return DEFAULT_HEADER_BYTES;
+}
+
+function readFileHeader(filePath) {
+    const fd = fs.openSync(filePath, 'r');
+    try {
+        const stat = fs.fstatSync(fd);
+        const length = Math.min(stat.size, imageHeaderLimit(filePath));
+        if (!length) return Buffer.alloc(0);
+
+        const buffer = Buffer.allocUnsafe(length);
+        const bytesRead = fs.readSync(fd, buffer, 0, length, 0);
+        return bytesRead === length ? buffer : buffer.subarray(0, bytesRead);
+    } finally {
+        fs.closeSync(fd);
+    }
+}
+
 function imageSizeFromFile(filePath) {
     if (imageMetaCache.has(filePath)) return imageMetaCache.get(filePath);
     let size = null;
     try {
-        const buffer = fs.readFileSync(filePath);
+        const buffer = readFileHeader(filePath);
         size = pngSize(buffer) || gifSize(buffer) || jpegSize(buffer) || webpSize(buffer) || svgSize(buffer);
     } catch (e) {
         size = null;
