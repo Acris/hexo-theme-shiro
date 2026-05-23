@@ -1,16 +1,16 @@
 {% if theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
 <div id="giscus-container" class="giscus" data-pagefind-ignore></div>
-{% include "_partial/comments/css-loader.njk" %}
+{% include "_partial/comments/bootstrap.njk" %}
 <script>
-(function() {
+;(() => {
     const d = document, w = window;
     const container = d.getElementById('giscus-container');
     if (!container) return;
 
-    const loadCommentsCss = w.__shiroLoadCommentsCss || function() { return Promise.resolve(); };
+    const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
     let loaded = false;
 
-    function loadGiscus() {
+    const loadGiscus = () => {
         if (loaded) return;
         loaded = true;
 
@@ -38,9 +38,9 @@
         for (const [key, value] of Object.entries(attrs)) {
             s.setAttribute(key, value);
         }
-        function appendScript() { container.appendChild(s); }
+        const appendScript = () => { container.appendChild(s); };
         loadCommentsCss().then(appendScript).catch(appendScript);
-    }
+    };
 
     w.__shiroOnNearViewport(container, loadGiscus);
 })();

@@ -11,7 +11,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `layout/_macro/` — shared Nunjucks macros: `ui.njk` (e.g., `svg_filters` used by the seal) and `archive.njk` (archive list rendering).
 - `layout/_partial/common/` — shared shell partials: `head.njk`, `header.njk`, `footer.njk`, `pagination.njk`, `empty.njk`.
 - `layout/_partial/components/` — page components: `article.njk`, `post-card.njk`, `toc.njk`.
-- `layout/_partial/comments/` — comment providers: `disqus.njk`, `giscus.njk`.
+- `layout/_partial/comments/` — comment providers and shared comment bootstrapping: `disqus.njk`, `giscus.njk`, `bootstrap.njk`.
 - `layout/_partial/analytics/` — analytics providers: `google.njk`.
 - `layout/index.njk`, `post.njk`, `page.njk`, `archive.njk`, `tag.njk`, `category.njk` — main page templates.
 - `scripts/helpers.js` — custom Hexo helpers (`should_render_toc`, `build_toc`, `google_font_urls`, `page_has_code`, `page_looks_long`, `versioned_url`, `has_images`, `first_image`, `excerpt_for`, `clean_description`, `copyright_year`, `build_page_title`, `og_image`) and the dynamic `favicon.svg` generator (`favicon_svg`). Treat this list as authoritative — check `scripts/helpers.js` before adding new helpers or duplicating logic. TOC, image, code, long-page, description, and excerpt helpers share page-level cached analysis; pass the full `page` object to these helpers instead of `page.content` so the cache is reused.
@@ -23,7 +23,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
 - `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
 - `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`.
+- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
 - `package.json` — npm scripts and Tailwind development dependencies.

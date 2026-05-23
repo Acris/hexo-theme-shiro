@@ -17,7 +17,7 @@
 
     function getState() {
         let saved;
-        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        try { saved = localStorage.getItem('theme'); } catch (_) {}
         if (saved && states.includes(saved)) return saved;
         return defaultTheme;
     }
@@ -47,10 +47,10 @@
 
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    function cycle(e) {
+    function cycle() {
         const current = getState();
         const next = states[(states.indexOf(current) + 1) % states.length];
-        try { localStorage.setItem('theme', next); } catch (e) {}
+        try { localStorage.setItem('theme', next); } catch (_) {}
 
         // Skip all animation when user prefers reduced motion
         if (reducedMotionQuery.matches) {
@@ -62,7 +62,7 @@
         if (document.startViewTransition) {
             try {
                 document.startViewTransition(() => apply(next));
-            } catch (e) {
+            } catch (_) {
                 apply(next);
             }
         } else {

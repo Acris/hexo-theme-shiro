@@ -1,7 +1,4 @@
 ;(() => {
-    const containers = document.querySelectorAll('.prose-shiro');
-    if (!containers.length) return;
-
     const cssHref = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
     const cssIntegrity = 'sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8';
     const jsSrc = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
@@ -10,8 +7,26 @@
 
     let assetsLoading = null;
     const instances = new Map();
+    const preparedContainers = new WeakSet();
 
-    function loadAsset(tag, attrs) {
+    function assetReady(el, tag) {
+        if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
+            el.dataset.shiroLoaded = 'true';
+            return Promise.resolve();
+        }
+        return new Promise((resolve, reject) => {
+            el.addEventListener('load', () => {
+                el.dataset.shiroLoaded = 'true';
+                resolve();
+            }, { once: true });
+            el.addEventListener('error', reject, { once: true });
+        });
+    }
+
+    function loadAsset(tag, attrs, selector) {
+        const existing = selector ? document.querySelector(selector) : null;
+        if (existing) return assetReady(existing, tag);
+
         return new Promise((resolve, reject) => {
             const el = document.createElement(tag);
             Object.keys(attrs).forEach((key) => {
@@ -34,43 +49,27 @@
     }
 
     function ensureStylesheet() {
-        if (document.querySelector('link[data-shiro-lightgallery-css]')) {
-            return Promise.resolve();
-        }
         return loadAsset('link', {
             rel: 'stylesheet',
             href: cssHref,
             integrity: cssIntegrity,
             crossorigin: 'anonymous',
             'data-shiro-lightgallery-css': 'true'
-        });
+        }, 'link[data-shiro-lightgallery-css]');
     }
 
     function ensureThemeStylesheet() {
-        if (!themeCssHref || document.querySelector('link[data-shiro-lightgallery-theme-css]')) {
-            return Promise.resolve();
-        }
+        if (!themeCssHref) return Promise.resolve();
         return loadAsset('link', {
             rel: 'stylesheet',
             href: themeCssHref,
             'data-shiro-lightgallery-theme-css': 'true'
-        });
+        }, 'link[data-shiro-lightgallery-theme-css]');
     }
 
     function ensureScript() {
         if (typeof window.lightGallery === 'function') {
             return Promise.resolve();
-        }
-        const existing = document.querySelector('script[data-shiro-lightgallery-js]');
-        if (existing) {
-            return new Promise((resolve, reject) => {
-                if (typeof window.lightGallery === 'function' || existing.dataset.shiroLoaded === 'true') {
-                    resolve();
-                    return;
-                }
-                existing.addEventListener('load', resolve, { once: true });
-                existing.addEventListener('error', reject, { once: true });
-            });
         }
         return loadAsset('script', {
             src: jsSrc,
@@ -78,7 +77,7 @@
             crossorigin: 'anonymous',
             async: true,
             'data-shiro-lightgallery-js': 'true'
-        });
+        }, 'script[data-shiro-lightgallery-js]');
     }
 
     function ensureLightGalleryAssets() {
@@ -257,9 +256,12 @@
         });
     }
 
-    function clickedImage(container, event) {
+    function clickedImage(event) {
         const target = event.target;
         if (!target || !target.closest) return null;
+
+        const container = target.closest('.prose-shiro');
+        if (!container) return null;
 
         const img = target.closest('img');
         if (img && container.contains(img)) return img;
@@ -293,6 +295,8 @@
     }
 
     function prepareRemainingGallery(container, activeImage) {
+        if (preparedContainers.has(container)) return;
+        preparedContainers.add(container);
         schedule(() => {
             const images = Array.from(container.querySelectorAll('img'))
                 .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
@@ -321,16 +325,14 @@
 
     window.__shiroLightGalleryOpen = openFromElement;
 
-    containers.forEach((container) => {
-        container.addEventListener('click', (event) => {
-            const img = clickedImage(container, event);
-            if (!img) return;
+    document.addEventListener('click', (event) => {
+        const img = clickedImage(event);
+        if (!img) return;
 
-            if (openFromElement(img)) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-            }
-        });
+        if (openFromElement(img)) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
     });
 
     if (window.__shiroLightGalleryAutoOpen) {

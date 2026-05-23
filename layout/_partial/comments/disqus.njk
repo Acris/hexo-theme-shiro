@@ -1,6 +1,6 @@
 {% if theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
-{% include "_partial/comments/css-loader.njk" %}
+{% include "_partial/comments/bootstrap.njk" %}
 <script>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always
@@ -12,25 +12,25 @@
         this.colorScheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     };
 
-    (function() {
+    ;(() => {
         const d = document, w = window;
         const disqus_thread = d.getElementById('disqus_thread');
         if (!disqus_thread) return;
 
         {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
         const SHORTNAME = {{ theme.comments.disqus.shortname | dump | safe }};
-        const loadCommentsCss = w.__shiroLoadCommentsCss || function() { return Promise.resolve(); };
+        const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;
 
-        function loadDisqus() {
+        const loadDisqus = () => {
             if (loaded) return;
             loaded = true;
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
-            function appendScript() { (d.head || d.body).appendChild(s); }
+            const appendScript = () => { (d.head || d.body).appendChild(s); };
             loadCommentsCss().then(appendScript).catch(appendScript);
-        }
+        };
 
         w.__shiroOnNearViewport(disqus_thread, loadDisqus);
 
@@ -44,23 +44,23 @@
         let resetObserver;
         let pendingThemeReset = false;
 
-        function resetDisqusForTheme() {
+        const resetDisqusForTheme = () => {
             if (!loaded || !w.DISQUS || typeof w.DISQUS.reset !== 'function') return;
             /* Debounce rapid toggles and let any view-transition settle first. */
             clearTimeout(resetTimer);
-            resetTimer = setTimeout(function() {
+            resetTimer = setTimeout(() => {
                 try {
                     w.DISQUS.reset({ reload: true, config: w.disqus_config });
-                } catch (e) { /* swallow — Disqus may not be ready yet */ }
+                } catch (_) { /* swallow — Disqus may not be ready yet */ }
             }, 200);
-        }
+        };
 
-        function commentsNearViewport() {
+        const commentsNearViewport = () => {
             const rect = disqus_thread.getBoundingClientRect();
             return rect.top < w.innerHeight + 200 && rect.bottom > -200;
-        }
+        };
 
-        function resetWhenCommentsAreNear() {
+        const resetWhenCommentsAreNear = () => {
             pendingThemeReset = true;
             if (commentsNearViewport() || !('IntersectionObserver' in w)) {
                 pendingThemeReset = false;
@@ -68,7 +68,7 @@
                 return;
             }
             if (resetObserver) return;
-            resetObserver = new IntersectionObserver(function(entries) {
+            resetObserver = new IntersectionObserver((entries) => {
                 if (!pendingThemeReset || !entries[0].isIntersecting) return;
                 pendingThemeReset = false;
                 resetObserver.disconnect();
@@ -76,9 +76,9 @@
                 resetDisqusForTheme();
             }, { rootMargin: '200px 0px', threshold: 0 });
             resetObserver.observe(disqus_thread);
-        }
+        };
 
-        const themeObserver = new MutationObserver(function() {
+        const themeObserver = new MutationObserver(() => {
             const isDark = root.classList.contains('dark');
             /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
             if (isDark === prevDark) return;

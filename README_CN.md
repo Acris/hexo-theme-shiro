@@ -317,7 +317,7 @@ hexo-theme-shiro/
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
 │   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
-│   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件
+│   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件（含小型功能 bootstrap）
 ├── languages/              # i18n YAML 文件（en、zh-CN、zh-TW、ja、fr 等）
 ├── _config.yml             # 主题默认配置
 └── package.json

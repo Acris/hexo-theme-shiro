@@ -11,12 +11,41 @@
     let cssLoading = null;
     let lastFocus = null;
 
-    function loadAsset(tag, attrs) {
+    function assetReady(el, tag) {
+        if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
+            el.dataset.shiroLoaded = 'true';
+            return Promise.resolve();
+        }
+        return new Promise((resolve, reject) => {
+            el.addEventListener('load', () => {
+                el.dataset.shiroLoaded = 'true';
+                resolve();
+            }, { once: true });
+            el.addEventListener('error', reject, { once: true });
+        });
+    }
+
+    function loadAsset(tag, attrs, selector) {
+        const existing = selector ? document.querySelector(selector) : null;
+        if (existing) return assetReady(existing, tag);
+
         return new Promise((resolve, reject) => {
             const el = document.createElement(tag);
-            Object.keys(attrs).forEach(key => el.setAttribute(key, attrs[key]));
-            el.onload = resolve;
-            el.onerror = reject;
+            Object.keys(attrs).forEach((key) => {
+                if (attrs[key] === true) {
+                    el.setAttribute(key, '');
+                } else {
+                    el.setAttribute(key, attrs[key]);
+                }
+            });
+            el.onload = () => {
+                el.dataset.shiroLoaded = 'true';
+                resolve();
+            };
+            el.onerror = (event) => {
+                el.remove();
+                reject(event);
+            };
             document.head.appendChild(el);
         });
     }
@@ -24,16 +53,11 @@
     function ensureSearchCss() {
         if (!searchCss || cssLoaded) return Promise.resolve();
         if (cssLoading) return cssLoading;
-        const existing = document.querySelector('link[data-shiro-search-css]');
-        if (existing) {
-            cssLoaded = true;
-            return Promise.resolve();
-        }
         cssLoading = loadAsset('link', {
             rel: 'stylesheet',
             href: searchCss,
             'data-shiro-search-css': 'true'
-        }).then(() => {
+        }, 'link[data-shiro-search-css]').then(() => {
             cssLoaded = true;
         }).catch((error) => {
             cssLoading = null;
@@ -45,8 +69,15 @@
     function ensurePagefind() {
         if (loaded) return Promise.resolve();
         if (loading) return loading;
-        loading = loadAsset('link', { rel: 'stylesheet', href: base + 'pagefind-ui.css' })
-            .then(() => loadAsset('script', { src: base + 'pagefind-ui.js' }))
+        loading = loadAsset('link', {
+            rel: 'stylesheet',
+            href: base + 'pagefind-ui.css',
+            'data-shiro-pagefind-css': 'true'
+        }, 'link[data-shiro-pagefind-css]')
+            .then(() => loadAsset('script', {
+                src: base + 'pagefind-ui.js',
+                'data-shiro-pagefind-js': 'true'
+            }, 'script[data-shiro-pagefind-js]'))
             .then(() => {
                 /* global PagefindUI */
                 new PagefindUI({

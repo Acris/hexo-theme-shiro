@@ -30,6 +30,10 @@ function cjkFontForLanguage(language) {
     return '';
 }
 
+// -----------------------------------------------------------------------------
+// HTML analysis and text extraction
+// -----------------------------------------------------------------------------
+
 function hasCodeContent(content) {
     if (!content) return false;
     return /<(pre|code)\b|class=["'][^"']*\b(highlight|gist)\b/i.test(String(content));
@@ -42,11 +46,60 @@ function strippedHtml(content) {
         .replace(/<style\b[\s\S]*?<\/style>/gi, '');
 }
 
+function htmlTextFromHtml(content, length) {
+    const limit = Math.max(0, Number(length) || 0);
+    const source = String(content || '');
+    const targetLength = limit > 0 ? limit + 40 : 0;
+    let text = '';
+    let i = 0;
+
+    const append = (value) => {
+        if (value) text += value;
+    };
+
+    while (i < source.length) {
+        if (targetLength && text.replace(/\s+/g, ' ').trim().length > targetLength) break;
+
+        if (source.startsWith('<!--', i)) {
+            const end = source.indexOf('-->', i + 4);
+            i = end === -1 ? source.length : end + 3;
+            continue;
+        }
+
+        const scriptMatch = source.slice(i).match(/^<script\b/i);
+        if (scriptMatch) {
+            const end = source.slice(i).search(/<\/script\s*>/i);
+            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/script\s*>/i)[0].length;
+            append(' ');
+            continue;
+        }
+
+        const styleMatch = source.slice(i).match(/^<style\b/i);
+        if (styleMatch) {
+            const end = source.slice(i).search(/<\/style\s*>/i);
+            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/style\s*>/i)[0].length;
+            append(' ');
+            continue;
+        }
+
+        if (source[i] === '<') {
+            const end = source.indexOf('>', i + 1);
+            i = end === -1 ? source.length : end + 1;
+            append(' ');
+            continue;
+        }
+
+        const nextTag = source.indexOf('<', i);
+        const end = nextTag === -1 ? source.length : nextTag;
+        append(source.slice(i, end));
+        i = end;
+    }
+
+    return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
+}
+
 function plainTextFromHtml(content) {
-    return strippedHtml(content)
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    return htmlTextFromHtml(content);
 }
 
 function analyzeHtml(content) {
@@ -370,56 +423,7 @@ function truncateText(text, length) {
 }
 
 function excerptTextFromHtml(content, length) {
-    const limit = Math.max(0, Number(length) || 0);
-    const source = String(content || '');
-    const targetLength = limit > 0 ? limit + 40 : 0;
-    let text = '';
-    let i = 0;
-
-    function append(value) {
-        if (!value) return;
-        text += value;
-    }
-
-    while (i < source.length) {
-        if (targetLength && text.replace(/\s+/g, ' ').trim().length > targetLength) break;
-
-        if (source.startsWith('<!--', i)) {
-            const end = source.indexOf('-->', i + 4);
-            i = end === -1 ? source.length : end + 3;
-            continue;
-        }
-
-        const scriptMatch = source.slice(i).match(/^<script\b/i);
-        if (scriptMatch) {
-            const end = source.slice(i).search(/<\/script\s*>/i);
-            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/script\s*>/i)[0].length;
-            append(' ');
-            continue;
-        }
-
-        const styleMatch = source.slice(i).match(/^<style\b/i);
-        if (styleMatch) {
-            const end = source.slice(i).search(/<\/style\s*>/i);
-            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/style\s*>/i)[0].length;
-            append(' ');
-            continue;
-        }
-
-        if (source[i] === '<') {
-            const end = source.indexOf('>', i + 1);
-            i = end === -1 ? source.length : end + 1;
-            append(' ');
-            continue;
-        }
-
-        const nextTag = source.indexOf('<', i);
-        const end = nextTag === -1 ? source.length : nextTag;
-        append(source.slice(i, end));
-        i = end;
-    }
-
-    return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
+    return htmlTextFromHtml(content, length);
 }
 
 function fontFamilyParam(name, weights) {

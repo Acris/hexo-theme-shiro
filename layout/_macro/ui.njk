@@ -1,3 +1,15 @@
+{% macro feature_script(i18n={}, vars={}) %}
+<script>
+        window.__i18n = window.__i18n || {};
+{% for key, value in i18n %}
+        window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{% endfor %}
+{% for key, value in vars %}
+        window[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{% endfor %}
+</script>
+{% endmacro %}
+
 {% macro svg_filters() %}
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
     <defs>

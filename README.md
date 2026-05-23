@@ -322,7 +322,7 @@ hexo-theme-shiro/
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
 │   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
-│   └── js/                 # Client-side script sources + generated *.min.js files
+│   └── js/                 # Client-side script sources + generated *.min.js files (includes small feature bootstraps)
 ├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
 ├── _config.yml             # Theme default config
 └── package.json

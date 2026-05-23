@@ -1,4 +1,4 @@
-{% from "_macro/ui.njk" import svg_filters %}
+{% from "_macro/ui.njk" import svg_filters, feature_script %}
 <!doctype html>
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
@@ -60,36 +60,35 @@
         many_results: __('search.many_results'),
         loading: __('search.loading')
     } %}
-    <script>
-        window.__i18n = window.__i18n || {};
-        window.__i18n.search = {{ search_i18n | dump | safe }};
-        window.__pagefindBase = "{{ url_for('/pagefind/') }}";
-        window.__searchCss = "{{ versioned_url('css/search.min.css') }}";
-        window.__searchScript = "{{ versioned_url('js/search.min.js') }}";
-    </script>
+    {{ feature_script({ search: search_i18n }, {
+        __pagefindBase: url_for('/pagefind/'),
+        __searchCss: versioned_url('css/search.min.css'),
+        __searchScript: versioned_url('js/search.min.js')
+    }) }}
     <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
     {% endif %}
 
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
     {% if needs_lightgallery %}
-    <script>
-        window.__i18n = window.__i18n || {};
-        window.__i18n.gallery_visit_source = {{ __('gallery_visit_source') | dump | safe }};
-        window.__i18n.gallery_view_image = {{ __('gallery_view_image') | dump | safe }};
-        window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";
-        window.__lightgalleryScript = "{{ versioned_url('js/lightgallery.min.js') }}";
-    </script>
+    {{ feature_script({
+        gallery_visit_source: __('gallery_visit_source'),
+        gallery_view_image: __('gallery_view_image')
+    }, {
+        __lightgalleryThemeCss: versioned_url('css/lightgallery.min.css'),
+        __lightgalleryScript: versioned_url('js/lightgallery.min.js')
+    }) }}
     <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
     {% endif %}
     {% set needs_clipboard = page_has_code(page, theme) %}
     {% if needs_clipboard %}
-    <script>
-        window.__i18n = window.__i18n || {};
-        window.__i18n.clipboard_copy = {{ __('clipboard_copy') | dump | safe }};
-        window.__i18n.clipboard_copied = {{ __('clipboard_copied') | dump | safe }};
-    </script>
-    <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
+    {{ feature_script({
+        clipboard_copy: __('clipboard_copy'),
+        clipboard_copied: __('clipboard_copied')
+    }, {
+        __clipboardScript: versioned_url('js/clipboard.min.js')
+    }) }}
+    <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
     {% endif %}
     {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
     {% if needs_toc %}

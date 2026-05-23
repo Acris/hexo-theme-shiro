@@ -2,6 +2,7 @@
     const script = window.__searchScript || '';
     if (!script) return;
 
+    const toggle = document.getElementById('searchToggle');
     let loading = false;
 
     function openSearch() {
@@ -25,8 +26,6 @@
     }
 
     function handleIntent(event) {
-        const toggle = document.getElementById('searchToggle');
-
         if (event.type === 'click') {
             if (!toggle || !toggle.contains(event.target)) return;
             event.preventDefault();

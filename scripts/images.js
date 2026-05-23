@@ -262,11 +262,13 @@ function optimizeImages(html, options) {
         }
         setAttr(attrs, 'sizes', DEFAULT_IMAGE_SIZES, { overwrite: false });
 
-        if (!getAttr(attrs, 'width') || !getAttr(attrs, 'height')) {
+        const hasWidth = !!getAttr(attrs, 'width');
+        const hasHeight = !!getAttr(attrs, 'height');
+        if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = localImageSize(src, opts.post);
             if (size) {
-                setAttr(attrs, 'width', String(size.width), { overwrite: false });
-                setAttr(attrs, 'height', String(size.height), { overwrite: false });
+                if (!hasWidth) setAttr(attrs, 'width', String(size.width), { overwrite: false });
+                if (!hasHeight) setAttr(attrs, 'height', String(size.height), { overwrite: false });
             }
         }
 
