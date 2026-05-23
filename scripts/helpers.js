@@ -339,7 +339,7 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
     ];
 
     if (pageHasCode(page, themeConfig, this)) {
-        urls.push(googleFontUrl([{ name: 'Fira Code', weights: ['400', '500'] }], 'swap'));
+        urls.push(googleFontUrl([{ name: 'Fira Code', weights: ['400', '500'] }], 'optional'));
     }
 
     return urls;
