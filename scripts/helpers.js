@@ -51,33 +51,88 @@ function plainTextFromHtml(content) {
 
 function analyzeHtml(content) {
     const html = String(content || '');
-    const textHtml = strippedHtml(html);
-    const headingCounts = new Map();
-    const matches = textHtml.matchAll(/<h([2-6])\b[^>]*>/gi);
-    for (const match of matches) {
-        const level = Number(match[1]);
-        headingCounts.set(level, (headingCounts.get(level) || 0) + 1);
-    }
-    const firstImage = firstImageSrc(html);
-    const imageMatches = html.match(/<img\b/gi);
-    const plain = textHtml
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    let textHtmlCache;
+    let firstImageCache;
+    let imageCountCache;
+    let hasCodeCache;
+    let headingCountsCache;
+    let plainCache;
 
-    return {
+    function textHtml() {
+        if (textHtmlCache === undefined) textHtmlCache = strippedHtml(html);
+        return textHtmlCache;
+    }
+
+    const analysis = {
         html,
         description: '',
         excerpt: '',
         textCache: new Map(),
-        firstImage,
-        imageCount: imageMatches ? imageMatches.length : 0,
-        hasCode: hasCodeContent(html),
-        headingCounts,
-        plain,
-        plainLength: plain.length,
         tocCache: new Map()
     };
+
+    Object.defineProperties(analysis, {
+        firstImage: {
+            enumerable: true,
+            get() {
+                if (firstImageCache === undefined) firstImageCache = firstImageSrc(html);
+                return firstImageCache;
+            }
+        },
+        imageCount: {
+            enumerable: true,
+            get() {
+                if (imageCountCache === undefined) {
+                    const matches = html.match(/<img\b/gi);
+                    imageCountCache = matches ? matches.length : 0;
+                }
+                return imageCountCache;
+            }
+        },
+        hasCode: {
+            enumerable: true,
+            get() {
+                if (hasCodeCache === undefined) {
+                    hasCodeCache = hasCodeContent(html) || hasCodeContent(analysis.excerpt);
+                }
+                return hasCodeCache;
+            }
+        },
+        headingCounts: {
+            enumerable: true,
+            get() {
+                if (!headingCountsCache) {
+                    headingCountsCache = new Map();
+                    const matches = textHtml().matchAll(/<h([2-6])\b[^>]*>/gi);
+                    for (const match of matches) {
+                        const level = Number(match[1]);
+                        headingCountsCache.set(level, (headingCountsCache.get(level) || 0) + 1);
+                    }
+                }
+                return headingCountsCache;
+            }
+        },
+        plain: {
+            enumerable: true,
+            get() {
+                if (plainCache === undefined) {
+                    plainCache = textHtml()
+                        .replace(/<[^>]+>/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+                return plainCache;
+            }
+        },
+        plainLength: {
+            enumerable: true,
+            get() {
+                return analysis.plain.length;
+            }
+        }
+    });
+
+    return analysis;
 }
 
 function pageAnalysis(page) {
@@ -92,7 +147,6 @@ function pageAnalysis(page) {
     const analysis = analyzeHtml(html);
     analysis.excerpt = excerpt;
     analysis.description = description;
-    if (!analysis.hasCode && excerpt) analysis.hasCode = hasCodeContent(excerpt);
     pageAnalysisCache.set(page, analysis);
     return analysis;
 }
@@ -130,7 +184,7 @@ function pageLooksLong(page) {
     const analysis = pageAnalysis(page);
     const headingCount = countTocHeadingsFromAnalysis(analysis, { depth: 6, min_headings: 1 });
 
-    return analysis.plainLength >= 1600 || headingCount >= 4 || analysis.imageCount >= 3;
+    return headingCount >= 4 || analysis.imageCount >= 3 || analysis.plainLength >= 1600;
 }
 
 function tocHeadingLevels(tocConfig) {
