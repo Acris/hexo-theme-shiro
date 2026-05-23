@@ -205,7 +205,7 @@ comments:
     lang: en
     # giscus 主题 CSS URL 或内置主题名（例如 light、dark、preferred_color_scheme）
     # 默认使用通过 jsDelivr CDN 分发的 Shiro 自定义主题。
-    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.4.3/source/css/giscus.css
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.4.3/source/css/giscus.min.css
     # true 启用懒加载（添加 data-loading="lazy"）
     lazy_loading: false
 
@@ -318,8 +318,8 @@ hexo-theme-shiro/
 │   └── helpers.js          # 自定义 Hexo 辅助函数和生成器（clean_description、og_image、favicon_svg 等）
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
-│   ├── css/*.css           # 按需加载的可选功能 CSS（搜索、评论、灯箱、giscus）
-│   └── js/                 # 客户端脚本
+│   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
+│   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件
 ├── languages/              # i18n YAML 文件（en、zh-CN、zh-TW、ja、fr 等）
 ├── _config.yml             # 主题默认配置
 └── package.json
@@ -343,7 +343,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-注意：修改 `_tailwind.css` 后，必须运行 `npm run build` 重新生成 `style.min.css`。`source/css/` 下的可选功能 CSS 是普通 CSS，仅在对应功能启用或触发时加载。
+注意：修改 `_tailwind.css`、可选功能 CSS 或 `source/js/` 下的文件后，必须运行 `npm run build` 重新生成 `style.min.css`、功能 `*.min.css` 和 `*.min.js` 资源。
 
 ### 添加新语言
 

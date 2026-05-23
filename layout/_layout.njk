@@ -46,7 +46,7 @@
 
     {% if theme.search.enabled %}
     {% include "_partial/components/search-modal.njk" %}
-    <script>window.__pagefindBase = "{{ url_for('/pagefind/') }}";window.__searchCss = "{{ versioned_url('css/search.css') }}";</script>
+    <script>window.__pagefindBase = "{{ url_for('/pagefind/') }}";window.__searchCss = "{{ versioned_url('css/search.min.css') }}";</script>
     {% endif %}
 
     <!-- Scripts -->
@@ -68,30 +68,30 @@
     <script>window.__i18n = {{ i18n_data | dump | safe }};</script>
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page.content) %}
     {% if needs_lightgallery %}
-    <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.css') }}";</script>
-    <script defer src="{{ versioned_url('js/lightgallery.js') }}"></script>
+    <script>window.__lightgalleryThemeCss = "{{ versioned_url('css/lightgallery.min.css') }}";</script>
+    <script defer src="{{ versioned_url('js/lightgallery.min.js') }}"></script>
     {% endif %}
-    {% if is_home() or is_post() or is_page() %}
-    <script defer src="{{ versioned_url('js/clipboard.js') }}"></script>
+    {% if page_has_code(page) %}
+    <script defer src="{{ versioned_url('js/clipboard.min.js') }}"></script>
     {% endif %}
     {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page.content, theme.toc) %}
     {% if needs_toc %}
     {% set toc_config = { depth: theme.toc.depth | default(3), minHeadings: theme.toc.min_headings | default(3) } %}
     <script>window.__tocConfig = {{ toc_config | dump | safe }};</script>
-    <script defer src="{{ versioned_url('js/toc.js') }}"></script>
+    <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}
     {% set needs_progress_js = (theme.progress_bar.enabled and (is_post() or is_page())) or theme.back_to_top.enabled %}
     {% if needs_progress_js %}
-    <script defer src="{{ versioned_url('js/progress.js') }}"></script>
+    <script defer src="{{ versioned_url('js/progress.min.js') }}"></script>
     {% endif %}
     {% if theme.dark_mode.toggle != false %}
-    <script defer src="{{ versioned_url('js/theme-toggle.js') }}"></script>
+    <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
     {% endif %}
     {% if theme.menu and theme.menu.length %}
-    <script defer src="{{ versioned_url('js/mobile-menu.js') }}"></script>
+    <script defer src="{{ versioned_url('js/mobile-menu.min.js') }}"></script>
     {% endif %}
     {% if theme.search.enabled %}
-    <script defer src="{{ versioned_url('js/search.js') }}"></script>
+    <script defer src="{{ versioned_url('js/search.min.js') }}"></script>
     {% endif %}
     {% include "_partial/analytics/google.njk" %}
 </body>

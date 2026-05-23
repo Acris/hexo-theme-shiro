@@ -18,11 +18,11 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against `public/` after `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via `pagefind/package.json` with an `npx --yes pagefind` fallback.
 - `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`.
 - `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
-- `source/css/search.css` — optional plain CSS for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
-- `source/css/comments.css` — optional plain CSS for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
-- `source/css/lightgallery.css` — optional plain CSS for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
-- `source/css/giscus.css` — custom giscus iframe theme stylesheet, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/` — lightweight browser scripts: `theme-toggle.js`, `search.js`, `toc.js`, `progress.js` (drives both the progress bar and back-to-top button), `clipboard.js`, `lightgallery.js`, `mobile-menu.js`.
+- `source/css/search.css` / `search.min.css` — optional plain CSS source and minified output for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
+- `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
+- `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
+- `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
+- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `toc`, `progress` (drives both the progress bar and back-to-top button), `clipboard`, `lightgallery`, `mobile-menu`.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
 - `package.json` — npm scripts and Tailwind development dependencies.
@@ -31,10 +31,10 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 
 - Install dev dependencies: `npm install`
 - Watch CSS during development: `npm run dev` (long-running Tailwind watch; writes an unminified `source/css/style.min.css`)
-- Build minified CSS for release: `npm run build` (re-runs the same Tailwind CLI with `--minify`)
+- Build minified CSS and JS for release: `npm run build` (runs Tailwind for core CSS, then minifies optional CSS modules and browser JS)
 
-Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css` — only `build` minifies. After changing `_tailwind.css` or Tailwind utility usage in templates or client scripts, always finish with `npm run build` and include the regenerated `source/css/style.min.css` in the same change set; the compiled file is part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
-- Do not hand-edit `source/css/style.min.css`; change `source/css/_tailwind.css` or template utility classes, then regenerate it with `npm run build`.
+Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates/client scripts, or any `source/js/*.js` source file, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
+- Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files, then regenerate them with `npm run build`.
 
 ## Development workflow
 
@@ -86,7 +86,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 - Treat copied user config as potentially older than the current default config; templates and scripts should handle missing optional keys safely.
 - Current top-level config keys: `site`, `menu`, `excerpt`, `toc`, `dark_mode`, `progress_bar`, `back_to_top`, `comments` (`disqus` / `giscus`), `analytics.google`, `search` (Pagefind). Renaming or removing any of them is a breaking change.
 - `site.seal_text` controls both the header seal and the dynamically generated `favicon.svg` (see `hexo.extend.generator.favicon_svg` in `scripts/helpers.js`). Do not add a static `favicon.svg` into `source/` — it will be overwritten on each generate.
-- The default giscus theme URL in `_config.yml` (`https://cdn.jsdelivr.net/npm/hexo-theme-shiro@<version>/source/css/giscus.css`) hard-codes a release version. When cutting a new release, bump this version in `_config.yml`, `README.md`, and `README_CN.md` to match the published npm/git tag so existing users keep loading a matching `giscus.css`. Note any breaking changes to `giscus.css` in the release notes.
+- The default giscus theme URL in `_config.yml` (`https://cdn.jsdelivr.net/npm/hexo-theme-shiro@<version>/source/css/giscus.min.css`) hard-codes a release version. When cutting a new release, bump this version in `_config.yml`, `README.md`, and `README_CN.md` to match the published npm/git tag so existing users keep loading a matching `giscus.min.css`. Note any breaking changes to `giscus.css` / `giscus.min.css` in the release notes.
 
 ## Performance and accessibility
 
@@ -126,7 +126,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 ## Release and publishing
 
 - This package is published to npm; `package.json` does not set `files` and there is no `.npmignore`, so most non-ignored project files may be packed. Run `npm pack --dry-run` before release to verify the exact contents, and keep the package tidy.
-- `source/css/style.min.css` is the Tailwind CSS build output and **must** be included in the release/npm package — consumers install the theme straight from npm/git without running a build step, so without it the theme will be unstyled. Re-run the release build (see `Setup commands`) and include the regenerated file before tagging a release.
+- `source/css/style.min.css` and other generated `*.min.css` / `*.min.js` files are build outputs and **must** be included in the release/npm package — consumers install the theme straight from npm/git without running a build step, so without it the theme will be unstyled. Re-run the release build (see `Setup commands`) and include the regenerated files before tagging a release.
 - When cutting a release, bump `package.json`, `package-lock.json`, and the `hexo-theme-shiro@<version>` reference in `_config.yml`, `README.md`, and `README_CN.md` together so the bundled giscus theme URL points at the matching published tag. Before release, verify `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL all point to the same version.
 - Self-check all version references with a single grep: `grep -RnE 'hexo-theme-shiro@[0-9]+\.[0-9]+\.[0-9]+' _config.yml README.md README_CN.md package.json package-lock.json`
 

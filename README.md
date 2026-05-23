@@ -208,7 +208,7 @@ comments:
     lang: en
     # giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
     # Default uses the bundled Shiro custom theme via jsDelivr CDN.
-    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.4.3/source/css/giscus.css
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.4.3/source/css/giscus.min.css
     # true to enable lazy loading (adds data-loading="lazy")
     lazy_loading: false
 
@@ -323,8 +323,8 @@ hexo-theme-shiro/
 │   └── helpers.js          # Custom Hexo helpers and generators (clean_description, og_image, favicon_svg, etc.)
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
-│   ├── css/*.css           # Optional feature CSS loaded on demand (search, comments, lightbox, giscus)
-│   └── js/                 # Client-side scripts
+│   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
+│   └── js/                 # Client-side script sources + generated *.min.js files
 ├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
 ├── _config.yml             # Theme default config
 └── package.json
@@ -348,7 +348,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-Note: After modifying `_tailwind.css`, you must run `npm run build` to regenerate `style.min.css`. Optional feature CSS files under `source/css/` are plain CSS and are loaded only when their feature is enabled or invoked.
+Note: After modifying `_tailwind.css`, optional feature CSS, or files under `source/js/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
 
 ### Adding a New Language
 

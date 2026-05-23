@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch",
-    "build": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --minify"
+    "build": "node tools/build-assets.js"
   },
   "keywords": [
     "hexo",
@@ -24,6 +24,8 @@
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",
     "@tailwindcss/typography": "^0.5.19",
-    "tailwindcss": "^4.3.0"
+    "lightningcss": "^1.32.0",
+    "tailwindcss": "^4.3.0",
+    "terser": "^5.48.0"
   }
 }

@@ -120,6 +120,10 @@ hexo.extend.helper.register('google_font_urls', function (page, config) {
     return urls;
 });
 
+hexo.extend.helper.register('page_has_code', function (page) {
+    return pageHasCode(page);
+});
+
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
     const url = this.url_for(assetPath);

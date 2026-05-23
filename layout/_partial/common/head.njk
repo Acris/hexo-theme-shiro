@@ -74,6 +74,6 @@
     {% set has_giscus_comments = theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
     {% set has_disqus_comments = theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
     {% if (is_post() or is_page()) and (has_giscus_comments or has_disqus_comments) %}
-    <link rel="stylesheet" href="{{ versioned_url('css/comments.css') }}">
+    <link rel="stylesheet" href="{{ versioned_url('css/comments.min.css') }}">
     {% endif %}
 </head>
