@@ -1141,7 +1141,7 @@
     .dark nav ul.flex > li > a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
     .dark nav ul.flex > li.nav-divider { color: var(--color-border-strong); }
 
-    /* Dark: header pill buttons (RSS + theme toggle) */
+    /* Dark: header pill buttons */
     .dark .header-pill-btn {
         border-color: var(--color-border-strong);
         background-color: var(--color-bg-inset);

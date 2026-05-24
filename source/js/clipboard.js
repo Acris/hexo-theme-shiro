@@ -2,29 +2,6 @@
     const i18nCopy = () => (window.__i18n && window.__i18n.clipboard_copy) || 'Copy code';
     const i18nCopied = () => (window.__i18n && window.__i18n.clipboard_copied) || 'Copied';
 
-    function collectCodeBlocks() {
-        const blocks = [];
-        const articles = document.querySelectorAll('.prose-shiro');
-        articles.forEach((article) => {
-            const walker = document.createTreeWalker(article, NodeFilter.SHOW_ELEMENT, {
-                acceptNode(node) {
-                    return node.classList && node.classList.contains('highlight')
-                        ? NodeFilter.FILTER_ACCEPT
-                        : NodeFilter.FILTER_SKIP;
-                }
-            });
-            let block = walker.nextNode();
-            while (block) {
-                blocks.push(block);
-                block = walker.nextNode();
-            }
-        });
-        return blocks;
-    }
-
-    const highlights = collectCodeBlocks();
-    if (!highlights.length) return;
-
     // Clipboard write with fallback for insecure contexts (HTTP)
     function copyText(text) {
         // Clipboard API requires secure context (HTTPS) or localhost
@@ -127,31 +104,15 @@
         schedule(run);
     }
 
+    window.__shiroEnhanceClipboard = (blocks) => {
+        const targets = (Array.isArray(blocks) ? blocks : [blocks])
+            .filter(block => block && block.isConnected);
+        if (targets.length) scheduleEnhance(targets);
+    };
+
     const initialTargets = Array.isArray(window.__shiroClipboardTargets)
-        ? window.__shiroClipboardTargets.filter(block => block && block.isConnected)
+        ? window.__shiroClipboardTargets
         : [];
     window.__shiroClipboardTargets = [];
-    const initialBlocks = initialTargets.length ? initialTargets : highlights.slice(0, 1);
-    scheduleEnhance(initialBlocks);
-
-    const initialSet = new Set(initialBlocks);
-    const remaining = highlights.filter(block => !initialSet.has(block));
-    if (!remaining.length) return;
-
-    if (!('IntersectionObserver' in window)) {
-        scheduleEnhance(remaining);
-        return;
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-        const visible = [];
-        entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            observer.unobserve(entry.target);
-            visible.push(entry.target);
-        });
-        if (visible.length) scheduleEnhance(visible);
-    }, { rootMargin: '300px 0px', threshold: 0 });
-
-    remaining.forEach(block => observer.observe(block));
+    window.__shiroEnhanceClipboard(initialTargets);
 })();

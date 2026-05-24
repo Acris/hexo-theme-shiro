@@ -10,6 +10,7 @@
     let cssLoaded = false;
     let cssLoading = null;
     let lastFocus = null;
+    /* global loadAsset */
     // <shiro-asset-loader>
     // Source requires build injection; do not serve this file directly.
     // </shiro-asset-loader>

@@ -9,6 +9,7 @@
     const instances = new Map();
     const preparedContainers = new WeakSet();
     const galleryItemCache = new WeakMap();
+    /* global loadAsset */
     // <shiro-asset-loader>
     // Source requires build injection; do not serve this file directly.
     // </shiro-asset-loader>

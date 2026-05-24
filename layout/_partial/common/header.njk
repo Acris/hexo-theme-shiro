@@ -31,7 +31,6 @@
                 <a class="group header-pill-btn"
                     href="{{ url_for(theme.site.rss.path | default('/atom.xml')) }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
-                    <span class="sr-only">RSS</span>
                 </a>
                 {% endif %}
                 {% if theme.dark_mode.toggle != false %}
@@ -45,7 +44,6 @@
                 {% if theme.search.enabled %}
                 <button id="searchToggle" class="group header-pill-btn" aria-label="{{ __('search.button') }}">
                     {{ icon_search() }}
-                    <span class="sr-only">{{ __('search.button') }}</span>
                 </button>
                 {% endif %}
             </div>
