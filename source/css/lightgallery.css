@@ -1,5 +1,5 @@
 /* LightGallery theme overrides.
-   Loaded on first image click after LightGallery's bundled stylesheet. */
+   Prefetched after article images enter the viewport and applied when the lightbox opens. */
 
 .lg-outer {
     font-family: var(--font-serif);
