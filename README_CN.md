@@ -227,6 +227,9 @@ analytics:
 # 期间联网下载，明显拖慢构建，或在离线 CI 中失败。
 search:
   enabled: false
+  # Pagefind 文档根选择器。默认使用 body，以兼容缺少外层 <html> 的生成页；
+  # 若想保持 Pagefind 默认行为，可设为 html。
+  root_selector: body
   # 强制指定分词语言（默认从 <html lang> 自动检测）。
   # 仅当 Pagefind 无法正确识别站点语言时才需要覆盖。
   # force_language: zh
@@ -277,6 +280,9 @@ npm install pagefind --save-dev
 ```yaml
 search:
   enabled: true
+  # Pagefind 文档根选择器。默认使用 body，以兼容缺少外层 <html> 的生成页；
+  # 若想保持 Pagefind 默认行为，可设为 html。
+  root_selector: body
   # 强制指定分词语言（默认从 <html lang> 自动检测）。
   # 仅当 Pagefind 无法正确识别站点语言时才需要覆盖。
   # force_language: zh

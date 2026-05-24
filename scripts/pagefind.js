@@ -33,6 +33,11 @@ function runPagefind(args, command) {
     if (result.status !== 0) throw new Error('exited with code ' + result.status);
 }
 
+function pushStringArg(args, flag, value) {
+    const text = String(value || '').trim();
+    if (text) args.push(flag, text);
+}
+
 // Run Pagefind after Hexo has finished writing files to `public/`.
 // `after_generate` filter fires *before* the generate console writes routes to
 // disk, so we hook `before_exit` (which Hexo runs after the console command
@@ -52,7 +57,8 @@ hexo.extend.filter.register('before_exit', function () {
     }
 
     const args = ['--site', publicDir];
-    if (cfg.force_language) args.push('--force-language', cfg.force_language);
+    pushStringArg(args, '--root-selector', cfg.root_selector || 'body');
+    pushStringArg(args, '--force-language', cfg.force_language);
 
     const command = pagefindCommand();
     if (command.source === 'npx') {

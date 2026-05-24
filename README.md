@@ -231,6 +231,9 @@ analytics:
 # `hexo generate` and noticeably slow builds or fail in offline CI.
 search:
   enabled: false
+  # Pagefind document root selector. Defaults to body to tolerate generated pages
+  # without an outer <html> element; set to html to keep Pagefind's default.
+  root_selector: body
   # Force language for tokenization (auto-detected from <html lang> by default).
   # Override only if Pagefind fails to detect your site language correctly.
   # force_language: zh
@@ -282,6 +285,9 @@ This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` i
 ```yaml
 search:
   enabled: true
+  # Pagefind document root selector. Defaults to body to tolerate generated pages
+  # without an outer <html> element; set to html to keep Pagefind's default.
+  root_selector: body
   # Force language for tokenization (auto-detected from <html lang> by default).
   # Override only if Pagefind fails to detect your site language correctly.
   # force_language: zh
