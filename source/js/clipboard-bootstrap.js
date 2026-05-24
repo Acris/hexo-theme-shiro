@@ -62,7 +62,7 @@
     }
 
     function loadClipboard(targets, onLoaded) {
-        if (window.__shiroClipboardLoaded) {
+        if (typeof window.__shiroEnhanceClipboard === 'function') {
             enhanceTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
             return;
@@ -75,7 +75,6 @@
         loadBootstrapScript(script, {
             onload: () => {
                 loading = false;
-                window.__shiroClipboardLoaded = true;
                 enhanceTargets(pendingTargets);
                 pendingTargets.length = 0;
                 window.__shiroClipboardTargets = [];

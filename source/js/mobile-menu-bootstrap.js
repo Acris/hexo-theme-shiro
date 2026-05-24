@@ -2,6 +2,11 @@
     const script = window.__mobileMenuScript || '';
     if (!script) return;
 
+    /* global loadBootstrapScript */
+    // <shiro-script-loader>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-script-loader>
+
     const query = window.matchMedia('(max-width: 767px)');
     let loading = false;
 
@@ -14,19 +19,16 @@
     }
 
     function loadMobileMenu() {
-        if (loading || window.__shiroMobileMenuLoaded) return;
+        if (loading) return;
         loading = true;
 
-        const loader = document.createElement('script');
-        loader.src = script;
-        loader.defer = true;
-        loader.onload = () => {
-            loading = false;
-            window.__shiroMobileMenuLoaded = true;
-            removeViewportListener();
-        };
-        loader.onerror = () => { loading = false; };
-        document.head.appendChild(loader);
+        loadBootstrapScript(script, {
+            onload: () => {
+                loading = false;
+                removeViewportListener();
+            },
+            onerror: () => { loading = false; }
+        });
     }
 
     function handleViewportChange(event) {

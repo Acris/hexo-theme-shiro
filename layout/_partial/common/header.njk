@@ -28,21 +28,21 @@
             {% endif %}
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 {% if theme.site.rss.enabled %}
-                <a class="group header-pill-btn"
+                <a class="header-pill-btn"
                     href="{{ url_for(theme.site.rss.path | default('/atom.xml')) }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
                 {% if theme.dark_mode.toggle != false %}
                 {% set dm_default = theme.dark_mode.default | default("system", true) %}
-                <button id="themeToggle" class="group header-pill-btn" aria-label="{{ __('theme.' + dm_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                <button id="themeToggle" class="header-pill-btn" aria-label="{{ __('theme.' + dm_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
                 {% if theme.search.enabled %}
-                <button id="searchToggle" class="group header-pill-btn" aria-label="{{ __('search.button') }}">
+                <button id="searchToggle" class="header-pill-btn" aria-label="{{ __('search.button') }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}
