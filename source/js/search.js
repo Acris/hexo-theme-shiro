@@ -45,6 +45,7 @@
             }, 'script[data-shiro-pagefind-js]'))
             .then(() => {
                 /* global PagefindUI */
+                if (typeof PagefindUI !== 'function') throw new Error('Pagefind UI is unavailable');
                 new PagefindUI({
                     element: '#pagefindContainer',
                     bundlePath: base,
@@ -78,6 +79,19 @@
             .replace(/"/g, '&quot;');
     }
 
+    function reportPagefindError(error) {
+        if (window.console && console.warn) {
+            console.warn('[Shiro] Failed to load Pagefind search assets.', error);
+        }
+    }
+
+    function loadPagefind() {
+        ensurePagefind().then(() => {
+            // Defer to after Pagefind UI mounts
+            setTimeout(focusInput, 30);
+        }).catch(reportPagefindError);
+    }
+
     function ensureModal() {
         if (modal) return modal;
 
@@ -103,7 +117,8 @@
 
         modal.addEventListener('click', (event) => {
             const target = event.target;
-            if (target && target.closest && target.closest('[data-search-close]')) {
+            if (!target || !target.closest) return;
+            if (target.closest('[data-search-close]')) {
                 event.preventDefault();
                 close();
             }
@@ -140,10 +155,7 @@
         // Mark <html> as modal-open so CSS can lock body scroll without
         // mutating inline styles (lets multiple modals coexist cleanly).
         document.documentElement.setAttribute('data-modal-open', 'true');
-        ensurePagefind().then(() => {
-            // Defer to after Pagefind UI mounts
-            setTimeout(focusInput, 30);
-        });
+        loadPagefind();
     }
 
     function open() {

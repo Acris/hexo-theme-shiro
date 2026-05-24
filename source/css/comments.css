@@ -3,7 +3,14 @@
 
 .giscus,
 .giscus-frame {
-    width: round(down, 100%, 2px);
+    width: 100%;
+}
+
+@supports (width: round(down, 100%, 2px)) {
+    .giscus,
+    .giscus-frame {
+        width: round(down, 100%, 2px);
+    }
 }
 
 .giscus {

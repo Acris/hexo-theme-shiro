@@ -48,6 +48,14 @@
 
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+    function addMediaChangeListener(query, callback) {
+        if (query.addEventListener) {
+            query.addEventListener('change', callback);
+        } else if (query.addListener) {
+            query.addListener(callback);
+        }
+    }
+
     function cycle() {
         const current = getState();
         const next = states[(states.indexOf(current) + 1) % states.length];
@@ -78,7 +86,7 @@
     btn.addEventListener('click', cycle);
 
     // Listen for system preference changes when in 'system' mode
-    prefersDarkQuery.addEventListener('change', () => {
+    addMediaChangeListener(prefersDarkQuery, () => {
         if (getState() === 'system') apply('system');
     });
 

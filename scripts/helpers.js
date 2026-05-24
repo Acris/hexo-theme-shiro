@@ -659,14 +659,15 @@ hexo.extend.generator.register('favicon_svg', function () {
 
 hexo.extend.helper.register('og_image', function (page) {
     let src = '';
-    if (page.photos && page.photos.length) src = page.photos[0];
-    else src = this.first_image(page);
+    if (page && page.photos && page.photos.length) src = page.photos[0];
+    else if (page) src = this.first_image(page);
     if (!src) return '';
-    // Ensure absolute URL for Open Graph
+    // Ensure absolute URL for Open Graph when site.url is configured.
     if (src.indexOf('//') === 0) return 'https:' + src;
     if (!/^https?:\/\//.test(src)) {
-        const base = this.config.url.replace(/\/$/, '');
-        return base + this.url_for(src);
+        const base = String((this.config && this.config.url) || '').replace(/\/$/, '');
+        const assetUrl = this.url_for(src);
+        return base ? base + assetUrl : assetUrl;
     }
     return src;
 });
