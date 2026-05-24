@@ -59,6 +59,13 @@ function strippedHtml(content) {
         .replace(/<style\b[\s\S]*?<\/style>/gi, '');
 }
 
+function htmlWithoutCodeContent(content) {
+    return String(content || '')
+        .replace(/<figure\b[^>]*class=["'][^"']*\b(?:highlight|gist)\b[^"']*["'][^>]*>[\s\S]*?<\/figure>/gi, ' ')
+        .replace(/<pre\b[\s\S]*?<\/\s*pre>/gi, ' ')
+        .replace(/<[^>]+class=["'][^"']*\b(?:highlight|gist)\b[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi, ' ');
+}
+
 // Skip a <script>/<style> block from its opening tag to the matching close tag.
 // This avoids re-scanning large inline code/style content during text extraction.
 function skipBlock(source, start, openTag) {
@@ -264,7 +271,7 @@ function countTocHeadingsFromAnalysis(analysis, tocConfig) {
 }
 
 function escapeHtml(value) {
-    return String(value)
+    return String(value == null ? '' : value)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -503,6 +510,10 @@ hexo.extend.helper.register('page_looks_long', function (page) {
     return pageLooksLong(page);
 });
 
+hexo.extend.helper.register('html_attr', function (value) {
+    return escapeHtml(value);
+});
+
 function cacheVersionedUrlsForCommand() {
     const cmd = (hexo.env && hexo.env.cmd) || '';
     return /^(generate|g|deploy|d)$/.test(cmd);
@@ -581,7 +592,7 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
     const strip = typeof this.strip_html === 'function' ? this.strip_html : htmlTextFromHtml;
-    const textFromHtml = value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
+    const textFromHtml = value => htmlTextFromHtml(htmlWithoutCodeContent(value), META_DESCRIPTION_LENGTH);
     const textFromPlain = value => normalizePlainText(strip(value));
     let owner = page;
     let raw = '';

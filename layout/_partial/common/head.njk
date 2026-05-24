@@ -38,52 +38,52 @@
         {% set keywords %}{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
     {% endif %}
     {% set keywords = keywords or config.keywords %}
-    <title>{{ page_title }}</title>
+    <title>{{ html_attr(page_title) | safe }}</title>
 
     <!-- SEO Meta -->
     {% if clean_desc %}
-    <meta name="description" content="{{ clean_desc }}" />
+    <meta name="description" content="{{ html_attr(clean_desc) | safe }}" />
     {% endif %}
     {% if page_author %}
-    <meta name="author" content="{{ page_author }}" />
+    <meta name="author" content="{{ html_attr(page_author) | safe }}" />
     {% endif %}
     {% if keywords %}
-    <meta name="keywords" content="{{ keywords }}" />
+    <meta name="keywords" content="{{ html_attr(keywords) | safe }}" />
     {% endif %}
 
     <!-- Open Graph -->
-    <meta property="og:title" content="{{ page_title }}" />
+    <meta property="og:title" content="{{ html_attr(page_title) | safe }}" />
     {% if clean_desc %}
-    <meta property="og:description" content="{{ clean_desc }}" />
+    <meta property="og:description" content="{{ html_attr(clean_desc) | safe }}" />
     {% endif %}
-    <meta property="og:url" content="{{ url }}" />
+    <meta property="og:url" content="{{ html_attr(url) | safe }}" />
     <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
-    <meta property="og:site_name" content="{{ site_title }}" />
+    <meta property="og:site_name" content="{{ html_attr(site_title) | safe }}" />
     {% if og_img %}
-    <meta property="og:image" content="{{ og_img }}" />
+    <meta property="og:image" content="{{ html_attr(og_img) | safe }}" />
     {% endif %}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="{% if og_img %}summary_large_image{% else %}summary{% endif %}" />
-    <meta name="twitter:title" content="{{ page_title }}" />
+    <meta name="twitter:title" content="{{ html_attr(page_title) | safe }}" />
     {% if clean_desc %}
-    <meta name="twitter:description" content="{{ clean_desc }}" />
+    <meta name="twitter:description" content="{{ html_attr(clean_desc) | safe }}" />
     {% endif %}
     {% if og_img %}
-    <meta name="twitter:image" content="{{ og_img }}" />
+    <meta name="twitter:image" content="{{ html_attr(og_img) | safe }}" />
     {% endif %}
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ url }}" />
+    <link rel="canonical" href="{{ html_attr(url) | safe }}" />
 
     <!-- Favicon -->
     {% if theme.site.favicon %}
-    <link rel="icon" href="{{ url_for(theme.site.favicon) }}" />
+    <link rel="icon" href="{{ html_attr(url_for(theme.site.favicon)) | safe }}" />
     {% endif %}
 
     <!-- RSS -->
     {% if theme.site.rss.enabled %}
-    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ url_for(theme.site.rss.path | default('/atom.xml')) }}" />
+    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(url_for(theme.site.rss.path | default('/atom.xml'))) | safe }}" />
     {% endif %}
 
     <!-- CSS -->

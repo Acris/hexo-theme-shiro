@@ -5,7 +5,7 @@
     <!-- Post Navigation: Hexo's page.prev = newer post, page.next = older post -->
     <div class="section-divider flex justify-between items-center text-sm md:text-base">
         {% if page.prev %}
-        <a href="{{ url_for(page.prev.path) }}" class="group flex items-center gap-2 text-left text-slate-600 transition-colors hover:text-seal max-w-[45%] dark:text-[var(--color-text-muted)]" title="{{ page.prev.title }}">
+        <a href="{{ url_for(page.prev.path) }}" class="group flex items-center gap-2 text-left text-slate-600 transition-colors hover:text-seal max-w-[45%] dark:text-[var(--color-text-muted)]" title="{{ html_attr(page.prev.title) | safe }}">
              <span aria-hidden="true">&larr;</span>
              <span class="line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40 dark:decoration-[var(--color-border-strong)] dark:group-hover:decoration-seal/40">{{ page.prev.title }}</span>
         </a>
@@ -14,7 +14,7 @@
         {% endif %}
 
         {% if page.next %}
-        <a href="{{ url_for(page.next.path) }}" class="group flex items-center gap-2 text-right text-slate-600 transition-colors hover:text-seal max-w-[45%] dark:text-[var(--color-text-muted)]" title="{{ page.next.title }}">
+        <a href="{{ url_for(page.next.path) }}" class="group flex items-center gap-2 text-right text-slate-600 transition-colors hover:text-seal max-w-[45%] dark:text-[var(--color-text-muted)]" title="{{ html_attr(page.next.title) | safe }}">
             <span class="line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40 dark:decoration-[var(--color-border-strong)] dark:group-hover:decoration-seal/40">{{ page.next.title }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
