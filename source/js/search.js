@@ -167,6 +167,14 @@
 
     window.__shiroSearchOpen = open;
 
+    const toggle = document.getElementById('searchToggle');
+    if (toggle) {
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            open();
+        });
+    }
+
     document.addEventListener('keydown', (event) => {
         const isOpen = modal && modal.getAttribute('data-open') === 'true';
         if (event.key === 'Escape' && isOpen) {

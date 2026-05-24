@@ -10,9 +10,14 @@
     const toggle = document.getElementById('searchToggle');
     let loading = false;
 
+    function removeClickListener() {
+        document.removeEventListener('click', handleIntent);
+    }
+
     function openSearch() {
         if (window.__shiroSearchOpen) {
             window.__shiroSearchOpen();
+            removeClickListener();
             return;
         }
 
@@ -21,7 +26,10 @@
         loading = true;
 
         loadBootstrapScript(script, {
-            onload: () => { loading = false; },
+            onload: () => {
+                loading = false;
+                removeClickListener();
+            },
             onerror: () => { loading = false; }
         });
     }

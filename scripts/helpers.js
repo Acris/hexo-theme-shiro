@@ -287,6 +287,10 @@ function decodeHtmlEntities(value) {
         .replace(/&#39;/g, "'");
 }
 
+function normalizePlainText(value) {
+    return decodeHtmlEntities(String(value || '')).replace(/\s+/g, ' ').trim();
+}
+
 function plainHeadingText(html) {
     return decodeHtmlEntities(String(html)
         .replace(/<script\b[\s\S]*?<\/script>/gi, '')
@@ -319,24 +323,31 @@ function tocCacheKey(tocConfig) {
     ].join('|');
 }
 
-function buildToc(content, tocConfig) {
-    const source = String(content || '');
-    if (!tocConfig || tocConfig.enabled === false || !source) {
-        return { shouldRender: false, content: source, html: '' };
-    }
-
-    const levels = new Set(tocHeadingLevels(tocConfig));
-    const minHeadings = Math.max(1, Number(tocConfig.min_headings) || 3);
-    const allIds = new Set();
+function collectExistingIds(source) {
+    const ids = new Set();
     source.replace(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi, (match, doubleQuoted, singleQuoted, unquoted) => {
         const id = doubleQuoted || singleQuoted || unquoted;
-        if (id) allIds.add(id);
+        if (id) ids.add(id);
         return match;
     });
+    return ids;
+}
 
+function uniqueHeadingId(title, existingIds) {
+    const base = slugifyHeading(title);
+    let id = base;
+    let counter = 1;
+    while (existingIds.has(id)) id = base + '-' + counter++;
+    existingIds.add(id);
+    return id;
+}
+
+function rewriteTocHeadings(source, levels) {
+    const existingIds = collectExistingIds(source);
     const headings = [];
     let minLevel = 6;
-    const contentWithIds = source.replace(/<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, levelRaw, attrs, inner) => {
+
+    const content = source.replace(/<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, levelRaw, attrs, inner) => {
         const level = Number(levelRaw);
         if (!levels.has(level)) return match;
 
@@ -346,11 +357,7 @@ function buildToc(content, tocConfig) {
         let id = headingId(attrs);
         let nextAttrs = attrs;
         if (!id) {
-            const base = slugifyHeading(title);
-            id = base;
-            let counter = 1;
-            while (allIds.has(id)) id = base + '-' + counter++;
-            allIds.add(id);
+            id = uniqueHeadingId(title, existingIds);
             nextAttrs = attrs + ' id="' + escapeHtml(id) + '"';
         }
 
@@ -359,10 +366,10 @@ function buildToc(content, tocConfig) {
         return '<h' + levelRaw + nextAttrs + '>' + inner + '</h' + levelRaw + '>';
     });
 
-    if (headings.length < minHeadings) {
-        return { shouldRender: false, content: source, html: '' };
-    }
+    return { content, headings, minLevel };
+}
 
+function renderTocList(headings, minLevel) {
     const items = headings.map(heading => {
         const indent = Math.max(0, heading.level - minLevel);
         return '<li class="toc-item" data-level="' + indent + '">'
@@ -370,14 +377,29 @@ function buildToc(content, tocConfig) {
             + escapeHtml(heading.title)
             + '</a></li>';
     }).join('');
+    return '<ul class="toc-list">' + items + '</ul>';
+}
+
+function buildToc(content, tocConfig) {
+    const source = String(content || '');
+    if (!tocConfig || tocConfig.enabled === false || !source) {
+        return { shouldRender: false, content: source, html: '' };
+    }
+
+    const levels = new Set(tocHeadingLevels(tocConfig));
+    const minHeadings = Math.max(1, Number(tocConfig.min_headings) || 3);
+    const result = rewriteTocHeadings(source, levels);
+
+    if (result.headings.length < minHeadings) {
+        return { shouldRender: false, content: source, html: '' };
+    }
 
     return {
         shouldRender: true,
-        content: contentWithIds,
-        html: '<ul class="toc-list">' + items + '</ul>'
+        content: result.content,
+        html: renderTocList(result.headings, result.minLevel)
     };
 }
-
 
 function cachedToc(page, tocConfig) {
     const analysis = pageAnalysis(page);
@@ -506,7 +528,6 @@ hexo.extend.helper.register('first_image', function (page) {
     return pageAnalysis(page).firstImage;
 });
 
-
 hexo.extend.helper.register('excerpt_for', function (post, length) {
     if (!post) return { content: '', truncated: false };
 
@@ -542,7 +563,7 @@ hexo.extend.helper.register('clean_description', function (page, config) {
         || (typeof this.is_page === 'function' && this.is_page());
     const strip = typeof this.strip_html === 'function' ? this.strip_html : htmlTextFromHtml;
     const textFromHtml = value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
-    const textFromPlain = value => String(strip(value) || '').replace(/\s+/g, ' ').trim();
+    const textFromPlain = value => normalizePlainText(strip(value));
     let owner = page;
     let raw = '';
     let cacheField = 'cleanDescription';
@@ -551,7 +572,7 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     if (page && page.description) {
         raw = page.description;
         cacheField = 'cleanDescription:description';
-        producer = textFromHtml;
+        producer = textFromPlain;
     } else if (page && page.excerpt) {
         raw = page.excerpt;
         cacheField = 'cleanDescription:excerpt';

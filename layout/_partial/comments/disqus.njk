@@ -1,6 +1,5 @@
 {% if theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
-{% include "_partial/comments/bootstrap.njk" %}
 <script>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always

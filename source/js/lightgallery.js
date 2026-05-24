@@ -209,10 +209,12 @@
         return instance;
     }
 
-    function followOriginalLink(link) {
-        const href = link.getAttribute('href');
+    function followFallbackLink(link) {
+        // If LightGallery fails to load after we prepared a gallery item, keep
+        // the click aligned with the lightbox intent by opening the image URL.
+        const href = link.getAttribute('data-src') || link.getAttribute('href');
         if (!href) return;
-        if (link.target === '_blank') {
+        if (!link.getAttribute('data-src') && link.target === '_blank') {
             window.open(href, '_blank', 'noopener');
             return;
         }
@@ -235,10 +237,10 @@
                 if (typeof onReady === 'function') onReady();
                 instance.openGallery(index);
             } else {
-                followOriginalLink(trigger);
+                followFallbackLink(trigger);
             }
         }).catch(() => {
-            followOriginalLink(trigger);
+            followFallbackLink(trigger);
         });
     }
 
