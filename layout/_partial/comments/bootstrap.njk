@@ -4,6 +4,7 @@
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
         const d = document;
         const href = window.__shiroCommentsCss;
+        const assetTimeout = 12000;
         if (!href) return Promise.resolve();
         if (window.__shiroCommentsCssLoading) return window.__shiroCommentsCssLoading;
 
@@ -13,12 +14,28 @@
                 existing.dataset.shiroLoaded = 'true';
                 return Promise.resolve();
             }
+            if (existing.dataset.shiroError === 'true') {
+                existing.remove();
+                return window.__shiroLoadCommentsCss();
+            }
             window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
+                const timer = setTimeout(() => {
+                    existing.dataset.shiroError = 'true';
+                    existing.remove();
+                    reject(new Error('Comments CSS load timed out'));
+                }, assetTimeout);
                 existing.addEventListener('load', () => {
+                    clearTimeout(timer);
                     existing.dataset.shiroLoaded = 'true';
+                    delete existing.dataset.shiroError;
                     resolve();
                 }, { once: true });
-                existing.addEventListener('error', reject, { once: true });
+                existing.addEventListener('error', (event) => {
+                    clearTimeout(timer);
+                    existing.dataset.shiroError = 'true';
+                    existing.remove();
+                    reject(event);
+                }, { once: true });
             }).catch((error) => {
                 window.__shiroCommentsCssLoading = null;
                 throw error;
@@ -28,14 +45,23 @@
 
         window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
             const link = d.createElement('link');
+            const timer = setTimeout(() => {
+                link.dataset.shiroError = 'true';
+                link.remove();
+                reject(new Error('Comments CSS load timed out'));
+            }, assetTimeout);
             link.rel = 'stylesheet';
             link.href = href;
             link.setAttribute('data-shiro-comments-css', 'true');
             link.onload = () => {
+                clearTimeout(timer);
                 link.dataset.shiroLoaded = 'true';
+                delete link.dataset.shiroError;
                 resolve();
             };
             link.onerror = (event) => {
+                clearTimeout(timer);
+                link.dataset.shiroError = 'true';
                 link.remove();
                 reject(event);
             };

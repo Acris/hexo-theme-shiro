@@ -8,27 +8,54 @@
     let assetsLoading = null;
     const instances = new Map();
     const preparedContainers = new WeakSet();
+    const galleryItemCache = new WeakMap();
+    const assetTimeout = 12000;
 
     function assetReady(el, tag) {
         if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
             el.dataset.shiroLoaded = 'true';
             return Promise.resolve();
         }
+        if (el.dataset.shiroError === 'true') {
+            el.remove();
+            return Promise.reject(new Error('Asset failed to load'));
+        }
         return new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(new Error('Asset load timed out'));
+            }, assetTimeout);
             el.addEventListener('load', () => {
+                clearTimeout(timer);
                 el.dataset.shiroLoaded = 'true';
+                delete el.dataset.shiroError;
                 resolve();
             }, { once: true });
-            el.addEventListener('error', reject, { once: true });
+            el.addEventListener('error', (event) => {
+                clearTimeout(timer);
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(event);
+            }, { once: true });
         });
     }
 
     function loadAsset(tag, attrs, selector) {
         const existing = selector ? document.querySelector(selector) : null;
-        if (existing) return assetReady(existing, tag);
+        if (existing && existing.dataset.shiroError === 'true') {
+            existing.remove();
+        } else if (existing) {
+            return assetReady(existing, tag);
+        }
 
         return new Promise((resolve, reject) => {
             const el = document.createElement(tag);
+            const timer = setTimeout(() => {
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(new Error('Asset load timed out'));
+            }, assetTimeout);
             Object.keys(attrs).forEach((key) => {
                 if (attrs[key] === true) {
                     el.setAttribute(key, '');
@@ -37,10 +64,14 @@
                 }
             });
             el.onload = () => {
+                clearTimeout(timer);
                 el.dataset.shiroLoaded = 'true';
+                delete el.dataset.shiroError;
                 resolve();
             };
             el.onerror = (event) => {
+                clearTimeout(timer);
+                el.dataset.shiroError = 'true';
                 el.remove();
                 reject(event);
             };
@@ -151,6 +182,10 @@
         return html || null;
     };
 
+    const invalidateGalleryItems = (container) => {
+        galleryItemCache.delete(container);
+    };
+
     const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
         // Use data-src so lightgallery reads the image URL from it,
         // preserving the original href for SEO and right-click behavior.
@@ -187,6 +222,7 @@
 
             // Set lightgallery attributes; original href is preserved
             setLgAttributes(existing, src, caption, linkedUrl);
+            invalidateGalleryItems(container);
             if (!existing.getAttribute('aria-label')) {
                 const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
                 existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
@@ -203,11 +239,16 @@
         const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
         setLgAttributes(link, src, caption, null);
+        invalidateGalleryItems(container);
         return link;
     };
 
     function galleryItems(container) {
-        return Array.from(container.querySelectorAll('a[data-lg-item]'));
+        const cached = galleryItemCache.get(container);
+        if (cached) return cached;
+        const items = Array.from(container.querySelectorAll('a[data-lg-item]'));
+        galleryItemCache.set(container, items);
+        return items;
     }
 
     function getOrCreateInstance(container) {

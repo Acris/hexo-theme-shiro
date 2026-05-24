@@ -43,16 +43,22 @@
         }
     }
 
-    links.forEach((link) => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.getElementById(link.dataset.target);
-            if (target) {
-                target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-                history.replaceState(null, '', '#' + link.dataset.target);
-            }
-        });
-    });
+    function handleTocClick(e) {
+        const link = e.target && e.target.closest && e.target.closest('.toc-link[data-target]');
+        if (!link) return;
+        const root = e.currentTarget;
+        if (!root || !root.contains(link)) return;
+
+        e.preventDefault();
+        const target = document.getElementById(link.dataset.target);
+        if (target) {
+            target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+            history.replaceState(null, '', '#' + link.dataset.target);
+        }
+    }
+
+    if (tocSidebar) tocSidebar.addEventListener('click', handleTocClick);
+    if (tocInline) tocInline.addEventListener('click', handleTocClick);
 
     let activeId = '';
     let updateQueued = false;

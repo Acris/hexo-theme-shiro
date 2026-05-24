@@ -58,8 +58,8 @@ function strippedHtml(content) {
         .replace(/<style\b[\s\S]*?<\/style>/gi, '');
 }
 
-// Skip a sticky-anchored regex past whichever sub-regex matched next, returning the new index.
-// Used to consume <script>/<style> blocks without re-scanning their (potentially large) content.
+// Skip a <script>/<style> block from its opening tag to the matching close tag.
+// This avoids re-scanning large inline code/style content during text extraction.
 function skipBlock(source, start, openTag) {
     const close = new RegExp('</' + openTag + '\\s*>', 'i');
     const match = close.exec(source.slice(start));
@@ -113,19 +113,44 @@ function htmlTextFromHtml(content, length) {
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
 }
 
+function cachedStrippedHtml(html) {
+    let cache;
+    return () => {
+        if (cache === undefined) cache = strippedHtml(html);
+        return cache;
+    };
+}
+
+function countImagesInHtml(html) {
+    const matches = html.match(/<img\b/gi);
+    return matches ? matches.length : 0;
+}
+
+function countHeadingsInHtml(html) {
+    const counts = new Map();
+    const matches = html.matchAll(/<h([2-6])\b[^>]*>/gi);
+    for (const match of matches) {
+        const level = Number(match[1]);
+        counts.set(level, (counts.get(level) || 0) + 1);
+    }
+    return counts;
+}
+
+function plainTextFromHtmlFragment(html) {
+    return html
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function analyzeHtml(content) {
     const html = String(content || '');
-    let textHtmlCache;
+    const textHtml = cachedStrippedHtml(html);
     let firstImageCache;
     let imageCountCache;
     let hasCodeCache;
     let headingCountsCache;
     let plainCache;
-
-    function textHtml() {
-        if (textHtmlCache === undefined) textHtmlCache = strippedHtml(html);
-        return textHtmlCache;
-    }
 
     const analysis = {
         html,
@@ -144,10 +169,7 @@ function analyzeHtml(content) {
         imageCount: {
             enumerable: true,
             get() {
-                if (imageCountCache === undefined) {
-                    const matches = html.match(/<img\b/gi);
-                    imageCountCache = matches ? matches.length : 0;
-                }
+                if (imageCountCache === undefined) imageCountCache = countImagesInHtml(html);
                 return imageCountCache;
             }
         },
@@ -163,26 +185,14 @@ function analyzeHtml(content) {
         headingCounts: {
             enumerable: true,
             get() {
-                if (!headingCountsCache) {
-                    headingCountsCache = new Map();
-                    const matches = textHtml().matchAll(/<h([2-6])\b[^>]*>/gi);
-                    for (const match of matches) {
-                        const level = Number(match[1]);
-                        headingCountsCache.set(level, (headingCountsCache.get(level) || 0) + 1);
-                    }
-                }
+                if (!headingCountsCache) headingCountsCache = countHeadingsInHtml(textHtml());
                 return headingCountsCache;
             }
         },
         plain: {
             enumerable: true,
             get() {
-                if (plainCache === undefined) {
-                    plainCache = textHtml()
-                        .replace(/<[^>]+>/g, ' ')
-                        .replace(/\s+/g, ' ')
-                        .trim();
-                }
+                if (plainCache === undefined) plainCache = plainTextFromHtmlFragment(textHtml());
                 return plainCache;
             }
         },

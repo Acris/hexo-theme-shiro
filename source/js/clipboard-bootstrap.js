@@ -2,8 +2,8 @@
     const script = window.__clipboardScript || '';
     if (!script) return;
 
-    const firstBlock = document.querySelector('.prose-shiro .highlight');
-    if (!firstBlock) return;
+    const eagerBlocks = Array.from(document.querySelectorAll('.prose-shiro .highlight')).slice(0, 4);
+    if (!eagerBlocks.length) return;
 
     let loading = false;
 
@@ -23,19 +23,19 @@
         document.head.appendChild(loader);
     }
 
-    // Load immediately when IntersectionObserver is unavailable or the first
-    // code block is already inside the eager-load zone (≤ 300px below the
-    // viewport bottom — which also covers any block already scrolled past).
-    if (!('IntersectionObserver' in window)
-        || firstBlock.getBoundingClientRect().top < window.innerHeight + 300) {
+    // Load immediately when IntersectionObserver is unavailable or one of the
+    // first few code blocks is already inside the eager-load zone (≤ 300px below
+    // the viewport bottom — which also covers any block already scrolled past).
+    const isNearViewport = (block) => block.getBoundingClientRect().top < window.innerHeight + 300;
+    if (!('IntersectionObserver' in window) || eagerBlocks.some(isNearViewport)) {
         loadClipboard();
         return;
     }
 
     const observer = new IntersectionObserver((entries) => {
-        if (!entries[0].isIntersecting) return;
+        if (!entries.some(entry => entry.isIntersecting)) return;
         loadClipboard(() => observer.disconnect());
     }, { rootMargin: '300px 0px', threshold: 0 });
 
-    observer.observe(firstBlock);
+    eagerBlocks.forEach(block => observer.observe(block));
 })();
