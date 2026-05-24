@@ -1,58 +1,53 @@
 <script>
 ;(() => {
     window.__shiroCommentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
-    window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
+    const loadStylesheet = (href, selector, dataAttr, stateKey) => {
         const d = document;
-        const href = window.__shiroCommentsCss;
         const assetTimeout = 12000;
         if (!href) return Promise.resolve();
-        if (window.__shiroCommentsCssLoading) return window.__shiroCommentsCssLoading;
+        if (window[stateKey]) return window[stateKey];
 
-        const existing = d.querySelector('link[data-shiro-comments-css]');
-        if (existing) {
-            if (existing.dataset.shiroLoaded === 'true' || existing.sheet) {
-                existing.dataset.shiroLoaded = 'true';
+        const waitForStylesheet = (link) => {
+            if (link.dataset.shiroLoaded === 'true' || link.sheet) {
+                link.dataset.shiroLoaded = 'true';
                 return Promise.resolve();
             }
-            if (existing.dataset.shiroError === 'true') {
-                existing.remove();
-                return window.__shiroLoadCommentsCss();
+            if (link.dataset.shiroError === 'true') {
+                link.remove();
+                return null;
             }
-            window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
+
+            return new Promise((resolve, reject) => {
                 const timer = setTimeout(() => {
-                    existing.dataset.shiroError = 'true';
-                    existing.remove();
-                    reject(new Error('Comments CSS load timed out'));
+                    link.dataset.shiroError = 'true';
+                    link.remove();
+                    reject(new Error('Stylesheet load timed out'));
                 }, assetTimeout);
-                existing.addEventListener('load', () => {
+                link.addEventListener('load', () => {
                     clearTimeout(timer);
-                    existing.dataset.shiroLoaded = 'true';
-                    delete existing.dataset.shiroError;
+                    link.dataset.shiroLoaded = 'true';
+                    delete link.dataset.shiroError;
                     resolve();
                 }, { once: true });
-                existing.addEventListener('error', (event) => {
+                link.addEventListener('error', (event) => {
                     clearTimeout(timer);
-                    existing.dataset.shiroError = 'true';
-                    existing.remove();
+                    link.dataset.shiroError = 'true';
+                    link.remove();
                     reject(event);
                 }, { once: true });
-            }).catch((error) => {
-                window.__shiroCommentsCssLoading = null;
-                throw error;
             });
-            return window.__shiroCommentsCssLoading;
-        }
+        };
 
-        window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
+        const createStylesheet = () => new Promise((resolve, reject) => {
             const link = d.createElement('link');
             const timer = setTimeout(() => {
                 link.dataset.shiroError = 'true';
                 link.remove();
-                reject(new Error('Comments CSS load timed out'));
+                reject(new Error('Stylesheet load timed out'));
             }, assetTimeout);
             link.rel = 'stylesheet';
             link.href = href;
-            link.setAttribute('data-shiro-comments-css', 'true');
+            link.setAttribute(dataAttr, 'true');
             link.onload = () => {
                 clearTimeout(timer);
                 link.dataset.shiroLoaded = 'true';
@@ -66,12 +61,25 @@
                 reject(event);
             };
             d.head.appendChild(link);
-        }).catch((error) => {
-            window.__shiroCommentsCssLoading = null;
+        });
+
+        const existing = d.querySelector(selector);
+        const waiting = existing ? waitForStylesheet(existing) : null;
+        window[stateKey] = (waiting || createStylesheet()).catch((error) => {
+            window[stateKey] = null;
             throw error;
         });
-        return window.__shiroCommentsCssLoading;
-    });
+        return window[stateKey];
+    };
+
+    window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() =>
+        loadStylesheet(
+            window.__shiroCommentsCss,
+            'link[data-shiro-comments-css]',
+            'data-shiro-comments-css',
+            '__shiroCommentsCssLoading'
+        ));
+
     window.__shiroOnNearViewport = window.__shiroOnNearViewport || ((element, callback, options) => {
         const w = window;
         if (!element || typeof callback !== 'function') return;

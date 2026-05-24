@@ -143,20 +143,12 @@ function plainTextFromHtmlFragment(html) {
         .trim();
 }
 
-function analyzeHtml(content) {
-    const html = String(content || '');
-    const textHtml = cachedStrippedHtml(html);
+function defineAnalysisGetters(analysis, html, textHtml) {
     let firstImageCache;
     let imageCountCache;
     let hasCodeCache;
     let headingCountsCache;
     let plainCache;
-
-    const analysis = {
-        html,
-        excerpt: '',
-        tocCache: new Map()
-    };
 
     Object.defineProperties(analysis, {
         firstImage: {
@@ -203,7 +195,18 @@ function analyzeHtml(content) {
             }
         }
     });
+}
 
+function analyzeHtml(content) {
+    const html = String(content || '');
+    const textHtml = cachedStrippedHtml(html);
+    const analysis = {
+        html,
+        excerpt: '',
+        tocCache: new Map()
+    };
+
+    defineAnalysisGetters(analysis, html, textHtml);
     return analysis;
 }
 

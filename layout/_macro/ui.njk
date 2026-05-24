@@ -1,9 +1,11 @@
 {% macro feature_script(i18n={}, vars={}) %}
 <script>
+{% if i18n and (i18n | length) %}
         window.__i18n = window.__i18n || {};
 {% for key, value in i18n %}
         window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
 {% endfor %}
+{% endif %}
 {% for key, value in vars %}
         window[{{ key | dump | safe }}] = {{ value | dump | safe }};
 {% endfor %}

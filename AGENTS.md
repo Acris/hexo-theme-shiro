@@ -23,7 +23,9 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
 - `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
 - `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`.
+- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
+- `tools/build-assets.js` — release asset build script; minifies CSS/JS and injects shared snippets before JS minification.
+- `tools/snippets/` — build-time JavaScript snippets shared by client scripts, currently `asset-loader.js` for lazy asset loading helpers.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
 - `package.json` — npm scripts and Tailwind development dependencies.
@@ -34,7 +36,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - Watch CSS during development: `npm run dev` (long-running Tailwind watch; writes an unminified `source/css/style.min.css`)
 - Build minified CSS and JS for release: `npm run build` (runs Tailwind for core CSS, then minifies optional CSS modules and browser JS)
 
-Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates/client scripts, or any `source/js/*.js` source file, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
+Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates/client scripts, any `source/js/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
 - Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files, then regenerate them with `npm run build`.
 
 ## Development workflow

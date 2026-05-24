@@ -9,75 +9,9 @@
     const instances = new Map();
     const preparedContainers = new WeakSet();
     const galleryItemCache = new WeakMap();
-    const assetTimeout = 12000;
-
-    function assetReady(el, tag) {
-        if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
-            el.dataset.shiroLoaded = 'true';
-            return Promise.resolve();
-        }
-        if (el.dataset.shiroError === 'true') {
-            el.remove();
-            return Promise.reject(new Error('Asset failed to load'));
-        }
-        return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => {
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(new Error('Asset load timed out'));
-            }, assetTimeout);
-            el.addEventListener('load', () => {
-                clearTimeout(timer);
-                el.dataset.shiroLoaded = 'true';
-                delete el.dataset.shiroError;
-                resolve();
-            }, { once: true });
-            el.addEventListener('error', (event) => {
-                clearTimeout(timer);
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(event);
-            }, { once: true });
-        });
-    }
-
-    function loadAsset(tag, attrs, selector) {
-        const existing = selector ? document.querySelector(selector) : null;
-        if (existing && existing.dataset.shiroError === 'true') {
-            existing.remove();
-        } else if (existing) {
-            return assetReady(existing, tag);
-        }
-
-        return new Promise((resolve, reject) => {
-            const el = document.createElement(tag);
-            const timer = setTimeout(() => {
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(new Error('Asset load timed out'));
-            }, assetTimeout);
-            Object.keys(attrs).forEach((key) => {
-                if (attrs[key] === true) {
-                    el.setAttribute(key, '');
-                } else {
-                    el.setAttribute(key, attrs[key]);
-                }
-            });
-            el.onload = () => {
-                clearTimeout(timer);
-                el.dataset.shiroLoaded = 'true';
-                delete el.dataset.shiroError;
-                resolve();
-            };
-            el.onerror = (event) => {
-                clearTimeout(timer);
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(event);
-            };
-            document.head.appendChild(el);
-        });
-    }
+    // <shiro-asset-loader>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-asset-loader>
 
     function ensureStylesheet() {
         return loadAsset('link', {
@@ -187,17 +121,26 @@
     };
 
     const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
+        let changed = false;
+        const setIfChanged = (name, value) => {
+            if (link.getAttribute(name) === value) return;
+            link.setAttribute(name, value);
+            changed = true;
+        };
+
         // Use data-src so lightgallery reads the image URL from it,
         // preserving the original href for SEO and right-click behavior.
-        link.setAttribute('data-src', imgSrc);
-        link.setAttribute('data-lg-item', 'true');
+        setIfChanged('data-src', imgSrc);
+        setIfChanged('data-lg-item', 'true');
 
         const subHtml = buildSubHtml(caption, linkedUrl);
         if (subHtml) {
-            link.setAttribute('data-sub-html', subHtml);
-        } else {
+            setIfChanged('data-sub-html', subHtml);
+        } else if (link.hasAttribute('data-sub-html')) {
             link.removeAttribute('data-sub-html');
+            changed = true;
         }
+        return changed;
     };
 
     const ensureLink = (container, img) => {
@@ -221,8 +164,9 @@
             const linkedUrl = isValidUrl(href) ? href : null;
 
             // Set lightgallery attributes; original href is preserved
-            setLgAttributes(existing, src, caption, linkedUrl);
-            invalidateGalleryItems(container);
+            if (setLgAttributes(existing, src, caption, linkedUrl)) {
+                invalidateGalleryItems(container);
+            }
             if (!existing.getAttribute('aria-label')) {
                 const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
                 existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);

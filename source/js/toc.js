@@ -4,7 +4,8 @@
     if (!tocSidebar && !tocInline) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const links = Array.from(document.querySelectorAll('.toc-link[data-target]'));
+    const tocRoots = [tocSidebar, tocInline].filter(Boolean);
+    const links = tocRoots.flatMap(root => Array.from(root.querySelectorAll('.toc-link[data-target]')));
     if (!links.length) return;
 
     const headingArr = [];

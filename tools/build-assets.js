@@ -11,6 +11,55 @@ const root = path.resolve(__dirname, '..');
 const binExt = process.platform === 'win32' ? '.cmd' : '';
 const tailwindBin = path.join(root, 'node_modules', '.bin', 'tailwindcss' + binExt);
 
+const snippetDir = path.join(root, 'tools', 'snippets');
+const snippetMarkers = {
+    assetLoader: {
+        start: '    // <shiro-asset-loader>',
+        end: '    // </shiro-asset-loader>',
+        file: 'asset-loader.js',
+        requires: /\bloadAsset\s*\(/
+    }
+};
+
+function countOccurrences(source, needle) {
+    return source.split(needle).length - 1;
+}
+
+function applySnippet(code, name, config) {
+    const startCount = countOccurrences(code, config.start);
+    const endCount = countOccurrences(code, config.end);
+    if (startCount !== endCount) {
+        throw new Error(name + ' snippet marker mismatch: ' + startCount + ' start marker(s), ' + endCount + ' end marker(s)');
+    }
+    if (!startCount) {
+        if (config.requires.test(code)) {
+            throw new Error(name + ' snippet marker missing in file that references its API');
+        }
+        return code;
+    }
+    if (startCount > 1) {
+        throw new Error(name + ' snippet marker must appear at most once per file');
+    }
+
+    const start = code.indexOf(config.start);
+    const end = code.indexOf(config.end, start);
+    if (end < start) throw new Error(name + ' snippet end marker appears before start marker');
+
+    const snippet = fs.readFileSync(path.join(snippetDir, config.file), 'utf8').replace(/\s+$/, '');
+    return code.slice(0, start)
+        + config.start + '\n'
+        + snippet + '\n'
+        + config.end
+        + code.slice(end + config.end.length);
+}
+
+function applySharedSnippets(code) {
+    return Object.entries(snippetMarkers).reduce(
+        (nextCode, [name, config]) => applySnippet(nextCode, name, config),
+        code
+    );
+}
+
 function runTailwind() {
     execFileSync(tailwindBin, [
         '-i', './source/css/_tailwind.css',
@@ -35,7 +84,7 @@ function minifyCssFile(inputRel, outputRel) {
 async function minifyJsFile(inputRel, outputRel) {
     const input = path.join(root, inputRel);
     const output = path.join(root, outputRel);
-    const code = fs.readFileSync(input, 'utf8');
+    const code = applySharedSnippets(fs.readFileSync(input, 'utf8'));
     const result = await terser.minify(code, {
         compress: true,
         mangle: true,

@@ -88,10 +88,10 @@ function localImageCandidates(src, post) {
     const urlPath = decodeUrlPath(cleanUrl(src));
     if (!urlPath || isRemoteUrl(urlPath)) return [];
 
-    const candidates = [];
+    const candidates = new Set();
     const root = (hexo.config.root || '/').replace(/\/+$/, '/');
     const addCandidate = (filePath) => {
-        if (filePath && !candidates.includes(filePath)) candidates.push(filePath);
+        if (filePath) candidates.add(filePath);
     };
 
     let withoutRoot = urlPath.replace(/^\/+/, '');
@@ -109,7 +109,7 @@ function localImageCandidates(src, post) {
         if (withoutRoot !== urlPath) addCandidate(path.join(hexo.source_dir, withoutRoot));
     }
 
-    return candidates;
+    return Array.from(candidates);
 }
 
 function readUInt24LE(buffer, offset) {

@@ -323,6 +323,9 @@ hexo-theme-shiro/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
 │   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
 │   └── js/                 # Client-side script sources + generated *.min.js files (includes small feature bootstraps)
+├── tools/
+│   ├── build-assets.js     # Release asset build script
+│   └── snippets/           # Build-time JS snippets injected before minification
 ├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
 ├── _config.yml             # Theme default config
 └── package.json
@@ -346,7 +349,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-Note: After modifying `_tailwind.css`, optional feature CSS, or files under `source/js/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
+Note: After modifying `_tailwind.css`, optional feature CSS, files under `source/js/`, or build-time snippets under `tools/snippets/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
 
 ### Adding a New Language
 

@@ -318,6 +318,9 @@ hexo-theme-shiro/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
 │   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
 │   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件（含小型功能 bootstrap）
+├── tools/
+│   ├── build-assets.js     # 发布资源构建脚本
+│   └── snippets/           # 构建期注入的 JS 片段
 ├── languages/              # i18n YAML 文件（en、zh-CN、zh-TW、ja、fr 等）
 ├── _config.yml             # 主题默认配置
 └── package.json
@@ -341,7 +344,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-注意：修改 `_tailwind.css`、可选功能 CSS 或 `source/js/` 下的文件后，必须运行 `npm run build` 重新生成 `style.min.css`、功能 `*.min.css` 和 `*.min.js` 资源。
+注意：修改 `_tailwind.css`、可选功能 CSS、`source/js/` 下的文件或 `tools/snippets/` 下的构建期片段后，必须运行 `npm run build` 重新生成 `style.min.css`、功能 `*.min.css` 和 `*.min.js` 资源。
 
 ### 添加新语言
 
