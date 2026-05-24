@@ -1,17 +1,18 @@
 {# Shared article structure for post.njk and page.njk.
-   Expects: page, theme, and macros (meta, render_tag) to be available in context.
-   Variables (set before include):
+   Optional variables set before include:
      - article_show_meta: whether to show date/category meta (default: true)
      - article_extra: extra HTML to insert after tags (e.g. post navigation) #}
 {% from "_macro/ui.njk" import meta, render_tag with context %}
 {% set article_toc = build_toc(page, theme.toc) %}
+{% set show_article_meta = article_show_meta if article_show_meta is defined else true %}
+{% set article_extra_html = article_extra if article_extra is defined else "" %}
 
 <article class="py-2">
     <header class="text-center mb-8">
         <h1 class="page-title mb-4">
             {{ page.title }}
         </h1>
-        {% if article_show_meta %}
+        {% if show_article_meta %}
         {{ meta(page, true, "mb-4") }}
         {% endif %}
     </header>
@@ -33,7 +34,7 @@
     </div>
     {% endif %}
 
-    {{ article_extra | safe }}
+    {{ article_extra_html | safe }}
 
     {% set disqus_comments_ready = theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
     {% set giscus_comments_ready = theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}

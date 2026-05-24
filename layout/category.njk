@@ -4,7 +4,7 @@
 
 {% block content %}
 <section class="mx-auto max-w-3xl">
-    {{ section_title(__('nav.categories'), page.category if (is_category() and page.category) else '') }}
+    {{ section_title(__('nav.categories'), page.category) }}
 
     {% if is_category() %}
         {% set cat = site.categories.findOne({name: page.category}) %}

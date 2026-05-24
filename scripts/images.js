@@ -52,16 +52,8 @@ function getAttr(attrs, name) {
     return index >= 0 ? attrs[index].value : '';
 }
 
-function setAttr(attrs, name, value, options) {
-    const opts = options || {};
-    const index = attrIndex(attrs, name);
-    if (index >= 0) {
-        if (!opts.overwrite) return;
-        attrs[index].value = value;
-        attrs[index].quote = '"';
-        attrs[index].boolean = false;
-        return;
-    }
+function setMissingAttr(attrs, name, value) {
+    if (attrIndex(attrs, name) >= 0) return;
     attrs.push({ name, value, quote: '"', boolean: false });
 }
 
@@ -299,23 +291,23 @@ function optimizeImages(html, options) {
         const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
         imageIndex += 1;
 
-        setAttr(attrs, 'decoding', 'async', { overwrite: false });
+        setMissingAttr(attrs, 'decoding', 'async');
         if (isFirstContentImage) {
-            setAttr(attrs, 'loading', 'eager', { overwrite: false });
-            setAttr(attrs, 'fetchpriority', 'high', { overwrite: false });
+            setMissingAttr(attrs, 'loading', 'eager');
+            setMissingAttr(attrs, 'fetchpriority', 'high');
         } else {
-            setAttr(attrs, 'loading', 'lazy', { overwrite: false });
-            setAttr(attrs, 'fetchpriority', 'auto', { overwrite: false });
+            setMissingAttr(attrs, 'loading', 'lazy');
+            setMissingAttr(attrs, 'fetchpriority', 'auto');
         }
-        setAttr(attrs, 'sizes', DEFAULT_IMAGE_SIZES, { overwrite: false });
+        setMissingAttr(attrs, 'sizes', DEFAULT_IMAGE_SIZES);
 
         const hasWidth = !!getAttr(attrs, 'width');
         const hasHeight = !!getAttr(attrs, 'height');
         if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = localImageSize(src, opts.post);
             if (size) {
-                if (!hasWidth) setAttr(attrs, 'width', String(size.width), { overwrite: false });
-                if (!hasHeight) setAttr(attrs, 'height', String(size.height), { overwrite: false });
+                if (!hasWidth) setMissingAttr(attrs, 'width', String(size.width));
+                if (!hasHeight) setMissingAttr(attrs, 'height', String(size.height));
             }
         }
 

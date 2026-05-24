@@ -25,8 +25,7 @@ function pagefindCommand() {
     }
 }
 
-function runPagefind(args, runner) {
-    const command = runner || pagefindCommand();
+function runPagefind(args, command) {
     const result = spawnSync(command.command, command.args.concat(args), { stdio: 'inherit' });
 
     if (result.error) throw result.error;
@@ -55,14 +54,14 @@ hexo.extend.filter.register('before_exit', function () {
     const args = ['--site', publicDir];
     if (cfg.force_language) args.push('--force-language', cfg.force_language);
 
-    const runner = pagefindCommand();
-    if (runner.source === 'npx') {
+    const command = pagefindCommand();
+    if (command.source === 'npx') {
         hexo.log.warn('[pagefind] local package not found; falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
     }
 
     hexo.log.info('[pagefind] building search index...');
     try {
-        runPagefind(args, runner);
+        runPagefind(args, command);
         hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
     } catch (error) {
         hexo.log.error('[pagefind] failed: ' + error.message);

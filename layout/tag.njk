@@ -3,7 +3,7 @@
 
 {% block content %}
 <section class="mx-auto max-w-3xl">
-    {{ section_title(__('nav.tags'), page.tag if (page.tag and is_tag()) else '') }}
+    {{ section_title(__('nav.tags'), page.tag) }}
 
     {% if is_tag() %}
         {% from "_macro/archive.njk" import render_list with context %}
