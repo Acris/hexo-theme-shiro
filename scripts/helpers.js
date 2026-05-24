@@ -217,7 +217,13 @@ function excerptFallbackEnabled(themeConfig) {
 function renderedPostCardHasCode(post, themeConfig) {
     if (!post) return false;
     if (post.excerpt) return hasCodeContent(post.excerpt);
-    if (excerptFallbackEnabled(themeConfig)) return false;
+
+    if (excerptFallbackEnabled(themeConfig)) {
+        const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
+        const limit = Math.max(0, Number(fallback && fallback.length) || 0);
+        if (limit > 0 && htmlTextFromHtml(post.content, limit).length > limit) return false;
+    }
+
     return hasCodeContent(post.content);
 }
 
@@ -246,9 +252,9 @@ function pageLooksLong(page) {
 }
 
 function tocHeadingLevels(tocConfig) {
-    const maxDepth = Math.max(1, Number(tocConfig && tocConfig.depth) || 3);
+    const maxDepth = Math.min(6, Math.max(2, Number(tocConfig && tocConfig.depth) || 3));
     const levels = [];
-    for (let i = 1; i <= maxDepth; i++) levels.push(i + 1);
+    for (let i = 2; i <= maxDepth; i++) levels.push(i);
     return levels;
 }
 
@@ -319,7 +325,7 @@ function headingId(attrs) {
 function tocCacheKey(tocConfig) {
     if (!tocConfig || tocConfig.enabled === false) return 'disabled';
     return [
-        'depth=' + (Math.max(1, Number(tocConfig.depth) || 3)),
+        'depth=' + (Math.min(6, Math.max(2, Number(tocConfig.depth) || 3))),
         'min=' + (Math.max(1, Number(tocConfig.min_headings) || 3))
     ].join('|');
 }
