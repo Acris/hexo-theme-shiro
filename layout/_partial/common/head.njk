@@ -1,8 +1,9 @@
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content="Hexo {{ hexo.version }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <meta name="generator" content="Hexo {{ hexo.version }}" />
     <!-- FOUC prevention: apply dark mode class before first paint.
          Flow: read default → build valid states → read localStorage (try/catch for Safari private mode)
          → validate saved state → set data-theme-state on <html> → resolve effective dark/light
@@ -26,27 +27,28 @@
     {% for google_fonts_url in google_font_urls(page, config, theme) %}
     <link rel="stylesheet" href="{{ google_fonts_url }}" />
     {% endfor %}
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     {# --- SEO Variables --- #}
     {% set site_title = config.title %}
     {% set page_title = build_page_title(page, config) %}
     {% set clean_desc = clean_description(page, config) %}
     {% set og_img = og_image(page) %}
+    {% set page_author = page.author or config.author %}
+    {% set keywords = page.keywords %}
+    {% if not keywords and page.tags and page.tags.length %}
+        {% set keywords %}{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+    {% endif %}
+    {% set keywords = keywords or config.keywords %}
     <title>{{ page_title }}</title>
 
     <!-- SEO Meta -->
     {% if clean_desc %}
     <meta name="description" content="{{ clean_desc }}" />
     {% endif %}
-    {% if page.author or config.author %}
-    <meta name="author" content="{{ page.author or config.author }}" />
+    {% if page_author %}
+    <meta name="author" content="{{ page_author }}" />
     {% endif %}
-    {% if page.keywords %}
-    <meta name="keywords" content="{{ page.keywords }}" />
-    {% elif page.tags and page.tags.length %}
-    <meta name="keywords" content="{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}" />
-    {% elif config.keywords %}
-    <meta name="keywords" content="{{ config.keywords }}" />
+    {% if keywords %}
+    <meta name="keywords" content="{{ keywords }}" />
     {% endif %}
 
     <!-- Open Graph -->

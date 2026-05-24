@@ -11,6 +11,18 @@ const excerptCache = new WeakMap();
 const cleanDescriptionCache = new WeakMap();
 const pageAnalysisCache = new WeakMap();
 
+// Shared seal SVG geometry — used by the header macro (via seal_path_d helper)
+// and the favicon generator below. Defined once to avoid drift.
+const SEAL_PATH_D = 'M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z';
+const SEAL_FILTER_DEFS = '<defs>'
+    + '<filter id="seal-roughness" x="-20%" y="-20%" width="140%" height="140%">'
+    + '<feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise"/>'
+    + '<feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/></filter>'
+    + '<filter id="text-erosion">'
+    + '<feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise"/>'
+    + '<feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/></filter>'
+    + '</defs>';
+
 function collectionToArray(value) {
     if (!value) return [];
     if (Array.isArray(value)) return value;
@@ -46,53 +58,56 @@ function strippedHtml(content) {
         .replace(/<style\b[\s\S]*?<\/style>/gi, '');
 }
 
+// Skip a sticky-anchored regex past whichever sub-regex matched next, returning the new index.
+// Used to consume <script>/<style> blocks without re-scanning their (potentially large) content.
+function skipBlock(source, start, openTag) {
+    const close = new RegExp('</' + openTag + '\\s*>', 'i');
+    const match = close.exec(source.slice(start));
+    return match ? start + match.index + match[0].length : source.length;
+}
+
 function htmlTextFromHtml(content, length) {
     const limit = Math.max(0, Number(length) || 0);
     const source = String(content || '');
     const targetLength = limit > 0 ? limit + 40 : 0;
+
     let text = '';
     let i = 0;
 
-    const append = (value) => {
-        if (value) text += value;
-    };
-
     while (i < source.length) {
-        if (targetLength && text.replace(/\s+/g, ' ').trim().length > targetLength) break;
+        // Cheap upper-bound check: text.length is always ≥ condensed length, so this
+        // short-circuits long documents without repeatedly normalizing the buffer.
+        if (targetLength && text.length > targetLength * 3) break;
 
+        const ch = source[i];
+
+        if (ch !== '<') {
+            const nextTag = source.indexOf('<', i);
+            const end = nextTag === -1 ? source.length : nextTag;
+            text += source.slice(i, end);
+            i = end;
+            continue;
+        }
+
+        // HTML comment
         if (source.startsWith('<!--', i)) {
             const end = source.indexOf('-->', i + 4);
             i = end === -1 ? source.length : end + 3;
             continue;
         }
 
-        const scriptMatch = source.slice(i).match(/^<script\b/i);
-        if (scriptMatch) {
-            const end = source.slice(i).search(/<\/script\s*>/i);
-            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/script\s*>/i)[0].length;
-            append(' ');
+        // <script>/<style> — skip entire block contents
+        const blockTag = /^<(script|style)\b/i.exec(source.slice(i, i + 8));
+        if (blockTag) {
+            i = skipBlock(source, i, blockTag[1]);
+            text += ' ';
             continue;
         }
 
-        const styleMatch = source.slice(i).match(/^<style\b/i);
-        if (styleMatch) {
-            const end = source.slice(i).search(/<\/style\s*>/i);
-            i = end === -1 ? source.length : i + end + source.slice(i + end).match(/^<\/style\s*>/i)[0].length;
-            append(' ');
-            continue;
-        }
-
-        if (source[i] === '<') {
-            const end = source.indexOf('>', i + 1);
-            i = end === -1 ? source.length : end + 1;
-            append(' ');
-            continue;
-        }
-
-        const nextTag = source.indexOf('<', i);
-        const end = nextTag === -1 ? source.length : nextTag;
-        append(source.slice(i, end));
-        i = end;
+        // Any other tag
+        const tagEnd = source.indexOf('>', i + 1);
+        i = tagEnd === -1 ? source.length : tagEnd + 1;
+        text += ' ';
     }
 
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
@@ -572,21 +587,16 @@ hexo.extend.helper.register('build_page_title', function (page, config) {
     return site;
 });
 
+// Shared seal path — exposed so the header macro can render the same shape as favicon.svg
+hexo.extend.helper.register('seal_path_d', () => SEAL_PATH_D);
+
 // Generate favicon.svg dynamically from seal_text config
-hexo.extend.generator.register('favicon_svg', function (locals) {
+hexo.extend.generator.register('favicon_svg', function () {
     const themeConfig = this.theme.config || this.config.theme_config || {};
     const text = (themeConfig.site && themeConfig.site.seal_text) || '白';
-    const color = '#b0171a';
     const svg = '<svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
-        + '<defs>'
-        + '<filter id="seal-roughness" x="-20%" y="-20%" width="140%" height="140%">'
-        + '<feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="noise"/>'
-        + '<feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/></filter>'
-        + '<filter id="text-erosion">'
-        + '<feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise"/>'
-        + '<feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/></filter>'
-        + '</defs>'
-        + '<path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z" fill="' + color + '" filter="url(#seal-roughness)" opacity="0.92"/>'
+        + SEAL_FILTER_DEFS
+        + '<path d="' + SEAL_PATH_D + '" fill="#b0171a" filter="url(#seal-roughness)" opacity="0.92"/>'
         + '<text x="50" y="50" text-anchor="middle" dominant-baseline="central" '
         + 'font-family="\'Yuji Syuku\',\'Zen Old Mincho\',\'Noto Serif JP\',serif" font-size="42" '
         + 'fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)" style="user-select:none">'

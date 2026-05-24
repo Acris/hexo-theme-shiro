@@ -1,19 +1,10 @@
 {% extends "_layout.njk" %}
 
 {% block content %}
-{% from "_macro/ui.njk" import divider with context %}
+{% from "_macro/ui.njk" import section_title with context %}
 {% from "_macro/archive.njk" import render_list with context %}
 <section class="section-shell">
-    <header class="section-header">
-        <h1 class="section-title">
-            {% if page.year and is_archive() %}
-            {{ __('nav.archives') }}: {{ page.year }}
-            {% else %}
-            {{ __('nav.archives') }}
-            {% endif %}
-        </h1>
-        {{ divider() }}
-    </header>
+    {{ section_title(__('nav.archives'), page.year if (page.year and is_archive()) else '') }}
 
     {% set posts = page.posts.sort('date', -1) %}
 

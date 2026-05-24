@@ -1,18 +1,9 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import divider, render_tag with context %}
+{% from "_macro/ui.njk" import section_title, render_tag with context %}
 
 {% block content %}
 <section class="section-shell">
-    <header class="section-header">
-        <h1 class="section-title">
-            {% if page.tag and is_tag() %}
-            {{ __('nav.tags') }}: {{ page.tag }}
-            {% else %}
-            {{ __('nav.tags') }}
-            {% endif %}
-        </h1>
-        {{ divider() }}
-    </header>
+    {{ section_title(__('nav.tags'), page.tag if (page.tag and is_tag()) else '') }}
 
     {% if is_tag() %}
         {% from "_macro/archive.njk" import render_list with context %}

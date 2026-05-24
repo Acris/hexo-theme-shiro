@@ -25,10 +25,13 @@
 </svg>
 {% endmacro %}
 
+{# Seal shape — shares path geometry with favicon.svg via the seal_path_d helper
+   (see scripts/helpers.js). svg_filters() must be rendered once on the page to
+   provide the referenced #seal-roughness / #text-erosion filters. #}
 {% macro seal(title="白") %}
 <svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg">
-    <path d="M15,12 Q50,5 85,12 Q95,50 88,88 Q50,95 12,88 Q5,50 15,12 Z"
+    <path d="{{ seal_path_d() }}"
         fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
         font-size="42" fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)"
@@ -46,6 +49,17 @@
     </svg>
     <div class="h-px flex-1 bg-linear-to-l from-transparent to-slate-300 max-w-divider"></div>
 </div>
+{% endmacro %}
+
+{# Shared section header: title + optional value, with horizontal divider underline.
+   Used by archive, tag, and category pages. #}
+{% macro section_title(label, value="") %}
+<header class="section-header">
+    <h1 class="section-title">
+        {% if value %}{{ label }}: {{ value }}{% else %}{{ label }}{% endif %}
+    </h1>
+    {{ divider() }}
+</header>
 {% endmacro %}
 
 {% macro icon_chevron_down(class="size-4", id="") %}

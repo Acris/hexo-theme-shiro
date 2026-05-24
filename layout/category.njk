@@ -1,19 +1,10 @@
 {% extends "_layout.njk" %}
-{% from "_macro/ui.njk" import divider, icon_folder with context %}
+{% from "_macro/ui.njk" import section_title, icon_folder with context %}
 {% from "_macro/archive.njk" import render_list, render_simple_list with context %}
 
 {% block content %}
 <section class="section-shell">
-    <header class="section-header">
-        <h1 class="section-title">
-            {% if is_category() and page.category %}
-            {{ __('nav.categories') }}: {{ page.category }}
-            {% else %}
-            {{ __('nav.categories') }}
-            {% endif %}
-        </h1>
-        {{ divider() }}
-    </header>
+    {{ section_title(__('nav.categories'), page.category if (is_category() and page.category) else '') }}
 
     {% if is_category() %}
         {% set cat = site.categories.findOne({name: page.category}) %}
