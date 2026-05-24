@@ -304,10 +304,6 @@
         });
     }
 
-    function prepareGallery(container, activeImage) {
-        return ensureLink(container, activeImage);
-    }
-
     function openFromElement(target) {
         if (!target || !target.closest) return false;
         const container = target.closest('.prose-shiro');
@@ -316,7 +312,7 @@
         const img = target.tagName === 'IMG' ? target : target.querySelector && target.querySelector('img');
         if (!img || !container.contains(img)) return false;
 
-        const trigger = prepareGallery(container, img);
+        const trigger = ensureLink(container, img);
         if (!trigger) return false;
 
         openGallery(container, trigger, () => prepareRemainingGallery(container, img));

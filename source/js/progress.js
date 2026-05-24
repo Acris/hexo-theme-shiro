@@ -19,7 +19,7 @@
     }
 
     function scheduleProgressUpdate() {
-        if (!bar || ticking) return;
+        if (ticking) return;
         requestAnimationFrame(updateProgress);
         ticking = true;
     }

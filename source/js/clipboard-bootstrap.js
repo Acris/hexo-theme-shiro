@@ -23,8 +23,11 @@
         document.head.appendChild(loader);
     }
 
-    const rect = firstBlock.getBoundingClientRect();
-    if (rect.bottom < 0 || rect.top < window.innerHeight + 300 || !('IntersectionObserver' in window)) {
+    // Load immediately when IntersectionObserver is unavailable or the first
+    // code block is already inside the eager-load zone (≤ 300px below the
+    // viewport bottom — which also covers any block already scrolled past).
+    if (!('IntersectionObserver' in window)
+        || firstBlock.getBoundingClientRect().top < window.innerHeight + 300) {
         loadClipboard();
         return;
     }

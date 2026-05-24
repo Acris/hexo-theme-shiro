@@ -6,11 +6,9 @@
         </h2>
         {{ meta(post) }}
     </header>
-    {% if theme.excerpt.fallback.enabled %}
-        {% set excerpt = excerpt_for(post, theme.excerpt.fallback.length) %}
-    {% else %}
-        {% set excerpt = { content: (post.excerpt or post.content), truncated: post.excerpt } %}
-    {% endif %}
+    {# When fallback is disabled, pass length 0 so excerpt_for only honors manual <!-- more --> excerpts. #}
+    {% set fallback_length = theme.excerpt.fallback.length if theme.excerpt.fallback.enabled else 0 %}
+    {% set excerpt = excerpt_for(post, fallback_length) %}
     <div class="prose-shiro">
         {{ excerpt.content | safe }}
     </div>

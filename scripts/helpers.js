@@ -98,10 +98,6 @@ function htmlTextFromHtml(content, length) {
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
 }
 
-function plainTextFromHtml(content) {
-    return htmlTextFromHtml(content);
-}
-
 function analyzeHtml(content) {
     const html = String(content || '');
     let textHtmlCache;
@@ -231,7 +227,7 @@ function pageHasCode(page, themeConfig, context) {
 function pageLooksLong(page) {
     if (!page || !page.content) return false;
     const analysis = pageAnalysis(page);
-    const headingCount = countTocHeadingsFromAnalysis(analysis, { depth: 6, min_headings: 1 });
+    const headingCount = countTocHeadingsFromAnalysis(analysis, { depth: 6 });
 
     return headingCount >= 4 || analysis.imageCount >= 3 || analysis.plainLength >= 1600;
 }
@@ -423,10 +419,6 @@ function truncateText(text, length) {
     return (boundary > 0 ? head.substring(0, boundary) : head) + '...';
 }
 
-function excerptTextFromHtml(content, length) {
-    return htmlTextFromHtml(content, length);
-}
-
 function fontFamilyParam(name, weights) {
     const family = name.trim().replace(/\s+/g, '+');
     return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
@@ -517,7 +509,7 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
     if (post.excerpt) {
         result = { content: post.excerpt, truncated: true };
     } else if (limit > 0) {
-        const plain = excerptTextFromHtml(post.content, limit);
+        const plain = htmlTextFromHtml(post.content, limit);
         if (plain.length > limit) {
             result = { content: '<p>' + truncateText(plain, limit) + '</p>', truncated: true };
         } else {
@@ -536,7 +528,7 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
 hexo.extend.helper.register('clean_description', function (page, config) {
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
-    const strip = typeof this.strip_html === 'function' ? this.strip_html : plainTextFromHtml;
+    const strip = typeof this.strip_html === 'function' ? this.strip_html : htmlTextFromHtml;
     let owner = page;
     let raw = '';
     let cacheField = 'cleanDescription';
@@ -551,7 +543,7 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     } else if (isReadingPage && page && page.content) {
         raw = page.content;
         cacheField = 'cleanDescription:content';
-        producer = value => excerptTextFromHtml(value, META_DESCRIPTION_LENGTH);
+        producer = value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
     } else {
         owner = config;
         raw = config && config.description;
