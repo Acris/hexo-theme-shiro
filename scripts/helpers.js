@@ -261,7 +261,7 @@ function htmlCodePoint(match, code, radix) {
     if (!Number.isFinite(value)) return match;
     try {
         return String.fromCodePoint(value);
-    } catch (e) {
+    } catch (_) {
         return match;
     }
 }
@@ -486,7 +486,7 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
         const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
         assetHashCache.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size, hash });
         return url + '?v=' + hash;
-    } catch (e) {
+    } catch (_) {
         // File not found at theme level; fall back to plain url_for
         assetHashCache.set(filePath, { mtimeMs: 0, size: 0, hash: '' });
         return url;

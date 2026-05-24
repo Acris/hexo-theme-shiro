@@ -42,6 +42,13 @@
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
         if (!codeEl || !codeEl.textContent.trim()) return;
 
+        // Hexo highlight wraps each line in <span class="line">;
+        // plain textContent concatenates them without newlines.
+        const lines = codeEl.querySelectorAll('.line');
+        const copyValue = lines.length
+            ? Array.from(lines, line => line.textContent).join('\n')
+            : codeEl.textContent;
+
         // Detect code language from Hexo's class names (e.g., "highlight javascript")
         const langMatch = block.className.match(/\bhighlight\s+(\S+)/);
         const lang = langMatch ? langMatch[1] : '';
@@ -52,13 +59,7 @@
         btn.innerHTML = iconCopy;
 
         btn.addEventListener('click', () => {
-            // Hexo highlight wraps each line in <span class="line">;
-            // plain textContent concatenates them without newlines.
-            const lines = codeEl.querySelectorAll('.line');
-            const text = lines.length
-                ? Array.from(lines, l => l.textContent).join('\n')
-                : codeEl.textContent;
-            copyText(text).then(() => {
+            copyText(copyValue).then(() => {
                 btn.innerHTML = iconDone;
                 btn.classList.add('copied');
                 btn.setAttribute('aria-label', i18nCopied());

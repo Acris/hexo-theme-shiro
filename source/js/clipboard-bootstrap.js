@@ -7,7 +7,7 @@
 
     let loading = false;
 
-    function loadClipboard() {
+    function loadClipboard(onLoaded) {
         if (loading || window.__shiroClipboardLoaded) return;
         loading = true;
 
@@ -17,6 +17,7 @@
         loader.onload = () => {
             loading = false;
             window.__shiroClipboardLoaded = true;
+            if (typeof onLoaded === 'function') onLoaded();
         };
         loader.onerror = () => { loading = false; };
         document.head.appendChild(loader);
@@ -30,8 +31,7 @@
 
     const observer = new IntersectionObserver((entries) => {
         if (!entries[0].isIntersecting) return;
-        observer.disconnect();
-        loadClipboard();
+        loadClipboard(() => observer.disconnect());
     }, { rootMargin: '300px 0px', threshold: 0 });
 
     observer.observe(firstBlock);

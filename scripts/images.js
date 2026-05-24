@@ -72,7 +72,7 @@ function isRemoteUrl(src) {
 function decodeUrlPath(value) {
     try {
         return decodeURIComponent(value);
-    } catch (e) {
+    } catch (_) {
         return value;
     }
 }
@@ -211,7 +211,7 @@ function imageSizeFromFile(filePath) {
     try {
         const buffer = readFileHeader(filePath);
         size = pngSize(buffer) || gifSize(buffer) || jpegSize(buffer) || webpSize(buffer) || svgSize(buffer);
-    } catch (e) {
+    } catch (_) {
         size = null;
     }
     imageMetaCache.set(filePath, size);

@@ -4,15 +4,41 @@
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
         const d = document;
         const href = window.__shiroCommentsCss;
-        if (!href || d.querySelector('link[data-shiro-comments-css]')) return Promise.resolve();
+        if (!href) return Promise.resolve();
         if (window.__shiroCommentsCssLoading) return window.__shiroCommentsCssLoading;
+
+        const existing = d.querySelector('link[data-shiro-comments-css]');
+        if (existing) {
+            if (existing.dataset.shiroLoaded === 'true' || existing.sheet) {
+                existing.dataset.shiroLoaded = 'true';
+                return Promise.resolve();
+            }
+            window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
+                existing.addEventListener('load', () => {
+                    existing.dataset.shiroLoaded = 'true';
+                    resolve();
+                }, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+            }).catch((error) => {
+                window.__shiroCommentsCssLoading = null;
+                throw error;
+            });
+            return window.__shiroCommentsCssLoading;
+        }
+
         window.__shiroCommentsCssLoading = new Promise((resolve, reject) => {
             const link = d.createElement('link');
             link.rel = 'stylesheet';
             link.href = href;
             link.setAttribute('data-shiro-comments-css', 'true');
-            link.onload = resolve;
-            link.onerror = reject;
+            link.onload = () => {
+                link.dataset.shiroLoaded = 'true';
+                resolve();
+            };
+            link.onerror = (event) => {
+                link.remove();
+                reject(event);
+            };
             d.head.appendChild(link);
         }).catch((error) => {
             window.__shiroCommentsCssLoading = null;

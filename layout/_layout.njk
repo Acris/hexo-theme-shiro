@@ -104,7 +104,9 @@
     <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
     {% endif %}
     {% if theme.menu and theme.menu.length %}
-    <script>window.__mobileMenuScript="{{ versioned_url('js/mobile-menu.min.js') }}";</script>
+    {{ feature_script({}, {
+        __mobileMenuScript: versioned_url('js/mobile-menu.min.js')
+    }) }}
     <script defer src="{{ versioned_url('js/mobile-menu-bootstrap.min.js') }}"></script>
     {% endif %}
 

@@ -46,8 +46,8 @@ hexo.extend.filter.register('before_exit', function () {
     try {
         execSync(cmd, { stdio: 'inherit' });
         hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
-    } catch (e) {
-        hexo.log.error('[pagefind] failed: ' + e.message);
+    } catch (error) {
+        hexo.log.error('[pagefind] failed: ' + error.message);
         hexo.log.error('[pagefind] try `npm i pagefind -D` in your site root, or set search.enabled: false');
     }
 }, 20);
