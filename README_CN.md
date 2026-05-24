@@ -350,7 +350,7 @@ hexo-theme-shiro/
 
 1. 在 `languages/` 目录创建新的 YAML 文件（例如 `ko.yml`）。
 2. 复制 `languages/en.yml` 的结构并翻译所有值。
-3. 确保所有顶级键（`back_to_top`、`clipboard_copy`、`clipboard_copied`、`empty`、`gallery_view_image`、`gallery_visit_source`、`index`、`nav`、`page`、`theme`、`toc`）都存在。
+3. 确保所有顶级键（`back_to_top`、`clipboard_copy`、`clipboard_copied`、`empty`、`gallery_view_image`、`gallery_visit_source`、`index`、`nav`、`page`、`search`、`theme`、`toc`）都存在。
 
 ## 致谢
 

@@ -113,6 +113,11 @@ function htmlTextFromHtml(content, length) {
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
 }
 
+function htmlTextReachesLength(content, length) {
+    const limit = Math.max(0, Number(length) || 0);
+    return limit > 0 && htmlTextFromHtml(content, limit).length >= limit;
+}
+
 function cachedStrippedHtml(html) {
     let cache;
     return () => {
@@ -136,19 +141,11 @@ function countHeadingsInHtml(html) {
     return counts;
 }
 
-function plainTextFromHtmlFragment(html) {
-    return html
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
 function defineAnalysisGetters(analysis, html, textHtml) {
     let firstImageCache;
     let imageCountCache;
     let hasCodeCache;
     let headingCountsCache;
-    let plainCache;
 
     Object.defineProperties(analysis, {
         firstImage: {
@@ -179,19 +176,6 @@ function defineAnalysisGetters(analysis, html, textHtml) {
             get() {
                 if (!headingCountsCache) headingCountsCache = countHeadingsInHtml(textHtml());
                 return headingCountsCache;
-            }
-        },
-        plain: {
-            enumerable: true,
-            get() {
-                if (plainCache === undefined) plainCache = plainTextFromHtmlFragment(textHtml());
-                return plainCache;
-            }
-        },
-        plainLength: {
-            enumerable: true,
-            get() {
-                return analysis.plain.length;
             }
         }
     });
@@ -257,7 +241,7 @@ function pageLooksLong(page) {
     const analysis = pageAnalysis(page);
     const headingCount = countTocHeadingsFromAnalysis(analysis, { depth: 6 });
 
-    return headingCount >= 4 || analysis.imageCount >= 3 || analysis.plainLength >= 1600;
+    return headingCount >= 4 || analysis.imageCount >= 3 || htmlTextReachesLength(analysis.html, 1600);
 }
 
 function tocHeadingLevels(tocConfig) {
@@ -557,21 +541,25 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
     const strip = typeof this.strip_html === 'function' ? this.strip_html : htmlTextFromHtml;
+    const textFromHtml = value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
+    const textFromPlain = value => String(strip(value) || '').replace(/\s+/g, ' ').trim();
     let owner = page;
     let raw = '';
     let cacheField = 'cleanDescription';
-    let producer = value => String(strip(value) || '').replace(/\s+/g, ' ').trim();
+    let producer = textFromPlain;
 
     if (page && page.description) {
         raw = page.description;
         cacheField = 'cleanDescription:description';
+        producer = textFromHtml;
     } else if (page && page.excerpt) {
         raw = page.excerpt;
         cacheField = 'cleanDescription:excerpt';
+        producer = textFromHtml;
     } else if (isReadingPage && page && page.content) {
         raw = page.content;
         cacheField = 'cleanDescription:content';
-        producer = value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
+        producer = textFromHtml;
     } else {
         owner = config;
         raw = config && config.description;

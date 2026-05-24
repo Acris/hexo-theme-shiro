@@ -1,84 +1,89 @@
 <script>
 ;(() => {
     window.__shiroCommentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
-    const loadStylesheet = (href, selector, dataAttr, stateKey) => {
-        const d = document;
-        const assetTimeout = 12000;
-        if (!href) return Promise.resolve();
-        if (window[stateKey]) return window[stateKey];
+    const assetTimeout = 12000;
 
-        const waitForStylesheet = (link) => {
-            if (link.dataset.shiroLoaded === 'true' || link.sheet) {
-                link.dataset.shiroLoaded = 'true';
-                return Promise.resolve();
-            }
-            if (link.dataset.shiroError === 'true') {
-                link.remove();
-                return null;
-            }
-
-            return new Promise((resolve, reject) => {
-                const timer = setTimeout(() => {
-                    link.dataset.shiroError = 'true';
-                    link.remove();
-                    reject(new Error('Stylesheet load timed out'));
-                }, assetTimeout);
-                link.addEventListener('load', () => {
-                    clearTimeout(timer);
-                    link.dataset.shiroLoaded = 'true';
-                    delete link.dataset.shiroError;
-                    resolve();
-                }, { once: true });
-                link.addEventListener('error', (event) => {
-                    clearTimeout(timer);
-                    link.dataset.shiroError = 'true';
-                    link.remove();
-                    reject(event);
-                }, { once: true });
-            });
-        };
-
-        const createStylesheet = () => new Promise((resolve, reject) => {
-            const link = d.createElement('link');
+    function assetReady(el, tag) {
+        if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
+            el.dataset.shiroLoaded = 'true';
+            return Promise.resolve();
+        }
+        if (el.dataset.shiroError === 'true') {
+            el.remove();
+            return Promise.reject(new Error('Asset failed to load'));
+        }
+        return new Promise((resolve, reject) => {
             const timer = setTimeout(() => {
-                link.dataset.shiroError = 'true';
-                link.remove();
-                reject(new Error('Stylesheet load timed out'));
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(new Error('Asset load timed out'));
             }, assetTimeout);
-            link.rel = 'stylesheet';
-            link.href = href;
-            link.setAttribute(dataAttr, 'true');
-            link.onload = () => {
+            el.addEventListener('load', () => {
                 clearTimeout(timer);
-                link.dataset.shiroLoaded = 'true';
-                delete link.dataset.shiroError;
+                el.dataset.shiroLoaded = 'true';
+                delete el.dataset.shiroError;
+                resolve();
+            }, { once: true });
+            el.addEventListener('error', (event) => {
+                clearTimeout(timer);
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(event);
+            }, { once: true });
+        });
+    }
+
+    function loadAsset(tag, attrs, selector) {
+        const existing = selector ? document.querySelector(selector) : null;
+        if (existing && existing.dataset.shiroError === 'true') {
+            existing.remove();
+        } else if (existing) {
+            return assetReady(existing, tag);
+        }
+
+        return new Promise((resolve, reject) => {
+            const el = document.createElement(tag);
+            const timer = setTimeout(() => {
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(new Error('Asset load timed out'));
+            }, assetTimeout);
+            Object.keys(attrs).forEach((key) => {
+                if (attrs[key] === true) {
+                    el.setAttribute(key, '');
+                } else {
+                    el.setAttribute(key, attrs[key]);
+                }
+            });
+            el.onload = () => {
+                clearTimeout(timer);
+                el.dataset.shiroLoaded = 'true';
+                delete el.dataset.shiroError;
                 resolve();
             };
-            link.onerror = (event) => {
+            el.onerror = (event) => {
                 clearTimeout(timer);
-                link.dataset.shiroError = 'true';
-                link.remove();
+                el.dataset.shiroError = 'true';
+                el.remove();
                 reject(event);
             };
-            d.head.appendChild(link);
+            document.head.appendChild(el);
         });
+    }
 
-        const existing = d.querySelector(selector);
-        const waiting = existing ? waitForStylesheet(existing) : null;
-        window[stateKey] = (waiting || createStylesheet()).catch((error) => {
-            window[stateKey] = null;
+    window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
+        if (!window.__shiroCommentsCss) return Promise.resolve();
+        if (window.__shiroCommentsCssLoading) return window.__shiroCommentsCssLoading;
+        window.__shiroCommentsCssLoading = loadAsset('link', {
+            rel: 'stylesheet',
+            href: window.__shiroCommentsCss,
+            'data-shiro-comments-css': 'true'
+        }, 'link[data-shiro-comments-css]').catch((error) => {
+            window.__shiroCommentsCssLoading = null;
             throw error;
         });
-        return window[stateKey];
-    };
-
-    window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() =>
-        loadStylesheet(
-            window.__shiroCommentsCss,
-            'link[data-shiro-comments-css]',
-            'data-shiro-comments-css',
-            '__shiroCommentsCssLoading'
-        ));
+        return window.__shiroCommentsCssLoading;
+    });
 
     window.__shiroOnNearViewport = window.__shiroOnNearViewport || ((element, callback, options) => {
         const w = window;

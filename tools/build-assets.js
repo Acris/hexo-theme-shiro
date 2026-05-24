@@ -18,6 +18,12 @@ const snippetMarkers = {
         end: '    // </shiro-asset-loader>',
         file: 'asset-loader.js',
         requires: /\bloadAsset\s*\(/
+    },
+    scriptLoader: {
+        start: '    // <shiro-script-loader>',
+        end: '    // </shiro-script-loader>',
+        file: 'script-loader.js',
+        requires: /\bloadBootstrapScript\s*\(/
     }
 };
 

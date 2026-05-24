@@ -25,7 +25,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
 - `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
 - `tools/build-assets.js` — release asset build script; minifies CSS/JS and injects shared snippets before JS minification.
-- `tools/snippets/` — build-time JavaScript snippets shared by client scripts, currently `asset-loader.js` for lazy asset loading helpers.
+- `tools/snippets/` — build-time JavaScript snippets shared by client scripts, currently `asset-loader.js` for lazy asset loading helpers and `script-loader.js` for tiny bootstrap handoffs.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
 - `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
 - `package.json` — npm scripts and Tailwind development dependencies.

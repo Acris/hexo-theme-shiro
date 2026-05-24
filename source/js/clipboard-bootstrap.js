@@ -2,6 +2,11 @@
     const script = window.__clipboardScript || '';
     if (!script) return;
 
+    /* global loadBootstrapScript */
+    // <shiro-script-loader>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-script-loader>
+
     function createCodeBlockCursor() {
         const articles = document.querySelectorAll('.prose-shiro');
         let articleIndex = 0;
@@ -57,29 +62,27 @@
     }
 
     function loadClipboard(targets, onLoaded) {
-        queueTargets(targets);
-
         if (window.__shiroClipboardLoaded) {
             enhanceTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
             return;
         }
+
+        queueTargets(targets);
         if (loading) return;
         loading = true;
 
-        const loader = document.createElement('script');
-        loader.src = script;
-        loader.defer = true;
-        loader.onload = () => {
-            loading = false;
-            window.__shiroClipboardLoaded = true;
-            enhanceTargets(pendingTargets);
-            pendingTargets.length = 0;
-            window.__shiroClipboardTargets = [];
-            if (typeof onLoaded === 'function') onLoaded();
-        };
-        loader.onerror = () => { loading = false; };
-        document.head.appendChild(loader);
+        loadBootstrapScript(script, {
+            onload: () => {
+                loading = false;
+                window.__shiroClipboardLoaded = true;
+                enhanceTargets(pendingTargets);
+                pendingTargets.length = 0;
+                window.__shiroClipboardTargets = [];
+                if (typeof onLoaded === 'function') onLoaded();
+            },
+            onerror: () => { loading = false; }
+        });
     }
 
     function enhanceRemaining() {
@@ -87,6 +90,14 @@
         while (blocks.length) {
             enhanceTargets(blocks);
             blocks = cursor.next(12);
+        }
+    }
+
+    function schedule(task) {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(task, { timeout: 1000 });
+        } else {
+            window.setTimeout(() => task(), 64);
         }
     }
 
@@ -105,7 +116,9 @@
     }
 
     function observeNextBatch() {
-        observeBatch(cursor.next(8));
+        const blocks = cursor.next(8);
+        observeBatch(blocks);
+        if (blocks.length) schedule(observeNextBatch);
     }
 
     // Load immediately when IntersectionObserver is unavailable or one of the
@@ -122,4 +135,5 @@
     }
 
     observeBatch(eagerBlocks);
+    schedule(observeNextBatch);
 })();

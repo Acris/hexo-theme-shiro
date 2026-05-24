@@ -1,4 +1,4 @@
-{% from "_macro/ui.njk" import svg_filters, feature_script %}
+{% from "_macro/ui.njk" import svg_filters %}
 <!doctype html>
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
@@ -50,44 +50,53 @@
     </button>
     {% endif %}
 
-    {% if theme.search.enabled %}
-    {% set search_i18n = {
-        button: __('search.button'),
-        placeholder: __('search.placeholder'),
-        close: __('search.close'),
-        zero_results: __('search.zero_results'),
-        one_result: __('search.one_result'),
-        many_results: __('search.many_results'),
-        loading: __('search.loading')
-    } %}
-    {{ feature_script({ search: search_i18n }, {
-        __pagefindBase: url_for('/pagefind/'),
-        __searchCss: versioned_url('css/search.min.css'),
-        __searchScript: versioned_url('js/search.min.js')
-    }) }}
-    <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
-    {% endif %}
-
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
+    {% set needs_clipboard = page_has_code(page, theme) %}
+    {% set needs_mobile_menu = theme.menu and theme.menu.length %}
+    {% set needs_feature_data = theme.search.enabled or needs_lightgallery or needs_clipboard or needs_mobile_menu %}
+    {% if needs_feature_data %}
+    <script>
+        {% if theme.search.enabled or needs_lightgallery or needs_clipboard %}
+        window.__i18n = window.__i18n || {};
+        {% endif %}
+        {% if theme.search.enabled %}
+        window.__i18n["search"] = {
+            button: {{ __('search.button') | dump | safe }},
+            placeholder: {{ __('search.placeholder') | dump | safe }},
+            close: {{ __('search.close') | dump | safe }},
+            zero_results: {{ __('search.zero_results') | dump | safe }},
+            one_result: {{ __('search.one_result') | dump | safe }},
+            many_results: {{ __('search.many_results') | dump | safe }},
+            loading: {{ __('search.loading') | dump | safe }}
+        };
+        window["__pagefindBase"] = {{ url_for('/pagefind/') | dump | safe }};
+        window["__searchCss"] = {{ versioned_url('css/search.min.css') | dump | safe }};
+        window["__searchScript"] = {{ versioned_url('js/search.min.js') | dump | safe }};
+        {% endif %}
+        {% if needs_lightgallery %}
+        window.__i18n["gallery_visit_source"] = {{ __('gallery_visit_source') | dump | safe }};
+        window.__i18n["gallery_view_image"] = {{ __('gallery_view_image') | dump | safe }};
+        window["__lightgalleryThemeCss"] = {{ versioned_url('css/lightgallery.min.css') | dump | safe }};
+        window["__lightgalleryScript"] = {{ versioned_url('js/lightgallery.min.js') | dump | safe }};
+        {% endif %}
+        {% if needs_clipboard %}
+        window.__i18n["clipboard_copy"] = {{ __('clipboard_copy') | dump | safe }};
+        window.__i18n["clipboard_copied"] = {{ __('clipboard_copied') | dump | safe }};
+        window["__clipboardScript"] = {{ versioned_url('js/clipboard.min.js') | dump | safe }};
+        {% endif %}
+        {% if needs_mobile_menu %}
+        window["__mobileMenuScript"] = {{ versioned_url('js/mobile-menu.min.js') | dump | safe }};
+        {% endif %}
+    </script>
+    {% endif %}
+    {% if theme.search.enabled %}
+    <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
+    {% endif %}
     {% if needs_lightgallery %}
-    {{ feature_script({
-        gallery_visit_source: __('gallery_visit_source'),
-        gallery_view_image: __('gallery_view_image')
-    }, {
-        __lightgalleryThemeCss: versioned_url('css/lightgallery.min.css'),
-        __lightgalleryScript: versioned_url('js/lightgallery.min.js')
-    }) }}
     <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
     {% endif %}
-    {% set needs_clipboard = page_has_code(page, theme) %}
     {% if needs_clipboard %}
-    {{ feature_script({
-        clipboard_copy: __('clipboard_copy'),
-        clipboard_copied: __('clipboard_copied')
-    }, {
-        __clipboardScript: versioned_url('js/clipboard.min.js')
-    }) }}
     <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
     {% endif %}
     {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
@@ -103,10 +112,7 @@
     {% if theme.dark_mode.toggle != false %}
     <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
     {% endif %}
-    {% if theme.menu and theme.menu.length %}
-    {{ feature_script({}, {
-        __mobileMenuScript: versioned_url('js/mobile-menu.min.js')
-    }) }}
+    {% if needs_mobile_menu %}
     <script defer src="{{ versioned_url('js/mobile-menu-bootstrap.min.js') }}"></script>
     {% endif %}
 

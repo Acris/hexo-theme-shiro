@@ -2,6 +2,11 @@
     const script = window.__lightgalleryScript || '';
     if (!script) return;
 
+    /* global loadBootstrapScript */
+    // <shiro-script-loader>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-script-loader>
+
     let loading = false;
 
     function removeBootstrapListeners() {
@@ -19,17 +24,13 @@
         if (loading) return;
         loading = true;
 
-        const loader = document.createElement('script');
-        loader.src = script;
-        loader.defer = true;
-        loader.onload = () => {
-            removeBootstrapListeners();
-        };
-        loader.onerror = () => {
-            loading = false;
-            window.__shiroLightGalleryAutoOpen = null;
-        };
-        document.head.appendChild(loader);
+        loadBootstrapScript(script, {
+            onload: removeBootstrapListeners,
+            onerror: () => {
+                loading = false;
+                window.__shiroLightGalleryAutoOpen = null;
+            }
+        });
     }
 
     function handleClick(event) {

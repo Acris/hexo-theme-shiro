@@ -2,6 +2,11 @@
     const script = window.__searchScript || '';
     if (!script) return;
 
+    /* global loadBootstrapScript */
+    // <shiro-script-loader>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-script-loader>
+
     const toggle = document.getElementById('searchToggle');
     let loading = false;
 
@@ -15,14 +20,10 @@
         if (loading) return;
         loading = true;
 
-        const loader = document.createElement('script');
-        loader.src = script;
-        loader.defer = true;
-        loader.onload = () => {
-            loading = false;
-        };
-        loader.onerror = () => { loading = false; };
-        document.head.appendChild(loader);
+        loadBootstrapScript(script, {
+            onload: () => { loading = false; },
+            onerror: () => { loading = false; }
+        });
     }
 
     function handleIntent(event) {

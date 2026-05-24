@@ -355,7 +355,7 @@ Note: After modifying `_tailwind.css`, optional feature CSS, files under `source
 
 1. Create a new YAML file in `languages/` (e.g., `ko.yml`).
 2. Copy the structure from `languages/en.yml` and translate all values.
-3. Ensure all top-level keys (`back_to_top`, `clipboard_copy`, `clipboard_copied`, `empty`, `gallery_view_image`, `gallery_visit_source`, `index`, `nav`, `page`, `theme`, `toc`) are present.
+3. Ensure all top-level keys (`back_to_top`, `clipboard_copy`, `clipboard_copied`, `empty`, `gallery_view_image`, `gallery_visit_source`, `index`, `nav`, `page`, `search`, `theme`, `toc`) are present.
 
 ## Thanks
 
