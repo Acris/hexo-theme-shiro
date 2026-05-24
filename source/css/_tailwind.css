@@ -214,7 +214,7 @@
     }
 
     .header-pill-btn {
-        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
+        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
 
         &:hover {
             @apply bg-paper text-seal shadow-xs;
