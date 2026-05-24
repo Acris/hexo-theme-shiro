@@ -153,16 +153,14 @@
         /* Base tone only on the element itself for fast compositing */
         background: linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
 
-        /* Decorative grain layers promoted to a fixed pseudo-element so the
-           browser can cache the texture as a GPU layer and skip repainting
-           it on every scroll frame. */
+        /* Decorative grain layers stay on a static fixed pseudo-element.
+           Avoid forcing a persistent GPU layer; the texture is not animated. */
         &::before {
             content: "";
             position: fixed;
             inset: 0;
             z-index: -1;
             pointer-events: none;
-            will-change: transform;  /* force own compositing layer */
             background:
                 /* [1-3] Color patches — uneven pulp distribution */
                 radial-gradient(ellipse 650px 420px at 25% 45%, rgba(180, 160, 130, 0.025), transparent 65%),
@@ -185,16 +183,15 @@
 
         &::before {
             content: "";
-            @apply absolute inset-0 pointer-events-none mix-blend-multiply;
+            @apply absolute inset-0 pointer-events-none;
             z-index: -1;
-            opacity: 0.2;
-            filter: blur(0.3px);
+            opacity: 0.14;
             background-image:
-                radial-gradient(circle at 18% 28%, rgba(0, 0, 0, 0.05) 0 0.4px, transparent 0.9px),
-                radial-gradient(circle at 76% 65%, rgba(0, 0, 0, 0.04) 0 0.6px, transparent 1px),
-                radial-gradient(circle at 42% 55%, rgba(0, 0, 0, 0.035) 0 0.5px, transparent 0.9px),
-                radial-gradient(circle at 60% 20%, rgba(0, 0, 0, 0.03) 0 0.3px, transparent 0.7px),
-                radial-gradient(circle at 90% 40%, rgba(0, 0, 0, 0.025) 0 0.4px, transparent 0.8px);
+                radial-gradient(circle at 18% 28%, rgba(0, 0, 0, 0.07) 0 0.4px, transparent 0.9px),
+                radial-gradient(circle at 76% 65%, rgba(0, 0, 0, 0.06) 0 0.6px, transparent 1px),
+                radial-gradient(circle at 42% 55%, rgba(0, 0, 0, 0.05) 0 0.5px, transparent 0.9px),
+                radial-gradient(circle at 60% 20%, rgba(0, 0, 0, 0.045) 0 0.3px, transparent 0.7px),
+                radial-gradient(circle at 90% 40%, rgba(0, 0, 0, 0.04) 0 0.4px, transparent 0.8px);
             background-size: 110px 130px, 170px 150px, 210px 230px, 140px 190px, 250px 180px;
             background-position: 0 0, 45px 35px, 85px 65px, 20px 90px, 130px 15px;
         }
@@ -519,13 +516,11 @@
         box-shadow: var(--shadow-paper);
 
         &::before {
-            opacity: 0.04;
-            filter: blur(0.5px);
-            mix-blend-mode: soft-light;
+            opacity: 0.045;
             background-image:
-                radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.06) 0 1px, transparent 2px),
-                radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.05) 0 1px, transparent 2px),
-                radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.04) 0 1px, transparent 2px);
+                radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.07) 0 1px, transparent 2px),
+                radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.06) 0 1px, transparent 2px),
+                radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.05) 0 1px, transparent 2px);
             background-size: 200px 220px, 280px 260px, 340px 310px;
             background-position: 0 0, 60px 40px, 120px 80px;
         }
@@ -538,8 +533,6 @@
 
         .paper::before {
             opacity: 0.12;
-            filter: none;
-            mix-blend-mode: normal;
             background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 32%, rgba(0, 0, 0, 0.025));
             background-size: auto;
             background-position: 0 0;
@@ -547,8 +540,6 @@
 
         .dark .paper::before {
             opacity: 0.05;
-            filter: none;
-            mix-blend-mode: normal;
             background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(255, 255, 255, 0.05));
             background-size: auto;
             background-position: 0 0;
