@@ -11,6 +11,7 @@
 
     const html = document.documentElement;
     const defaultTheme = window.__themeDefault || 'system';
+    const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const states = defaultTheme === 'system'
         ? ['system', 'light', 'dark']
         : ['light', 'dark'];
@@ -38,7 +39,7 @@
             html.classList.remove('dark');
             html.style.colorScheme = 'light';
         } else {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const prefersDark = prefersDarkQuery.matches;
             html.classList.toggle('dark', prefersDark);
             html.style.colorScheme = prefersDark ? 'dark' : 'light';
         }
@@ -77,7 +78,7 @@
     btn.addEventListener('click', cycle);
 
     // Listen for system preference changes when in 'system' mode
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    prefersDarkQuery.addEventListener('change', () => {
         if (getState() === 'system') apply('system');
     });
 

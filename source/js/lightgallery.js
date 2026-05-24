@@ -277,10 +277,6 @@
         // the click aligned with the lightbox intent by opening the image URL.
         const href = link.getAttribute('data-src') || link.getAttribute('href');
         if (!href) return;
-        if (!link.getAttribute('data-src') && link.target === '_blank') {
-            window.open(href, '_blank', 'noopener');
-            return;
-        }
         window.location.href = href;
     }
 

@@ -155,6 +155,11 @@
         });
     }
 
+    function isTypingTarget(element) {
+        const tag = element && element.tagName;
+        return !!(element && (element.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'));
+    }
+
     function close() {
         if (!modal || modal.getAttribute('data-open') !== 'true') return;
         modal.setAttribute('data-open', 'false');
@@ -180,7 +185,12 @@
         if (event.key === 'Escape' && isOpen) {
             event.preventDefault();
             close();
+            return;
         }
+
+        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(document.activeElement)) return;
+        event.preventDefault();
+        open();
     });
 
     if (window.__shiroSearchAutoOpen) {
