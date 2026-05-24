@@ -1139,7 +1139,6 @@
 
     /* Dark: desktop nav */
     .dark nav ul.flex > li > a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
-    .dark nav ul.flex > li.nav-divider { color: var(--color-border-strong); }
 
     /* Dark: header pill buttons */
     .dark .header-pill-btn {

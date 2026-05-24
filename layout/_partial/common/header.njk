@@ -70,7 +70,7 @@
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
-            <li class="nav-divider text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
+            <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
             {% endfor %}
         </ul>
