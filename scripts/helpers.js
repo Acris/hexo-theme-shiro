@@ -253,7 +253,8 @@ function escapeHtml(value) {
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function htmlCodePoint(match, code, radix) {
@@ -597,7 +598,7 @@ hexo.extend.generator.register('favicon_svg', function (locals) {
         + '<text x="50" y="50" text-anchor="middle" dominant-baseline="central" '
         + 'font-family="\'Yuji Syuku\',\'Zen Old Mincho\',\'Noto Serif JP\',serif" font-size="42" '
         + 'fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)" style="user-select:none">'
-        + text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        + escapeHtml(text)
         + '</text></svg>';
     return { path: 'favicon.svg', data: svg };
 });

@@ -2,7 +2,35 @@
 
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
+
+function pagefindCommand() {
+    try {
+        const pkgPath = require.resolve('pagefind/package.json');
+        const pkg = require(pkgPath);
+        const binRel = typeof pkg.bin === 'string' ? pkg.bin : (pkg.bin && pkg.bin.pagefind);
+        if (!binRel) throw new Error('pagefind bin not declared');
+
+        return {
+            command: process.execPath,
+            args: [path.join(path.dirname(pkgPath), binRel)]
+        };
+    } catch (_) {
+        return {
+            command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
+            args: ['--yes', 'pagefind']
+        };
+    }
+}
+
+function runPagefind(args) {
+    const runner = pagefindCommand();
+    const result = spawnSync(runner.command, runner.args.concat(args), { stdio: 'inherit' });
+
+    if (result.error) throw result.error;
+    if (result.signal) throw new Error('terminated by signal ' + result.signal);
+    if (result.status !== 0) throw new Error('exited with code ' + result.status);
+}
 
 // Run Pagefind after Hexo has finished writing files to `public/`.
 // `after_generate` filter fires *before* the generate console writes routes to
@@ -25,26 +53,9 @@ hexo.extend.filter.register('before_exit', function () {
     const args = ['--site', publicDir];
     if (cfg.force_language) args.push('--force-language', cfg.force_language);
 
-    const quoted = args.map(a => `"${a}"`).join(' ');
-
-    // Resolve the pagefind binary via its package.json `bin` field rather than
-    // hard-coding `lib/runner/bin.cjs` — this stays correct even if Pagefind
-    // moves the entry file in a future release.
-    let cmd;
-    try {
-        const pkgPath = require.resolve('pagefind/package.json');
-        const pkg = require(pkgPath);
-        const binRel = typeof pkg.bin === 'string' ? pkg.bin : (pkg.bin && pkg.bin.pagefind);
-        if (!binRel) throw new Error('pagefind bin not declared');
-        const bin = path.join(path.dirname(pkgPath), binRel);
-        cmd = `node "${bin}" ${quoted}`;
-    } catch (_) {
-        cmd = `npx --yes pagefind ${quoted}`;
-    }
-
     hexo.log.info('[pagefind] building search index...');
     try {
-        execSync(cmd, { stdio: 'inherit' });
+        runPagefind(args);
         hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
     } catch (error) {
         hexo.log.error('[pagefind] failed: ' + error.message);
