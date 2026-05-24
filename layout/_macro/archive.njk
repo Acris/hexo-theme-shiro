@@ -2,11 +2,11 @@
 
 {# Single archive entry: date + linked title. Shared by both list macros below. #}
 {% macro archive_item(post) %}
-<article class="archive-item group">
-    <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="archive-date">
+<article class="group flex items-baseline gap-6">
+    <time datetime="{{ date(post.date, 'YYYY-MM-DD') }}" class="w-24 shrink-0 text-right text-sm font-medium text-slate-400 oldstyle-nums">
         {{ date(post.date, 'YYYY/MM/DD') }}
     </time>
-    <h3 class="archive-title">
+    <h3 class="text-base font-normal text-slate-700 transition-colors group-hover:text-seal">
         <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
     </h3>
 </article>

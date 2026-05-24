@@ -42,7 +42,7 @@
 {# Shared section header: title + optional value, with horizontal divider underline.
    Used by archive, tag, and category pages. #}
 {% macro section_title(label, value="") %}
-<header class="section-header">
+<header class="mb-10 text-center">
     <h1 class="section-title">
         {% if value %}{{ label }}: {{ value }}{% else %}{{ label }}{% endif %}
     </h1>

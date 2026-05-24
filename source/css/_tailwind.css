@@ -265,24 +265,8 @@
         @apply md:text-[2.2rem];
     }
 
-    .card-title {
-        @apply font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem];
-    }
-
     .section-heading {
         @apply mb-6 flex items-center gap-2 border-b border-slate-100 pb-2 text-xl font-bold text-slate-800;
-    }
-
-    .archive-item {
-        @apply flex items-baseline gap-6;
-    }
-
-    .archive-date {
-        @apply w-24 shrink-0 text-right text-sm font-medium text-slate-400 oldstyle-nums;
-    }
-
-    .archive-title {
-        @apply text-base font-normal text-slate-700 transition-colors group-hover:text-seal;
     }
 
     .post-nav-link {
@@ -300,18 +284,6 @@
     .tag-pill {
         @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-seal/50 hover:text-seal;
         transition-property: color, border-color;
-    }
-
-    .content-article {
-        @apply py-2;
-    }
-
-    .section-shell {
-        @apply mx-auto max-w-3xl;
-    }
-
-    .section-header {
-        @apply mb-10 text-center;
     }
 
     .section-divider {
@@ -518,7 +490,6 @@
     .search-modal:not([data-open="true"]) {
         display: none;
     }
-
 
     .prose-shiro {
         @apply mx-auto font-serif leading-relaxed prose prose-slate;
@@ -758,7 +729,7 @@
 
    Two sections, slotted into Tailwind v4 built-in layers:
      1. Root token swaps on `.dark` → `@layer base`.
-     2. Component overrides scoped under `.dark .xxx` → `@layer components`.
+     2. Component overrides scoped under `.dark .component` → `@layer components`.
    ══════════════════════════════════════════════════════════════ */
 
 /* ── Dark mode: root token swap ── */
@@ -900,8 +871,8 @@
        ────────────────────────────────────────────── */
 
     /* Dark: Typography — only overrides that differ from auto-adapted slate values.
-       .site-title (slate-900), .site-subtitle (slate-500), .page-title/.section-title (slate-900),
-       .archive-date (slate-400), .archive-title (slate-700) auto-adapt via --color-slate-* overrides. */
+       .site-title (slate-900), .site-subtitle (slate-500), and .page-title/.section-title (slate-900)
+       auto-adapt via --color-slate-* overrides. */
 
     .dark .section-heading {
         border-color: var(--color-border-strong);

@@ -1,7 +1,7 @@
 {% from "_macro/ui.njk" import meta with context %}
-<article class="content-article">
+<article class="py-2">
     <header class="text-center mb-4">
-        <h2 class="card-title">
+        <h2 class="font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
             <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
         </h2>
         {{ meta(post) }}

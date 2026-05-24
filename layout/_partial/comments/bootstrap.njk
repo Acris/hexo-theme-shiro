@@ -1,7 +1,8 @@
 <script>
 ;(() => {
-    window.__shiroCommentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
+    const commentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
     const assetTimeout = 12000;
+    let commentsCssLoading = null;
 
     function assetReady(el, tag) {
         if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
@@ -72,17 +73,17 @@
     }
 
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
-        if (!window.__shiroCommentsCss) return Promise.resolve();
-        if (window.__shiroCommentsCssLoading) return window.__shiroCommentsCssLoading;
-        window.__shiroCommentsCssLoading = loadAsset('link', {
+        if (!commentsCss) return Promise.resolve();
+        if (commentsCssLoading) return commentsCssLoading;
+        commentsCssLoading = loadAsset('link', {
             rel: 'stylesheet',
-            href: window.__shiroCommentsCss,
+            href: commentsCss,
             'data-shiro-comments-css': 'true'
         }, 'link[data-shiro-comments-css]').catch((error) => {
-            window.__shiroCommentsCssLoading = null;
+            commentsCssLoading = null;
             throw error;
         });
-        return window.__shiroCommentsCssLoading;
+        return commentsCssLoading;
     });
 
     window.__shiroOnNearViewport = window.__shiroOnNearViewport || ((element, callback, options) => {

@@ -3,7 +3,7 @@
 {% block content %}
 {% from "_macro/ui.njk" import section_title with context %}
 {% from "_macro/archive.njk" import render_list with context %}
-<section class="section-shell">
+<section class="mx-auto max-w-3xl">
     {{ section_title(__('nav.archives'), page.year if (page.year and is_archive()) else '') }}
 
     {% set posts = page.posts.sort('date', -1) %}

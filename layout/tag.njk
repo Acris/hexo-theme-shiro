@@ -2,7 +2,7 @@
 {% from "_macro/ui.njk" import section_title, render_tag with context %}
 
 {% block content %}
-<section class="section-shell">
+<section class="mx-auto max-w-3xl">
     {{ section_title(__('nav.tags'), page.tag if (page.tag and is_tag()) else '') }}
 
     {% if is_tag() %}
