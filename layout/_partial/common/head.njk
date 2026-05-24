@@ -87,5 +87,13 @@
     {% endif %}
 
     <!-- CSS -->
+    {% set needs_code_styles = page_has_code(page, theme) %}
+    {% set needs_toc_styles = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
     <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
+    {% if needs_code_styles %}
+    <link rel="stylesheet" href="{{ versioned_url('css/code.min.css') }}">
+    {% endif %}
+    {% if needs_toc_styles %}
+    <link rel="stylesheet" href="{{ versioned_url('css/toc.min.css') }}">
+    {% endif %}
 </head>

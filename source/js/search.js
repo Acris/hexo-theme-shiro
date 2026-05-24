@@ -94,7 +94,7 @@
             + '<div class="search-modal__header">'
             + '<h2 id="searchModalTitle" class="search-modal__title">' + escapeHtml(i18n.button || 'Search') + '</h2>'
             + '<button type="button" class="search-modal__close" data-search-close aria-label="' + escapeHtml(i18n.close || 'Close') + '">'
-            + '<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">'
+            + '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">'
             + '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"></path>'
             + '</svg></button></div>'
             + '<div class="search-modal__body"><div id="pagefindContainer"></div></div>'

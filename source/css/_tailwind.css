@@ -7,7 +7,7 @@
  *
  * This file contains the core theme styles that every page needs. Optional
  * feature styles live in standalone CSS modules under source/css/:
- * search.css, lightgallery.css, comments.css, and giscus.css. Those files
+ * code.css, toc.css, search.css, lightgallery.css, comments.css, and giscus.css. Those files
  * are hand-authored plain CSS because they mostly adapt runtime/third-party
  * UI and do not need Tailwind compilation.
  *
@@ -25,7 +25,6 @@
 @plugin "@tailwindcss/typography";
 
 @source "../../layout/**/*.njk";
-@source "../../source/js/**/*.js";
 
 @theme {
     --color-paper: #ffffff;
@@ -305,145 +304,6 @@
         }
     }
 
-    /* ── TOC: Sidebar (xl+ screens) ── */
-    .toc-sidebar {
-        @apply fixed top-1/2 z-30 -translate-y-1/2;
-        /* Position relative to the paper card (max-w-4xl = 896px) */
-        right: max(1rem, calc((100vw - 896px) / 2 - 220px));
-        width: 200px;
-    }
-
-    .toc-sidebar-inner {
-        @apply border border-soft-border rounded-lg flex flex-col overflow-hidden;
-        background: var(--color-bg-panel);
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-        max-height: 60vh;
-    }
-
-    .toc-fade-in {
-        opacity: 0;
-        transition: opacity 0.4s var(--ease-soft);
-    }
-
-    .toc-fade-in.toc-visible {
-        opacity: 1;
-    }
-
-    .toc-sidebar-title {
-        @apply font-title text-xs tracking-wide text-slate-400 text-center shrink-0;
-        padding: 1rem 1rem 0.75rem 1rem;
-
-        &::before {
-            content: "—\00a0";
-            @apply text-slate-300;
-        }
-
-        &::after {
-            content: "\00a0—";
-            @apply text-slate-300;
-        }
-    }
-
-    .toc-sidebar-inner .toc-body {
-        @apply flex-1 overflow-y-auto;
-        scrollbar-width: none;
-        padding: 0 1rem 1rem 1rem;
-
-        &::-webkit-scrollbar {
-            display: none;
-        }
-    }
-
-    /* ── TOC: Inline (small screens) ── */
-    .toc-inline {
-        @apply border border-soft-border rounded-lg overflow-hidden;
-        background: var(--color-bg-panel);
-    }
-
-    .toc-toggle {
-        @apply w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-500 transition-colors hover:text-seal;
-    }
-
-    .toc-toggle-title {
-        @apply font-title text-xs tracking-wide;
-
-        &::before {
-            content: "—\00a0";
-            @apply text-slate-300;
-        }
-
-        &::after {
-            content: "\00a0—";
-            @apply text-slate-300;
-        }
-    }
-
-    .toc-inline .toc-body {
-        @apply px-4 overflow-hidden duration-300 ease-soft;
-        transition-property: max-height, opacity, padding;
-        max-height: 0;
-        opacity: 0;
-
-        &[data-open="true"] {
-            /* max-height set dynamically by JS for smooth animation */
-            opacity: 1;
-            @apply pb-4;
-        }
-    }
-
-    /* ── TOC: Shared list styles ── */
-    .toc-list {
-        @apply list-none p-0 m-0 space-y-1;
-    }
-
-    .toc-item {
-        @apply leading-snug;
-
-        &[data-level="0"] {
-            @apply pl-3;
-        }
-
-        &[data-level="1"] {
-            @apply pl-6;
-        }
-
-        &[data-level="2"] {
-            @apply pl-9;
-        }
-    }
-
-    .toc-link {
-        @apply block py-1 text-slate-500 no-underline transition-colors duration-200 ease-soft relative font-serif;
-        font-size: 0.8rem;
-        line-height: 1.6;
-
-        &::before {
-            content: '';
-            @apply absolute rounded-full duration-200 ease-soft bg-seal;
-            transition-property: opacity, transform;
-            left: -0.65rem;
-            top: 50%;
-            width: 4px;
-            height: 4px;
-            opacity: 0;
-            transform: translateY(-50%) scale(0);
-        }
-
-        &:hover {
-            @apply text-seal;
-        }
-
-        &.active {
-            @apply text-seal;
-            @apply font-medium;
-
-            &::before {
-                opacity: 1;
-                transform: translateY(-50%) scale(1);
-            }
-        }
-    }
-
     /* ── Progress Bar ── */
     .progress-bar {
         @apply fixed top-0 inset-x-0 z-50 bg-seal origin-left pointer-events-none;
@@ -506,123 +366,6 @@
             @apply text-seal;
         }
 
-        & .highlight:not(.not-prose) {
-            @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-slate-700 shadow-sm;
-            padding: 0;
-            width: 100%;
-            min-width: 0;
-        }
-
-        & .highlight table {
-            @apply my-0 w-full border-collapse;
-            min-width: 100%;
-        }
-
-        & .highlight td {
-            @apply border-0 p-0;
-        }
-
-        & .highlight td.gutter {
-            @apply w-10 min-w-10 select-none border-r border-slate-200 bg-slate-100 text-right text-slate-400;
-        }
-
-        & .highlight pre {
-            @apply m-0 bg-transparent text-sm leading-relaxed text-inherit;
-        }
-
-        /* ── Syntax highlighting (Hexo highlight.js tokens) ──
-           Light palette tuned to Shiro's "warm paper + ink + vermilion seal"
-           aesthetic. Four-color system:
-             - ink (deep slate)  → names / titles / types
-             - seal (vermilion)  → keywords / language constructs
-             - moss (olive ink)  → strings / regex / attrs
-             - ochre (burnt sienna) → numbers / variables / tags
-           Targets the standard token class names emitted by hexo-util's
-           highlight.js wrapper inside `.highlight`. */
-        & .highlight {
-            & .comment,
-            & .quote { color: #a8a29e; font-style: italic; }
-            & .keyword,
-            & .selector-tag,
-            & .literal,
-            & .section,
-            & .link,
-            & .meta-keyword { color: var(--color-seal); }
-            & .string,
-            & .doctag,
-            & .template-tag,
-            & .template-variable,
-            & .regexp,
-            & .meta-string,
-            & .attr { color: #5b6e3a; }
-            & .number,
-            & .symbol,
-            & .bullet { color: #a85a1f; }
-            & .title,
-            & .name,
-            & .selector-id,
-            & .selector-class,
-            & .built_in,
-            & .builtin-name,
-            & .type,
-            & .class .title,
-            & .params { color: var(--color-ink); font-weight: 600; }
-            & .attribute,
-            & .variable,
-            & .tag { color: #8a4a1a; }
-            & .meta { color: #8a8278; }
-            & .addition { color: #4a6b2a; background-color: rgba(91, 110, 58, 0.10); }
-            & .deletion { color: var(--color-seal); background-color: rgba(175, 58, 82, 0.08); }
-            & .emphasis { font-style: italic; }
-            & .strong { font-weight: 600; }
-        }
-
-        /* Hexo `{% codeblock lang Title url %}` renders a <figcaption>
-           inside `.highlight`. Style it as a subtle, paper-toned label. */
-        & .highlight figcaption {
-            @apply flex items-center justify-between px-3 py-1.5 text-xs text-slate-500;
-            background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-            border-bottom: 1px solid var(--color-slate-200);
-            margin: 0;
-
-            & a {
-                @apply text-slate-500 no-underline;
-                &:hover { @apply text-seal; }
-            }
-        }
-
-        /* Highlighted line (Hexo `mark` argument). Subtle seal-tinted wash. */
-        & .highlight .line.marked {
-            background-color: color-mix(in srgb, var(--color-seal) 8%, transparent);
-        }
-
-        /* Reset pre>code so prose's inline-code styling (seal background,
-           padding) does not leak into highlighted code blocks. */
-        & pre > code {
-            background: none;
-            padding: 0;
-            color: inherit;
-            font-weight: inherit;
-            text-shadow: none;
-            border-radius: 0;
-
-            &::before, &::after { content: ""; }
-        }
-
-        /* GitHub Gist embeds — keep them visually aligned with .highlight. */
-        & .gist {
-            @apply my-6 overflow-x-auto rounded-lg border border-slate-100 bg-slate-50 text-sm shadow-sm;
-
-            & .gist-file { border: 0; margin: 0; }
-            & .gist-data { background: transparent; border-bottom: 1px solid var(--color-slate-200); }
-            & .gist-meta {
-                @apply px-3 py-2 text-xs text-slate-500;
-                background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-                & a { @apply text-slate-600 no-underline; &:hover { @apply text-seal; } }
-            }
-            & .line-numbers { color: var(--color-slate-400); }
-        }
-
         & code {
             padding-inline: 0.25em;
             overflow-wrap: break-word;
@@ -632,51 +375,6 @@
             &::after {
                 content: "";
             }
-        }
-    }
-
-    /* Wrapper injected by clipboard.js around <pre> code blocks.
-       Uses negative side margins on >=lg screens to bleed beyond the
-       reading column. No real conflict with prose styles — prose targets
-       <pre>/<code> directly while this targets the parent wrapper. */
-    .highlight-wrapper {
-        @apply relative;
-        width: 100%;
-
-        @media (min-width: 1024px) {
-            width: calc(100% + 7rem);
-            margin-left: -3.5rem;
-            margin-right: -3.5rem;
-        }
-
-        & > .copy-btn {
-            @apply absolute top-2 right-2 z-10 flex items-center justify-center border border-slate-200/60 bg-paper/90 p-1.5 text-slate-300 opacity-0 shadow-xs duration-300 ease-soft transition-visual;
-            border-radius: 2px;
-
-            &:hover {
-                border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
-                @apply text-seal bg-paper/90;
-            }
-
-            &.copied {
-                @apply border-seal text-seal;
-                opacity: 0.85;
-            }
-        }
-
-        &:hover > .copy-btn {
-            @apply opacity-70;
-
-            &:hover {
-                @apply opacity-100;
-            }
-        }
-
-        & > .code-lang {
-            @apply absolute bottom-2 right-2 select-none pointer-events-none font-code;
-            font-size: 0.65rem;
-            letter-spacing: 0.04em;
-            color: var(--color-text-faint);
         }
     }
 }
@@ -939,27 +637,6 @@
         & .space { color: var(--color-border-strong); }
     }
 
-    /* Dark: TOC */
-    .dark .toc-sidebar-inner {
-        background: var(--color-bg-panel);
-        box-shadow: 0 0 0 1px rgba(200, 200, 200, 0.05), 0 4px 16px rgba(0, 0, 0, 0.3);
-        @apply border-soft-border;
-    }
-
-    .dark .toc-sidebar-title {
-        color: var(--color-text-subtle);
-        &::before, &::after { color: var(--color-border-strong); }
-    }
-
-    .dark .toc-inline { background: var(--color-bg-panel); @apply border-soft-border; }
-    .dark .toc-toggle { color: var(--color-text-muted); &:hover { @apply text-seal; } }
-    .dark .toc-toggle-title { &::before, &::after { color: var(--color-border-strong); } }
-    .dark .toc-sidebar .toc-link {
-        color: var(--color-text-muted);
-        &:hover { @apply text-seal; }
-        &.active { @apply text-seal; }
-    }
-
     /* Dark: back to top */
     .dark .back-to-top {
         border-color: var(--color-border-strong);
@@ -989,96 +666,6 @@
         --tw-prose-td-borders: var(--color-border-decorative);
 
         & a:hover { @apply text-seal; }
-
-        & .highlight:not(.not-prose) {
-            border-color: var(--color-border-strong);
-            background-color: var(--color-code-bg);
-            color: var(--color-text-body);
-        }
-
-        & .highlight td.gutter {
-            border-color: var(--color-border-strong);
-            background-color: var(--color-code-gutter);
-            color: var(--color-text-subtle);
-        }
-
-        /* Dark: syntax highlighting tokens — same four-color system as
-           light, brightened for the dark code background. Avoids blue/purple
-           to stay consistent with the theme's ink + seal identity. */
-        & .highlight {
-            & .comment,
-            & .quote { color: var(--color-text-subtle); font-style: italic; }
-            & .keyword,
-            & .selector-tag,
-            & .literal,
-            & .section,
-            & .link,
-            & .meta-keyword { color: color-mix(in srgb, var(--color-seal) 75%, white); }
-            & .string,
-            & .doctag,
-            & .template-tag,
-            & .template-variable,
-            & .regexp,
-            & .meta-string,
-            & .attr { color: #b5c48a; }
-            & .number,
-            & .symbol,
-            & .bullet { color: #e0a571; }
-            & .title,
-            & .name,
-            & .selector-id,
-            & .selector-class,
-            & .built_in,
-            & .builtin-name,
-            & .type,
-            & .class .title,
-            & .params { color: var(--color-text-heading); font-weight: 600; }
-            & .attribute,
-            & .variable,
-            & .tag { color: #d49a6a; }
-            & .meta { color: var(--color-text-subtle); }
-            & .addition { color: #b5c48a; background-color: rgba(181, 196, 138, 0.10); }
-            & .deletion { color: color-mix(in srgb, var(--color-seal) 75%, white); background-color: rgba(175, 58, 82, 0.15); }
-        }
-
-        /* Dark: figcaption / marked line / gist */
-        & .highlight figcaption {
-            background-color: var(--color-code-gutter);
-            border-bottom-color: var(--color-border-strong);
-            color: var(--color-text-muted);
-            & a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
-        }
-
-        & .highlight .line.marked {
-            background-color: color-mix(in srgb, var(--color-seal) 12%, transparent);
-        }
-
-        & .gist {
-            border-color: var(--color-border-strong);
-            background-color: var(--color-code-bg);
-
-            & .gist-data { border-bottom-color: var(--color-border-strong); }
-            & .gist-meta {
-                background-color: var(--color-code-gutter);
-                color: var(--color-text-muted);
-                & a { color: var(--color-text-muted); &:hover { @apply text-seal; } }
-            }
-            & .line-numbers { color: var(--color-text-subtle); }
-        }
-    }
-
-    /* Dark: highlight wrapper (code blocks) */
-    .dark .highlight-wrapper {
-        & > .copy-btn {
-            border-color: var(--color-border-decorative);
-            background-color: var(--color-bg-overlay);
-            color: var(--color-text-subtle);
-            &:hover {
-                @apply border-seal text-seal;
-                background-color: var(--color-bg-panel);
-            }
-        }
-        & > .code-lang { color: var(--color-text-faint); }
     }
 
     /* Dark: footer */

@@ -321,6 +321,8 @@ hexo-theme-shiro/
 │   └── pagefind.js         # Pagefind indexing hook
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
+│   ├── css/code.css        # Code block and clipboard styles loaded only on code pages
+│   ├── css/toc.css         # Table-of-contents styles loaded only when TOC renders
 │   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
 │   └── js/                 # Client-side script sources + generated *.min.js files (includes small feature bootstraps)
 ├── tools/

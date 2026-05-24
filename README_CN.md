@@ -316,6 +316,8 @@ hexo-theme-shiro/
 │   └── pagefind.js         # Pagefind 索引钩子
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
+│   ├── css/code.css        # 代码块与复制按钮样式，仅在含代码页面加载
+│   ├── css/toc.css         # 目录样式，仅在渲染目录时加载
 │   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
 │   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件（含小型功能 bootstrap）
 ├── tools/

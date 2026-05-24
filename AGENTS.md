@@ -19,6 +19,8 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against `public/` after `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via `pagefind/package.json` with an `npx --yes pagefind` fallback.
 - `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`.
 - `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
+- `source/css/code.css` / `code.min.css` — optional plain CSS source and minified output for syntax-highlighted code blocks, Gist embeds, and clipboard buttons; loaded only on pages whose rendered content contains code.
+- `source/css/toc.css` / `toc.min.css` — optional plain CSS source and minified output for table-of-contents UI; loaded only when a TOC is rendered.
 - `source/css/search.css` / `search.min.css` — optional plain CSS source and minified output for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
 - `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
 - `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; lazy-loaded on first image lightbox interaction.
@@ -36,7 +38,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - Watch CSS during development: `npm run dev` (long-running Tailwind watch; writes an unminified `source/css/style.min.css`)
 - Build minified CSS and JS for release: `npm run build` (runs Tailwind for core CSS, then minifies optional CSS modules and browser JS)
 
-Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates/client scripts, any `source/js/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
+Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates, any `source/js/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
 - Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files, then regenerate them with `npm run build`.
 
 ## Development workflow
@@ -57,6 +59,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 - Preserve the Shiro visual style: clean whitespace, warm neutral tones, subtle vermilion accents, strong typography, and performance-conscious UI.
 - JavaScript should be plain, lightweight, browser-compatible, and suitable for static Hexo output.
 - Match existing JS conventions: `'use strict'` at the top, 4-space indentation, single quotes, CommonJS (`require` / `hexo.extend.*`) in `scripts/`, and DOMContentLoaded-guarded IIFEs in `source/js/`. Do not introduce ESM, TypeScript, bundlers, or build pipelines for client scripts.
+- Do not rely on Tailwind scanning client JavaScript for runtime-injected class names; put those styles in a feature CSS module or ensure the utility is also present in a scanned template.
 - Reference static assets via the `versioned_url` helper so cache-busting hashes are added automatically.
 - YAML config and language files should remain human-readable and well-commented where helpful.
 - Do not rewrite large files unnecessarily.

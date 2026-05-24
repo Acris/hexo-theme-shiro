@@ -117,8 +117,10 @@ async function main() {
     runTailwind();
 
     [
+        ['source/css/code.css', 'source/css/code.min.css'],
         ['source/css/comments.css', 'source/css/comments.min.css'],
         ['source/css/giscus.css', 'source/css/giscus.min.css'],
+        ['source/css/toc.css', 'source/css/toc.min.css'],
         ['source/css/lightgallery.css', 'source/css/lightgallery.min.css'],
         ['source/css/search.css', 'source/css/search.min.css']
     ].forEach(([input, output]) => minifyCssFile(input, output));
