@@ -13,19 +13,21 @@ function pagefindCommand() {
 
         return {
             command: process.execPath,
-            args: [path.join(path.dirname(pkgPath), binRel)]
+            args: [path.join(path.dirname(pkgPath), binRel)],
+            source: 'local'
         };
     } catch (_) {
         return {
             command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
-            args: ['--yes', 'pagefind']
+            args: ['--yes', 'pagefind'],
+            source: 'npx'
         };
     }
 }
 
-function runPagefind(args) {
-    const runner = pagefindCommand();
-    const result = spawnSync(runner.command, runner.args.concat(args), { stdio: 'inherit' });
+function runPagefind(args, runner) {
+    const command = runner || pagefindCommand();
+    const result = spawnSync(command.command, command.args.concat(args), { stdio: 'inherit' });
 
     if (result.error) throw result.error;
     if (result.signal) throw new Error('terminated by signal ' + result.signal);
@@ -53,12 +55,17 @@ hexo.extend.filter.register('before_exit', function () {
     const args = ['--site', publicDir];
     if (cfg.force_language) args.push('--force-language', cfg.force_language);
 
+    const runner = pagefindCommand();
+    if (runner.source === 'npx') {
+        hexo.log.warn('[pagefind] local package not found; falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
+    }
+
     hexo.log.info('[pagefind] building search index...');
     try {
-        runPagefind(args);
+        runPagefind(args, runner);
         hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
     } catch (error) {
         hexo.log.error('[pagefind] failed: ' + error.message);
-        hexo.log.error('[pagefind] try `npm i pagefind -D` in your site root, or set search.enabled: false');
+        hexo.log.error('[pagefind] install Pagefind in your site root with `npm install pagefind --save-dev`, or set search.enabled: false');
     }
 }, 20);

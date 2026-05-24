@@ -9,6 +9,10 @@ const JPEG_HEADER_BYTES = 512 * 1024;
 const SVG_HEADER_BYTES = 16 * 1024;
 const imageMetaCache = new Map();
 const localImageSizeCache = new Map();
+const existingFileCache = new Set();
+const missingFileCache = new Set();
+const existingDirCache = new Set();
+const missingDirCache = new Set();
 
 function parseAttrs(source) {
     const attrs = [];
@@ -82,6 +86,47 @@ function sourceDirForPost(post) {
     if (!source) return '';
     const absolute = path.isAbsolute(source) ? source : path.join(hexo.source_dir, source);
     return path.dirname(absolute);
+}
+
+function normalizeFilePath(filePath) {
+    return path.normalize(filePath);
+}
+
+function directoryExists(dirPath) {
+    const normalized = normalizeFilePath(dirPath);
+    if (existingDirCache.has(normalized)) return true;
+    if (missingDirCache.has(normalized)) return false;
+
+    try {
+        if (fs.statSync(normalized).isDirectory()) {
+            existingDirCache.add(normalized);
+            return true;
+        }
+    } catch (_) {}
+
+    missingDirCache.add(normalized);
+    return false;
+}
+
+function fileExists(filePath) {
+    const normalized = normalizeFilePath(filePath);
+    if (existingFileCache.has(normalized)) return true;
+    if (missingFileCache.has(normalized)) return false;
+
+    if (!directoryExists(path.dirname(normalized))) {
+        missingFileCache.add(normalized);
+        return false;
+    }
+
+    try {
+        if (fs.statSync(normalized).isFile()) {
+            existingFileCache.add(normalized);
+            return true;
+        }
+    } catch (_) {}
+
+    missingFileCache.add(normalized);
+    return false;
 }
 
 function localImageCandidates(src, post) {
@@ -206,15 +251,16 @@ function readFileHeader(filePath) {
 }
 
 function imageSizeFromFile(filePath) {
-    if (imageMetaCache.has(filePath)) return imageMetaCache.get(filePath);
+    const normalized = normalizeFilePath(filePath);
+    if (imageMetaCache.has(normalized)) return imageMetaCache.get(normalized);
     let size = null;
     try {
-        const buffer = readFileHeader(filePath);
+        const buffer = readFileHeader(normalized);
         size = pngSize(buffer) || gifSize(buffer) || jpegSize(buffer) || webpSize(buffer) || svgSize(buffer);
     } catch (_) {
         size = null;
     }
-    imageMetaCache.set(filePath, size);
+    imageMetaCache.set(normalized, size);
     return size;
 }
 
@@ -228,8 +274,9 @@ function localImageSize(src, post) {
     if (localImageSizeCache.has(cacheKey)) return localImageSizeCache.get(cacheKey);
 
     const candidates = localImageCandidates(src, post);
-    for (const filePath of candidates) {
-        if (!fs.existsSync(filePath)) continue;
+    for (const candidate of candidates) {
+        const filePath = normalizeFilePath(candidate);
+        if (!fileExists(filePath)) continue;
         const size = imageSizeFromFile(filePath);
         if (size && size.width && size.height) {
             localImageSizeCache.set(cacheKey, size);

@@ -121,9 +121,10 @@ analytics:
 
 # Site search powered by Pagefind (https://pagefind.app/)
 # Index is built automatically after `hexo generate` and written to `public/pagefind/`.
-# For npm-installed themes the binary is auto-resolved from node_modules; for git-clone
-# installs run `npm install pagefind --save-dev` in your site root, or rely on the
-# `npx --yes pagefind` fallback (requires network on first run).
+# Strongly recommended: install Pagefind as a site-level devDependency:
+# `npm install pagefind --save-dev`
+# Without it the hook falls back to `npx --yes pagefind`, which may download during
+# `hexo generate` and noticeably slow builds or fail in offline CI.
 search:
   enabled: false
   # Force language for tokenization (auto-detected from <html lang> by default).

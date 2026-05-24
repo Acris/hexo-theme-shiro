@@ -221,9 +221,10 @@ analytics:
 
 # 站内搜索，由 Pagefind 提供（https://pagefind.app/）
 # 索引会在 `hexo generate` 之后自动构建并写入 `public/pagefind/`。
-# npm 安装的主题会自动从 node_modules 解析二进制；以 git clone 方式安装时，
-# 请在站点根目录执行 `npm install pagefind --save-dev`，或依赖 `npx --yes pagefind`
-# 兜底（首次运行需联网）。
+# 强烈建议将 Pagefind 安装为站点级 devDependency：
+# `npm install pagefind --save-dev`
+# 若未安装，钩子会回退到 `npx --yes pagefind`，可能在 `hexo generate`
+# 期间联网下载，明显拖慢构建，或在离线 CI 中失败。
 search:
   enabled: false
   # 强制指定分词语言（默认从 <html lang> 自动检测）。
@@ -261,15 +262,15 @@ search:
 
 Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成（`hexo deploy` 内部也会触发 generate），作者无需记忆任何额外命令。
 
-**npm 安装（推荐）**
+**npm 安装（强烈推荐）**
 
-为了让构建更快、更稳定、也更适合 CI，推荐在 **站点根目录**（不是主题目录）安装 Pagefind：
+为了让构建更快、更稳定、也更适合 CI，请将 Pagefind 作为 devDependency 安装到 **站点根目录**（不是主题目录）：
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-无论你通过 `npm i hexo-theme-shiro` 安装主题，还是以 `git clone` 方式将主题放在 `themes/shiro/`，都建议这样做。之后 `hexo g` 会自动从站点的 `node_modules` 解析 Pagefind。若没有安装 Pagefind，构建钩子会回退到 `npx --yes pagefind`，首次运行可能需要联网下载；这个 fallback 更适合作为临时便利路径，不建议作为 CI 或日常发布的首选方案。
+无论你通过 `npm i hexo-theme-shiro` 安装主题，还是以 `git clone` 方式将主题放在 `themes/shiro/`，都建议这样做。之后 `hexo g` 会自动从站点的 `node_modules` 解析 Pagefind。若没有安装 Pagefind，构建钩子会回退到 `npx --yes pagefind`，可能在 `hexo generate` 期间联网下载，明显拖慢构建，并在离线 CI 中失败；这个 fallback 只适合作为临时兜底，不应作为日常发布方案。
 
 **配置（`_config.yml` / `_config.shiro.yml`）**
 

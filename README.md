@@ -225,9 +225,10 @@ analytics:
 
 # Site search powered by Pagefind (https://pagefind.app/)
 # Index is built automatically after `hexo generate` and written to `public/pagefind/`.
-# For npm-installed themes the binary is auto-resolved from node_modules; for git-clone
-# installs run `npm install pagefind --save-dev` in your site root, or rely on the
-# `npx --yes pagefind` fallback (requires network on first run).
+# Strongly recommended: install Pagefind as a site-level devDependency:
+# `npm install pagefind --save-dev`
+# Without it the hook falls back to `npx --yes pagefind`, which may download during
+# `hexo generate` and noticeably slow builds or fail in offline CI.
 search:
   enabled: false
   # Force language for tokenization (auto-detected from <html lang> by default).
@@ -266,15 +267,15 @@ wish to use them in the menu.
 
 Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically right after `hexo generate` (and therefore also after `hexo deploy`), so you do not need to run any extra command.
 
-**npm install (recommended)**
+**npm install (strongly recommended)**
 
-For the fastest and most reproducible builds, install Pagefind in your **site root** (not the theme directory):
+For the fastest and most reproducible builds, install Pagefind as a devDependency in your **site root** (not the theme directory):
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which may download the binary on first run and requires network access. Treat that fallback as a convenience path, not the preferred setup for CI or regular publishing.
+This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which can download during `hexo generate`, noticeably slow the build, and fail in offline CI. Treat that fallback as an emergency convenience path, not a setup for regular publishing.
 
 **Configuration (`_config.yml` / `_config.shiro.yml`)**
 

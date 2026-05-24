@@ -7,6 +7,7 @@ const pathFn = require('path');
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
 const META_DESCRIPTION_LENGTH = 200;
 const assetHashCache = new Map();
+const assetUrlCache = new Map();
 const excerptCache = new WeakMap();
 const cleanDescriptionCache = new WeakMap();
 const pageAnalysisCache = new WeakMap();
@@ -496,28 +497,40 @@ hexo.extend.helper.register('page_looks_long', function (page) {
     return pageLooksLong(page);
 });
 
+function cacheVersionedUrlsForCommand() {
+    const cmd = (hexo.env && hexo.env.cmd) || '';
+    return /^(generate|g|deploy|d)$/.test(cmd);
+}
+
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
-    const url = this.url_for(assetPath);
     const sourceDir = pathFn.join(hexo.theme_dir, 'source');
     const filePath = pathFn.join(sourceDir, assetPath);
+    const cacheKey = pathFn.normalize(filePath) + '|' + (hexo.config.root || '/');
+    const useUrlCache = cacheVersionedUrlsForCommand();
 
+    if (useUrlCache && assetUrlCache.has(cacheKey)) return assetUrlCache.get(cacheKey);
+
+    const url = this.url_for(assetPath);
+    let versionedUrl = url;
     try {
         const stat = fs.statSync(filePath);
         const cached = assetHashCache.get(filePath);
         if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) {
-            return cached.hash ? url + '?v=' + cached.hash : url;
+            versionedUrl = cached.hash ? url + '?v=' + cached.hash : url;
+        } else {
+            const content = fs.readFileSync(filePath);
+            const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+            assetHashCache.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size, hash });
+            versionedUrl = url + '?v=' + hash;
         }
-
-        const content = fs.readFileSync(filePath);
-        const hash = crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
-        assetHashCache.set(filePath, { mtimeMs: stat.mtimeMs, size: stat.size, hash });
-        return url + '?v=' + hash;
     } catch (_) {
         // File not found at theme level; fall back to plain url_for
         assetHashCache.set(filePath, { mtimeMs: 0, size: 0, hash: '' });
-        return url;
     }
+
+    if (useUrlCache) assetUrlCache.set(cacheKey, versionedUrl);
+    return versionedUrl;
 });
 
 hexo.extend.helper.register('has_images', function (page) {
