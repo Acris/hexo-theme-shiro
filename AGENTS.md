@@ -23,7 +23,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `source/css/toc.css` / `toc.min.css` — optional plain CSS source and minified output for table-of-contents UI; loaded only when a TOC is rendered.
 - `source/css/search.css` / `search.min.css` — optional plain CSS source and minified output for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
 - `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
-- `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; idle-prefetched after article images enter the viewport and applied when the lightbox opens.
+- `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; loaded when the lightbox opens after the first image click.
 - `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
 - `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
 - `tools/build-assets.js` — release asset build script; minifies CSS/JS and injects shared snippets before JS minification.

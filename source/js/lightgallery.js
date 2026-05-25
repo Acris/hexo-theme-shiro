@@ -7,7 +7,7 @@
 
     let assetsLoading = null;
     const instances = new Map();
-    const preparedContainers = new WeakSet();
+    const preparedImages = new WeakSet();
     const galleryItemCache = new WeakMap();
     /* global loadAsset */
     // <shiro-asset-loader>
@@ -278,19 +278,38 @@
         if (queue.length) schedule(run);
     }
 
+    function nearestImageFrom(node, container, direction) {
+        let current = node;
+        while (current && current !== container) {
+            current = direction === 'previous' ? current.previousElementSibling : current.nextElementSibling;
+            if (!current) {
+                node = node.parentElement;
+                current = node;
+                continue;
+            }
+            const img = current.matches && current.matches('img') ? current : current.querySelector && current.querySelector('img');
+            if (img && container.contains(img) && !img.closest('a[data-lg-item]')) return img;
+        }
+        return null;
+    }
+
     function nearbyImages(container, activeImage, range) {
-        const images = Array.from(container.querySelectorAll('img'));
-        const activeIndex = images.indexOf(activeImage);
-        if (activeIndex < 0) return [];
-        const start = Math.max(0, activeIndex - range);
-        const end = Math.min(images.length, activeIndex + range + 1);
-        return images.slice(start, end)
-            .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
+        const images = [];
+        let previous = activeImage;
+        let next = activeImage;
+        for (let i = 0; i < range; i += 1) {
+            previous = nearestImageFrom(previous, container, 'previous');
+            next = nearestImageFrom(next, container, 'next');
+            if (previous) images.unshift(previous);
+            if (next) images.push(next);
+            if (!previous && !next) break;
+        }
+        return images;
     }
 
     function prepareNearbyGallery(container, activeImage) {
-        if (preparedContainers.has(container)) return;
-        preparedContainers.add(container);
+        if (preparedImages.has(activeImage)) return;
+        preparedImages.add(activeImage);
         schedule(() => {
             prepareGalleryBatch(container, nearbyImages(container, activeImage, 3));
         });
