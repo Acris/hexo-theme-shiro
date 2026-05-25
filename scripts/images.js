@@ -14,6 +14,7 @@ const missingFileCache = new Set();
 const existingDirCache = new Set();
 const missingDirCache = new Set();
 
+// Lightweight HTML attribute parsing/rendering for <img> tags in rendered Hexo output.
 function parseAttrs(source) {
     const attrs = [];
     source.replace(/([^\s=\/<>]+)(?:\s*=\s*("[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g, (match, name, rawValue) => {

@@ -35,13 +35,10 @@
         });
     }
 
-    function isTypingTarget(element) {
-        const tag = element && element.tagName;
-        return !!(element && (element.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'));
-    }
-
     function handleKeydown(event) {
-        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(document.activeElement)) return;
+        const active = document.activeElement;
+        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+        if (active && (active.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName))) return;
         event.preventDefault();
         openSearch();
     }

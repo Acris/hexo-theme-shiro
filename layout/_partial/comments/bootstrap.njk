@@ -1,6 +1,7 @@
 <script>
 ;(() => {
     const commentsCss = {{ versioned_url('css/comments.min.css') | dump | safe }};
+    // Keep this tiny inline loader behavior aligned with tools/snippets/asset-loader.js.
     const assetTimeout = 12000;
     let commentsCssLoading = null;
 
@@ -33,6 +34,7 @@
             }, { once: true });
         });
     }
+
     function loadAsset(tag, attrs, selector) {
         const existing = selector ? document.querySelector(selector) : null;
         if (existing && existing.dataset.shiroError === 'true') {

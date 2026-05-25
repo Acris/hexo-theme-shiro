@@ -1,11 +1,5 @@
-{% from "_macro/ui.njk" import svg_filters %}
-{% macro feature_var(key, value) -%}
-window[{{ key | dump | safe }}] = {{ value | dump | safe }};
-{%- endmacro %}
-{% macro feature_i18n(key, value) -%}
-window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
-{%- endmacro %}
 <!doctype html>
+{% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n %}
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 

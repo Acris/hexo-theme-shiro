@@ -8,7 +8,8 @@
     // </shiro-script-loader>
 
     function createCodeBlockCursor() {
-        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+        const root = document.querySelector('main') || document.body;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
             acceptNode(node) {
                 if (!node.classList || !node.classList.contains('highlight')) return NodeFilter.FILTER_SKIP;
                 return node.closest && node.closest('.prose-shiro')

@@ -1,3 +1,11 @@
+{% macro feature_var(key, value) -%}
+window[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{%- endmacro %}
+
+{% macro feature_i18n(key, value) -%}
+window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{%- endmacro %}
+
 {% macro svg_filters() %}
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
     <defs>

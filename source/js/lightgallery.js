@@ -118,9 +118,19 @@
         return html || null;
     };
 
-    const invalidateGalleryItems = (container) => {
-        galleryItemCache.delete(container);
-    };
+    function cachedGalleryItems(container) {
+        let items = galleryItemCache.get(container);
+        if (!items) {
+            items = [];
+            galleryItemCache.set(container, items);
+        }
+        return items;
+    }
+
+    function rememberGalleryItem(container, link) {
+        const items = cachedGalleryItems(container);
+        if (!items.includes(link)) items.push(link);
+    }
 
     const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
         let changed = false;
@@ -166,9 +176,8 @@
             const linkedUrl = isValidUrl(href) ? href : null;
 
             // Set lightgallery attributes; original href is preserved
-            if (setLgAttributes(existing, src, caption, linkedUrl)) {
-                invalidateGalleryItems(container);
-            }
+            setLgAttributes(existing, src, caption, linkedUrl);
+            rememberGalleryItem(container, existing);
             if (!existing.getAttribute('aria-label')) {
                 const viewText = i18nGallery().view_image || 'View image';
                 existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
@@ -185,14 +194,12 @@
         const viewText = i18nGallery().view_image || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
         setLgAttributes(link, src, caption, null);
-        invalidateGalleryItems(container);
+        rememberGalleryItem(container, link);
         return link;
     };
 
     function galleryItems(container) {
-        const cached = galleryItemCache.get(container);
-        if (cached) return cached;
-        const items = Array.from(container.querySelectorAll('a[data-lg-item]'));
+        const items = cachedGalleryItems(container).filter(item => item.isConnected);
         galleryItemCache.set(container, items);
         return items;
     }
