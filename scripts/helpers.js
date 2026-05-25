@@ -514,6 +514,10 @@ hexo.extend.helper.register('html_attr', function (value) {
     return escapeHtml(value);
 });
 
+hexo.extend.helper.register('url_query', function (value) {
+    return encodeURIComponent(String(value || ''));
+});
+
 function cacheVersionedUrlsForCommand() {
     const cmd = (hexo.env && hexo.env.cmd) || '';
     return /^(generate|g|deploy|d)$/.test(cmd);

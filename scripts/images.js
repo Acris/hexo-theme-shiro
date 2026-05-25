@@ -183,17 +183,33 @@ function jpegSize(buffer) {
     return null;
 }
 
+function roundedPositiveNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? Math.round(number) : 0;
+}
+
+function svgAttributeValue(match) {
+    return match ? (match[1] || match[2] || match[3] || '') : '';
+}
+
+function svgDimension(value) {
+    const match = String(value || '').trim().match(/^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/i);
+    return match ? roundedPositiveNumber(match[1]) : 0;
+}
+
 function svgSize(buffer) {
     const head = buffer.toString('utf8', 0, Math.min(buffer.length, 2048));
     if (!/<svg\b/i.test(head)) return null;
-    const widthMatch = head.match(/\bwidth\s*=\s*["']?([\d.]+)/i);
-    const heightMatch = head.match(/\bheight\s*=\s*["']?([\d.]+)/i);
-    if (widthMatch && heightMatch) {
-        return { width: Math.round(Number(widthMatch[1])), height: Math.round(Number(heightMatch[1])) };
+    const width = svgDimension(svgAttributeValue(head.match(/\bwidth\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i)));
+    const height = svgDimension(svgAttributeValue(head.match(/\bheight\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i)));
+    if (width && height) {
+        return { width, height };
     }
     const viewBoxMatch = head.match(/\bviewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)/i);
     if (viewBoxMatch) {
-        return { width: Math.round(Number(viewBoxMatch[1])), height: Math.round(Number(viewBoxMatch[2])) };
+        const viewBoxWidth = roundedPositiveNumber(viewBoxMatch[1]);
+        const viewBoxHeight = roundedPositiveNumber(viewBoxMatch[2]);
+        return viewBoxWidth && viewBoxHeight ? { width: viewBoxWidth, height: viewBoxHeight } : null;
     }
     return null;
 }

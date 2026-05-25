@@ -52,8 +52,7 @@ hexo.extend.filter.register('before_exit', function () {
 
     const publicDir = path.resolve(hexo.base_dir, hexo.config.public_dir || 'public');
     if (!fs.existsSync(publicDir)) {
-        hexo.log.warn('[pagefind] public dir not found, skip: ' + publicDir);
-        return;
+        throw new Error('[pagefind] public dir not found: ' + publicDir);
     }
 
     const args = ['--site', publicDir];
@@ -72,5 +71,6 @@ hexo.extend.filter.register('before_exit', function () {
     } catch (error) {
         hexo.log.error('[pagefind] failed: ' + error.message);
         hexo.log.error('[pagefind] install Pagefind in your site root with `npm install pagefind --save-dev`, or set search.enabled: false');
+        throw error;
     }
 }, 20);

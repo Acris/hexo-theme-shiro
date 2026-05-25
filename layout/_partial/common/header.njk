@@ -68,7 +68,7 @@
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             {% for item in theme.menu %}
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-                    href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+                    href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
             <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
@@ -82,7 +82,7 @@
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
             {% for item in theme.menu %}
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
-                    href="{{ url_for(item.url) }}" {% if item.target %}target="{{ item.target }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+                    href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
             <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             {% endif %}

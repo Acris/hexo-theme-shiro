@@ -278,7 +278,7 @@ For the fastest and most reproducible builds, install Pagefind as a devDependenc
 npm install pagefind --save-dev
 ```
 
-This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which can download during `hexo generate`, noticeably slow the build, and fail in offline CI. Treat that fallback as an emergency convenience path, not a setup for regular publishing.
+This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which can download during `hexo generate`, noticeably slow the build, and fail in offline CI. When `search.enabled: true`, indexing failures fail Hexo generation so broken search is caught before publishing. Treat the `npx` fallback as an emergency convenience path, not a setup for regular publishing.
 
 **Configuration (`_config.yml` / `_config.shiro.yml`)**
 

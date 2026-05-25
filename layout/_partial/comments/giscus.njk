@@ -13,6 +13,15 @@
         if (loaded) return;
         loaded = true;
 
+        const binaryAttr = (value, fallback) => {
+            if (value === true) return '1';
+            if (value === false) return '0';
+            const text = String(value == null ? fallback : value).trim().toLowerCase();
+            if (text === 'true') return '1';
+            if (text === 'false') return '0';
+            return text || fallback;
+        };
+
         const s = d.createElement('script');
         s.src = {{ (theme.comments.giscus.src or 'https://giscus.app/client.js') | dump | safe }};
         s.async = true;
@@ -23,9 +32,9 @@
             'data-category': {{ theme.comments.giscus.category | dump | safe }},
             'data-category-id': {{ theme.comments.giscus.category_id | dump | safe }},
             'data-mapping': {{ (theme.comments.giscus.mapping or 'pathname') | dump | safe }},
-            'data-strict': {{ (theme.comments.giscus.strict or '0') | dump | safe }},
-            'data-reactions-enabled': {{ (theme.comments.giscus.reactions_enabled or '1') | dump | safe }},
-            'data-emit-metadata': {{ (theme.comments.giscus.emit_metadata or '0') | dump | safe }},
+            'data-strict': binaryAttr({{ theme.comments.giscus.strict | default('0') | dump | safe }}, '0'),
+            'data-reactions-enabled': binaryAttr({{ theme.comments.giscus.reactions_enabled | default('1') | dump | safe }}, '1'),
+            'data-emit-metadata': binaryAttr({{ theme.comments.giscus.emit_metadata | default('0') | dump | safe }}, '0'),
             'data-input-position': {{ (theme.comments.giscus.input_position or 'bottom') | dump | safe }},
             {# Fallback to giscus built-in 'preferred_color_scheme' theme if user removes the theme config #}
             'data-theme': {{ (theme.comments.giscus.theme or 'preferred_color_scheme') | dump | safe }},
