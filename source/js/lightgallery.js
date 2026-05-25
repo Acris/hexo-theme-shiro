@@ -121,15 +121,23 @@
     function cachedGalleryItems(container) {
         let state = galleryItemCache.get(container);
         if (!state) {
-            state = { items: [], itemSet: new Set() };
+            state = { items: [], itemSet: new Set(), itemIndex: new Map() };
             galleryItemCache.set(container, state);
         }
         return state;
     }
 
+    function rebuildGalleryItems(state, items) {
+        state.items = items;
+        state.itemSet = new Set(items);
+        state.itemIndex = new Map();
+        items.forEach((item, index) => state.itemIndex.set(item, index));
+    }
+
     function rememberGalleryItem(container, link) {
         const state = cachedGalleryItems(container);
         if (!state.itemSet.has(link)) {
+            state.itemIndex.set(link, state.items.length);
             state.itemSet.add(link);
             state.items.push(link);
         }
@@ -196,14 +204,14 @@
         return link;
     };
 
-    function galleryItems(container) {
+    function galleryIndex(container, item) {
         const state = cachedGalleryItems(container);
         const items = state.items.filter(item => item.isConnected);
         if (items.length !== state.items.length) {
-            state.items = items;
-            state.itemSet = new Set(items);
+            rebuildGalleryItems(state, items);
         }
-        return state.items;
+        const index = state.itemIndex.get(item);
+        return index === undefined ? -1 : index;
     }
 
     function getOrCreateInstance(container) {
@@ -238,7 +246,7 @@
         ensureLightGalleryAssets().then(() => {
             const instance = getOrCreateInstance(container);
             refreshGallery(container);
-            const index = Math.max(galleryItems(container).indexOf(trigger), 0);
+            const index = Math.max(galleryIndex(container, trigger), 0);
             if (instance && typeof instance.openGallery === 'function') {
                 if (typeof onReady === 'function') onReady();
                 instance.openGallery(index);
