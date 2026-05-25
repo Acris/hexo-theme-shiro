@@ -10,14 +10,15 @@
     const toggle = document.getElementById('searchToggle');
     let loading = false;
 
-    function removeClickListener() {
+    function removeBootstrapListeners() {
         document.removeEventListener('click', handleClick);
+        document.removeEventListener('keydown', handleKeydown);
     }
 
     function openSearch() {
         if (window.__shiroSearchOpen) {
             window.__shiroSearchOpen();
-            removeClickListener();
+            removeBootstrapListeners();
             return;
         }
 
@@ -28,10 +29,21 @@
         loadBootstrapScript(script, {
             onload: () => {
                 loading = false;
-                removeClickListener();
+                removeBootstrapListeners();
             },
             onerror: () => { loading = false; }
         });
+    }
+
+    function isTypingTarget(element) {
+        const tag = element && element.tagName;
+        return !!(element && (element.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'));
+    }
+
+    function handleKeydown(event) {
+        if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey || isTypingTarget(document.activeElement)) return;
+        event.preventDefault();
+        openSearch();
     }
 
     function handleClick(event) {
@@ -41,4 +53,5 @@
     }
 
     document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', handleKeydown);
 })();

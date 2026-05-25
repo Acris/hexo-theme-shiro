@@ -1,4 +1,10 @@
 {% from "_macro/ui.njk" import svg_filters %}
+{% macro feature_var(key, value) -%}
+window[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{%- endmacro %}
+{% macro feature_i18n(key, value) -%}
+window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
+{%- endmacro %}
 <!doctype html>
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
@@ -61,32 +67,33 @@
         window.__i18n = window.__i18n || {};
         {% endif %}
         {% if theme.search.enabled %}
-        window.__i18n["search"] = {
-            button: {{ __('search.button') | dump | safe }},
-            placeholder: {{ __('search.placeholder') | dump | safe }},
-            close: {{ __('search.close') | dump | safe }},
-            zero_results: {{ __('search.zero_results') | dump | safe }},
-            one_result: {{ __('search.one_result') | dump | safe }},
-            many_results: {{ __('search.many_results') | dump | safe }},
-            loading: {{ __('search.loading') | dump | safe }}
-        };
-        window["__pagefindBase"] = {{ url_for('/pagefind/') | dump | safe }};
-        window["__searchCss"] = {{ versioned_url('css/search.min.css') | dump | safe }};
-        window["__searchScript"] = {{ versioned_url('js/search.min.js') | dump | safe }};
+        {{ feature_i18n('search', {
+            button: __('search.button'),
+            placeholder: __('search.placeholder'),
+            close: __('search.close'),
+            unavailable: __('search.unavailable'),
+            zero_results: __('search.zero_results'),
+            one_result: __('search.one_result'),
+            many_results: __('search.many_results'),
+            loading: __('search.loading')
+        }) }}
+        {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}
+        {{ feature_var('__searchCss', versioned_url('css/search.min.css')) }}
+        {{ feature_var('__searchScript', versioned_url('js/search.min.js')) }}
         {% endif %}
         {% if needs_lightgallery %}
-        window.__i18n["gallery_visit_source"] = {{ __('gallery_visit_source') | dump | safe }};
-        window.__i18n["gallery_view_image"] = {{ __('gallery_view_image') | dump | safe }};
-        window["__lightgalleryThemeCss"] = {{ versioned_url('css/lightgallery.min.css') | dump | safe }};
-        window["__lightgalleryScript"] = {{ versioned_url('js/lightgallery.min.js') | dump | safe }};
+        {{ feature_i18n('gallery_visit_source', __('gallery_visit_source')) }}
+        {{ feature_i18n('gallery_view_image', __('gallery_view_image')) }}
+        {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
+        {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
         {% if needs_clipboard %}
-        window.__i18n["clipboard_copy"] = {{ __('clipboard_copy') | dump | safe }};
-        window.__i18n["clipboard_copied"] = {{ __('clipboard_copied') | dump | safe }};
-        window["__clipboardScript"] = {{ versioned_url('js/clipboard.min.js') | dump | safe }};
+        {{ feature_i18n('clipboard_copy', __('clipboard_copy')) }}
+        {{ feature_i18n('clipboard_copied', __('clipboard_copied')) }}
+        {{ feature_var('__clipboardScript', versioned_url('js/clipboard.min.js')) }}
         {% endif %}
         {% if needs_mobile_menu %}
-        window["__mobileMenuScript"] = {{ versioned_url('js/mobile-menu.min.js') | dump | safe }};
+        {{ feature_var('__mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
         {% endif %}
     </script>
     {% endif %}

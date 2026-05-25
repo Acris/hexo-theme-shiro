@@ -8,30 +8,21 @@
     // </shiro-script-loader>
 
     function createCodeBlockCursor() {
-        const articles = document.querySelectorAll('.prose-shiro');
-        let articleIndex = 0;
-        let walker = null;
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+            acceptNode(node) {
+                if (!node.classList || !node.classList.contains('highlight')) return NodeFilter.FILTER_SKIP;
+                return node.closest && node.closest('.prose-shiro')
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_SKIP;
+            }
+        });
 
         function next(limit) {
             const blocks = [];
-            while (blocks.length < limit && articleIndex < articles.length) {
-                if (!walker) {
-                    walker = document.createTreeWalker(articles[articleIndex], NodeFilter.SHOW_ELEMENT, {
-                        acceptNode(node) {
-                            return node.classList && node.classList.contains('highlight')
-                                ? NodeFilter.FILTER_ACCEPT
-                                : NodeFilter.FILTER_SKIP;
-                        }
-                    });
-                }
-
+            while (blocks.length < limit) {
                 const block = walker.nextNode();
-                if (block) {
-                    blocks.push(block);
-                } else {
-                    articleIndex += 1;
-                    walker = null;
-                }
+                if (!block) break;
+                blocks.push(block);
             }
             return blocks;
         }
