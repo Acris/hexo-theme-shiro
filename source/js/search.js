@@ -87,7 +87,7 @@
         const container = document.getElementById('pagefindContainer');
         if (container && !loaded) {
             container.innerHTML = '<p class="search-modal__status" role="status">'
-                + escapeHtml(i18n.error || 'Search is temporarily unavailable.')
+                + escapeHtml('Search is temporarily unavailable.')
                 + '</p>';
         }
     }
