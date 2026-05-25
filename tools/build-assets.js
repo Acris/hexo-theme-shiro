@@ -89,6 +89,16 @@ function runTailwind() {
     ], { cwd: root, stdio: 'inherit' });
 }
 
+function writeFileIfChanged(filePath, content) {
+    const next = Buffer.from(content);
+    try {
+        if (fs.readFileSync(filePath).equals(next)) return;
+    } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+    }
+    fs.writeFileSync(filePath, content);
+}
+
 function minifyCssFile(inputRel, outputRel) {
     const input = path.join(root, inputRel);
     const output = path.join(root, outputRel);
@@ -99,7 +109,7 @@ function minifyCssFile(inputRel, outputRel) {
         code: fs.readFileSync(input),
         minify: true
     });
-    fs.writeFileSync(output, result.code);
+    writeFileIfChanged(output, result.code);
 }
 
 async function minifyJsFile(inputRel, outputRel) {
@@ -113,7 +123,7 @@ async function minifyJsFile(inputRel, outputRel) {
     });
 
     if (result.error) throw result.error;
-    fs.writeFileSync(output, result.code + '\n');
+    writeFileIfChanged(output, result.code + '\n');
 }
 
 async function minifyJs() {
