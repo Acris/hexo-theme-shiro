@@ -315,7 +315,7 @@ hexo-theme-shiro/
 ├── layout/                 # Nunjucks templates
 │   ├── _layout.njk         # Base layout
 │   ├── _macro/             # Reusable macros (ui, archive)
-│   ├── _partial/           # Partials (head, header, footer, components, comments, analytics)
+│   ├── _partial/           # Partials (head, header, footer, components, comments/index, analytics)
 │   ├── index.njk           # Home page
 │   ├── post.njk            # Article page
 │   ├── page.njk            # Standalone page

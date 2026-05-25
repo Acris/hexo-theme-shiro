@@ -36,11 +36,5 @@
 
     {{ article_extra_html | safe }}
 
-    {% set disqus_comments_ready = theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
-    {% set giscus_comments_ready = theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
-    {% if disqus_comments_ready or giscus_comments_ready %}
-    {% include "_partial/comments/bootstrap.njk" %}
-    {% endif %}
-    {% include "_partial/comments/disqus.njk" %}
-    {% include "_partial/comments/giscus.njk" %}
+    {% include "_partial/comments/index.njk" %}
 </article>

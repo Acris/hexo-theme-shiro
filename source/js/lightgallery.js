@@ -6,7 +6,6 @@
     const themeCssHref = window.__lightgalleryThemeCss || '';
 
     let assetsLoading = null;
-    let prefetched = false;
     const instances = new Map();
     const preparedContainers = new WeakSet();
     const galleryItemCache = new WeakMap();
@@ -14,68 +13,6 @@
     // <shiro-asset-loader>
     // Source requires build injection; do not serve this file directly.
     // </shiro-asset-loader>
-
-    function setAttributes(el, attrs) {
-        Object.keys(attrs).forEach((key) => {
-            if (attrs[key] === true) {
-                el.setAttribute(key, '');
-            } else {
-                el.setAttribute(key, attrs[key]);
-            }
-        });
-    }
-
-    function appendHint(rel, href, attrs, selector) {
-        if (!href || document.querySelector(selector)) return;
-        const link = document.createElement('link');
-        link.rel = rel;
-        link.href = href;
-        setAttributes(link, attrs || {});
-        document.head.appendChild(link);
-    }
-
-    function preconnectOrigin(href) {
-        try {
-            const origin = new URL(href, window.location.href).origin;
-            appendHint('preconnect', origin, {
-                crossorigin: 'anonymous',
-                'data-shiro-lightgallery-preconnect': 'true'
-            }, 'link[data-shiro-lightgallery-preconnect]');
-        } catch (_) {}
-    }
-
-    function prefetchResource(href, as, attrs, selector) {
-        appendHint('prefetch', href, Object.assign({ as }, attrs), selector);
-    }
-
-    function shouldPrefetch() {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        return !(connection && connection.saveData);
-    }
-
-    function prefetchLightGalleryAssets() {
-        if (prefetched || !shouldPrefetch()) return;
-        prefetched = true;
-
-        preconnectOrigin(jsSrc);
-        if (!document.querySelector('link[data-shiro-lightgallery-css]')) {
-            prefetchResource(cssHref, 'style', {
-                crossorigin: 'anonymous',
-                'data-shiro-lightgallery-css-prefetch': 'true'
-            }, 'link[data-shiro-lightgallery-css-prefetch]');
-        }
-        if (themeCssHref && !document.querySelector('link[data-shiro-lightgallery-theme-css]')) {
-            prefetchResource(themeCssHref, 'style', {
-                'data-shiro-lightgallery-theme-css-prefetch': 'true'
-            }, 'link[data-shiro-lightgallery-theme-css-prefetch]');
-        }
-        if (typeof window.lightGallery !== 'function' && !document.querySelector('script[data-shiro-lightgallery-js]')) {
-            prefetchResource(jsSrc, 'script', {
-                crossorigin: 'anonymous',
-                'data-shiro-lightgallery-js-prefetch': 'true'
-            }, 'link[data-shiro-lightgallery-js-prefetch]');
-        }
-    }
 
     function ensureStylesheet() {
         return loadAsset('link', {
@@ -367,7 +304,6 @@
     }
 
     window.__shiroLightGalleryOpen = openFromElement;
-    window.__shiroLightGalleryPrefetch = prefetchLightGalleryAssets;
 
     document.addEventListener('click', (event) => {
         const img = clickedImage(event);

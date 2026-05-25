@@ -595,26 +595,28 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
 hexo.extend.helper.register('clean_description', function (page, config) {
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
-    const strip = typeof this.strip_html === 'function' ? this.strip_html : htmlTextFromHtml;
-    const textFromHtml = value => htmlTextFromHtml(htmlWithoutCodeContent(value), META_DESCRIPTION_LENGTH);
-    const textFromPlain = value => normalizePlainText(strip(value));
+    const stripHtml = typeof this.strip_html === 'function'
+        ? value => this.strip_html(value)
+        : value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
+    const textFromDescription = value => normalizePlainText(stripHtml(value));
+    const textFromHtmlSource = value => htmlTextFromHtml(htmlWithoutCodeContent(value), META_DESCRIPTION_LENGTH);
     let owner = page;
     let raw = '';
     let cacheField = 'cleanDescription';
-    let producer = textFromPlain;
+    let producer = textFromDescription;
 
     if (page && page.description) {
         raw = page.description;
         cacheField = 'cleanDescription:description';
-        producer = textFromPlain;
+        producer = textFromDescription;
     } else if (page && page.excerpt) {
         raw = page.excerpt;
         cacheField = 'cleanDescription:excerpt';
-        producer = textFromHtml;
+        producer = textFromHtmlSource;
     } else if (isReadingPage && page && page.content) {
         raw = page.content;
         cacheField = 'cleanDescription:content';
-        producer = textFromHtml;
+        producer = textFromHtmlSource;
     } else {
         owner = config;
         raw = config && config.description;

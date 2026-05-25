@@ -267,6 +267,10 @@
         @apply mb-6 flex items-center gap-2 border-b border-slate-100 pb-2 text-xl font-bold text-slate-800;
     }
 
+    .post-nav-link {
+        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-seal max-w-[45%];
+    }
+
     .link-muted {
         @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
     }
@@ -280,8 +284,13 @@
         transition-property: color, border-color;
     }
 
+    /* Shared page chrome divider: used by main content, footer, and post navigation only. */
     .section-divider {
         @apply mt-8 border-t border-slate-200/70 pt-8 md:mt-10 md:pt-10;
+    }
+
+    .post-nav-title {
+        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40;
     }
 
     .pagination {
@@ -559,6 +568,16 @@
 
     .dark .section-heading {
         border-color: var(--color-border-strong);
+    }
+
+    .dark .post-nav-link {
+        color: var(--color-text-muted);
+        &:hover { @apply text-seal; }
+    }
+
+    .dark .post-nav-title {
+        text-decoration-color: var(--color-border-strong);
+        .group:hover & { text-decoration-color: color-mix(in srgb, var(--color-seal) 40%, transparent); }
     }
 
     .dark .link-muted {
