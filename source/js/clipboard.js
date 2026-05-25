@@ -1,6 +1,7 @@
 ;(() => {
-    const i18nCopy = () => (window.__i18n && window.__i18n.clipboard_copy) || 'Copy code';
-    const i18nCopied = () => (window.__i18n && window.__i18n.clipboard_copied) || 'Copied';
+    const i18nClipboard = () => (window.__i18n && window.__i18n.clipboard) || {};
+    const i18nCopy = () => i18nClipboard().copy || 'Copy code';
+    const i18nCopied = () => i18nClipboard().copied || 'Copied';
 
     // Clipboard write with fallback for insecure contexts (HTTP)
     function copyText(text) {

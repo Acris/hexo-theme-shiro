@@ -49,7 +49,7 @@ window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
     </div>
 
     {% if needs_back_to_top %}
-    <button id="backToTop" class="back-to-top" data-visible="false" aria-label="{{ __('back_to_top') }}">
+    <button id="backToTop" class="back-to-top" data-visible="false" aria-label="{{ __('common.back_to_top') }}">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
@@ -69,27 +69,31 @@ window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
         {% if theme.search.enabled %}
         {{ feature_i18n('search', {
             button: __('search.button'),
-            placeholder: __('search.placeholder'),
             close: __('search.close'),
-            unavailable: __('search.unavailable'),
-            zero_results: __('search.zero_results'),
-            one_result: __('search.one_result'),
+            loading: __('search.loading'),
             many_results: __('search.many_results'),
-            loading: __('search.loading')
+            one_result: __('search.one_result'),
+            placeholder: __('search.placeholder'),
+            unavailable: __('search.unavailable'),
+            zero_results: __('search.zero_results')
         }) }}
         {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}
         {{ feature_var('__searchCss', versioned_url('css/search.min.css')) }}
         {{ feature_var('__searchScript', versioned_url('js/search.min.js')) }}
         {% endif %}
         {% if needs_lightgallery %}
-        {{ feature_i18n('gallery_visit_source', __('gallery_visit_source')) }}
-        {{ feature_i18n('gallery_view_image', __('gallery_view_image')) }}
+        {{ feature_i18n('gallery', {
+            view_image: __('gallery.view_image'),
+            visit_source: __('gallery.visit_source')
+        }) }}
         {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
         {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
         {% if needs_clipboard %}
-        {{ feature_i18n('clipboard_copy', __('clipboard_copy')) }}
-        {{ feature_i18n('clipboard_copied', __('clipboard_copied')) }}
+        {{ feature_i18n('clipboard', {
+            copied: __('clipboard.copied'),
+            copy: __('clipboard.copy')
+        }) }}
         {{ feature_var('__clipboardScript', versioned_url('js/clipboard.min.js')) }}
         {% endif %}
         {% if needs_mobile_menu %}

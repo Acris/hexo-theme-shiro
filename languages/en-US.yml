@@ -1,12 +1,14 @@
-back_to_top: Back to Top
+clipboard:
+  copied: Copied
+  copy: Copy code
 
-clipboard_copy: Copy code
-clipboard_copied: Copied
+common:
+  back_to_top: Back to Top
+  empty: Nothing here yet.
 
-empty: Nothing here yet.
-
-gallery_visit_source: View Source Link
-gallery_view_image: View image
+gallery:
+  view_image: View image
+  visit_source: View Source Link
 
 index:
   read_more: Read More
@@ -22,6 +24,16 @@ page:
   pagination: Pagination
   prev: Previous
 
+search:
+  button: Search
+  close: Close
+  loading: Loading...
+  many_results: '[COUNT] results for "[SEARCH_TERM]"'
+  one_result: '[COUNT] result for "[SEARCH_TERM]"'
+  placeholder: Search posts...
+  unavailable: Search is temporarily unavailable.
+  zero_results: No results for "[SEARCH_TERM]"
+
 theme:
   dark: Dark
   light: Light
@@ -29,12 +41,3 @@ theme:
 
 toc:
   title: Contents
-
-search:
-  button: Search
-  placeholder: Search posts...
-  close: Close
-  zero_results: No results for "[SEARCH_TERM]"
-  one_result: '[COUNT] result for "[SEARCH_TERM]"'
-  many_results: '[COUNT] results for "[SEARCH_TERM]"'
-  loading: Loading...

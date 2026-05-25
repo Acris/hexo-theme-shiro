@@ -1,12 +1,14 @@
-back_to_top: 回到頂部
+clipboard:
+  copied: 已複製
+  copy: 複製程式碼
 
-clipboard_copy: 複製程式碼
-clipboard_copied: 已複製
+common:
+  back_to_top: 回到頂部
+  empty: 這裡還沒有內容。
 
-empty: 這裡還沒有內容。
-
-gallery_visit_source: 查看原始連結
-gallery_view_image: 查看圖片
+gallery:
+  view_image: 查看圖片
+  visit_source: 查看原始連結
 
 index:
   read_more: 閱讀更多
@@ -22,6 +24,16 @@ page:
   pagination: 分頁導航
   prev: 上一頁
 
+search:
+  button: 搜尋
+  close: 關閉
+  loading: 載入中…
+  many_results: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
+  one_result: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
+  placeholder: 搜尋文章…
+  unavailable: 搜尋暫時無法使用。
+  zero_results: 未找到與 "[SEARCH_TERM]" 相關的內容
+
 theme:
   dark: 深色
   light: 淺色
@@ -29,12 +41,3 @@ theme:
 
 toc:
   title: 目錄
-
-search:
-  button: 搜尋
-  placeholder: 搜尋文章…
-  close: 關閉
-  zero_results: 未找到與 "[SEARCH_TERM]" 相關的內容
-  one_result: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
-  many_results: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
-  loading: 載入中…

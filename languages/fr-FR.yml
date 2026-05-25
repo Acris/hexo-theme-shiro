@@ -1,12 +1,14 @@
-back_to_top: Retour en haut
+clipboard:
+  copied: Copié
+  copy: Copier le code
 
-clipboard_copy: Copier le code
-clipboard_copied: Copié
+common:
+  back_to_top: Retour en haut
+  empty: Rien ici pour le moment.
 
-empty: Rien ici pour le moment.
-
-gallery_visit_source: Voir le lien source
-gallery_view_image: Voir l'image
+gallery:
+  view_image: Voir l'image
+  visit_source: Voir le lien source
 
 index:
   read_more: Lire la suite
@@ -22,6 +24,16 @@ page:
   pagination: Pagination
   prev: Précédent
 
+search:
+  button: Rechercher
+  close: Fermer
+  loading: Chargement…
+  many_results: '[COUNT] résultats pour « [SEARCH_TERM] »'
+  one_result: '[COUNT] résultat pour « [SEARCH_TERM] »'
+  placeholder: Rechercher des articles…
+  unavailable: La recherche est temporairement indisponible.
+  zero_results: Aucun résultat pour « [SEARCH_TERM] »
+
 theme:
   dark: Sombre
   light: Clair
@@ -29,12 +41,3 @@ theme:
 
 toc:
   title: Sommaire
-
-search:
-  button: Rechercher
-  placeholder: Rechercher des articles…
-  close: Fermer
-  zero_results: Aucun résultat pour « [SEARCH_TERM] »
-  one_result: '[COUNT] résultat pour « [SEARCH_TERM] »'
-  many_results: '[COUNT] résultats pour « [SEARCH_TERM] »'
-  loading: Chargement…

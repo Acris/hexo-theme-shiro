@@ -1,12 +1,14 @@
-back_to_top: 回到顶部
+clipboard:
+  copied: 已复制
+  copy: 复制代码
 
-clipboard_copy: 复制代码
-clipboard_copied: 已复制
+common:
+  back_to_top: 回到顶部
+  empty: 这里还没有内容。
 
-empty: 这里还没有内容。
-
-gallery_visit_source: 查看原始链接
-gallery_view_image: 查看图片
+gallery:
+  view_image: 查看图片
+  visit_source: 查看原始链接
 
 index:
   read_more: 阅读更多
@@ -22,6 +24,16 @@ page:
   pagination: 分页导航
   prev: 上一页
 
+search:
+  button: 搜索
+  close: 关闭
+  loading: 加载中…
+  many_results: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
+  one_result: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
+  placeholder: 搜索文章…
+  unavailable: 搜索暂时不可用。
+  zero_results: 未找到与 "[SEARCH_TERM]" 相关的内容
+
 theme:
   dark: 深色
   light: 浅色
@@ -29,12 +41,3 @@ theme:
 
 toc:
   title: 目录
-
-search:
-  button: 搜索
-  placeholder: 搜索文章…
-  close: 关闭
-  zero_results: 未找到与 "[SEARCH_TERM]" 相关的内容
-  one_result: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
-  many_results: 找到 [COUNT] 个与 "[SEARCH_TERM]" 相关的结果
-  loading: 加载中…

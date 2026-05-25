@@ -94,8 +94,9 @@
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
-    const i18nVisitSource = () =>
-        (window.__i18n && window.__i18n.gallery_visit_source) || 'View Source Page';
+    const i18nGallery = () => (window.__i18n && window.__i18n.gallery) || {};
+
+    const i18nVisitSource = () => i18nGallery().visit_source || 'View Source Page';
 
     // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {
@@ -169,7 +170,7 @@
                 invalidateGalleryItems(container);
             }
             if (!existing.getAttribute('aria-label')) {
-                const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+                const viewText = i18nGallery().view_image || 'View image';
                 existing.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
             }
             return existing;
@@ -181,7 +182,7 @@
         img.parentNode.insertBefore(link, img);
         link.appendChild(img);
 
-        const viewText = (window.__i18n && window.__i18n.gallery_view_image) || 'View image';
+        const viewText = i18nGallery().view_image || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
         setLgAttributes(link, src, caption, null);
         invalidateGalleryItems(container);

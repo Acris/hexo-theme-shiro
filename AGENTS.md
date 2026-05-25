@@ -78,7 +78,8 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 ## Internationalization
 
 - Keep all language YAML files structurally aligned.
-- When adding a new key to one locale, add it to all supported locales and aliases.
+- When adding a new key to one locale, add it to all supported locales and aliases, and group related strings under an existing feature namespace such as `clipboard`, `common`, `gallery`, `nav`, or `search`.
+- Keep locale keys sorted alphabetically at each YAML level; insert new keys in sorted order.
 - Do not hard-code English text in templates when an existing i18n pattern should be used.
 - Preserve support for English, Simplified Chinese, Traditional Chinese, Japanese, and French unless the repository has changed.
 - Current locale files include `default.yml`, `en.yml`, `en-US.yml`, `zh-CN.yml`, `zh-TW.yml`, `ja.yml`, `ja-JP.yml`, `fr.yml`, and `fr-FR.yml`.
