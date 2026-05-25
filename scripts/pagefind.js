@@ -4,18 +4,50 @@ const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
-function pagefindCommand() {
-    try {
-        const pkgPath = require.resolve('pagefind/package.json');
-        const pkg = require(pkgPath);
-        const binRel = typeof pkg.bin === 'string' ? pkg.bin : (pkg.bin && pkg.bin.pagefind);
-        if (!binRel) throw new Error('pagefind bin not declared');
+function uniqueDirs(dirs) {
+    return Array.from(new Set(dirs.filter(Boolean).map(dir => path.resolve(dir))));
+}
 
+function localPagefindBin(searchDirs) {
+    const binName = process.platform === 'win32' ? 'pagefind.cmd' : 'pagefind';
+    for (const dir of searchDirs) {
+        const binPath = path.join(dir, 'node_modules', '.bin', binName);
+        if (fs.existsSync(binPath)) return binPath;
+    }
+    return '';
+}
+
+function packageCommand(pkgPath) {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    const binRel = typeof pkg.bin === 'string' ? pkg.bin : (pkg.bin && pkg.bin.pagefind);
+    if (!binRel) throw new Error('pagefind bin not declared');
+
+    return {
+        command: process.execPath,
+        args: [path.join(path.dirname(pkgPath), binRel)],
+        source: 'local'
+    };
+}
+
+function pagefindCommand(baseDir) {
+    const searchDirs = uniqueDirs([baseDir, process.cwd(), path.join(__dirname, '..')]);
+    const binPath = localPagefindBin(searchDirs);
+    if (binPath) {
         return {
-            command: process.execPath,
-            args: [path.join(path.dirname(pkgPath), binRel)],
+            command: binPath,
+            args: [],
             source: 'local'
         };
+    }
+
+    for (const dir of searchDirs) {
+        const pkgPath = path.join(dir, 'node_modules', 'pagefind', 'package.json');
+        if (fs.existsSync(pkgPath)) return packageCommand(pkgPath);
+    }
+
+    try {
+        const pkgPath = require.resolve('pagefind/package.json', { paths: searchDirs });
+        return packageCommand(pkgPath);
     } catch (_) {
         return {
             command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
@@ -59,7 +91,7 @@ hexo.extend.filter.register('before_exit', function () {
     pushStringArg(args, '--root-selector', cfg.root_selector || 'body');
     pushStringArg(args, '--force-language', cfg.force_language);
 
-    const command = pagefindCommand();
+    const command = pagefindCommand(hexo.base_dir);
     if (command.source === 'npx') {
         hexo.log.warn('[pagefind] local package not found; falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
     }
