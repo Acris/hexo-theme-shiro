@@ -34,6 +34,16 @@
         });
     }
 
+    function setAssetAttrs(el, attrs) {
+        Object.keys(attrs).forEach((key) => {
+            if (attrs[key] === true) {
+                el.setAttribute(key, '');
+            } else {
+                el.setAttribute(key, attrs[key]);
+            }
+        });
+    }
+
     function loadAsset(tag, attrs, selector) {
         const existing = selector ? document.querySelector(selector) : null;
         if (existing && existing.dataset.shiroError === 'true') {
@@ -49,13 +59,7 @@
                 el.remove();
                 reject(new Error('Asset load timed out'));
             }, assetTimeout);
-            Object.keys(attrs).forEach((key) => {
-                if (attrs[key] === true) {
-                    el.setAttribute(key, '');
-                } else {
-                    el.setAttribute(key, attrs[key]);
-                }
-            });
+            setAssetAttrs(el, attrs);
             el.onload = () => {
                 clearTimeout(timer);
                 el.dataset.shiroLoaded = 'true';

@@ -28,7 +28,7 @@
 - **阅读进度条**：页面顶部的朱红色细进度条。
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
-- **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性；文章首图保留 eager 以照顾首屏，LightGallery 资源会在文章图片进入视口后 idle 预取。
+- **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性；文章首图保留 eager 以照顾首屏，LightGallery 资源会在首次点击图片时加载。
 - **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 giscus（GitHub Discussions）评论系统。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。

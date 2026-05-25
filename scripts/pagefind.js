@@ -36,23 +36,31 @@ function pagefindCommand(baseDir) {
         return {
             command: binPath,
             args: [],
-            source: 'local'
+            source: 'local',
+            checkedDirs: searchDirs
         };
     }
 
     for (const dir of searchDirs) {
         const pkgPath = path.join(dir, 'node_modules', 'pagefind', 'package.json');
-        if (fs.existsSync(pkgPath)) return packageCommand(pkgPath);
+        if (fs.existsSync(pkgPath)) {
+            const command = packageCommand(pkgPath);
+            command.checkedDirs = searchDirs;
+            return command;
+        }
     }
 
     try {
         const pkgPath = require.resolve('pagefind/package.json', { paths: searchDirs });
-        return packageCommand(pkgPath);
+        const command = packageCommand(pkgPath);
+        command.checkedDirs = searchDirs;
+        return command;
     } catch (_) {
         return {
             command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
             args: ['--yes', 'pagefind'],
-            source: 'npx'
+            source: 'npx',
+            checkedDirs: searchDirs
         };
     }
 }
@@ -93,7 +101,8 @@ hexo.extend.filter.register('before_exit', function () {
 
     const command = pagefindCommand(hexo.base_dir);
     if (command.source === 'npx') {
-        hexo.log.warn('[pagefind] local package not found; falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
+        hexo.log.warn('[pagefind] local package not found in: ' + command.checkedDirs.join(', '));
+        hexo.log.warn('[pagefind] falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
     }
 
     hexo.log.info('[pagefind] building search index...');

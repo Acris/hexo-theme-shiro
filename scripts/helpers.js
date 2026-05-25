@@ -608,7 +608,6 @@ hexo.extend.helper.register('clean_description', function (page, config) {
     if (page && page.description) {
         raw = page.description;
         cacheField = 'cleanDescription:description';
-        producer = textFromDescription;
     } else if (page && page.excerpt) {
         raw = page.excerpt;
         cacheField = 'cleanDescription:excerpt';

@@ -278,13 +278,21 @@
         if (queue.length) schedule(run);
     }
 
-    function prepareRemainingGallery(container, activeImage) {
+    function nearbyImages(container, activeImage, range) {
+        const images = Array.from(container.querySelectorAll('img'));
+        const activeIndex = images.indexOf(activeImage);
+        if (activeIndex < 0) return [];
+        const start = Math.max(0, activeIndex - range);
+        const end = Math.min(images.length, activeIndex + range + 1);
+        return images.slice(start, end)
+            .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
+    }
+
+    function prepareNearbyGallery(container, activeImage) {
         if (preparedContainers.has(container)) return;
         preparedContainers.add(container);
         schedule(() => {
-            const images = Array.from(container.querySelectorAll('img'))
-                .filter(img => img !== activeImage && !img.closest('a[data-lg-item]'));
-            prepareGalleryBatch(container, images);
+            prepareGalleryBatch(container, nearbyImages(container, activeImage, 3));
         });
     }
 
@@ -299,7 +307,7 @@
         const trigger = ensureLink(container, img);
         if (!trigger) return false;
 
-        openGallery(container, trigger, () => prepareRemainingGallery(container, img));
+        openGallery(container, trigger, () => prepareNearbyGallery(container, img));
         return true;
     }
 

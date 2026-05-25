@@ -83,6 +83,13 @@
         if (window.console && console.warn) {
             console.warn('[Shiro] Failed to load Pagefind search assets.', error);
         }
+        ensureModal();
+        const container = document.getElementById('pagefindContainer');
+        if (container && !loaded) {
+            container.innerHTML = '<p class="search-modal__status" role="status">'
+                + escapeHtml(i18n.error || 'Search is temporarily unavailable.')
+                + '</p>';
+        }
     }
 
     function loadPagefind() {
