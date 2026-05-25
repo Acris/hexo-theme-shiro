@@ -43,23 +43,35 @@ function renderAttrs(attrs) {
     }).join(' ');
 }
 
-function attrIndex(attrs, name) {
-    const target = name.toLowerCase();
-    return attrs.findIndex(attr => attr.name.toLowerCase() === target);
+function attrLookup(attrs) {
+    const lookup = new Map();
+    attrs.forEach((attr, index) => {
+        const name = attr.name.toLowerCase();
+        if (!lookup.has(name)) lookup.set(name, index);
+    });
+    return lookup;
 }
 
-function getAttr(attrs, name) {
-    const index = attrIndex(attrs, name);
-    return index >= 0 ? attrs[index].value : '';
+function getAttr(attrs, lookup, name) {
+    const index = lookup.get(name.toLowerCase());
+    return index === undefined ? '' : attrs[index].value;
 }
 
-function setMissingAttr(attrs, name, value) {
-    if (attrIndex(attrs, name) >= 0) return;
+function setMissingAttr(attrs, lookup, name, value) {
+    const key = name.toLowerCase();
+    if (lookup.has(key)) return;
+    lookup.set(key, attrs.length);
     attrs.push({ name, value, quote: '"', boolean: false });
 }
 
 function cleanUrl(src) {
-    return String(src || '').split('#')[0].split('?')[0];
+    const value = String(src || '');
+    const hashIndex = value.indexOf('#');
+    const queryIndex = value.indexOf('?');
+    let end = value.length;
+    if (hashIndex >= 0) end = hashIndex;
+    if (queryIndex >= 0 && queryIndex < end) end = queryIndex;
+    return end === value.length ? value : value.slice(0, end);
 }
 
 function isRemoteUrl(src) {
@@ -302,29 +314,30 @@ function optimizeImages(html, options) {
     let imageIndex = 0;
     return String(html || '').replace(/<img\b([^>]*)>/gi, (match, rawAttrs) => {
         const attrs = parseAttrs(rawAttrs);
-        const src = getAttr(attrs, 'src') || getAttr(attrs, 'data-src');
+        const lookup = attrLookup(attrs);
+        const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
         if (!src) return match;
 
         const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
         imageIndex += 1;
 
-        setMissingAttr(attrs, 'decoding', 'async');
+        setMissingAttr(attrs, lookup, 'decoding', 'async');
         if (isFirstContentImage) {
-            setMissingAttr(attrs, 'loading', 'eager');
-            setMissingAttr(attrs, 'fetchpriority', 'high');
+            setMissingAttr(attrs, lookup, 'loading', 'eager');
+            setMissingAttr(attrs, lookup, 'fetchpriority', 'high');
         } else {
-            setMissingAttr(attrs, 'loading', 'lazy');
-            setMissingAttr(attrs, 'fetchpriority', 'auto');
+            setMissingAttr(attrs, lookup, 'loading', 'lazy');
+            setMissingAttr(attrs, lookup, 'fetchpriority', 'auto');
         }
-        setMissingAttr(attrs, 'sizes', DEFAULT_IMAGE_SIZES);
+        setMissingAttr(attrs, lookup, 'sizes', DEFAULT_IMAGE_SIZES);
 
-        const hasWidth = !!getAttr(attrs, 'width');
-        const hasHeight = !!getAttr(attrs, 'height');
+        const hasWidth = !!getAttr(attrs, lookup, 'width');
+        const hasHeight = !!getAttr(attrs, lookup, 'height');
         if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = localImageSize(src, opts.post);
             if (size) {
-                if (!hasWidth) setMissingAttr(attrs, 'width', String(size.width));
-                if (!hasHeight) setMissingAttr(attrs, 'height', String(size.height));
+                if (!hasWidth) setMissingAttr(attrs, lookup, 'width', String(size.width));
+                if (!hasHeight) setMissingAttr(attrs, lookup, 'height', String(size.height));
             }
         }
 

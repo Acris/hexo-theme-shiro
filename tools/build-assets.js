@@ -29,7 +29,14 @@ const snippetMarkers = {
 };
 
 function countOccurrences(source, needle) {
-    return source.split(needle).length - 1;
+    if (!needle) return 0;
+    let count = 0;
+    let index = source.indexOf(needle);
+    while (index !== -1) {
+        count += 1;
+        index = source.indexOf(needle, index + needle.length);
+    }
+    return count;
 }
 
 function readSnippet(file) {

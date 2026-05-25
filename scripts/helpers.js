@@ -135,8 +135,10 @@ function cachedStrippedHtml(html) {
 }
 
 function countImagesInHtml(html) {
-    const matches = html.match(/<img\b/gi);
-    return matches ? matches.length : 0;
+    const re = /<img\b/gi;
+    let count = 0;
+    while (re.exec(html)) count += 1;
+    return count;
 }
 
 function countHeadingsInHtml(html) {
@@ -290,7 +292,9 @@ function htmlCodePoint(match, code, radix) {
 }
 
 function decodeHtmlEntities(value) {
-    return String(value)
+    const text = String(value);
+    if (text.indexOf('&') === -1) return text;
+    return text
         .replace(/&#(\d+);/g, (match, code) => htmlCodePoint(match, code, 10))
         .replace(/&#x([\da-f]+);/gi, (match, code) => htmlCodePoint(match, code, 16))
         .replace(/&nbsp;/g, ' ')
