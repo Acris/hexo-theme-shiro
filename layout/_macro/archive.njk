@@ -17,8 +17,7 @@
 {% macro render_list(posts) %}
     <div class="space-y-16 max-w-2xl mx-auto">
         {% set currentYear = '' %}
-        {% set post_list = posts.toArray() %}
-        {% for post in post_list %}
+        {% for post in posts.toArray() %}
             {% set y = date(post.date, 'YYYY') %}
             {% if y != currentYear %}
                 {% if currentYear != '' %}
@@ -44,8 +43,7 @@
 
 {% macro render_simple_list(posts) %}
     <div class="space-y-4">
-        {% set post_list = posts.toArray() %}
-        {% for post in post_list %}
+        {% for post in posts.toArray() %}
         {{ archive_item(post) }}
         {% endfor %}
     </div>

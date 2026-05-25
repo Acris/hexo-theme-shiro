@@ -96,14 +96,12 @@
 
     const i18nGallery = () => (window.__i18n && window.__i18n.gallery) || {};
 
-    const i18nVisitSource = () => i18nGallery().visit_source || 'View Source Page';
-
     // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {
         let html = '';
         if (caption) html += `<p>${escapeHtml(caption)}</p>`;
         if (linkedUrl) {
-            const label = escapeHtml(i18nVisitSource());
+            const label = escapeHtml(i18nGallery().visit_source || 'View Source Page');
             const safeUrl = escapeAttr(linkedUrl);
             html += `<a class="lg-source-btn" href="${safeUrl}" target="_blank" `
                 + `rel="noopener noreferrer">`

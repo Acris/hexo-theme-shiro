@@ -93,12 +93,8 @@ function sourceDirForPost(post) {
     return path.dirname(absolute);
 }
 
-function normalizeFilePath(filePath) {
-    return path.normalize(filePath);
-}
-
 function directoryExists(dirPath) {
-    const normalized = normalizeFilePath(dirPath);
+    const normalized = path.normalize(dirPath);
     if (existingDirCache.has(normalized)) return true;
     if (missingDirCache.has(normalized)) return false;
 
@@ -114,7 +110,7 @@ function directoryExists(dirPath) {
 }
 
 function fileExists(filePath) {
-    const normalized = normalizeFilePath(filePath);
+    const normalized = path.normalize(filePath);
     if (existingFileCache.has(normalized)) return true;
     if (missingFileCache.has(normalized)) return false;
 
@@ -272,7 +268,7 @@ function readFileHeader(filePath) {
 }
 
 function imageSizeFromFile(filePath) {
-    const normalized = normalizeFilePath(filePath);
+    const normalized = path.normalize(filePath);
     if (imageMetaCache.has(normalized)) return imageMetaCache.get(normalized);
     let size = null;
     try {
@@ -296,7 +292,7 @@ function localImageSize(src, post) {
 
     const candidates = localImageCandidates(src, post);
     for (const candidate of candidates) {
-        const filePath = normalizeFilePath(candidate);
+        const filePath = path.normalize(candidate);
         if (!fileExists(filePath)) continue;
         const size = imageSizeFromFile(filePath);
         if (size && size.width && size.height) {

@@ -75,10 +75,6 @@
     transition-property: color, background-color, border-color, box-shadow, transform;
 }
 
-@utility transition-visual {
-    transition-property: opacity, transform, color, background-color, border-color, box-shadow;
-}
-
 @layer base {
     ::-webkit-scrollbar {
         width: 10px;

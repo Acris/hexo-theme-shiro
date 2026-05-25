@@ -145,7 +145,6 @@
         });
     }
 
-    const scheduleObserverUpdate = () => scheduleActiveUpdate(updateActiveHeadingFromObserver);
     const schedulePositionUpdate = () => scheduleActiveUpdate(updateActiveHeadingByPosition);
 
     if ('IntersectionObserver' in window) {
@@ -159,7 +158,7 @@
                     passedHeadings.delete(id);
                 }
             });
-            scheduleObserverUpdate();
+            scheduleActiveUpdate(updateActiveHeadingFromObserver);
         }, {
             rootMargin: '-100px 0px 0px 0px',
             threshold: 0

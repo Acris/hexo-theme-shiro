@@ -54,12 +54,10 @@
 
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
-    {% set needs_clipboard = needs_code %}
     {% set needs_mobile_menu = theme.menu and theme.menu.length %}
-    {% set needs_feature_data = theme.search.enabled or needs_lightgallery or needs_clipboard or needs_mobile_menu %}
-    {% if needs_feature_data %}
+    {% if theme.search.enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     <script>
-        {% if theme.search.enabled or needs_lightgallery or needs_clipboard %}
+        {% if theme.search.enabled or needs_lightgallery or needs_code %}
         window.__i18n = window.__i18n || {};
         {% endif %}
         {% if theme.search.enabled %}
@@ -85,7 +83,7 @@
         {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
         {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
-        {% if needs_clipboard %}
+        {% if needs_code %}
         {{ feature_i18n('clipboard', {
             copied: __('clipboard.copied'),
             copy: __('clipboard.copy')
@@ -103,7 +101,7 @@
     {% if needs_lightgallery %}
     <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
     {% endif %}
-    {% if needs_clipboard %}
+    {% if needs_code %}
     <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
     {% endif %}
     {% if needs_toc %}
