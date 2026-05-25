@@ -121,22 +121,26 @@ window.__i18n[{{ key | dump | safe }}] = {{ value | dump | safe }};
 {% endmacro %}
 
 {% macro meta(post, show_all_cats=false, class="mt-2") %}
+{% set post_year = date(post.date, 'YYYY') %}
+{% set post_date_attr = date(post.date, 'YYYY-MM-DD') %}
+{% set post_date_text = date(post.date, 'YYYY/MM/DD') %}
 <div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500 flex-wrap">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow() }}
-        <a href="{{ url_for('archives/' + date(post.date, 'YYYY')) + '/' }}" class="oldstyle-nums link-muted"><time datetime="{{ date(post.date, 'YYYY-MM-DD') }}">{{ date(post.date, 'YYYY/MM/DD') }}</time></a>
+        <a href="{{ url_for('archives/' + post_year) + '/' }}" class="oldstyle-nums link-muted"><time datetime="{{ post_date_attr }}">{{ post_date_text }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
+        {% set post_categories = post.categories.toArray() %}
         <span class="text-slate-300" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
             {{ icon_folder() }}
             {% if show_all_cats %}
-                {% for cat in post.categories.toArray() %}
+                {% for cat in post_categories %}
                     <a class="link-muted" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
                     {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
                 {% endfor %}
             {% else %}
-                {% set first_cat = post.categories.toArray()[0] %}
+                {% set first_cat = post_categories[0] %}
                 <a class="link-muted" href="{{ url_for(first_cat.path) }}">{{ first_cat.name }}</a>
             {% endif %}
         </div>
