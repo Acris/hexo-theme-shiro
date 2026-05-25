@@ -478,7 +478,7 @@ function googleFontUrl(families, display) {
     return GOOGLE_FONTS_BASE + '?' + params.join('&');
 }
 
-hexo.extend.helper.register('google_font_urls', function (page, config, themeConfig) {
+hexo.extend.helper.register('google_font_urls', function (page, config, themeConfig, hasCode) {
     const criticalFamilies = [
         { name: 'Cardo', weights: ['400', '700'] },
         { name: 'Yuji Syuku' },
@@ -495,7 +495,7 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
         googleFontUrl([{ name: 'Cormorant Garamond', weights: ['400', '600'] }], 'optional')
     ];
 
-    if (pageHasCode(page, themeConfig, this)) {
+    if ((typeof hasCode === 'boolean' ? hasCode : pageHasCode(page, themeConfig, this))) {
         urls.push(googleFontUrl([{ name: 'Fira Code', weights: ['400', '500'] }], 'optional'));
     }
 

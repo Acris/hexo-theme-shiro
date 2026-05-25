@@ -1,5 +1,7 @@
 <!doctype html>
 {% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n %}
+{% set needs_code = page_has_code(page, theme) %}
+{% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
 <html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
@@ -52,7 +54,7 @@
 
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
-    {% set needs_clipboard = page_has_code(page, theme) %}
+    {% set needs_clipboard = needs_code %}
     {% set needs_mobile_menu = theme.menu and theme.menu.length %}
     {% set needs_feature_data = theme.search.enabled or needs_lightgallery or needs_clipboard or needs_mobile_menu %}
     {% if needs_feature_data %}
@@ -104,7 +106,6 @@
     {% if needs_clipboard %}
     <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
     {% endif %}
-    {% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
     {% if needs_toc %}
     <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}

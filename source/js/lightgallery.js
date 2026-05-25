@@ -119,17 +119,20 @@
     };
 
     function cachedGalleryItems(container) {
-        let items = galleryItemCache.get(container);
-        if (!items) {
-            items = [];
-            galleryItemCache.set(container, items);
+        let state = galleryItemCache.get(container);
+        if (!state) {
+            state = { items: [], itemSet: new Set() };
+            galleryItemCache.set(container, state);
         }
-        return items;
+        return state;
     }
 
     function rememberGalleryItem(container, link) {
-        const items = cachedGalleryItems(container);
-        if (!items.includes(link)) items.push(link);
+        const state = cachedGalleryItems(container);
+        if (!state.itemSet.has(link)) {
+            state.itemSet.add(link);
+            state.items.push(link);
+        }
     }
 
     const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
@@ -194,9 +197,13 @@
     };
 
     function galleryItems(container) {
-        const items = cachedGalleryItems(container).filter(item => item.isConnected);
-        galleryItemCache.set(container, items);
-        return items;
+        const state = cachedGalleryItems(container);
+        const items = state.items.filter(item => item.isConnected);
+        if (items.length !== state.items.length) {
+            state.items = items;
+            state.itemSet = new Set(items);
+        }
+        return state.items;
     }
 
     function getOrCreateInstance(container) {

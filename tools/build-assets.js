@@ -12,6 +12,7 @@ const binExt = process.platform === 'win32' ? '.cmd' : '';
 const tailwindBin = path.join(root, 'node_modules', '.bin', 'tailwindcss' + binExt);
 
 const snippetDir = path.join(root, 'tools', 'snippets');
+const snippetCache = new Map();
 const snippetMarkers = {
     assetLoader: {
         start: '    // <shiro-asset-loader>',
@@ -29,6 +30,13 @@ const snippetMarkers = {
 
 function countOccurrences(source, needle) {
     return source.split(needle).length - 1;
+}
+
+function readSnippet(file) {
+    if (!snippetCache.has(file)) {
+        snippetCache.set(file, fs.readFileSync(path.join(snippetDir, file), 'utf8').replace(/\s+$/, ''));
+    }
+    return snippetCache.get(file);
 }
 
 function applySnippet(code, name, config, sourceFile) {
@@ -51,7 +59,7 @@ function applySnippet(code, name, config, sourceFile) {
     const end = code.indexOf(config.end, start);
     if (end < start) throw new Error(sourceFile + ': ' + name + ' snippet end marker appears before start marker');
 
-    const snippet = fs.readFileSync(path.join(snippetDir, config.file), 'utf8').replace(/\s+$/, '');
+    const snippet = readSnippet(config.file);
     return code.slice(0, start)
         + config.start + '\n'
         + snippet + '\n'

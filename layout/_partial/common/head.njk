@@ -24,7 +24,7 @@
         html.style.colorScheme = isDark ? 'dark' : 'light';
     })();
     </script>
-    {% for google_fonts_url in google_font_urls(page, config, theme) %}
+    {% for google_fonts_url in google_font_urls(page, config, theme, needs_code) %}
     <link rel="stylesheet" href="{{ google_fonts_url }}" />
     {% endfor %}
     {# --- SEO Variables --- #}
@@ -87,8 +87,8 @@
     {% endif %}
 
     <!-- CSS -->
-    {% set needs_code_styles = page_has_code(page, theme) %}
-    {% set needs_toc_styles = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
+    {% set needs_code_styles = needs_code %}
+    {% set needs_toc_styles = needs_toc %}
     <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
     {% if needs_code_styles %}
     <link rel="stylesheet" href="{{ versioned_url('css/code.min.css') }}">

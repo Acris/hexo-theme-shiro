@@ -37,10 +37,12 @@
 
     let loading = false;
     const pendingTargets = [];
+    const pendingTargetSet = new Set();
 
     function queueTargets(targets) {
         (targets || []).forEach((target) => {
-            if (target && target.isConnected && !pendingTargets.includes(target)) {
+            if (target && target.isConnected && !pendingTargetSet.has(target)) {
+                pendingTargetSet.add(target);
                 pendingTargets.push(target);
             }
         });
@@ -69,6 +71,7 @@
                 loading = false;
                 enhanceTargets(pendingTargets);
                 pendingTargets.length = 0;
+                pendingTargetSet.clear();
                 window.__shiroClipboardTargets = [];
                 if (typeof onLoaded === 'function') onLoaded();
             },

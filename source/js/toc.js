@@ -6,17 +6,26 @@
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const tocRoots = [tocSidebar, tocInline].filter(Boolean);
     const links = tocRoots.flatMap(root => Array.from(root.querySelectorAll('.toc-link[data-target]')));
+    const sidebarScrollContainer = tocSidebar ? tocSidebar.querySelector('.toc-sidebar-inner .toc-body') : null;
     if (!links.length) return;
 
     const headingArr = [];
     const linksByTarget = new Map();
+    const headingIds = new Set();
     links.forEach((link) => {
         const target = link.dataset.target;
         if (!target) return;
         const heading = document.getElementById(target);
-        if (heading && !headingArr.includes(heading)) headingArr.push(heading);
-        if (!linksByTarget.has(target)) linksByTarget.set(target, []);
-        linksByTarget.get(target).push(link);
+        if (heading && !headingIds.has(target)) {
+            headingIds.add(target);
+            headingArr.push(heading);
+        }
+        let targetLinks = linksByTarget.get(target);
+        if (!targetLinks) {
+            targetLinks = [];
+            linksByTarget.set(target, targetLinks);
+        }
+        targetLinks.push(link);
     });
     if (!headingArr.length) return;
 
@@ -77,7 +86,7 @@
         if (!id || !tocSidebar) return;
         const targetLinks = linksByTarget.get(id) || [];
         const activeLink = targetLinks.find(link => tocSidebar.contains(link));
-        const scrollContainer = tocSidebar.querySelector('.toc-sidebar-inner .toc-body');
+        const scrollContainer = sidebarScrollContainer;
         if (!activeLink || !scrollContainer) return;
 
         const linkRect = activeLink.getBoundingClientRect();
