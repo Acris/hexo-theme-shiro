@@ -166,8 +166,7 @@
     }
 
     function open() {
-        ensureModal();
-        if (modal.getAttribute('data-open') === 'true') return;
+        if (modal && modal.getAttribute('data-open') === 'true') return;
         lastFocus = document.activeElement;
         ensureSearchCss().then(showModal).catch(() => {
             showModal();

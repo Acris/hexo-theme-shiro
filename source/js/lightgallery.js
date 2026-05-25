@@ -133,11 +133,8 @@
     }
 
     const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
-        let changed = false;
         const setIfChanged = (name, value) => {
-            if (link.getAttribute(name) === value) return;
-            link.setAttribute(name, value);
-            changed = true;
+            if (link.getAttribute(name) !== value) link.setAttribute(name, value);
         };
 
         // Use data-src so lightgallery reads the image URL from it,
@@ -150,9 +147,7 @@
             setIfChanged('data-sub-html', subHtml);
         } else if (link.hasAttribute('data-sub-html')) {
             link.removeAttribute('data-sub-html');
-            changed = true;
         }
-        return changed;
     };
 
     const ensureLink = (container, img) => {
