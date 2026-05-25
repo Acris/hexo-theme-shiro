@@ -17,7 +17,7 @@
         {% if site.categories.length > 0 %}
             <div class="space-y-16 max-w-2xl mx-auto">
                 {% for cat in site.categories.toArray() | sort(false, false, "name") %}
-                <div id="cat-{{ cat.slug }}" class="scroll-mt-24">
+                <div id="{{ html_attr('cat-' + cat.slug) | safe }}" class="scroll-mt-24">
                     <h2 class="section-heading">
                         {{ icon_folder() }}
                         {{ cat.name }}

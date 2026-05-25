@@ -1,3 +1,5 @@
+{% set comments_config = theme.comments or {} %}
+{% set disqus_config = disqus if disqus is defined else (comments_config.disqus or {}) %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 <script>
     /* Disqus expects this on the global scope.
@@ -15,8 +17,8 @@
         const disqus_thread = d.getElementById('disqus_thread');
         if (!disqus_thread) return;
 
-        {# shortname must be alphanumeric (Disqus requirement) — do not use user-supplied input #}
-        const SHORTNAME = {{ theme.comments.disqus.shortname | dump | safe }};
+        const SHORTNAME = {{ (disqus_config.shortname or '') | dump | safe }};
+        if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
         const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;
 

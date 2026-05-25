@@ -1,17 +1,31 @@
 <!doctype html>
 {% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n %}
+{% set site_config = theme.site or {} %}
+{% set toc_config = theme.toc or {} %}
+{% set search_config = theme.search or {} %}
+{% set dark_mode_config = theme.dark_mode or {} %}
+{% set progress_bar_config = theme.progress_bar or {} %}
+{% set back_to_top_config = theme.back_to_top or {} %}
+{% set menu_items = theme.menu or [] %}
+{% set dark_mode_default_raw = dark_mode_config.default | default("light", true) %}
+{% set dark_mode_default = dark_mode_default_raw if dark_mode_default_raw == "system" or dark_mode_default_raw == "dark" else "light" %}
+{% set dark_mode_toggle = dark_mode_config.toggle != false %}
+{% set search_enabled = search_config.enabled %}
+{% set site_seal_enabled = site_config.seal != false %}
+{% set site_favicon = site_config.favicon if site_config.favicon is defined else "/favicon.svg" %}
+{% set page_lang = config.language[0] if config.language is iterable and config.language is not string else config.language %}
 {% set needs_code = page_has_code(page, theme) %}
-{% set needs_toc = theme.toc.enabled and (is_post() or is_page()) and should_render_toc(page, theme.toc) %}
-<html lang="{% if config.language is iterable and config.language is not string %}{{ config.language[0] }}{% else %}{{ config.language }}{% endif %}" class="h-full scroll-smooth">
+{% set needs_toc = toc_config.enabled != false and (is_post() or is_page()) and should_render_toc(page, toc_config) %}
+<html lang="{{ html_attr(page_lang) | safe }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
 <body class="h-full fog-bg text-slate-800">
-    {% if theme.site.seal %}
+    {% if site_seal_enabled %}
     {{ svg_filters() }}
     {% endif %}
 
-    {% set needs_progress_bar = theme.progress_bar.enabled and is_post() %}
-    {% set needs_back_to_top = theme.back_to_top.enabled and (is_home() or (is_post() and page_looks_long(page))) %}
+    {% set needs_progress_bar = progress_bar_config.enabled != false and is_post() %}
+    {% set needs_back_to_top = back_to_top_config.enabled != false and (is_home() or (is_post() and page_looks_long(page))) %}
 
     {% if needs_progress_bar %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
@@ -45,7 +59,7 @@
     </div>
 
     {% if needs_back_to_top %}
-    <button id="backToTop" class="back-to-top" data-visible="false" aria-label="{{ __('common.back_to_top') }}">
+    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="{{ html_attr(__('common.back_to_top')) | safe }}">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
@@ -54,13 +68,13 @@
 
     <!-- Scripts -->
     {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
-    {% set needs_mobile_menu = theme.menu and theme.menu.length %}
-    {% if theme.search.enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
+    {% set needs_mobile_menu = menu_items.length %}
+    {% if search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     <script>
-        {% if theme.search.enabled or needs_lightgallery or needs_code %}
+        {% if search_enabled or needs_lightgallery or needs_code %}
         window.__i18n = window.__i18n || {};
         {% endif %}
-        {% if theme.search.enabled %}
+        {% if search_enabled %}
         {{ feature_i18n('search', {
             button: __('search.button'),
             close: __('search.close'),
@@ -95,29 +109,29 @@
         {% endif %}
     </script>
     {% endif %}
-    {% if theme.search.enabled %}
-    <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
+    {% if search_enabled %}
+    <script defer src="{{ html_attr(versioned_url('js/search-bootstrap.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_lightgallery %}
-    <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/lightgallery-bootstrap.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_code %}
-    <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/clipboard-bootstrap.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_toc %}
-    <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/toc.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_progress_bar %}
-    <script defer src="{{ versioned_url('js/progress.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/progress.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_back_to_top %}
-    <script defer src="{{ versioned_url('js/back-to-top.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/back-to-top.min.js')) | safe }}"></script>
     {% endif %}
-    {% if theme.dark_mode.toggle != false %}
-    <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
+    {% if dark_mode_toggle %}
+    <script defer src="{{ html_attr(versioned_url('js/theme-toggle.min.js')) | safe }}"></script>
     {% endif %}
     {% if needs_mobile_menu %}
-    <script defer src="{{ versioned_url('js/mobile-menu-bootstrap.min.js') }}"></script>
+    <script defer src="{{ html_attr(versioned_url('js/mobile-menu-bootstrap.min.js')) | safe }}"></script>
     {% endif %}
 
     {% include "_partial/analytics/google.njk" %}

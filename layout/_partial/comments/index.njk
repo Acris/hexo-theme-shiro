@@ -1,5 +1,15 @@
-{% set disqus_comments_ready = theme.comments.enabled and theme.comments.provider == "disqus" and theme.comments.disqus.shortname %}
-{% set giscus_comments_ready = theme.comments.enabled and theme.comments.provider == "giscus" and theme.comments.giscus.repo %}
+{% set comments = theme.comments or {} %}
+{% set disqus = comments.disqus or {} %}
+{% set giscus = comments.giscus or {} %}
+{% set disqus_comments_ready = comments.enabled and comments.provider == "disqus" and disqus.shortname %}
+{% set giscus_mapping = giscus.mapping or "pathname" %}
+{% set giscus_mapping_ready = giscus.term if giscus_mapping == "specific" or giscus_mapping == "number" else true %}
+{% set giscus_comments_ready = comments.enabled and comments.provider == "giscus"
+    and giscus.repo
+    and giscus.repo_id
+    and giscus.category
+    and giscus.category_id
+    and giscus_mapping_ready %}
 {% if disqus_comments_ready or giscus_comments_ready %}
 {% include "_partial/comments/bootstrap.njk" %}
 {% if disqus_comments_ready %}

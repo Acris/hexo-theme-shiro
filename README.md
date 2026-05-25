@@ -133,6 +133,7 @@ menu:
 
 # Excerpt settings
 # Priority: <!-- more --> tag > auto-truncation (when fallback.enabled: true) > full content.
+# For better readability, prefer adding <!-- more --> manually in posts.
 excerpt:
   # If post has <!-- more -->, use it.
   # Otherwise fallback to auto-truncated excerpt.
@@ -196,6 +197,8 @@ comments:
     category_id: ""
     # pathname, url, title, og:title, specific, number
     mapping: pathname
+    # Required when mapping is "specific" or "number"
+    term: ""
     # 1 to enable strict title matching
     strict: 0
     # 1 to enable reactions

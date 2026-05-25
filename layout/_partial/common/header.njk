@@ -1,4 +1,5 @@
 {% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark with context %}
+{% set rss_config = site_config.rss or {} %}
 <header class="relative" data-pagefind-ignore>
 
     <div class="relative flex items-start justify-center">
@@ -6,18 +7,18 @@
             <div class="relative inline-block">
                 {% if is_home() %}
                 <h1 class="site-title">
-                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </h1>
                 {% else %}
                 <p class="site-title">
-                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </p>
                 {% endif %}
                 <!-- Seal: Mathematically Centered -->
-                {% if theme.site.seal %}
+                {% if site_seal_enabled %}
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
-                    {{ seal(theme.site.seal_text | default("白", true)) }}
+                    {{ seal(site_config.seal_text | default("白", true)) }}
                 </div>
                 {% endif %}
             </div>
@@ -27,22 +28,21 @@
             </p>
             {% endif %}
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
-                {% if theme.site.rss.enabled %}
+                {% if rss_config.enabled %}
                 <a class="header-pill-btn"
-                    href="{{ url_for(theme.site.rss.path | default('/atom.xml')) }}" target="_blank" rel="noopener" aria-label="RSS">
+                    href="{{ html_attr(url_for(rss_config.path | default('/atom.xml'))) | safe }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
-                {% if theme.dark_mode.toggle != false %}
-                {% set dm_default = theme.dark_mode.default | default("system", true) %}
-                <button id="themeToggle" class="header-pill-btn" aria-label="{{ __('theme.' + dm_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                {% if dark_mode_toggle %}
+                <button id="themeToggle" type="button" class="header-pill-btn" aria-label="{{ html_attr(__('theme.' + dark_mode_default)) | safe }}" data-label-system="{{ html_attr(__('theme.system')) | safe }}" data-label-light="{{ html_attr(__('theme.light')) | safe }}" data-label-dark="{{ html_attr(__('theme.dark')) | safe }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
-                {% if theme.search.enabled %}
-                <button id="searchToggle" class="header-pill-btn" aria-label="{{ __('search.button') }}">
+                {% if search_enabled %}
+                <button id="searchToggle" type="button" class="header-pill-btn" aria-label="{{ html_attr(__('search.button')) | safe }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}
@@ -52,10 +52,11 @@
 </header>
 
 <!-- Navigation -->
-<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}" data-pagefind-ignore>
+{% if menu_items.length %}
+<nav class="mt-8 md:mt-10" aria-label="{{ html_attr(__('nav.menu')) | safe }}" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
-        <button id="menuBtn"
+        <button id="menuBtn" type="button"
             class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
@@ -66,7 +67,7 @@
     <!-- Desktop Menu -->
     <div class="hidden md:block">
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
-            {% for item in theme.menu %}
+            {% for item in menu_items %}
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
                     href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
@@ -80,7 +81,7 @@
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
-            {% for item in theme.menu %}
+            {% for item in menu_items %}
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
                     href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
@@ -90,3 +91,4 @@
         </ul>
     </div>
 </nav>
+{% endif %}

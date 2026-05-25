@@ -2,20 +2,26 @@
 <article class="py-2">
     <header class="text-center mb-4">
         <h2 class="font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
-            <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
+            <a href="{{ html_attr(url_for(post.path)) | safe }}">{{ post.title }}</a>
         </h2>
         {{ meta(post) }}
     </header>
     {# When fallback is disabled, pass length 0 so excerpt_for only honors manual <!-- more --> excerpts. #}
-    {% set fallback_enabled = theme.excerpt.fallback.enabled != false %}
-    {% set fallback_length = theme.excerpt.fallback.length if fallback_enabled else 0 %}
+    {% set excerpt_config = theme.excerpt or {} %}
+    {% set fallback_config = excerpt_config.fallback or {} %}
+    {% set fallback_enabled = fallback_config.enabled != false %}
+    {% if fallback_enabled %}
+    {% set fallback_length = fallback_config.length | default(200) %}
+    {% else %}
+    {% set fallback_length = 0 %}
+    {% endif %}
     {% set excerpt = excerpt_for(post, fallback_length) %}
     <div class="prose-shiro">
         {{ excerpt.content | safe }}
     </div>
     {% if excerpt.truncated %}
     <div class="mt-6 text-center">
-        <a href="{{ url_for(post.path) }}"
+        <a href="{{ html_attr(url_for(post.path)) | safe }}"
             class="focus-elegant btn-ink">
             {{ __('index.read_more') }}
         </a>

@@ -10,7 +10,7 @@
          → add .dark class and colorScheme if needed. -->
     <script>
     ;(() => {
-        const defaultTheme = {{ theme.dark_mode.default | default("system", true) | dump | safe }};
+        const defaultTheme = {{ dark_mode_default | dump | safe }};
         window.__themeDefault = defaultTheme;
         const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
         let saved;
@@ -25,7 +25,7 @@
     })();
     </script>
     {% for google_fonts_url in google_font_urls(page, config, theme, needs_code) %}
-    <link rel="stylesheet" href="{{ google_fonts_url }}" />
+    <link rel="stylesheet" href="{{ html_attr(google_fonts_url) | safe }}" />
     {% endfor %}
     {# --- SEO Variables --- #}
     {% set page_title = build_page_title(page, config) %}
@@ -76,21 +76,22 @@
     <link rel="canonical" href="{{ html_attr(url) | safe }}" />
 
     <!-- Favicon -->
-    {% if theme.site.favicon %}
-    <link rel="icon" href="{{ html_attr(url_for(theme.site.favicon)) | safe }}" />
+    {% if site_favicon %}
+    <link rel="icon" href="{{ html_attr(url_for(site_favicon)) | safe }}" />
     {% endif %}
 
     <!-- RSS -->
-    {% if theme.site.rss.enabled %}
-    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(url_for(theme.site.rss.path | default('/atom.xml'))) | safe }}" />
+    {% set rss_config = site_config.rss or {} %}
+    {% if rss_config.enabled %}
+    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(url_for(rss_config.path | default('/atom.xml'))) | safe }}" />
     {% endif %}
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
+    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/style.min.css')) | safe }}">
     {% if needs_code %}
-    <link rel="stylesheet" href="{{ versioned_url('css/code.min.css') }}">
+    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/code.min.css')) | safe }}">
     {% endif %}
     {% if needs_toc %}
-    <link rel="stylesheet" href="{{ versioned_url('css/toc.min.css') }}">
+    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/toc.min.css')) | safe }}">
     {% endif %}
 </head>

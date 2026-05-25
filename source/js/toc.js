@@ -63,7 +63,7 @@
         const target = document.getElementById(link.dataset.target);
         if (target) {
             target.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-            history.replaceState(null, '', '#' + link.dataset.target);
+            history.replaceState(null, '', '#' + encodeURIComponent(link.dataset.target));
         }
     }
 
@@ -178,14 +178,22 @@
         document.fonts.ready.then(schedulePositionUpdate);
     }
 
-    if (location.hash) {
-        const hashTarget = document.getElementById(location.hash.slice(1));
-        if (hashTarget) {
-            setTimeout(() => {
-                hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-                schedulePositionUpdate();
-            }, 100);
+    function decodedHashTarget() {
+        if (!location.hash) return null;
+        const raw = location.hash.slice(1);
+        try {
+            return document.getElementById(decodeURIComponent(raw));
+        } catch (_) {
+            return document.getElementById(raw);
         }
+    }
+
+    const hashTarget = decodedHashTarget();
+    if (hashTarget) {
+        setTimeout(() => {
+            hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+            schedulePositionUpdate();
+        }, 100);
     }
 
     if (tocSidebar && !reducedMotion.matches) {

@@ -1,3 +1,5 @@
+{% set comments_config = theme.comments or {} %}
+{% set giscus_config = giscus if giscus is defined else (comments_config.giscus or {}) %}
 <div id="giscus-container" class="giscus" data-pagefind-ignore></div>
 <script>
 ;(() => {
@@ -22,23 +24,26 @@
         };
 
         const s = d.createElement('script');
-        s.src = {{ (theme.comments.giscus.src or 'https://giscus.app/client.js') | dump | safe }};
+        s.src = {{ (giscus_config.src or 'https://giscus.app/client.js') | dump | safe }};
         s.async = true;
         s.crossOrigin = 'anonymous';
         const attrs = {
-            'data-repo': {{ theme.comments.giscus.repo | dump | safe }},
-            'data-repo-id': {{ theme.comments.giscus.repo_id | dump | safe }},
-            'data-category': {{ theme.comments.giscus.category | dump | safe }},
-            'data-category-id': {{ theme.comments.giscus.category_id | dump | safe }},
-            'data-mapping': {{ (theme.comments.giscus.mapping or 'pathname') | dump | safe }},
-            'data-strict': binaryAttr({{ theme.comments.giscus.strict | default('0') | dump | safe }}, '0'),
-            'data-reactions-enabled': binaryAttr({{ theme.comments.giscus.reactions_enabled | default('1') | dump | safe }}, '1'),
-            'data-emit-metadata': binaryAttr({{ theme.comments.giscus.emit_metadata | default('0') | dump | safe }}, '0'),
-            'data-input-position': {{ (theme.comments.giscus.input_position or 'bottom') | dump | safe }},
+            'data-repo': {{ (giscus_config.repo or '') | dump | safe }},
+            'data-repo-id': {{ (giscus_config.repo_id or '') | dump | safe }},
+            'data-category': {{ (giscus_config.category or '') | dump | safe }},
+            'data-category-id': {{ (giscus_config.category_id or '') | dump | safe }},
+            'data-mapping': {{ (giscus_config.mapping or 'pathname') | dump | safe }},
+            {%- if giscus_config.term %}
+            'data-term': {{ giscus_config.term | dump | safe }},
+            {%- endif %}
+            'data-strict': binaryAttr({{ giscus_config.strict | default('0') | dump | safe }}, '0'),
+            'data-reactions-enabled': binaryAttr({{ giscus_config.reactions_enabled | default('1') | dump | safe }}, '1'),
+            'data-emit-metadata': binaryAttr({{ giscus_config.emit_metadata | default('0') | dump | safe }}, '0'),
+            'data-input-position': {{ (giscus_config.input_position or 'bottom') | dump | safe }},
             {# Fallback to giscus built-in 'preferred_color_scheme' theme if user removes the theme config #}
-            'data-theme': {{ (theme.comments.giscus.theme or 'preferred_color_scheme') | dump | safe }},
-            'data-lang': {{ (theme.comments.giscus.lang or 'en') | dump | safe }},
-            {%- if theme.comments.giscus.lazy_loading %}
+            'data-theme': {{ (giscus_config.theme or 'preferred_color_scheme') | dump | safe }},
+            'data-lang': {{ (giscus_config.lang or 'en') | dump | safe }},
+            {%- if giscus_config.lazy_loading %}
             'data-loading': 'lazy',
             {%- endif %}
         };

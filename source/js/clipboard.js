@@ -52,6 +52,7 @@
         const lang = langMatch ? langMatch[1] : '';
 
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = 'copy-btn';
         btn.setAttribute('aria-label', i18nCopy());
         btn.innerHTML = iconCopy;

@@ -130,6 +130,7 @@ menu:
 
 # 摘要设置
 # 优先级：<!-- more --> 标签 > 自动截断（当 fallback.enabled 为 true 时）> 全文显示。
+# 为了更好的阅读性，推荐在文章中手动添加 <!-- more -->。
 excerpt:
   # 如果文章有 <!-- more --> 标签，则使用它。
   # 否则回退到自动截断摘要。
@@ -193,6 +194,8 @@ comments:
     category_id: ""
     # pathname、url、title、og:title、specific、number
     mapping: pathname
+    # mapping 为 "specific" 或 "number" 时必填
+    term: ""
     # 1 启用严格标题匹配
     strict: 0
     # 1 启用表情回应

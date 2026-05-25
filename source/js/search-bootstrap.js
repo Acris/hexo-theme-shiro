@@ -31,7 +31,10 @@
                 loading = false;
                 removeBootstrapListeners();
             },
-            onerror: () => { loading = false; }
+            onerror: () => {
+                loading = false;
+                window.__shiroSearchAutoOpen = false;
+            }
         });
     }
 

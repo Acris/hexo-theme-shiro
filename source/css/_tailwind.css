@@ -323,7 +323,7 @@
 
     /* ── Back to Top ── */
     .back-to-top {
-        @apply fixed z-40 bottom-8 right-8 size-9 flex items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
+        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
         transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         will-change: opacity;
 

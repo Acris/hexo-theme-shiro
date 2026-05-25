@@ -86,6 +86,19 @@ function decodeUrlPath(value) {
     }
 }
 
+function normalizedRootPath(root) {
+    const value = String(root || '/').trim();
+    const pathRoot = '/' + value.replace(/^\/+|\/+$/g, '');
+    return pathRoot === '/' ? '/' : pathRoot + '/';
+}
+
+function isWithinDir(baseDir, filePath) {
+    const base = path.resolve(baseDir);
+    const target = path.resolve(filePath);
+    const relative = path.relative(base, target);
+    return relative === '' || (!!relative && !relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
 function sourceDirForPost(post) {
     const source = post && (post.full_source || post.source);
     if (!source) return '';
@@ -135,9 +148,9 @@ function localImageCandidates(src, post) {
     if (!urlPath || isRemoteUrl(urlPath)) return [];
 
     const candidates = new Set();
-    const root = (hexo.config.root || '/').replace(/\/+$/, '/');
+    const root = normalizedRootPath(hexo.config.root);
     const addCandidate = (filePath) => {
-        if (filePath) candidates.add(filePath);
+        if (filePath && isWithinDir(hexo.source_dir, filePath)) candidates.add(filePath);
     };
 
     let withoutRoot = urlPath.replace(/^\/+/, '');

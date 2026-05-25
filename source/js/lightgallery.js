@@ -82,6 +82,14 @@
     // Check if a URL is a meaningful HTTP(S) link (not #, javascript:void, etc.)
     const isValidUrl = (url) => /^https?:\/\//i.test(url);
 
+    const isSafeImageUrl = (url) => {
+        const value = String(url || '').trim();
+        if (!value || value[0] === '#') return false;
+        if (/^https?:\/\//i.test(value) || /^\/\//.test(value) || /^blob:/i.test(value)) return true;
+        if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(value)) return true;
+        return !/^[a-z][a-z0-9+.-]*:/i.test(value);
+    };
+
     // Skip tiny or decorative images (tracking pixels, icons, etc.)
     const isDecorativeImg = (img) => {
         const w = img.naturalWidth || img.width;
@@ -162,8 +170,8 @@
     const ensureLink = (container, img) => {
         // Prefer img.currentSrc once available, but keep img.src as the fallback
         // so lazy images can still open before the browser has selected a source.
-        const src = img.currentSrc || img.src || img.getAttribute('data-src') || '';
-        if (!src) return null;
+        const src = (img.currentSrc || img.src || img.getAttribute('data-src') || '').trim();
+        if (!isSafeImageUrl(src)) return null;
 
         if (isDecorativeImg(img)) return null;
 
@@ -229,7 +237,7 @@
         // If LightGallery fails to load after we prepared a gallery item, keep
         // the click aligned with the lightbox intent by opening the image URL.
         const href = link.getAttribute('data-src') || link.getAttribute('href');
-        if (!href) return;
+        if (!isSafeImageUrl(href)) return;
         window.location.href = href;
     }
 

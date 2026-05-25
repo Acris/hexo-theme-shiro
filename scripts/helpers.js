@@ -5,6 +5,7 @@ const fs = require('fs');
 const pathFn = require('path');
 
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
+const DEFAULT_EXCERPT_LENGTH = 200;
 const META_DESCRIPTION_LENGTH = 200;
 const assetHashCache = new Map();
 const assetUrlCache = new Map();
@@ -223,13 +224,20 @@ function excerptFallbackEnabled(themeConfig) {
     return !fallback || fallback.enabled !== false;
 }
 
+function excerptFallbackLength(fallbackConfig) {
+    if (fallbackConfig && fallbackConfig.length !== undefined) {
+        return Math.max(0, Number(fallbackConfig.length) || 0);
+    }
+    return DEFAULT_EXCERPT_LENGTH;
+}
+
 function renderedPostCardHasCode(post, themeConfig) {
     if (!post) return false;
     if (post.excerpt) return hasCodeContent(post.excerpt);
 
     if (excerptFallbackEnabled(themeConfig)) {
         const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
-        const limit = Math.max(0, Number(fallback && fallback.length) || 0);
+        const limit = excerptFallbackLength(fallback);
         if (limit > 0 && htmlTextFromHtml(post.content, limit).length > limit) return false;
     }
 
@@ -330,7 +338,7 @@ function slugifyHeading(text) {
 
 function headingId(attrs) {
     const match = String(attrs).match(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
-    return match ? (match[1] || match[2] || match[3] || '') : '';
+    return match ? decodeHtmlEntities(match[1] || match[2] || match[3] || '') : '';
 }
 
 function tocCacheKey(tocConfig) {
@@ -344,7 +352,7 @@ function tocCacheKey(tocConfig) {
 function collectExistingIds(source) {
     const ids = new Set();
     source.replace(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi, (match, doubleQuoted, singleQuoted, unquoted) => {
-        const id = doubleQuoted || singleQuoted || unquoted;
+        const id = decodeHtmlEntities(doubleQuoted || singleQuoted || unquoted || '');
         if (id) ids.add(id);
         return match;
     });
@@ -582,7 +590,7 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
     } else if (limit > 0) {
         const plain = htmlTextFromHtml(post.content, limit);
         if (plain.length > limit) {
-            result = { content: '<p>' + truncateText(plain, limit) + '</p>', truncated: true };
+            result = { content: '<p>' + escapeHtml(truncateText(plain, limit)) + '</p>', truncated: true };
         } else {
             result = { content: post.content || '', truncated: false };
         }
