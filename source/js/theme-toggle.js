@@ -2,7 +2,7 @@
  * Theme Toggle — smart cycling based on default theme config.
  * When default is "system": 3-state cycle (system → light → dark).
  * When default is "light" or "dark": 2-state toggle (light ↔ dark).
- * Applies .dark class on <html> and persists preference in localStorage.
+ * Applies data-theme on <html> and persists preference in localStorage.
  * Inline script in <head> handles initial state to prevent FOUC.
  */
 ;(() => {
@@ -32,18 +32,14 @@
     }
 
     function apply(state) {
-        if (state === 'dark') {
-            html.classList.add('dark');
-            html.style.colorScheme = 'dark';
-        } else if (state === 'light') {
-            html.classList.remove('dark');
-            html.style.colorScheme = 'light';
-        } else {
-            const prefersDark = prefersDarkQuery.matches;
-            html.classList.toggle('dark', prefersDark);
-            html.style.colorScheme = prefersDark ? 'dark' : 'light';
-        }
+        const isDark = state === 'dark' || (state !== 'light' && prefersDarkQuery.matches);
+        html.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        html.style.colorScheme = isDark ? 'dark' : 'light';
         updateIcon(state);
+    }
+
+    function refreshSystemTheme() {
+        if (getState() === 'system') apply('system');
     }
 
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -86,10 +82,8 @@
     btn.addEventListener('click', cycle);
 
     // Listen for system preference changes when in 'system' mode
-    addMediaChangeListener(prefersDarkQuery, () => {
-        if (getState() === 'system') apply('system');
-    });
+    addMediaChangeListener(prefersDarkQuery, refreshSystemTheme);
 
-    // Initial icon sync (class already applied by inline script)
+    // Initial icon sync (theme already applied by inline script)
     updateIcon(getState());
 })();

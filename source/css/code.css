@@ -267,138 +267,138 @@
     user-select: none;
 }
 
-.dark .prose-shiro .highlight:not(.not-prose) {
+html[data-theme="dark"] .prose-shiro .highlight:not(.not-prose) {
     border-color: var(--color-border-strong);
     background-color: var(--color-code-bg);
     color: var(--color-text-body);
 }
 
-.dark .prose-shiro .highlight td.gutter {
+html[data-theme="dark"] .prose-shiro .highlight td.gutter {
     border-color: var(--color-border-strong);
     background-color: var(--color-code-gutter);
     color: var(--color-text-subtle);
 }
 
-.dark .prose-shiro .highlight .comment,
-.dark .prose-shiro .highlight .quote {
+html[data-theme="dark"] .prose-shiro .highlight .comment,
+html[data-theme="dark"] .prose-shiro .highlight .quote {
     color: var(--color-text-subtle);
     font-style: italic;
 }
 
-.dark .prose-shiro .highlight .keyword,
-.dark .prose-shiro .highlight .selector-tag,
-.dark .prose-shiro .highlight .literal,
-.dark .prose-shiro .highlight .section,
-.dark .prose-shiro .highlight .link,
-.dark .prose-shiro .highlight .meta-keyword {
+html[data-theme="dark"] .prose-shiro .highlight .keyword,
+html[data-theme="dark"] .prose-shiro .highlight .selector-tag,
+html[data-theme="dark"] .prose-shiro .highlight .literal,
+html[data-theme="dark"] .prose-shiro .highlight .section,
+html[data-theme="dark"] .prose-shiro .highlight .link,
+html[data-theme="dark"] .prose-shiro .highlight .meta-keyword {
     color: color-mix(in srgb, var(--color-seal) 75%, white);
 }
 
-.dark .prose-shiro .highlight .string,
-.dark .prose-shiro .highlight .doctag,
-.dark .prose-shiro .highlight .template-tag,
-.dark .prose-shiro .highlight .template-variable,
-.dark .prose-shiro .highlight .regexp,
-.dark .prose-shiro .highlight .meta-string,
-.dark .prose-shiro .highlight .attr {
+html[data-theme="dark"] .prose-shiro .highlight .string,
+html[data-theme="dark"] .prose-shiro .highlight .doctag,
+html[data-theme="dark"] .prose-shiro .highlight .template-tag,
+html[data-theme="dark"] .prose-shiro .highlight .template-variable,
+html[data-theme="dark"] .prose-shiro .highlight .regexp,
+html[data-theme="dark"] .prose-shiro .highlight .meta-string,
+html[data-theme="dark"] .prose-shiro .highlight .attr {
     color: #b5c48a;
 }
 
-.dark .prose-shiro .highlight .number,
-.dark .prose-shiro .highlight .symbol,
-.dark .prose-shiro .highlight .bullet {
+html[data-theme="dark"] .prose-shiro .highlight .number,
+html[data-theme="dark"] .prose-shiro .highlight .symbol,
+html[data-theme="dark"] .prose-shiro .highlight .bullet {
     color: #e0a571;
 }
 
-.dark .prose-shiro .highlight .title,
-.dark .prose-shiro .highlight .name,
-.dark .prose-shiro .highlight .selector-id,
-.dark .prose-shiro .highlight .selector-class,
-.dark .prose-shiro .highlight .built_in,
-.dark .prose-shiro .highlight .builtin-name,
-.dark .prose-shiro .highlight .type,
-.dark .prose-shiro .highlight .class .title,
-.dark .prose-shiro .highlight .params {
+html[data-theme="dark"] .prose-shiro .highlight .title,
+html[data-theme="dark"] .prose-shiro .highlight .name,
+html[data-theme="dark"] .prose-shiro .highlight .selector-id,
+html[data-theme="dark"] .prose-shiro .highlight .selector-class,
+html[data-theme="dark"] .prose-shiro .highlight .built_in,
+html[data-theme="dark"] .prose-shiro .highlight .builtin-name,
+html[data-theme="dark"] .prose-shiro .highlight .type,
+html[data-theme="dark"] .prose-shiro .highlight .class .title,
+html[data-theme="dark"] .prose-shiro .highlight .params {
     color: var(--color-text-heading);
     font-weight: 600;
 }
 
-.dark .prose-shiro .highlight .attribute,
-.dark .prose-shiro .highlight .variable,
-.dark .prose-shiro .highlight .tag {
+html[data-theme="dark"] .prose-shiro .highlight .attribute,
+html[data-theme="dark"] .prose-shiro .highlight .variable,
+html[data-theme="dark"] .prose-shiro .highlight .tag {
     color: #d49a6a;
 }
 
-.dark .prose-shiro .highlight .meta {
+html[data-theme="dark"] .prose-shiro .highlight .meta {
     color: var(--color-text-subtle);
 }
 
-.dark .prose-shiro .highlight .addition {
+html[data-theme="dark"] .prose-shiro .highlight .addition {
     color: #b5c48a;
     background-color: rgba(181, 196, 138, 0.1);
 }
 
-.dark .prose-shiro .highlight .deletion {
+html[data-theme="dark"] .prose-shiro .highlight .deletion {
     color: color-mix(in srgb, var(--color-seal) 75%, white);
     background-color: rgba(175, 58, 82, 0.15);
 }
 
-.dark .prose-shiro .highlight figcaption {
+html[data-theme="dark"] .prose-shiro .highlight figcaption {
     border-bottom-color: var(--color-border-strong);
     background-color: var(--color-code-gutter);
     color: var(--color-text-muted);
 }
 
-.dark .prose-shiro .highlight figcaption a {
+html[data-theme="dark"] .prose-shiro .highlight figcaption a {
     color: var(--color-text-muted);
 }
 
-.dark .prose-shiro .highlight figcaption a:hover {
+html[data-theme="dark"] .prose-shiro .highlight figcaption a:hover {
     color: var(--color-seal);
 }
 
-.dark .prose-shiro .highlight .line.marked {
+html[data-theme="dark"] .prose-shiro .highlight .line.marked {
     background-color: color-mix(in srgb, var(--color-seal) 12%, transparent);
 }
 
-.dark .prose-shiro .gist {
+html[data-theme="dark"] .prose-shiro .gist {
     border-color: var(--color-border-strong);
     background-color: var(--color-code-bg);
 }
 
-.dark .prose-shiro .gist .gist-data {
+html[data-theme="dark"] .prose-shiro .gist .gist-data {
     border-bottom-color: var(--color-border-strong);
 }
 
-.dark .prose-shiro .gist .gist-meta {
+html[data-theme="dark"] .prose-shiro .gist .gist-meta {
     background-color: var(--color-code-gutter);
     color: var(--color-text-muted);
 }
 
-.dark .prose-shiro .gist .gist-meta a {
+html[data-theme="dark"] .prose-shiro .gist .gist-meta a {
     color: var(--color-text-muted);
 }
 
-.dark .prose-shiro .gist .gist-meta a:hover {
+html[data-theme="dark"] .prose-shiro .gist .gist-meta a:hover {
     color: var(--color-seal);
 }
 
-.dark .prose-shiro .gist .line-numbers {
+html[data-theme="dark"] .prose-shiro .gist .line-numbers {
     color: var(--color-text-subtle);
 }
 
-.dark .highlight-wrapper > .copy-btn {
+html[data-theme="dark"] .highlight-wrapper > .copy-btn {
     border-color: var(--color-border-decorative);
     background-color: var(--color-bg-overlay);
     color: var(--color-text-subtle);
 }
 
-.dark .highlight-wrapper > .copy-btn:hover {
+html[data-theme="dark"] .highlight-wrapper > .copy-btn:hover {
     border-color: var(--color-seal);
     background-color: var(--color-bg-panel);
     color: var(--color-seal);
 }
 
-.dark .highlight-wrapper > .code-lang {
+html[data-theme="dark"] .highlight-wrapper > .code-lang {
     color: var(--color-text-faint);
 }

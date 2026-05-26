@@ -28,7 +28,7 @@
     -webkit-backdrop-filter: blur(6px) saturate(120%);
 }
 
-.dark .search-modal__backdrop {
+html[data-theme="dark"] .search-modal__backdrop {
     background: color-mix(in srgb, #000 55%, transparent);
 }
 

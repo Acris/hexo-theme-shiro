@@ -7,12 +7,12 @@
 <script>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always
-       matches the live `<html>.dark` state instead of Disqus's flaky
+       matches the live `<html data-theme>` state instead of Disqus's flaky
        text-contrast auto-detection. */
     window.disqus_config = function () {
         this.page.url = {{ js_value(disqus_page_url) | safe }};
         this.page.identifier = {{ js_value(disqus_page_identifier) | safe }}.replace(/\/$/, '');
-        this.colorScheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        this.colorScheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
     };
 
     ;(() => {
@@ -42,7 +42,7 @@
            the reset until the comments container is near the viewport so
            offscreen comments do not reload during the theme switch. */
         const root = d.documentElement;
-        let prevDark = root.classList.contains('dark');
+        let prevDark = root.dataset.theme === 'dark';
         let resetTimer;
         let resetObserver;
         let pendingThemeReset = false;
@@ -82,14 +82,14 @@
         };
 
         const themeObserver = new MutationObserver(() => {
-            const isDark = root.classList.contains('dark');
+            const isDark = root.dataset.theme === 'dark';
             /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
             if (isDark === prevDark) return;
             prevDark = isDark;
             if (!loaded) return;
             resetWhenCommentsAreNear();
         });
-        themeObserver.observe(root, { attributes: true, attributeFilter: ['class'] });
+        themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>

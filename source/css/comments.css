@@ -36,11 +36,11 @@
     color-scheme: light;
 }
 
-.dark .giscus {
+html[data-theme="dark"] .giscus {
     border-color: var(--color-border-decorative);
 }
 
-.dark .giscus .giscus-frame {
+html[data-theme="dark"] .giscus .giscus-frame {
     color-scheme: dark;
 }
 
