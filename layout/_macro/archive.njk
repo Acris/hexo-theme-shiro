@@ -9,7 +9,7 @@
         {{ post_date_text }}
     </time>
     <h3 class="text-base font-normal text-slate-700 transition-colors group-hover:text-seal">
-        <a href="{{ html_attr(url_for(post.path)) | safe }}" class="link-underline">{{ post.title }}</a>
+        <a href="{{ html_attr(url_for(post.path)) | safe }}" class="link-underline">{{ html_attr(post.title) | safe }}</a>
     </h3>
 </article>
 {% endmacro %}

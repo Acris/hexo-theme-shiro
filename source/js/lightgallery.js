@@ -79,12 +79,16 @@
         return escapeHtml(value).replace(/"/g, '&quot;');
     };
 
-    // Check if a URL is a meaningful HTTP(S) link (not #, javascript:void, etc.)
-    const isValidUrl = (url) => /^https?:\/\//i.test(url);
+    // Return a normalized meaningful HTTP(S) link, or null.
+    const normalizedSourceUrl = (url) => {
+        const value = String(url || '').trim();
+        return !/[\u0000-\u001F\u007F]/.test(value) && /^https?:\/\//i.test(value) ? value : null;
+    };
 
     const isSafeImageUrl = (url) => {
         const value = String(url || '').trim();
         if (!value || value[0] === '#') return false;
+        if (/[\u0000-\u001F\u007F]/.test(value)) return false;
         if (/^https?:\/\//i.test(value) || /^\/\//.test(value) || /^blob:/i.test(value)) return true;
         if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(value)) return true;
         return !/^[a-z][a-z0-9+.-]*:/i.test(value);
@@ -103,6 +107,15 @@
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
     const i18nGallery = () => (window.__i18n && window.__i18n.gallery) || {};
+
+    const imageSource = (img) => {
+        const attrSrc = (img.getAttribute('src') || '').trim();
+        const attrSrcset = (img.getAttribute('srcset') || '').trim();
+        const dataSrc = (img.getAttribute('data-src') || '').trim();
+        const selectedSrc = (img.currentSrc || '').trim();
+        if (selectedSrc && (attrSrc || attrSrcset)) return selectedSrc;
+        return attrSrc || dataSrc;
+    };
 
     // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {
@@ -168,9 +181,9 @@
     };
 
     const ensureLink = (container, img) => {
-        // Prefer img.currentSrc once available, but keep img.src as the fallback
-        // so lazy images can still open before the browser has selected a source.
-        const src = (img.currentSrc || img.src || img.getAttribute('data-src') || '').trim();
+        // Prefer currentSrc once available, but only when the image has an
+        // explicit source attribute so empty src cannot resolve to page URL.
+        const src = imageSource(img);
         if (!isSafeImageUrl(src)) return null;
 
         if (isDecorativeImg(img)) return null;
@@ -185,7 +198,7 @@
 
         if (existing) {
             const href = existing.getAttribute('href') || '';
-            const linkedUrl = isValidUrl(href) ? href : null;
+            const linkedUrl = normalizedSourceUrl(href);
 
             // Set lightgallery attributes; original href is preserved
             setLgAttributes(existing, src, caption, linkedUrl);

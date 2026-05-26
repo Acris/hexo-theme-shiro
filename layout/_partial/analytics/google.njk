@@ -9,6 +9,6 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', {{ google_analytics.id | dump | safe }});
+    gtag('config', {{ js_value(google_analytics.id) | safe }});
   </script>
 {% endif %}

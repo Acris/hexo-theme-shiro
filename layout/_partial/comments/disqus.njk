@@ -1,5 +1,8 @@
 {% set comments_config = theme.comments or {} %}
 {% set disqus_config = disqus if disqus is defined else (comments_config.disqus or {}) %}
+{% set disqus_page_url = page.permalink or url %}
+{% set disqus_page_identifier = url_for(page.path) %}
+{% set disqus_shortname = disqus_config.shortname or '' %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 <script>
     /* Disqus expects this on the global scope.
@@ -7,8 +10,8 @@
        matches the live `<html>.dark` state instead of Disqus's flaky
        text-contrast auto-detection. */
     window.disqus_config = function () {
-        this.page.url = {{ (page.permalink or url) | dump | safe }};
-        this.page.identifier = {{ url_for(page.path) | dump | safe }}.replace(/\/$/, '');
+        this.page.url = {{ js_value(disqus_page_url) | safe }};
+        this.page.identifier = {{ js_value(disqus_page_identifier) | safe }}.replace(/\/$/, '');
         this.colorScheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
     };
 
@@ -17,7 +20,7 @@
         const disqus_thread = d.getElementById('disqus_thread');
         if (!disqus_thread) return;
 
-        const SHORTNAME = {{ (disqus_config.shortname or '') | dump | safe }};
+        const SHORTNAME = {{ js_value(disqus_shortname) | safe }};
         if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
         const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;

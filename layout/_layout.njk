@@ -1,5 +1,5 @@
 <!doctype html>
-{% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n %}
+{% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n with context %}
 {% set site_config = theme.site or {} %}
 {% set toc_config = theme.toc or {} %}
 {% set search_config = theme.search or {} %}

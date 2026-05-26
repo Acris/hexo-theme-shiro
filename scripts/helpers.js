@@ -24,12 +24,33 @@ const SEAL_FILTER_DEFS = '<defs>'
     + '<feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="1" result="noise"/>'
     + '<feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5"/></filter>'
     + '</defs>';
+const HTML_SKIPPED_CONTENT_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)/gi;
+const HTML_ID_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
+const HTML_IMAGE_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<img\b([^>]*)>/gi;
+const TOC_HEADING_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\2>/gi;
+const CODE_CONTENT_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template)\b[\s\S]*?(?:<\/\1\s*>|$)|<([a-z][\w:-]*)\b([^>]*)>/gi;
+const CODE_CLASS_TOKENS = new Set(['highlight', 'gist']);
+const HTML_VOID_TAGS = new Set([
+    'area', 'base', 'br', 'col', 'embed', 'hr', 'img',
+    'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+]);
 
 function collectionToArray(value) {
     if (!value) return [];
     if (Array.isArray(value)) return value;
     if (typeof value.toArray === 'function') return value.toArray();
     return [];
+}
+
+function scalarOrCollectionToArray(value) {
+    if (typeof value === 'string') return value ? [value] : [];
+    return collectionToArray(value);
+}
+
+function hasClassToken(attrs, tokens) {
+    const classValue = decodeHtmlEntities(imageAttrValue(attrs || '', 'class'));
+    if (!classValue) return false;
+    return classValue.split(/\s+/).some(token => tokens.has(token));
 }
 
 function primaryLanguage(language) {
@@ -50,29 +71,89 @@ function cjkFontForLanguage(language) {
 
 function hasCodeContent(content) {
     if (!content) return false;
-    return /<(pre|code)\b|class=["'][^"']*\b(highlight|gist)\b/i.test(String(content));
+    const re = CODE_CONTENT_RE;
+    re.lastIndex = 0;
+    let match;
+    while ((match = re.exec(String(content)))) {
+        const tagName = match[2] && match[2].toLowerCase();
+        if (tagName === 'pre' || tagName === 'code' || hasClassToken(match[3], CODE_CLASS_TOKENS)) {
+            re.lastIndex = 0;
+            return true;
+        }
+    }
+    re.lastIndex = 0;
+    return false;
 }
 
 function strippedHtml(content) {
-    return String(content || '')
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, '');
+    return String(content || '').replace(HTML_SKIPPED_CONTENT_RE, '');
 }
 
 function htmlWithoutCodeContent(content) {
-    return String(content || '')
-        .replace(/<figure\b[^>]*class=["'][^"']*\b(?:highlight|gist)\b[^"']*["'][^>]*>[\s\S]*?<\/figure>/gi, ' ')
-        .replace(/<pre\b[\s\S]*?<\/\s*pre>/gi, ' ')
-        .replace(/<[^>]+class=["'][^"']*\b(?:highlight|gist)\b[^"']*["'][^>]*>[\s\S]*?<\/[^>]+>/gi, ' ');
+    const withoutRawBlocks = String(content || '')
+        .replace(/<!--[\s\S]*?-->|<(script|style|textarea|template)\b[\s\S]*?(?:<\/\1\s*>|$)/gi, ' ')
+        .replace(/<pre\b[\s\S]*?(?:<\/\s*pre>|$)/gi, ' ');
+
+    return stripClassTokenBlocks(withoutRawBlocks, CODE_CLASS_TOKENS);
 }
 
-// Skip a <script>/<style> block from its opening tag to the matching close tag.
-// This avoids re-scanning large inline code/style content during text extraction.
+function stripClassTokenBlocks(content, tokens) {
+    const source = String(content || '');
+    const tagRe = /<([a-z][\w:-]*)\b([^>]*)>/gi;
+    let result = '';
+    let cursor = 0;
+    let match;
+
+    while ((match = tagRe.exec(source))) {
+        if (!hasClassToken(match[2], tokens)) continue;
+
+        const start = match.index;
+        if (start < cursor) continue;
+
+        result += source.slice(cursor, start) + ' ';
+        cursor = shouldSkipOnlyOpeningTag(match[0], match[1])
+            ? tagRe.lastIndex
+            : skipElementBlock(source, tagRe.lastIndex, match[1]);
+        tagRe.lastIndex = cursor;
+    }
+
+    return result + source.slice(cursor);
+}
+
+function shouldSkipOnlyOpeningTag(openingTag, tagName) {
+    return HTML_VOID_TAGS.has(String(tagName || '').toLowerCase()) || /\/\s*>$/.test(openingTag);
+}
+
+function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Skip from a tag position (or just after its opening tag) to the next close tag.
 function skipBlock(source, start, openTag) {
     const close = new RegExp('</' + openTag + '\\s*>', 'i');
     const match = close.exec(source.slice(start));
     return match ? start + match.index + match[0].length : source.length;
+}
+
+// Skip a whole element block, accounting for nested elements with the same tag.
+function skipElementBlock(source, start, openTag) {
+    const tag = escapeRegExp(openTag);
+    const tagRe = new RegExp('</?' + tag + '\\b[^>]*>', 'gi');
+    let depth = 1;
+    let match;
+    tagRe.lastIndex = start;
+
+    while ((match = tagRe.exec(source))) {
+        const text = match[0];
+        if (/^<\//.test(text)) {
+            depth -= 1;
+            if (depth === 0) return tagRe.lastIndex;
+        } else if (!/\/\s*>$/.test(text)) {
+            depth += 1;
+        }
+    }
+
+    return source.length;
 }
 
 function htmlTextFromHtml(content, length) {
@@ -105,8 +186,8 @@ function htmlTextFromHtml(content, length) {
             continue;
         }
 
-        // <script>/<style> — skip entire block contents
-        const blockTag = /^<(script|style)\b/i.exec(source.slice(i, i + 8));
+        // Skip entire block contents.
+        const blockTag = /^<(script|style|textarea|template)\b/i.exec(source.slice(i, i + 11));
         if (blockTag) {
             i = skipBlock(source, i, blockTag[1]);
             text += ' ';
@@ -136,9 +217,15 @@ function cachedStrippedHtml(html) {
 }
 
 function countImagesInHtml(html) {
-    const re = /<img\b/gi;
+    const re = HTML_IMAGE_RE;
+    re.lastIndex = 0;
     let count = 0;
-    while (re.exec(html)) count += 1;
+    let match;
+    while ((match = re.exec(html))) {
+        if (match[2] === undefined) continue;
+        if (imageHasLightboxSource(match[2])) count += 1;
+    }
+    re.lastIndex = 0;
     return count;
 }
 
@@ -289,6 +376,72 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function safeScriptJson(value) {
+    let json;
+    try {
+        json = JSON.stringify(value === undefined ? null : value);
+    } catch (_) {
+        json = JSON.stringify(String(value));
+    }
+    return (json === undefined ? 'null' : json)
+        .replace(/</g, '\\u003C')
+        .replace(/>/g, '\\u003E')
+        .replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+}
+
+function hasUrlControlChars(value) {
+    return /[\u0000-\u001F\u007F]/.test(value);
+}
+
+function normalizedUrlText(value) {
+    const text = String(value || '').trim();
+    return text && !hasUrlControlChars(text) ? text : '';
+}
+
+function resolveNavigationUrl(text, context) {
+    if (!text) return '';
+    if (text[0] === '#') return text;
+    if (/^(?:https?:)?\/\//i.test(text)) return text;
+    if (/^(?:mailto|tel):/i.test(text)) return text;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return '';
+    return context.url_for(text);
+}
+
+function isSafeDataImageUrl(text) {
+    return /^data:image\/(?:avif|bmp|gif|ico|jpeg|jpg|png|svg\+xml|vnd\.microsoft\.icon|webp|x-icon)(?:;[^,]*)?,/i.test(text);
+}
+
+function resourceUrlOptions(options) {
+    if (options === true) return { allowDataImage: true };
+    return options && typeof options === 'object' ? options : {};
+}
+
+function resolveResourceUrl(text, context, options) {
+    const opts = resourceUrlOptions(options);
+    if (!text) return '';
+    if (/^(?:https?:)?\/\//i.test(text)) return text;
+    if (opts.allowDataImage && isSafeDataImageUrl(text)) return text;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return '';
+    return context.url_for(text);
+}
+
+function safeNavigationUrl(value, context, fallback) {
+    const safeFallback = resolveNavigationUrl(normalizedUrlText(fallback), context) || '#';
+    return resolveNavigationUrl(normalizedUrlText(value), context) || safeFallback;
+}
+
+function safeResourceUrl(value, context, fallback, options) {
+    const text = String(value || '').trim();
+    const safeFallback = resolveResourceUrl(normalizedUrlText(fallback), context, options);
+    return resolveResourceUrl(normalizedUrlText(text), context, options) || safeFallback;
+}
+
+function normalizedLinkTarget(value) {
+    return normalizedUrlText(value);
+}
+
 function htmlCodePoint(match, code, radix) {
     const value = parseInt(code, radix);
     if (!Number.isFinite(value)) return match;
@@ -321,6 +474,8 @@ function plainHeadingText(html) {
     return decodeHtmlEntities(String(html)
         .replace(/<script\b[\s\S]*?<\/script>/gi, '')
         .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+        .replace(/<textarea\b[\s\S]*?<\/textarea>/gi, '')
+        .replace(/<template\b[\s\S]*?<\/template>/gi, '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim());
@@ -351,12 +506,17 @@ function tocCacheKey(tocConfig) {
 
 function collectExistingIds(source) {
     const ids = new Set();
-    source.replace(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi, (match, doubleQuoted, singleQuoted, unquoted) => {
+    source.replace(HTML_ID_RE, (match, skippedTag, doubleQuoted, singleQuoted, unquoted) => {
+        if (doubleQuoted === undefined && singleQuoted === undefined && unquoted === undefined) return match;
         const id = decodeHtmlEntities(doubleQuoted || singleQuoted || unquoted || '');
         if (id) ids.add(id);
         return match;
     });
     return ids;
+}
+
+function fragmentHref(id) {
+    return '#' + encodeURIComponent(String(id || ''));
 }
 
 function uniqueHeadingId(title, existingIds) {
@@ -373,7 +533,8 @@ function rewriteTocHeadings(source, levels) {
     const headings = [];
     let minLevel = 6;
 
-    const content = source.replace(/<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi, (match, levelRaw, attrs, inner) => {
+    const content = source.replace(TOC_HEADING_RE, (match, skippedTag, levelRaw, attrs, inner) => {
+        if (!levelRaw) return match;
         const level = Number(levelRaw);
         if (!levels.has(level)) return match;
 
@@ -399,7 +560,7 @@ function renderTocList(headings, minLevel) {
     const items = headings.map(heading => {
         const indent = Math.max(0, heading.level - minLevel);
         return '<li class="toc-item" data-level="' + indent + '">'
-            + '<a class="toc-link" href="#' + escapeHtml(heading.id) + '" data-target="' + escapeHtml(heading.id) + '">'
+            + '<a class="toc-link" href="' + escapeHtml(fragmentHref(heading.id)) + '" data-target="' + escapeHtml(heading.id) + '">'
             + escapeHtml(heading.title)
             + '</a></li>';
     }).join('');
@@ -448,8 +609,81 @@ hexo.extend.helper.register('build_toc', function (page, tocConfig) {
 
 function firstImageSrc(content) {
     if (!content) return '';
-    const match = String(content).match(/<img[^>]+src\s*=\s*["']([^"']+)["']/i);
-    return match ? match[1] : '';
+    const source = String(content);
+    const imgRe = HTML_IMAGE_RE;
+    imgRe.lastIndex = 0;
+    let img;
+    while ((img = imgRe.exec(source))) {
+        const attrs = img[2];
+        if (attrs === undefined) continue;
+        const src = imageAttrValue(attrs, 'src');
+        if (isUsableImageSrcCandidate(src)) {
+            imgRe.lastIndex = 0;
+            return String(src).trim();
+        }
+        const dataSrc = imageAttrValue(attrs, 'data-src');
+        if (isUsableImageSrcCandidate(dataSrc)) {
+            imgRe.lastIndex = 0;
+            return String(dataSrc).trim();
+        }
+    }
+    imgRe.lastIndex = 0;
+    return '';
+}
+
+function imageAttrValue(attrs, name) {
+    const valuePattern = '(?:"([^"]*)"|\'([^\']*)\'|([^\\s"\'=<>`]+))';
+    const re = new RegExp('(?:^|\\s)' + name + '\\s*=\\s*' + valuePattern, 'i');
+    const match = re.exec(attrs);
+    return match ? (match[1] || match[2] || match[3] || '') : '';
+}
+
+function imageHasLightboxSource(attrs) {
+    return isLightboxImageSrcCandidate(imageAttrValue(attrs, 'src'))
+        || isLightboxImageSrcCandidate(imageAttrValue(attrs, 'data-src'));
+}
+
+function isUsableImageSrcCandidate(value) {
+    const text = String(value || '').trim();
+    const decoded = decodeHtmlEntities(text).trim();
+    if (!decoded || decoded[0] === '#') return false;
+    if (hasUrlControlChars(decoded)) return false;
+    return !/^[a-z][a-z0-9+.-]*:/i.test(decoded) || /^https?:\/\//i.test(decoded);
+}
+
+function isLightboxImageSrcCandidate(value) {
+    const text = String(value || '').trim();
+    const decoded = decodeHtmlEntities(text).trim();
+    if (!decoded || decoded[0] === '#') return false;
+    if (hasUrlControlChars(decoded)) return false;
+    if (/^https?:\/\//i.test(decoded) || decoded.indexOf('//') === 0 || /^blob:/i.test(decoded)) return true;
+    if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(decoded)) return true;
+    return !/^[a-z][a-z0-9+.-]*:/i.test(decoded);
+}
+
+function normalizeOpenGraphImageUrl(src, context) {
+    const value = decodeHtmlEntities(String(src || '')).trim();
+    if (!value || value[0] === '#') return '';
+    if (hasUrlControlChars(value)) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.indexOf('//') === 0) return 'https:' + value;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return '';
+
+    const assetUrl = context.url_for(value);
+    if (/^https?:\/\//i.test(assetUrl)) return assetUrl;
+
+    const base = String((context.config && context.config.url) || '').replace(/\/$/, '');
+    if (!base) return assetUrl;
+
+    try {
+        const parsed = new URL(base);
+        const basePath = parsed.pathname.replace(/\/$/, '');
+        if (basePath && (assetUrl === basePath || assetUrl.startsWith(basePath + '/'))) {
+            return parsed.origin + assetUrl;
+        }
+    } catch (_) {}
+
+    return base + (assetUrl[0] === '/' ? assetUrl : '/' + assetUrl);
 }
 
 function cachedCleanDescriptionText(owner, field, source, producer) {
@@ -526,8 +760,28 @@ hexo.extend.helper.register('html_attr', function (value) {
     return escapeHtml(value);
 });
 
+hexo.extend.helper.register('js_value', function (value) {
+    return safeScriptJson(value);
+});
+
 hexo.extend.helper.register('url_query', function (value) {
     return encodeURIComponent(String(value || ''));
+});
+
+hexo.extend.helper.register('safe_url_for', function (value, fallback) {
+    return safeNavigationUrl(value, this, fallback);
+});
+
+hexo.extend.helper.register('safe_resource_url_for', function (value, fallback, options) {
+    return safeResourceUrl(value, this, fallback, options);
+});
+
+hexo.extend.helper.register('link_target', function (value) {
+    return normalizedLinkTarget(value);
+});
+
+hexo.extend.helper.register('is_blank_target', function (value) {
+    return normalizedLinkTarget(value).toLowerCase() === '_blank';
 });
 
 function cacheVersionedUrlsForCommand() {
@@ -675,16 +929,11 @@ hexo.extend.generator.register('favicon_svg', function () {
 });
 
 hexo.extend.helper.register('og_image', function (page) {
-    let src = '';
-    if (page && page.photos && page.photos.length) src = page.photos[0];
-    else if (page) src = this.first_image(page);
-    if (!src) return '';
-    // Ensure absolute URL for Open Graph when site.url is configured.
-    if (src.indexOf('//') === 0) return 'https:' + src;
-    if (!/^https?:\/\//.test(src)) {
-        const base = String((this.config && this.config.url) || '').replace(/\/$/, '');
-        const assetUrl = this.url_for(src);
-        return base ? base + assetUrl : assetUrl;
+    if (!page) return '';
+    const photos = scalarOrCollectionToArray(page.photos);
+    for (const photo of photos) {
+        const src = normalizeOpenGraphImageUrl(photo, this);
+        if (src) return src;
     }
-    return src;
+    return normalizeOpenGraphImageUrl(this.first_image(page), this);
 });

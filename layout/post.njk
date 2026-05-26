@@ -7,7 +7,7 @@
         {% if page.prev %}
         <a href="{{ html_attr(url_for(page.prev.path)) | safe }}" class="post-nav-link group text-left" title="{{ html_attr(page.prev.title) | safe }}">
              <span aria-hidden="true">&larr;</span>
-             <span class="post-nav-title">{{ page.prev.title }}</span>
+             <span class="post-nav-title">{{ html_attr(page.prev.title) | safe }}</span>
         </a>
         {% else %}
         <div></div>
@@ -15,7 +15,7 @@
 
         {% if page.next %}
         <a href="{{ html_attr(url_for(page.next.path)) | safe }}" class="post-nav-link group text-right" title="{{ html_attr(page.next.title) | safe }}">
-            <span class="post-nav-title">{{ page.next.title }}</span>
+            <span class="post-nav-title">{{ html_attr(page.next.title) | safe }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
         {% else %}

@@ -3,5 +3,5 @@
     <div class="mb-3">
         {{ icon_empty() }}
     </div>
-    <p class="text-lg tracking-widest opacity-80">{{ __('common.empty') }}</p>
+    <p class="text-lg tracking-widest opacity-80">{{ html_attr(__('common.empty')) | safe }}</p>
 </div>

@@ -20,7 +20,7 @@
                 <div id="{{ html_attr('cat-' + cat.slug) | safe }}" class="scroll-mt-24">
                     <h2 class="section-heading">
                         {{ icon_folder() }}
-                        {{ cat.name }}
+                        {{ html_attr(cat.name) | safe }}
                     </h2>
                     {{ render_simple_list(cat.posts.sort('date', -1)) }}
                 </div>

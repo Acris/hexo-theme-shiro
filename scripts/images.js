@@ -13,6 +13,7 @@ const existingFileCache = new Set();
 const missingFileCache = new Set();
 const existingDirCache = new Set();
 const missingDirCache = new Set();
+const OPTIMIZABLE_IMAGE_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<img\b([^>]*)>/gi;
 
 // Lightweight HTML attribute parsing/rendering for <img> tags in rendered Hexo output.
 function parseAttrs(source) {
@@ -321,7 +322,9 @@ function localImageSize(src, post) {
 function optimizeImages(html, options) {
     const opts = options || {};
     let imageIndex = 0;
-    return String(html || '').replace(/<img\b([^>]*)>/gi, (match, rawAttrs) => {
+    return String(html || '').replace(OPTIMIZABLE_IMAGE_RE, (match, skippedTag, rawAttrs) => {
+        if (rawAttrs === undefined) return match;
+
         const attrs = parseAttrs(rawAttrs);
         const lookup = attrLookup(attrs);
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');

@@ -337,6 +337,7 @@
 
         &[data-visible="true"] {
             @apply opacity-100 pointer-events-auto;
+            cursor: pointer;
         }
     }
 

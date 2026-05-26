@@ -2,7 +2,7 @@
 <article class="py-2">
     <header class="text-center mb-4">
         <h2 class="font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
-            <a href="{{ html_attr(url_for(post.path)) | safe }}">{{ post.title }}</a>
+            <a href="{{ html_attr(url_for(post.path)) | safe }}">{{ html_attr(post.title) | safe }}</a>
         </h2>
         {{ meta(post) }}
     </header>
@@ -23,7 +23,7 @@
     <div class="mt-6 text-center">
         <a href="{{ html_attr(url_for(post.path)) | safe }}"
             class="focus-elegant btn-ink">
-            {{ __('index.read_more') }}
+            {{ html_attr(__('index.read_more')) | safe }}
         </a>
     </div>
     {% endif %}

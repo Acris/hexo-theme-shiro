@@ -10,7 +10,7 @@
          → add .dark class and colorScheme if needed. -->
     <script>
     ;(() => {
-        const defaultTheme = {{ dark_mode_default | dump | safe }};
+        const defaultTheme = {{ js_value(dark_mode_default) | safe }};
         window.__themeDefault = defaultTheme;
         const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
         let saved;
@@ -77,13 +77,13 @@
 
     <!-- Favicon -->
     {% if site_favicon %}
-    <link rel="icon" href="{{ html_attr(url_for(site_favicon)) | safe }}" />
+    <link rel="icon" href="{{ html_attr(safe_resource_url_for(site_favicon, '/favicon.svg', true)) | safe }}" />
     {% endif %}
 
     <!-- RSS -->
     {% set rss_config = site_config.rss or {} %}
     {% if rss_config.enabled %}
-    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(url_for(rss_config.path | default('/atom.xml'))) | safe }}" />
+    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) | safe }}" />
     {% endif %}
 
     <!-- CSS -->

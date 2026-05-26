@@ -12,6 +12,7 @@
     const isSafeImageUrl = (url) => {
         const value = String(url || '').trim();
         if (!value || value[0] === '#') return false;
+        if (/[\u0000-\u001F\u007F]/.test(value)) return false;
         if (/^https?:\/\//i.test(value) || /^\/\//.test(value) || /^blob:/i.test(value)) return true;
         if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(value)) return true;
         return !/^[a-z][a-z0-9+.-]*:/i.test(value);
@@ -26,8 +27,17 @@
         return false;
     };
 
+    const imageSource = (img) => {
+        const attrSrc = (img.getAttribute('src') || '').trim();
+        const attrSrcset = (img.getAttribute('srcset') || '').trim();
+        const dataSrc = (img.getAttribute('data-src') || '').trim();
+        const selectedSrc = (img.currentSrc || '').trim();
+        if (selectedSrc && (attrSrc || attrSrcset)) return selectedSrc;
+        return attrSrc || dataSrc;
+    };
+
     function shouldHandleImage(img) {
-        const src = (img.currentSrc || img.src || img.getAttribute('data-src') || '').trim();
+        const src = imageSource(img);
         return isSafeImageUrl(src) && !isDecorativeImg(img);
     }
 

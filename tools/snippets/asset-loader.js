@@ -1,5 +1,25 @@
     const assetTimeout = 12000;
 
+    function watchAssetLoad(el, reject) {
+        let settled = false;
+        let timer;
+        const settle = (callback) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            callback();
+        };
+        const fail = (error) => {
+            settle(() => {
+                el.dataset.shiroError = 'true';
+                el.remove();
+                reject(error);
+            });
+        };
+        timer = setTimeout(() => fail(new Error('Asset load timed out')), assetTimeout);
+        return { settle, fail };
+    }
+
     function assetReady(el, tag) {
         if (el.dataset.shiroLoaded === 'true' || (tag === 'link' && el.sheet)) {
             el.dataset.shiroLoaded = 'true';
@@ -10,22 +30,16 @@
             return Promise.reject(new Error('Asset failed to load'));
         }
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => {
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(new Error('Asset load timed out'));
-            }, assetTimeout);
+            const { settle, fail } = watchAssetLoad(el, reject);
             el.addEventListener('load', () => {
-                clearTimeout(timer);
-                el.dataset.shiroLoaded = 'true';
-                delete el.dataset.shiroError;
-                resolve();
+                settle(() => {
+                    el.dataset.shiroLoaded = 'true';
+                    delete el.dataset.shiroError;
+                    resolve();
+                });
             }, { once: true });
             el.addEventListener('error', (event) => {
-                clearTimeout(timer);
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(event);
+                fail(event);
             }, { once: true });
         });
     }
@@ -40,11 +54,7 @@
 
         return new Promise((resolve, reject) => {
             const el = document.createElement(tag);
-            const timer = setTimeout(() => {
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(new Error('Asset load timed out'));
-            }, assetTimeout);
+            const { settle, fail } = watchAssetLoad(el, reject);
             Object.keys(attrs).forEach((key) => {
                 if (attrs[key] === true) {
                     el.setAttribute(key, '');
@@ -53,16 +63,14 @@
                 }
             });
             el.onload = () => {
-                clearTimeout(timer);
-                el.dataset.shiroLoaded = 'true';
-                delete el.dataset.shiroError;
-                resolve();
+                settle(() => {
+                    el.dataset.shiroLoaded = 'true';
+                    delete el.dataset.shiroError;
+                    resolve();
+                });
             };
             el.onerror = (event) => {
-                clearTimeout(timer);
-                el.dataset.shiroError = 'true';
-                el.remove();
-                reject(event);
+                fail(event);
             };
             document.head.appendChild(el);
         });

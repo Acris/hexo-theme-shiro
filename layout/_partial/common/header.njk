@@ -7,11 +7,11 @@
             <div class="relative inline-block">
                 {% if is_home() %}
                 <h1 class="site-title">
-                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ html_attr(config.title | default("白夜書簡", true)) | safe }}</a>
                 </h1>
                 {% else %}
                 <p class="site-title">
-                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ html_attr(config.title | default("白夜書簡", true)) | safe }}</a>
                 </p>
                 {% endif %}
                 <!-- Seal: Mathematically Centered -->
@@ -24,13 +24,13 @@
             </div>
             {% if config.subtitle %}
             <p class="site-subtitle">
-                {{ config.subtitle }}
+                {{ html_attr(config.subtitle) | safe }}
             </p>
             {% endif %}
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="header-pill-btn"
-                    href="{{ html_attr(url_for(rss_config.path | default('/atom.xml'))) | safe }}" target="_blank" rel="noopener" aria-label="RSS">
+                    href="{{ html_attr(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) | safe }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
@@ -57,9 +57,9 @@
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn" type="button"
-            class="focus-elegant inline-flex items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
+            class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
-            <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
+            <span class="text-base leading-none tracking-widest">{{ html_attr(__('nav.menu')) | safe }}</span>
             {{ icon_chevron_down(id="menuChevron") }}
         </button>
     </div>
@@ -68,8 +68,10 @@
     <div class="hidden md:block">
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             {% for item in menu_items %}
+            {% set item_url = safe_url_for(item.url) %}
+            {% set item_target = link_target(item.target) %}
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-                    href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+                    href="{{ html_attr(item_url) | safe }}" {% if item_target %}target="{{ html_attr(item_target) | safe }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ html_attr(item.name) | safe }}</a></li>
             {% if not loop.last %}
             <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
@@ -82,8 +84,10 @@
         <ul
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
             {% for item in menu_items %}
+            {% set item_url = safe_url_for(item.url) %}
+            {% set item_target = link_target(item.target) %}
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
-                    href="{{ html_attr(url_for(item.url)) | safe }}" {% if item.target %}target="{{ html_attr(item.target) | safe }}"{% if item.target == "_blank" %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+                    href="{{ html_attr(item_url) | safe }}" {% if item_target %}target="{{ html_attr(item_target) | safe }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ html_attr(item.name) | safe }}</a></li>
             {% if not loop.last %}
             <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             {% endif %}
