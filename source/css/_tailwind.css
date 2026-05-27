@@ -28,7 +28,7 @@
 
 @source "../../layout/**/*.njk";
 
-@theme {
+@theme static {
     --color-paper: #ffffff;
     --color-ink: #2b3036;
     --color-seal: #b0171a;
@@ -191,7 +191,9 @@
         @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive dark:border-border-strong dark:text-text-body;
 
         &:hover {
-            @apply border-seal bg-seal text-white/95 shadow-ink saturate-105;
+            @apply border-seal bg-seal text-white/95 saturate-105;
+            --tw-shadow: var(--shadow-ink);
+            box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 
             @variant dark {
                 @apply text-slate-950;
@@ -199,7 +201,9 @@
         }
 
         &:active {
-            @apply translate-y-px shadow-ink-pressed;
+            @apply translate-y-px;
+            --tw-shadow: var(--shadow-ink-pressed);
+            box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
         }
     }
 
