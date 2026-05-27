@@ -462,6 +462,14 @@
                 content: "";
             }
         }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(img, a[data-lg-item], a[data-lg-item] img) {
+            cursor: zoom-in;
+        }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(img[role="presentation"], img.emoji) {
+            cursor: default;
+        }
     }
 }
 
