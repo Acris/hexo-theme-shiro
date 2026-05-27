@@ -107,7 +107,7 @@ comments:
     lang: en
     # giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
     # Default uses the bundled Shiro custom theme via jsDelivr CDN.
-    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.4.3/source/css/giscus.min.css
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.5.0/source/css/giscus.min.css
     # true to enable lazy loading (adds data-loading="lazy")
     lazy_loading: false
 
