@@ -329,12 +329,12 @@ hexo-theme-shiro/
 │   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
 │   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
 │   └── pagefind.js         # Pagefind indexing hook
-├── source/
-│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
-│   ├── css/code.css        # Code block and clipboard styles loaded only on code pages
-│   ├── css/toc.css         # Table-of-contents styles loaded only when TOC renders
-│   ├── css/*.css           # Optional feature CSS sources loaded via generated *.min.css files
-│   └── js/                 # Client-side script sources + generated *.min.js files (includes small feature bootstraps)
+	├── source/
+	│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
+	│   ├── css/_src/*.css      # Optional feature CSS sources ignored by Hexo
+	│   ├── css/*.min.css       # Generated CSS assets loaded on demand
+	│   ├── js/_src/*.js        # Client-side script sources ignored by Hexo
+	│   └── js/*.min.js         # Generated client-side scripts and feature bootstraps
 ├── tools/
 │   ├── build-assets.js     # Release asset build script
 │   └── snippets/           # Build-time JS snippets injected before minification
@@ -356,12 +356,12 @@ hexo-theme-shiro/
    npm run dev
    ```
 
-3. Build CSS (Tailwind) for production:
+3. Build CSS and JavaScript for production:
    ```bash
    npm run build
    ```
 
-Note: After modifying `_tailwind.css`, optional feature CSS, files under `source/js/`, or build-time snippets under `tools/snippets/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
+Note: After modifying `_tailwind.css`, optional feature CSS under `source/css/_src/`, files under `source/js/_src/`, or build-time snippets under `tools/snippets/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
 
 ### Adding a New Language
 

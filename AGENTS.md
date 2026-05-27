@@ -19,13 +19,14 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against `public/` after `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via local `pagefind/package.json`, passes `search.root_selector` to Pagefind (default `body`), fails generation when indexing fails, and warns before the slower `npx --yes pagefind` fallback.
 - `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`.
 - `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
-- `source/css/code.css` / `code.min.css` — optional plain CSS source and minified output for syntax-highlighted code blocks, Gist embeds, and clipboard buttons; loaded only on pages whose rendered content contains code.
-- `source/css/toc.css` / `toc.min.css` — optional plain CSS source and minified output for table-of-contents UI; loaded only when a TOC is rendered.
-- `source/css/search.css` / `search.min.css` — optional plain CSS source and minified output for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
-- `source/css/comments.css` / `comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
-- `source/css/lightgallery.css` / `lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; loaded when the lightbox opens after the first image click.
-- `source/css/giscus.css` / `giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/` — lightweight browser script sources and generated `*.min.js` outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
+- `source/css/_src/code.css` / `source/css/code.min.css` — optional plain CSS source and minified output for syntax-highlighted code blocks, Gist embeds, and clipboard buttons; loaded only on pages whose rendered content contains code.
+- `source/css/_src/toc.css` / `source/css/toc.min.css` — optional plain CSS source and minified output for table-of-contents UI; loaded only when a TOC is rendered.
+- `source/css/_src/search.css` / `source/css/search.min.css` — optional plain CSS source and minified output for the search modal and Pagefind UI accents; lazy-loaded when search is opened.
+- `source/css/_src/comments.css` / `source/css/comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
+- `source/css/_src/lightgallery.css` / `source/css/lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; loaded when the lightbox opens after the first image click.
+- `source/css/_src/giscus.css` / `source/css/giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
+- `source/js/_src/` — lightweight browser script sources ignored by Hexo because the folder is underscore-prefixed.
+- `source/js/*.min.js` — generated browser script outputs: `theme-toggle`, `search`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
 - `tools/build-assets.js` — release asset build script; minifies CSS/JS and injects shared snippets before JS minification.
 - `tools/snippets/` — build-time JavaScript snippets shared by client scripts, currently `asset-loader.js` for lazy asset loading helpers and `script-loader.js` for tiny bootstrap handoffs.
 - `languages/` — i18n YAML files for supported locales and locale aliases.
@@ -38,8 +39,8 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - Watch CSS during development: `npm run dev` (long-running Tailwind watch; writes an unminified `source/css/style.min.css`)
 - Build minified CSS and JS for release: `npm run build` (runs Tailwind for core CSS, then minifies optional CSS modules and browser JS)
 
-Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules to `*.min.css` and browser scripts to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules, Tailwind utility usage in templates, any `source/js/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
-- Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files, then regenerate them with `npm run build`.
+Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules from `source/css/_src/` to `source/css/*.min.css` and browser scripts from `source/js/_src/` to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules in `source/css/_src/`, Tailwind utility usage in templates, any `source/js/_src/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
+- Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files under `source/css/_src/` or `source/js/_src/`, then regenerate them with `npm run build`.
 
 ## Development workflow
 
@@ -58,7 +59,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 - Keep Tailwind utility usage consistent with the existing design system and minimalist aesthetic.
 - Preserve the Shiro visual style: clean whitespace, warm neutral tones, subtle vermilion accents, strong typography, and performance-conscious UI.
 - JavaScript should be plain, lightweight, browser-compatible, and suitable for static Hexo output.
-- Match existing JS conventions: `'use strict'` at the top, 4-space indentation, single quotes, CommonJS (`require` / `hexo.extend.*`) in `scripts/`, and DOMContentLoaded-guarded IIFEs in `source/js/`. Do not introduce ESM, TypeScript, bundlers, or build pipelines for client scripts.
+- Match existing JS conventions: `'use strict'` at the top, 4-space indentation, single quotes, CommonJS (`require` / `hexo.extend.*`) in `scripts/`, and DOMContentLoaded-guarded IIFEs in `source/js/_src/`. Do not introduce ESM, TypeScript, bundlers, or build pipelines for client scripts.
 - Do not rely on Tailwind scanning client JavaScript for runtime-injected class names; put those styles in a feature CSS module or ensure the utility is also present in a scanned template.
 - Reference static assets via the `versioned_url` helper so cache-busting hashes are added automatically.
 - YAML config and language files should remain human-readable and well-commented where helpful.

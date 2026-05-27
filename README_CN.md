@@ -324,12 +324,12 @@ hexo-theme-shiro/
 │   ├── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
 │   ├── images.js           # after_post_render 图片加载、解码与尺寸优化
 │   └── pagefind.js         # Pagefind 索引钩子
-├── source/
-│   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
-│   ├── css/code.css        # 代码块与复制按钮样式，仅在含代码页面加载
-│   ├── css/toc.css         # 目录样式，仅在渲染目录时加载
-│   ├── css/*.css           # 可选功能 CSS 源文件，通过生成的 *.min.css 按需加载
-│   └── js/                 # 客户端脚本源文件 + 生成的 *.min.js 文件（含小型功能 bootstrap）
+	├── source/
+	│   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
+	│   ├── css/_src/*.css      # 可选功能 CSS 源文件，会被 Hexo 忽略
+	│   ├── css/*.min.css       # 生成的 CSS 资源，按需加载
+	│   ├── js/_src/*.js        # 客户端脚本源文件，会被 Hexo 忽略
+	│   └── js/*.min.js         # 生成的客户端脚本与功能 bootstrap
 ├── tools/
 │   ├── build-assets.js     # 发布资源构建脚本
 │   └── snippets/           # 构建期注入的 JS 片段
@@ -351,12 +351,12 @@ hexo-theme-shiro/
    npm run dev
    ```
 
-3. 构建生产环境 CSS（Tailwind）：
+3. 构建生产环境 CSS 和 JavaScript：
    ```bash
    npm run build
    ```
 
-注意：修改 `_tailwind.css`、可选功能 CSS、`source/js/` 下的文件或 `tools/snippets/` 下的构建期片段后，必须运行 `npm run build` 重新生成 `style.min.css`、功能 `*.min.css` 和 `*.min.js` 资源。
+注意：修改 `_tailwind.css`、`source/css/_src/` 下的可选功能 CSS、`source/js/_src/` 下的文件或 `tools/snippets/` 下的构建期片段后，必须运行 `npm run build` 重新生成 `style.min.css`、功能 `*.min.css` 和 `*.min.js` 资源。
 
 ### 添加新语言
 

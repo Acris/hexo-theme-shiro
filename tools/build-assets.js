@@ -10,6 +10,14 @@ const terser = require('terser');
 const root = path.resolve(__dirname, '..');
 const binExt = process.platform === 'win32' ? '.cmd' : '';
 const tailwindBin = path.join(root, 'node_modules', '.bin', 'tailwindcss' + binExt);
+const optionalCssFiles = [
+    ['source/css/_src/code.css', 'source/css/code.min.css'],
+    ['source/css/_src/comments.css', 'source/css/comments.min.css'],
+    ['source/css/_src/giscus.css', 'source/css/giscus.min.css'],
+    ['source/css/_src/toc.css', 'source/css/toc.min.css'],
+    ['source/css/_src/lightgallery.css', 'source/css/lightgallery.min.css'],
+    ['source/css/_src/search.css', 'source/css/search.min.css']
+];
 
 const snippetDir = path.join(root, 'tools', 'snippets');
 const snippetCache = new Map();
@@ -99,10 +107,30 @@ function writeFileIfChanged(filePath, content) {
     fs.writeFileSync(filePath, content);
 }
 
+function relativePath(filePath) {
+    return path.relative(root, filePath).replace(/\\/g, '/');
+}
+
+function removeStaleGeneratedFiles(dirRel, expectedRelFiles, suffix) {
+    const dir = path.join(root, dirRel);
+    const expected = new Set(expectedRelFiles.map(file => path.normalize(file)));
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (!entry.isFile() || !entry.name.endsWith(suffix)) continue;
+
+        const filePath = path.join(dir, entry.name);
+        const rel = path.normalize(relativePath(filePath));
+        if (expected.has(rel)) continue;
+
+        fs.unlinkSync(filePath);
+        console.log('Removed stale generated asset: ' + relativePath(filePath));
+    }
+}
+
 function minifyCssFile(inputRel, outputRel) {
     const input = path.join(root, inputRel);
     const output = path.join(root, outputRel);
-    if (!fs.existsSync(input)) return;
+    if (!fs.existsSync(input)) throw new Error('CSS source not found: ' + inputRel);
 
     const result = transform({
         filename: input,
@@ -127,28 +155,31 @@ async function minifyJsFile(inputRel, outputRel) {
 }
 
 async function minifyJs() {
-    const jsDir = path.join(root, 'source', 'js');
+    const jsDir = path.join(root, 'source', 'js', '_src');
     const files = fs.readdirSync(jsDir)
         .filter(file => file.endsWith('.js') && !file.endsWith('.min.js'))
         .sort();
+    const outputs = [];
 
     for (const file of files) {
         const base = file.slice(0, -3);
-        await minifyJsFile('source/js/' + file, 'source/js/' + base + '.min.js');
+        const output = 'source/js/' + base + '.min.js';
+        outputs.push(output);
+        await minifyJsFile('source/js/_src/' + file, output);
     }
+
+    removeStaleGeneratedFiles('source/js', outputs, '.min.js');
 }
 
 async function main() {
     runTailwind();
 
-    [
-        ['source/css/code.css', 'source/css/code.min.css'],
-        ['source/css/comments.css', 'source/css/comments.min.css'],
-        ['source/css/giscus.css', 'source/css/giscus.min.css'],
-        ['source/css/toc.css', 'source/css/toc.min.css'],
-        ['source/css/lightgallery.css', 'source/css/lightgallery.min.css'],
-        ['source/css/search.css', 'source/css/search.min.css']
-    ].forEach(([input, output]) => minifyCssFile(input, output));
+    optionalCssFiles.forEach(([input, output]) => minifyCssFile(input, output));
+    removeStaleGeneratedFiles(
+        'source/css',
+        ['source/css/style.min.css'].concat(optionalCssFiles.map(([, output]) => output)),
+        '.min.css'
+    );
 
     await minifyJs();
 }

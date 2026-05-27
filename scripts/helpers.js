@@ -8,7 +8,6 @@ const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
 const DEFAULT_EXCERPT_LENGTH = 200;
 const META_DESCRIPTION_LENGTH = 200;
 const assetHashCache = new Map();
-const assetUrlCache = new Map();
 const excerptCache = new WeakMap();
 const cleanDescriptionCache = new WeakMap();
 const pageAnalysisCache = new WeakMap();
@@ -56,6 +55,14 @@ function hasClassToken(attrs, tokens) {
 function primaryLanguage(language) {
     const raw = Array.isArray(language) ? language[0] : language;
     return (raw || '').toString().trim().toLowerCase();
+}
+
+function pageLanguage(page, config) {
+    const pageLang = page && (page.lang || page.language);
+    if (pageLang) return pageLang;
+
+    const language = config && config.language;
+    return Array.isArray(language) ? language[0] : language;
 }
 
 function cjkFontForLanguage(language) {
@@ -661,18 +668,18 @@ function isLightboxImageSrcCandidate(value) {
     return !/^[a-z][a-z0-9+.-]*:/i.test(decoded);
 }
 
-function normalizeOpenGraphImageUrl(src, context) {
-    const value = decodeHtmlEntities(String(src || '')).trim();
-    if (!value || value[0] === '#') return '';
-    if (hasUrlControlChars(value)) return '';
-    if (/^https?:\/\//i.test(value)) return value;
-    if (value.indexOf('//') === 0) return 'https:' + value;
-    if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return '';
+function absoluteUrlForLocalPath(value, context) {
+    if (context && typeof context.full_url_for === 'function') {
+        const fullUrl = context.full_url_for(value);
+        if (/^https?:\/\//i.test(fullUrl)) return fullUrl;
+    }
 
-    const assetUrl = context.url_for(value);
+    const assetUrl = context && typeof context.url_for === 'function'
+        ? context.url_for(value, { relative: false })
+        : value;
     if (/^https?:\/\//i.test(assetUrl)) return assetUrl;
 
-    const base = String((context.config && context.config.url) || '').replace(/\/$/, '');
+    const base = String((context && context.config && context.config.url) || '').replace(/\/$/, '');
     if (!base) return assetUrl;
 
     try {
@@ -684,6 +691,28 @@ function normalizeOpenGraphImageUrl(src, context) {
     } catch (_) {}
 
     return base + (assetUrl[0] === '/' ? assetUrl : '/' + assetUrl);
+}
+
+function pageRelativeImageUrl(value, page) {
+    if (!page || !page.permalink || value[0] === '/') return '';
+
+    try {
+        const resolved = new URL(value, page.permalink).href;
+        return /^https?:\/\//i.test(resolved) ? resolved : '';
+    } catch (_) {
+        return '';
+    }
+}
+
+function normalizeOpenGraphImageUrl(src, context, page) {
+    const value = decodeHtmlEntities(String(src || '')).trim();
+    if (!value || value[0] === '#') return '';
+    if (hasUrlControlChars(value)) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.indexOf('//') === 0) return 'https:' + value;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return '';
+
+    return pageRelativeImageUrl(value, page) || absoluteUrlForLocalPath(value, context);
 }
 
 function cachedCleanDescriptionText(owner, field, source, producer) {
@@ -731,7 +760,7 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
         { name: 'Zen Old Mincho', weights: ['400', '600'] }
     ];
 
-    const cjkFamily = cjkFontForLanguage(config && config.language);
+    const cjkFamily = cjkFontForLanguage(pageLanguage(page, config));
     if (cjkFamily) {
         criticalFamilies.push({ name: cjkFamily, weights: ['400', '600'] });
     }
@@ -784,19 +813,10 @@ hexo.extend.helper.register('is_blank_target', function (value) {
     return normalizedLinkTarget(value).toLowerCase() === '_blank';
 });
 
-function cacheVersionedUrlsForCommand() {
-    const cmd = (hexo.env && hexo.env.cmd) || '';
-    return /^(generate|g|deploy|d)$/.test(cmd);
-}
-
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
     const sourceDir = pathFn.join(hexo.theme_dir, 'source');
     const filePath = pathFn.join(sourceDir, assetPath);
-    const cacheKey = pathFn.normalize(filePath) + '|' + (hexo.config.root || '/');
-    const useUrlCache = cacheVersionedUrlsForCommand();
-
-    if (useUrlCache && assetUrlCache.has(cacheKey)) return assetUrlCache.get(cacheKey);
 
     const url = this.url_for(assetPath);
     let versionedUrl = url;
@@ -816,7 +836,6 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
         assetHashCache.set(filePath, { mtimeMs: 0, size: 0, hash: '' });
     }
 
-    if (useUrlCache) assetUrlCache.set(cacheKey, versionedUrl);
     return versionedUrl;
 });
 
@@ -932,8 +951,8 @@ hexo.extend.helper.register('og_image', function (page) {
     if (!page) return '';
     const photos = scalarOrCollectionToArray(page.photos);
     for (const photo of photos) {
-        const src = normalizeOpenGraphImageUrl(photo, this);
+        const src = normalizeOpenGraphImageUrl(photo, this, page);
         if (src) return src;
     }
-    return normalizeOpenGraphImageUrl(this.first_image(page), this);
+    return normalizeOpenGraphImageUrl(this.first_image(page), this, page);
 });

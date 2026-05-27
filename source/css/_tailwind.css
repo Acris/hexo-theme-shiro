@@ -6,8 +6,8 @@
  *   theme → base → components → utilities.
  *
  * This file contains the core theme styles that every page needs. Optional
- * feature styles live in standalone CSS modules under source/css/:
- * code.css, toc.css, search.css, lightgallery.css, comments.css, and giscus.css. Those files
+     * feature styles live in standalone CSS modules under source/css/_src/:
+     * code.css, toc.css, search.css, lightgallery.css, comments.css, and giscus.css. Those files
  * are hand-authored plain CSS because they mostly adapt runtime/third-party
  * UI and do not need Tailwind compilation.
  *

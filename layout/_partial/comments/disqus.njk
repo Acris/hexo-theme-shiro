@@ -1,7 +1,7 @@
 {% set comments_config = theme.comments or {} %}
 {% set disqus_config = disqus if disqus is defined else (comments_config.disqus or {}) %}
 {% set disqus_page_url = page.permalink or url %}
-{% set disqus_page_identifier = url_for(page.path) %}
+{% set disqus_page_identifier = page.path or path or disqus_page_url %}
 {% set disqus_shortname = disqus_config.shortname or '' %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 <script>
