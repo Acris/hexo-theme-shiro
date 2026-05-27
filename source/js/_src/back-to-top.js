@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const backBtn = document.getElementById('backToTop');
     const sentinel = document.getElementById('backToTopSentinel');
     if (!backBtn) return;

@@ -6,6 +6,8 @@
  * Inline script in <head> handles initial state to prevent FOUC.
  */
 ;(() => {
+    'use strict';
+
     const btn = document.getElementById('themeToggle');
     if (!btn) return;
 

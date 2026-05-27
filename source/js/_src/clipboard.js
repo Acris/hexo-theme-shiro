@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const i18nClipboard = () => (window.__i18n && window.__i18n.clipboard) || {};
     const i18nCopy = () => i18nClipboard().copy || 'Copy code';
     const i18nCopied = () => i18nClipboard().copied || 'Copied';

@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const script = window.__clipboardScript || '';
     if (!script) return;
 

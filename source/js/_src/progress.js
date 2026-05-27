@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const bar = document.getElementById('progressBar');
     if (!bar) return;
     let ticking = false;

@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const cssHref = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
     const cssIntegrity = 'sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8';
     const jsSrc = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';

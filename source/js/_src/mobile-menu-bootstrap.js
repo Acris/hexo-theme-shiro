@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const script = window.__mobileMenuScript || '';
     if (!script) return;
 

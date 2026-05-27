@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const script = window.__searchScript || '';
     if (!script) return;
 

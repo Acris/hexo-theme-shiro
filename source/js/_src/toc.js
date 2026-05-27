@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const tocSidebar = document.getElementById('tocSidebar');
     const tocInline = document.getElementById('tocInline');
     if (!tocSidebar && !tocInline) return;

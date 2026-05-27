@@ -1,4 +1,6 @@
 ;(() => {
+    'use strict';
+
     const btn = document.getElementById('menuBtn');
     const panel = document.getElementById('mobileMenu');
     const chevron = document.getElementById('menuChevron');
