@@ -39,6 +39,15 @@
     --color-scrollbar-thumb-hover: rgba(43, 48, 54, 0.5);
     --color-scrollbar-border: rgba(43, 48, 54, 0.16);
 
+    /* Scrollbar gradient endpoints */
+    --color-scrollbar-track-start: #fafafa;
+    --color-scrollbar-track-end: #f1f2f3;
+    --color-scrollbar-thumb-start: rgba(43, 48, 54, 0.38);
+    --color-scrollbar-thumb-hover-start: rgba(43, 48, 54, 0.58);
+    --color-scrollbar-shadow: rgba(15, 23, 42, 0.08);
+    --color-scrollbar-shadow-inset: rgba(43, 48, 54, 0.28);
+    --color-scrollbar-shadow-hover: rgba(15, 23, 42, 0.12);
+
     /* Semantic text hierarchy */
     --color-text-heading: #1a1a2e;
     --color-text-body: #2b3036;
@@ -75,6 +84,16 @@
     transition-property: color, background-color, border-color, box-shadow, transform;
 }
 
+@utility shadow-ink {
+    --tw-shadow: var(--shadow-ink);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-ink-pressed {
+    --tw-shadow: var(--shadow-ink-pressed);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
 @layer base {
     ::-webkit-scrollbar {
         width: 10px;
@@ -82,21 +101,21 @@
     }
 
     ::-webkit-scrollbar-track {
-        background: linear-gradient(180deg, #fafafa 0%, var(--color-scrollbar-track) 60%, #f1f2f3 100%);
+        background: linear-gradient(180deg, var(--color-scrollbar-track-start) 0%, var(--color-scrollbar-track) 60%, var(--color-scrollbar-track-end) 100%);
         border: 1px solid var(--color-soft-border);
         border-radius: 999px;
     }
 
     ::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, rgba(43, 48, 54, 0.38) 0%, var(--color-scrollbar-thumb) 100%);
+        background: linear-gradient(180deg, var(--color-scrollbar-thumb-start) 0%, var(--color-scrollbar-thumb) 100%);
         border: 2px solid var(--color-scrollbar-track);
         border-radius: 999px;
-        box-shadow: inset 0 0 0 1px var(--color-scrollbar-border), 0 1px 2px rgba(15, 23, 42, 0.08);
+        box-shadow: inset 0 0 0 1px var(--color-scrollbar-border), 0 1px 2px var(--color-scrollbar-shadow);
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(180deg, rgba(43, 48, 54, 0.58) 0%, var(--color-scrollbar-thumb-hover) 100%);
-        box-shadow: inset 0 0 0 1px rgba(43, 48, 54, 0.28), 0 2px 4px rgba(15, 23, 42, 0.12);
+        background: linear-gradient(180deg, var(--color-scrollbar-thumb-hover-start) 0%, var(--color-scrollbar-thumb-hover) 100%);
+        box-shadow: inset 0 0 0 1px var(--color-scrollbar-shadow-inset), 0 2px 4px var(--color-scrollbar-shadow-hover);
     }
 
     ::-webkit-scrollbar-corner {
@@ -188,12 +207,14 @@
     }
 
     .btn-ink {
-        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive dark:border-border-strong dark:text-text-body;
+        @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive;
+
+        @variant dark {
+            @apply border-border-strong text-text-body;
+        }
 
         &:hover {
-            @apply border-seal bg-seal text-white/95 saturate-105;
-            --tw-shadow: var(--shadow-ink);
-            box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+            @apply border-seal bg-seal text-white/95 saturate-105 shadow-ink;
 
             @variant dark {
                 @apply text-slate-950;
@@ -201,14 +222,16 @@
         }
 
         &:active {
-            @apply translate-y-px;
-            --tw-shadow: var(--shadow-ink-pressed);
-            box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+            @apply translate-y-px shadow-ink-pressed;
         }
     }
 
     .header-pill-btn {
-        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive dark:border-border-strong dark:bg-bg-inset dark:text-text-subtle;
+        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
+
+        @variant dark {
+            @apply border-border-strong bg-bg-inset text-text-subtle;
+        }
 
         &:hover {
             @apply bg-paper text-seal shadow-xs;
@@ -264,24 +287,44 @@
     }
 
     .section-heading {
-        @apply mb-6 flex items-center gap-2 border-b border-slate-100 pb-2 text-xl font-bold text-slate-800 dark:border-border-strong;
+        @apply mb-6 flex items-center gap-2 border-b border-slate-100 pb-2 text-xl font-bold text-slate-800;
+
+        @variant dark {
+            @apply border-border-strong;
+        }
     }
 
     .post-nav-link {
-        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-seal max-w-[45%] dark:text-text-muted dark:hover:text-seal;
+        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-seal max-w-[45%];
+
+        @variant dark {
+            @apply text-text-muted hover:text-seal;
+        }
     }
 
     .link-muted {
-        @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline dark:text-text-muted dark:decoration-border-strong dark:hover:text-seal;
+        @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
+
+        @variant dark {
+            @apply text-text-muted decoration-border-strong hover:text-seal;
+        }
     }
 
     .link-underline {
-        @apply underline-offset-4 decoration-slate-300 transition-colors hover:underline hover:text-seal hover:decoration-seal/40 dark:decoration-border-strong dark:hover:text-seal dark:hover:decoration-seal/40;
+        @apply underline-offset-4 decoration-slate-300 transition-colors hover:underline hover:text-seal hover:decoration-seal/40;
+
+        @variant dark {
+            @apply decoration-border-strong hover:text-seal hover:decoration-seal/40;
+        }
     }
 
     .tag-pill {
-        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-seal/50 hover:text-seal dark:border-border-strong dark:bg-bg-inset dark:text-text-muted;
+        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-seal/50 hover:text-seal;
         transition-property: color, border-color;
+
+        @variant dark {
+            @apply border-border-strong bg-bg-inset text-text-muted;
+        }
 
         &:hover {
             @variant dark {
@@ -292,29 +335,49 @@
 
     /* Shared page chrome divider: used by main content, footer, and post navigation only. */
     .section-divider {
-        @apply mt-8 border-t border-slate-200/70 pt-8 md:mt-10 md:pt-10 dark:border-border-decorative;
+        @apply mt-8 border-t border-slate-200/70 pt-8 md:mt-10 md:pt-10;
+
+        @variant dark {
+            @apply border-border-decorative;
+        }
     }
 
     .post-nav-title {
-        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40 dark:decoration-border-strong dark:group-hover:decoration-seal/40;
+        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40;
+
+        @variant dark {
+            @apply decoration-border-strong group-hover:decoration-seal/40;
+        }
     }
 
     .pagination {
         & .page-number,
         & .extend {
-            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline dark:text-text-muted dark:decoration-border-strong dark:hover:text-seal;
+            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
+
+            @variant dark {
+                @apply text-text-muted decoration-border-strong hover:text-seal;
+            }
         }
 
         & .page-number {
             @apply oldstyle-nums;
 
             &.current {
-                @apply cursor-default underline underline-offset-4 text-seal decoration-seal dark:text-seal dark:decoration-seal;
+                @apply cursor-default underline underline-offset-4 text-seal decoration-seal;
+
+                @variant dark {
+                    @apply text-seal decoration-seal;
+                }
             }
         }
 
         & .space {
-            @apply select-none text-slate-300 dark:text-border-strong;
+            @apply select-none text-slate-300;
+
+            @variant dark {
+                @apply text-border-strong;
+            }
         }
     }
 
@@ -335,9 +398,13 @@
 
     /* ── Back to Top ── */
     .back-to-top {
-        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft dark:border-border-strong dark:bg-bg-panel dark:text-text-muted;
+        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
         transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         will-change: opacity;
+
+        @variant dark {
+            @apply border-border-strong bg-bg-panel text-text-muted;
+        }
 
         &:hover {
             @apply border-seal/30 text-seal shadow-md;
@@ -494,6 +561,16 @@
             --color-scrollbar-thumb-hover: rgba(200, 200, 200, 0.38);
             --color-scrollbar-border: rgba(200, 200, 200, 0.08);
 
+            /* Scrollbar gradient endpoints */
+            --color-scrollbar-track-start: #1a1918;
+            --color-scrollbar-track-end: #1a1918;
+            --color-scrollbar-thumb-start: rgba(200, 200, 200, 0.26);
+            --color-scrollbar-thumb-hover-start: rgba(200, 200, 200, 0.4);
+            --color-scrollbar-shadow: rgba(0, 0, 0, 0.2);
+            --color-scrollbar-shadow-inset: rgba(200, 200, 200, 0.08);
+            --color-scrollbar-shadow-inset-hover: rgba(200, 200, 200, 0.15);
+            --color-scrollbar-shadow-hover: rgba(0, 0, 0, 0.3);
+
             /* Shadows — use subtle dark shadows, no visible outline ring */
             --shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.2),
                 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -504,21 +581,21 @@
         @variant dark {
             &::-webkit-scrollbar-track,
             & ::-webkit-scrollbar-track {
-                background: linear-gradient(180deg, #1a1918 0%, #1c1b1a 60%, #1a1918 100%);
+                background: linear-gradient(180deg, var(--color-scrollbar-track-start) 0%, var(--color-scrollbar-track) 60%, var(--color-scrollbar-track-end) 100%);
                 border-color: var(--color-soft-border);
             }
 
             &::-webkit-scrollbar-thumb,
             & ::-webkit-scrollbar-thumb {
-                background: linear-gradient(180deg, rgba(200, 200, 200, 0.26) 0%, rgba(200, 200, 200, 0.18) 100%);
+                background: linear-gradient(180deg, var(--color-scrollbar-thumb-start) 0%, var(--color-scrollbar-thumb) 100%);
                 border-color: var(--color-scrollbar-track);
-                box-shadow: inset 0 0 0 1px rgba(200, 200, 200, 0.08), 0 1px 2px rgba(0, 0, 0, 0.2);
+                box-shadow: inset 0 0 0 1px var(--color-scrollbar-shadow-inset), 0 1px 2px var(--color-scrollbar-shadow);
             }
 
             &::-webkit-scrollbar-thumb:hover,
             & ::-webkit-scrollbar-thumb:hover {
-                background: linear-gradient(180deg, rgba(200, 200, 200, 0.4) 0%, rgba(200, 200, 200, 0.3) 100%);
-                box-shadow: inset 0 0 0 1px rgba(200, 200, 200, 0.15), 0 2px 4px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(180deg, var(--color-scrollbar-thumb-hover-start) 0%, var(--color-scrollbar-thumb-hover) 100%);
+                box-shadow: inset 0 0 0 1px var(--color-scrollbar-shadow-inset-hover), 0 2px 4px var(--color-scrollbar-shadow-hover);
             }
         }
     }
