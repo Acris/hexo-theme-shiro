@@ -2,7 +2,7 @@
 <article class="py-2">
     <header class="text-center mb-4">
         <h2 class="font-bold leading-snug text-slate-900 text-[1.35rem] transition-colors hover:text-seal sm:text-[1.45rem] md:text-[1.6rem]">
-            <a href="{{ html_attr(url_for(post.path)) | safe }}">{{ html_attr(post.title) | safe }}</a>
+            <a href="{{ url_for(post.path) }}">{{ post.title }}</a>
         </h2>
         {{ meta(post) }}
     </header>
@@ -21,9 +21,9 @@
     </div>
     {% if excerpt.truncated %}
     <div class="mt-6 text-center">
-        <a href="{{ html_attr(url_for(post.path)) | safe }}"
+        <a href="{{ url_for(post.path) }}"
             class="focus-elegant btn-ink">
-            {{ html_attr(__('index.read_more')) | safe }}
+            {{ __('index.read_more') }}
         </a>
     </div>
     {% endif %}

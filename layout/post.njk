@@ -5,17 +5,17 @@
     <!-- Post Navigation: Hexo's page.prev = newer post, page.next = older post -->
     <div class="section-divider flex justify-between items-center text-sm md:text-base">
         {% if page.prev %}
-        <a href="{{ html_attr(url_for(page.prev.path)) | safe }}" class="post-nav-link group text-left" title="{{ html_attr(page.prev.title) | safe }}">
+        <a href="{{ url_for(page.prev.path) }}" class="post-nav-link group text-left" title="{{ page.prev.title }}">
              <span aria-hidden="true">&larr;</span>
-             <span class="post-nav-title">{{ html_attr(page.prev.title) | safe }}</span>
+             <span class="post-nav-title">{{ page.prev.title }}</span>
         </a>
         {% else %}
         <div></div>
         {% endif %}
 
         {% if page.next %}
-        <a href="{{ html_attr(url_for(page.next.path)) | safe }}" class="post-nav-link group text-right" title="{{ html_attr(page.next.title) | safe }}">
-            <span class="post-nav-title">{{ html_attr(page.next.title) | safe }}</span>
+        <a href="{{ url_for(page.next.path) }}" class="post-nav-link group text-right" title="{{ page.next.title }}">
+            <span class="post-nav-title">{{ page.next.title }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
         {% else %}

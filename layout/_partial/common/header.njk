@@ -7,11 +7,11 @@
             <div class="relative inline-block">
                 {% if is_home() %}
                 <h1 class="site-title">
-                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ html_attr(config.title | default("白夜書簡", true)) | safe }}</a>
+                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </h1>
                 {% else %}
                 <p class="site-title">
-                    <a href="{{ html_attr(url_for('/')) | safe }}">{{ html_attr(config.title | default("白夜書簡", true)) | safe }}</a>
+                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
                 </p>
                 {% endif %}
                 <!-- Seal: Mathematically Centered -->
@@ -24,25 +24,25 @@
             </div>
             {% if config.subtitle %}
             <p class="site-subtitle">
-                {{ html_attr(config.subtitle) | safe }}
+                {{ config.subtitle }}
             </p>
             {% endif %}
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="header-pill-btn"
-                    href="{{ html_attr(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) | safe }}" target="_blank" rel="noopener" aria-label="RSS">
+                    href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
                 {% if dark_mode_toggle %}
-                <button id="themeToggle" type="button" class="header-pill-btn" aria-label="{{ html_attr(__('theme.' + dark_mode_default)) | safe }}" data-label-system="{{ html_attr(__('theme.system')) | safe }}" data-label-light="{{ html_attr(__('theme.light')) | safe }}" data-label-dark="{{ html_attr(__('theme.dark')) | safe }}">
+                <button id="themeToggle" type="button" class="header-pill-btn" aria-label="{{ __('theme.' + dark_mode_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
                 {% if search_enabled %}
-                <button id="searchToggle" type="button" class="header-pill-btn" aria-label="{{ html_attr(__('search.button')) | safe }}">
+                <button id="searchToggle" type="button" class="header-pill-btn" aria-label="{{ __('search.button') }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}
@@ -53,13 +53,13 @@
 
 <!-- Navigation -->
 {% if menu_items.length %}
-<nav class="mt-8 md:mt-10" aria-label="{{ html_attr(__('nav.menu')) | safe }}" data-pagefind-ignore>
+<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn" type="button"
             class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
-            <span class="text-base leading-none tracking-widest">{{ html_attr(__('nav.menu')) | safe }}</span>
+            <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
             {{ icon_chevron_down(id="menuChevron") }}
         </button>
     </div>
@@ -71,7 +71,7 @@
             {% set item_url = safe_url_for(item.url) %}
             {% set item_target = link_target(item.target) %}
             <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-                    href="{{ html_attr(item_url) | safe }}" {% if item_target %}target="{{ html_attr(item_target) | safe }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ html_attr(item.name) | safe }}</a></li>
+                    href="{{ item_url }}" {% if item_target %}target="{{ item_target }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
             <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
@@ -87,7 +87,7 @@
             {% set item_url = safe_url_for(item.url) %}
             {% set item_target = link_target(item.target) %}
             <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
-                    href="{{ html_attr(item_url) | safe }}" {% if item_target %}target="{{ html_attr(item_target) | safe }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ html_attr(item.name) | safe }}</a></li>
+                    href="{{ item_url }}" {% if item_target %}target="{{ item_target }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
             {% if not loop.last %}
             <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             {% endif %}

@@ -25,7 +25,7 @@
     })();
     </script>
     {% for google_fonts_url in google_font_urls(page, config, theme, needs_code) %}
-    <link rel="stylesheet" href="{{ html_attr(google_fonts_url) | safe }}" />
+    <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />
     {% endfor %}
     {# --- SEO Variables --- #}
     {% set page_title = build_page_title(page, config) %}
@@ -37,61 +37,61 @@
         {% set keywords %}{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
     {% endif %}
     {% set keywords = keywords or config.keywords %}
-    <title>{{ html_attr(page_title) | safe }}</title>
+    <title>{{ page_title }}</title>
 
     <!-- SEO Meta -->
     {% if clean_desc %}
-    <meta name="description" content="{{ html_attr(clean_desc) | safe }}" />
+    <meta name="description" content="{{ clean_desc }}" />
     {% endif %}
     {% if page_author %}
-    <meta name="author" content="{{ html_attr(page_author) | safe }}" />
+    <meta name="author" content="{{ page_author }}" />
     {% endif %}
     {% if keywords %}
-    <meta name="keywords" content="{{ html_attr(keywords) | safe }}" />
+    <meta name="keywords" content="{{ keywords }}" />
     {% endif %}
 
     <!-- Open Graph -->
-    <meta property="og:title" content="{{ html_attr(page_title) | safe }}" />
+    <meta property="og:title" content="{{ page_title }}" />
     {% if clean_desc %}
-    <meta property="og:description" content="{{ html_attr(clean_desc) | safe }}" />
+    <meta property="og:description" content="{{ clean_desc }}" />
     {% endif %}
-    <meta property="og:url" content="{{ html_attr(url) | safe }}" />
+    <meta property="og:url" content="{{ url }}" />
     <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
-    <meta property="og:site_name" content="{{ html_attr(config.title) | safe }}" />
+    <meta property="og:site_name" content="{{ config.title }}" />
     {% if og_img %}
-    <meta property="og:image" content="{{ html_attr(og_img) | safe }}" />
+    <meta property="og:image" content="{{ og_img }}" />
     {% endif %}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="{% if og_img %}summary_large_image{% else %}summary{% endif %}" />
-    <meta name="twitter:title" content="{{ html_attr(page_title) | safe }}" />
+    <meta name="twitter:title" content="{{ page_title }}" />
     {% if clean_desc %}
-    <meta name="twitter:description" content="{{ html_attr(clean_desc) | safe }}" />
+    <meta name="twitter:description" content="{{ clean_desc }}" />
     {% endif %}
     {% if og_img %}
-    <meta name="twitter:image" content="{{ html_attr(og_img) | safe }}" />
+    <meta name="twitter:image" content="{{ og_img }}" />
     {% endif %}
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ html_attr(url) | safe }}" />
+    <link rel="canonical" href="{{ url }}" />
 
     <!-- Favicon -->
     {% if site_favicon %}
-    <link rel="icon" href="{{ html_attr(safe_resource_url_for(site_favicon, '/favicon.svg', true)) | safe }}" />
+    <link rel="icon" href="{{ safe_resource_url_for(site_favicon, '/favicon.svg', true) }}" />
     {% endif %}
 
     <!-- RSS -->
     {% set rss_config = site_config.rss or {} %}
     {% if rss_config.enabled %}
-    <link rel="alternate" type="application/atom+xml" title="{{ html_attr(config.title) | safe }}" href="{{ html_attr(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) | safe }}" />
+    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" />
     {% endif %}
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/style.min.css')) | safe }}">
+    <link rel="stylesheet" href="{{ versioned_url('css/style.min.css') }}">
     {% if needs_code %}
-    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/code.min.css')) | safe }}">
+    <link rel="stylesheet" href="{{ versioned_url('css/code.min.css') }}">
     {% endif %}
     {% if needs_toc %}
-    <link rel="stylesheet" href="{{ html_attr(versioned_url('css/toc.min.css')) | safe }}">
+    <link rel="stylesheet" href="{{ versioned_url('css/toc.min.css') }}">
     {% endif %}
 </head>

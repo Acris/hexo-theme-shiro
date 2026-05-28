@@ -440,9 +440,8 @@ function safeNavigationUrl(value, context, fallback) {
 }
 
 function safeResourceUrl(value, context, fallback, options) {
-    const text = String(value || '').trim();
     const safeFallback = resolveResourceUrl(normalizedUrlText(fallback), context, options);
-    return resolveResourceUrl(normalizedUrlText(text), context, options) || safeFallback;
+    return resolveResourceUrl(normalizedUrlText(value), context, options) || safeFallback;
 }
 
 function normalizedLinkTarget(value) {
@@ -783,10 +782,6 @@ hexo.extend.helper.register('page_has_code', function (page, themeConfig) {
 
 hexo.extend.helper.register('page_looks_long', function (page) {
     return pageLooksLong(page);
-});
-
-hexo.extend.helper.register('html_attr', function (value) {
-    return escapeHtml(value);
 });
 
 hexo.extend.helper.register('js_value', function (value) {

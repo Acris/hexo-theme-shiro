@@ -18,7 +18,7 @@
 {% set needs_code = page_has_code(page, theme) %}
 {% set needs_toc = toc_config.enabled != false and (is_post() or is_page()) and should_render_toc(page, toc_config) %}
 {% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
-<html lang="{{ html_attr(page_lang) | safe }}" class="h-full scroll-smooth">
+<html lang="{{ page_lang }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
 <body class="h-full fog-bg text-slate-800"{% if needs_lightgallery %} data-shiro-lightgallery="true"{% endif %}>
@@ -61,7 +61,7 @@
     </div>
 
     {% if needs_back_to_top %}
-    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="{{ html_attr(__('common.back_to_top')) | safe }}">
+    <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="{{ __('common.back_to_top') }}">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
@@ -111,28 +111,28 @@
     </script>
     {% endif %}
     {% if search_enabled %}
-    <script defer src="{{ html_attr(versioned_url('js/search-bootstrap.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
     {% endif %}
     {% if needs_lightgallery %}
-    <script defer src="{{ html_attr(versioned_url('js/lightgallery-bootstrap.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
     {% endif %}
     {% if needs_code %}
-    <script defer src="{{ html_attr(versioned_url('js/clipboard-bootstrap.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
     {% endif %}
     {% if needs_toc %}
-    <script defer src="{{ html_attr(versioned_url('js/toc.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/toc.min.js') }}"></script>
     {% endif %}
     {% if needs_progress_bar %}
-    <script defer src="{{ html_attr(versioned_url('js/progress.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/progress.min.js') }}"></script>
     {% endif %}
     {% if needs_back_to_top %}
-    <script defer src="{{ html_attr(versioned_url('js/back-to-top.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/back-to-top.min.js') }}"></script>
     {% endif %}
     {% if dark_mode_toggle %}
-    <script defer src="{{ html_attr(versioned_url('js/theme-toggle.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
     {% endif %}
     {% if needs_mobile_menu %}
-    <script defer src="{{ html_attr(versioned_url('js/mobile-menu-bootstrap.min.js')) | safe }}"></script>
+    <script defer src="{{ versioned_url('js/mobile-menu-bootstrap.min.js') }}"></script>
     {% endif %}
 
     {% include "_partial/analytics/google.njk" %}
