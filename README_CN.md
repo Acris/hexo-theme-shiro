@@ -29,7 +29,7 @@
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **代码块**：语法高亮，带复制按钮和语言标签。
 - **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性；文章首图保留 eager 以照顾首屏，LightGallery 资源会在首次点击图片时加载。
-- **评论系统**：支持 Disqus（通过 `IntersectionObserver` 懒加载）和 giscus（GitHub Discussions）评论系统。
+- **评论系统**：支持 Disqus 和 giscus（GitHub Discussions）评论系统，接近评论区时按需加载。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
@@ -93,7 +93,10 @@ git pull
 
 在站点根目录创建专用的主题配置文件 `_config.shiro.yml`（Hexo 5.0.0 起支持）。此文件的优先级高于主题的默认配置。
 
-将 `themes/shiro/_config.yml` 的内容复制到站点根目录的 `_config.shiro.yml`：
+根据你的安装方式，将对应默认配置复制到站点根目录的 `_config.shiro.yml`：
+
+- npm 安装：`node_modules/hexo-theme-shiro/_config.yml`
+- git 安装：`themes/shiro/_config.yml`
 
 ```yaml
 # 站点
@@ -266,7 +269,7 @@ search:
 
 ### 搜索
 
-Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成（`hexo deploy` 内部也会触发 generate），作者无需记忆任何额外命令。
+Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成；发布已生成的输出前，无需再单独运行搜索索引命令。
 
 **npm 安装（强烈推荐）**
 
@@ -295,7 +298,7 @@ search:
 
 **本地预览**
 
-该钩子注册在 Hexo 的 `before_exit` 事件上，并仅对 `generate`（`g`）与 `deploy`（`d`）命令生效——这样可以保证 `public/` 已经完整写入磁盘后 Pagefind 才开始扫描。`hexo server` 走内存渲染，不会触发该钩子，因此本地预览时不会重建搜索索引。要本地预览搜索，请走真实构建并用静态服务器：
+该钩子注册在 Hexo 的 `before_exit` 事件上，并对 `generate`（`g`）与 `deploy`（`d`）命令生效。发布时，请先运行 `hexo generate`，确保 `public/pagefind/` 已写入后再上传。`hexo server` 走内存渲染，不会触发该钩子，因此本地预览时不会重建搜索索引。要本地预览搜索，请走真实构建并用静态服务器：
 
 ```bash
 hexo clean && hexo g
@@ -324,12 +327,12 @@ hexo-theme-shiro/
 │   ├── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
 │   ├── images.js           # after_post_render 图片加载、解码与尺寸优化
 │   └── pagefind.js         # Pagefind 索引钩子
-	├── source/
-	│   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
-	│   ├── css/_src/*.css      # 可选功能 CSS 源文件，会被 Hexo 忽略
-	│   ├── css/*.min.css       # 生成的 CSS 资源，按需加载
-	│   ├── js/_src/*.js        # 客户端脚本源文件，会被 Hexo 忽略
-	│   └── js/*.min.js         # 生成的客户端脚本与功能 bootstrap
+├── source/
+│   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
+│   ├── css/_src/*.css      # 可选功能 CSS 源文件，会被 Hexo 忽略
+│   ├── css/*.min.css       # 生成的 CSS 资源，按需加载
+│   ├── js/_src/*.js        # 客户端脚本源文件，会被 Hexo 忽略
+│   └── js/*.min.js         # 生成的客户端脚本与功能 bootstrap
 ├── tools/
 │   ├── build-assets.js     # 发布资源构建脚本
 │   └── snippets/           # 构建期注入的 JS 片段

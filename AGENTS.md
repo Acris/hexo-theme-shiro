@@ -16,7 +16,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks 
 - `layout/index.njk`, `post.njk`, `page.njk`, `archive.njk`, `tag.njk`, `category.njk` — main page templates.
 - `scripts/helpers.js` — custom Hexo helpers (`should_render_toc`, `build_toc`, `html_attr`, `js_value`, `url_query`, `safe_url_for`, `safe_resource_url_for`, `link_target`, `is_blank_target`, `google_font_urls`, `page_has_code`, `page_looks_long`, `versioned_url`, `has_images`, `first_image`, `excerpt_for`, `clean_description`, `copyright_year`, `build_page_title`, `seal_path_d`, `og_image`) and the dynamic `favicon.svg` generator (`favicon_svg`). Treat this list as authoritative — check `scripts/helpers.js` before adding new helpers or duplicating logic. TOC, image, code, long-page, description, and excerpt helpers share page-level cached analysis; pass the full `page` object to these helpers instead of `page.content` so the cache is reused. The `seal` macro and the `favicon_svg` generator share the same SVG path constant (`SEAL_PATH_D`) exposed via `seal_path_d` — when tweaking the seal shape, edit only that constant.
 - `scripts/images.js` — `after_post_render` hook that adds loading/decoding/fetchpriority/sizes attributes to rendered content images and infers local image dimensions when possible; the first article content image is eager/high priority, later content and excerpt images are lazy.
-- `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against `public/` after `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via local `pagefind/package.json`, passes `search.root_selector` to Pagefind (default `body`), fails generation when indexing fails, and warns before the slower `npx --yes pagefind` fallback.
+- `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against the current `public/` output for `hexo generate` / `hexo deploy` when `search.enabled: true`; resolves the binary via local `pagefind/package.json`, passes `search.root_selector` to Pagefind (default `body`), fails the Hexo command when indexing fails, and warns before the slower `npx --yes pagefind` fallback. For publishing, generate before deployment so `public/pagefind/` is written before upload.
 - `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`.
 - `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
 - `source/css/_src/code.css` / `source/css/code.min.css` — optional plain CSS source and minified output for syntax-highlighted code blocks, Gist embeds, and clipboard buttons; loaded only on pages whose rendered content contains code.
@@ -70,9 +70,9 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 
 - **Primary local validation: `npm run build`** — this repository has no dedicated `npm test`, `lint`, or formatter script. See `Setup commands` for exactly when to rebuild and which file to commit; verify rendering in a host Hexo site when possible.
 - This repository is a theme package, not a full Hexo site fixture. To verify theme rendering, run `hexo clean && hexo generate` from a host Hexo site that uses this theme, unless a fixture site is added later.
-- If search is enabled, remember Pagefind indexing runs in the `before_exit` filter after `hexo generate` / `hexo deploy`, **not** during `hexo server`.
+- If search is enabled, remember Pagefind indexing runs in the `before_exit` filter for `hexo generate` / `hexo deploy`, **not** during `hexo server`. For publishing checks, prefer `hexo clean && hexo generate` before deployment so `public/pagefind/` is written before upload.
 - Pagefind is **not** declared as a devDependency of this theme; when `search.enabled: true`, install it in the host Hexo site (`npm i pagefind -D`). The `npx --yes pagefind` fallback may download during `hexo generate`, slowing builds and failing in offline CI.
-- When changing `_config.yml`, also update the YAML snippet copied verbatim into `README.md` and `README_CN.md` so the documented defaults stay in sync.
+- When changing `_config.yml`, also keep the documented YAML snippets in `README.md` and `README_CN.md` aligned with the same defaults.
 - Manually inspect generated pages when possible: home, post, page, archive, tag, category, dark mode, TOC, comments, search button, code blocks, image lightbox, and responsive layout.
 - Treat build failures, template rendering errors, missing translation keys, and broken config defaults as blockers.
 
@@ -92,7 +92,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 - Do not remove or rename config keys without updating docs and adding clear migration notes.
 - Be careful with comments in `_config.yml` because users copy this file into `_config.shiro.yml`.
 - Treat copied user config as potentially older than the current default config; templates and scripts should handle missing optional keys safely.
-- Current top-level config keys: `site`, `menu`, `excerpt`, `toc`, `dark_mode`, `progress_bar`, `back_to_top`, `comments` (`disqus` / `giscus`), `analytics.google`, `search` (Pagefind). Renaming or removing any of them is a breaking change.
+- Current top-level config keys: `site`, `menu`, `excerpt`, `toc`, `dark_mode`, `progress_bar`, `back_to_top`, `comments` (`disqus` / `giscus`), `analytics` (`google`), `search` (Pagefind). Renaming or removing any of them is a breaking change.
 - `site.seal_text` controls both the header seal and the dynamically generated `favicon.svg` (see `hexo.extend.generator.favicon_svg` in `scripts/helpers.js`). Do not add a static `favicon.svg` into `source/` — it will be overwritten on each generate.
 - The default giscus theme URL in `_config.yml` (`https://cdn.jsdelivr.net/npm/hexo-theme-shiro@<version>/source/css/giscus.min.css`) hard-codes a release version. When cutting a new release, bump this version in `_config.yml`, `README.md`, and `README_CN.md` to match the published npm/git tag so existing users keep loading a matching `giscus.min.css`. Note any breaking changes to `giscus.css` / `giscus.min.css` in the release notes.
 
@@ -100,7 +100,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 
 - Keep JavaScript minimal and defer or lazy-load non-critical behavior where appropriate.
 - Avoid blocking scripts and unnecessary assets.
-- All `<script>` tags in `layout/_layout.njk` are gated by Hexo page-type predicates (`is_home()` / `is_post()` / `is_page()`) and feature toggles (`theme.toc.enabled`, `theme.search.enabled`, etc.). New scripts should follow the same double-gating pattern so unused pages stay JS-free.
+- Gate each `<script>` tag in `layout/_layout.njk` by the narrowest applicable page predicates, feature toggles, and DOM needs (`is_home()` / `is_post()` / `is_page()`, `theme.toc.enabled`, `theme.search.enabled`, rendered content checks, etc.) so unused pages stay JS-free.
 - Preserve responsive behavior across mobile and desktop layouts.
 - Use semantic HTML where possible.
 - Keep keyboard and screen-reader accessibility in mind for toggles, buttons, navigation, search, copy buttons, and lightbox interactions.
@@ -136,7 +136,7 @@ Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/sty
 - This package is published to npm; `package.json` does not set `files` and there is no `.npmignore`, so most non-ignored project files may be packed. Run `npm pack --dry-run` before release to verify the exact contents, and keep the package tidy.
 - `source/css/style.min.css` and other generated `*.min.css` / `*.min.js` files are build outputs and **must** be included in the release/npm package — consumers install the theme straight from npm/git without running a build step, so without it the theme will be unstyled. Re-run the release build (see `Setup commands`) and include the regenerated files before tagging a release.
 - When cutting a release, bump `package.json`, `package-lock.json`, and the `hexo-theme-shiro@<version>` reference in `_config.yml`, `README.md`, and `README_CN.md` together so the bundled giscus theme URL points at the matching published tag. Before release, verify `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL all point to the same version.
-- Self-check all version references with a single grep: `grep -RnE 'hexo-theme-shiro@[0-9]+\.[0-9]+\.[0-9]+' _config.yml README.md README_CN.md package.json package-lock.json`
+- Self-check release versions in two parts: verify `package.json` and `package-lock.json` agree with `node -e "const p=require('./package.json').version,l=require('./package-lock.json'); if (l.version !== p || l.packages[''].version !== p) process.exit(1); console.log(p)"`, then verify documented CDN URLs with `grep -RnE 'hexo-theme-shiro@[0-9]+\.[0-9]+\.[0-9]+' _config.yml README.md README_CN.md`.
 
 ## Agent-specific notes
 

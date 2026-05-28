@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image is kept eager for the initial viewport, and LightGallery assets load on first image click.
-- **Comments**: Disqus (lazy-loaded via `IntersectionObserver`) and giscus (GitHub Discussions) comment systems.
+- **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
@@ -96,7 +96,10 @@ git pull
 Create a dedicated theme config file `_config.shiro.yml` in your site root (Supported since Hexo 5.0.0). This file will
 have higher priority than the theme's default config.
 
-Copy the content from `themes/shiro/_config.yml` to `_config.shiro.yml` in your site root:
+Copy the default config that matches your installation into `_config.shiro.yml` in your site root:
+
+- npm install: `node_modules/hexo-theme-shiro/_config.yml`
+- git install: `themes/shiro/_config.yml`
 
 ```yaml
 # Site
@@ -271,7 +274,7 @@ wish to use them in the menu.
 
 ### Search
 
-Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically right after `hexo generate` (and therefore also after `hexo deploy`), so you do not need to run any extra command.
+Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically after `hexo generate`, so you do not need to run a separate search command before publishing generated output.
 
 **npm install (strongly recommended)**
 
@@ -300,7 +303,7 @@ Set `search.enabled: false` to disable the feature: the build hook is skipped an
 
 **Local preview**
 
-The hook runs on Hexo's `before_exit` event, scoped to the `generate` (`g`) and `deploy` (`d`) commands — this guarantees `public/` has already been written to disk before Pagefind scans it. `hexo server` renders pages from memory and does **not** trigger this hook, so the search index is not rebuilt during local preview. To preview search locally, run a real build and serve the output:
+The hook runs on Hexo's `before_exit` event for the `generate` (`g`) and `deploy` (`d`) commands. For publishing, run `hexo generate` before deployment so `public/pagefind/` is written before upload. `hexo server` renders pages from memory and does **not** trigger this hook, so the search index is not rebuilt during local preview. To preview search locally, run a real build and serve the output:
 
 ```bash
 hexo clean && hexo g
@@ -329,12 +332,12 @@ hexo-theme-shiro/
 │   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
 │   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
 │   └── pagefind.js         # Pagefind indexing hook
-	├── source/
-	│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
-	│   ├── css/_src/*.css      # Optional feature CSS sources ignored by Hexo
-	│   ├── css/*.min.css       # Generated CSS assets loaded on demand
-	│   ├── js/_src/*.js        # Client-side script sources ignored by Hexo
-	│   └── js/*.min.js         # Generated client-side scripts and feature bootstraps
+├── source/
+│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
+│   ├── css/_src/*.css      # Optional feature CSS sources ignored by Hexo
+│   ├── css/*.min.css       # Generated CSS assets loaded on demand
+│   ├── js/_src/*.js        # Client-side script sources ignored by Hexo
+│   └── js/*.min.js         # Generated client-side scripts and feature bootstraps
 ├── tools/
 │   ├── build-assets.js     # Release asset build script
 │   └── snippets/           # Build-time JS snippets injected before minification
