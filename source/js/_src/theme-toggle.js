@@ -3,7 +3,8 @@
  * When default is "system": 3-state cycle (system → light → dark).
  * When default is "light" or "dark": 2-state toggle (light ↔ dark).
  * Applies data-theme on <html> and persists preference in localStorage.
- * Inline script in <head> handles initial state to prevent FOUC.
+ * Inline script in <head> handles initial state (FOUC) and live OS theme
+ * following in "system" mode, so following works even when this toggle is off.
  */
 ;(() => {
     'use strict';
@@ -40,19 +41,7 @@
         updateIcon(state);
     }
 
-    function refreshSystemTheme() {
-        if (getState() === 'system') apply('system');
-    }
-
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    function addMediaChangeListener(query, callback) {
-        if (query.addEventListener) {
-            query.addEventListener('change', callback);
-        } else if (query.addListener) {
-            query.addListener(callback);
-        }
-    }
 
     function cycle() {
         const current = getState();
@@ -82,9 +71,6 @@
     }
 
     btn.addEventListener('click', cycle);
-
-    // Listen for system preference changes when in 'system' mode
-    addMediaChangeListener(prefersDarkQuery, refreshSystemTheme);
 
     // Initial icon sync (theme already applied by inline script)
     updateIcon(getState());

@@ -29,20 +29,20 @@
             {% endif %}
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 {% if rss_config.enabled %}
-                <a class="header-pill-btn"
+                <a class="focus-elegant header-pill-btn"
                     href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
                 {% if dark_mode_toggle %}
-                <button id="themeToggle" type="button" class="header-pill-btn" aria-label="{{ __('theme.' + dark_mode_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ __('theme.' + dark_mode_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
                 {% if search_enabled %}
-                <button id="searchToggle" type="button" class="header-pill-btn" aria-label="{{ __('search.button') }}">
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ __('search.button') }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}

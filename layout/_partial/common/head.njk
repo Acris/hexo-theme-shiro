@@ -32,7 +32,8 @@
     <!-- FOUC prevention: resolve theme before first paint.
          Flow: read default → build valid states → read localStorage (try/catch for Safari private mode)
          → validate saved state → set data-theme-state on <html> → resolve effective dark/light
-         → set data-theme and colorScheme.
+         → set data-theme and colorScheme. In "system" mode it also keeps following OS
+         light/dark changes live, so the page updates without a reload even when the toggle is hidden.
          data-cfasync="false" stops Cloudflare Rocket Loader from deferring this past first paint
          (it must run synchronously for both theme resolution and the preloader skip). -->
     <script data-cfasync="false">
@@ -45,10 +46,21 @@
         const state = saved && states.includes(saved) ? saved : defaultTheme;
         const html = document.documentElement;
         html.setAttribute('data-theme-state', state);
-        const isDark = state === 'dark'
-            || (state !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const isDark = state === 'dark' || (state !== 'light' && darkQuery.matches);
         html.setAttribute('data-theme', isDark ? 'dark' : 'light');
         html.style.colorScheme = isDark ? 'dark' : 'light';
+        if (defaultTheme === 'system') {
+            // Keep following OS light/dark changes while in "system" mode even when the
+            // toggle (and theme-toggle.js) is disabled, so the page updates without a reload.
+            const followSystem = () => {
+                if (html.getAttribute('data-theme-state') !== 'system') return;
+                html.setAttribute('data-theme', darkQuery.matches ? 'dark' : 'light');
+                html.style.colorScheme = darkQuery.matches ? 'dark' : 'light';
+            };
+            if (darkQuery.addEventListener) darkQuery.addEventListener('change', followSystem);
+            else if (darkQuery.addListener) darkQuery.addListener(followSystem);
+        }
         try {
             if (sessionStorage.getItem('shiro:title-font-ready') === '1') {
                 html.classList.add('shiro-preloader-done');
