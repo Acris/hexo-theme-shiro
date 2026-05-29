@@ -127,7 +127,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 <div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500 flex-wrap">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow() }}
-        <a href="{{ url_for('archives/' + post_year) + '/' }}" class="oldstyle-nums link-muted"><time datetime="{{ post_date_attr }}">{{ post_date_text }}</time></a>
+        <a href="{{ archive_url(post_year) }}" class="oldstyle-nums link-muted"><time datetime="{{ post_date_attr }}">{{ post_date_text }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         {% set post_categories = post.categories.toArray() %}

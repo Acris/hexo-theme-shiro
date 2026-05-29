@@ -817,6 +817,14 @@ hexo.extend.helper.register('is_blank_target', function (value) {
     return normalizedLinkTarget(value).toLowerCase() === '_blank';
 });
 
+// Yearly archive URL helper: honours Hexo's archive_dir instead of a hard-coded
+// 'archives/' segment, so custom archive_dir sites link to the right page.
+hexo.extend.helper.register('archive_url', function (year) {
+    const configured = String((hexo.config && hexo.config.archive_dir) || 'archives').replace(/^\/+|\/+$/g, '');
+    const archiveDir = configured || 'archives';
+    return this.url_for(archiveDir + '/' + year) + '/';
+});
+
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
     const sourceDir = pathFn.join(hexo.theme_dir, 'source');

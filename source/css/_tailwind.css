@@ -142,10 +142,18 @@
 
     @media (prefers-reduced-motion: reduce) {
 
+        /* Use !important so this wins over class- and @layer components-level
+           transition/animation rules (e.g. .btn-ink, .menu-panel, the preloader
+           fade) and the .scroll-smooth utility on <html>; a plain `* {…}` reset
+           loses to those. 0.01ms (not 0) keeps transitionend/animationend firing,
+           so JS that waits on them — such as preloader.js — still completes. */
         *,
         *::before,
         *::after {
-            @apply transition-none scroll-auto;
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
         }
     }
 
