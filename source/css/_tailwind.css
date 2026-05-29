@@ -229,21 +229,8 @@
         pointer-events: none;
         opacity: 1;
         visibility: visible;
-        background:
-            radial-gradient(650px 420px at 25% 45%, rgba(180, 160, 130, 0.024), transparent 65%),
-            radial-gradient(480px 380px at 72% 35%, rgba(165, 150, 130, 0.02), transparent 55%),
-            linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
+        background: linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
         animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 2s forwards;
-    }
-
-    .shiro-preloader::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: 0.12;
-        background:
-            radial-gradient(circle at 22% 30%, rgba(0, 0, 0, 0.035) 0 0.5px, transparent 0.9px) 0 0 / 170px 210px,
-            radial-gradient(circle at 70% 62%, rgba(0, 0, 0, 0.025) 0 0.6px, transparent 1px) 0 0 / 250px 290px;
     }
 
     /* Skip the overlay before first paint on later same-tab navigations.
@@ -774,18 +761,8 @@
     /* Dark: opaque fog-toned veil hides the font swap in dark mode too */
     .shiro-preloader {
         @variant dark {
-            background:
-                radial-gradient(700px 500px at 30% 40%, rgba(200, 200, 200, 0.008), transparent 70%),
-                radial-gradient(550px 400px at 70% 50%, rgba(200, 200, 200, 0.006), transparent 65%),
-                linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+            background: linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
         }
-    }
-
-    html[data-theme="dark"] .shiro-preloader::before {
-        opacity: 0.24;
-        background:
-            radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.03) 0 0.5px, transparent 0.9px) 0 0 / 170px 210px,
-            radial-gradient(circle at 70% 62%, rgba(255, 255, 255, 0.02) 0 0.6px, transparent 1px) 0 0 / 250px 290px;
     }
 
     /* Dark: paper card — elevated above fog-bg with subtle glow */
