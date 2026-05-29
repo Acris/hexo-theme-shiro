@@ -1,4 +1,7 @@
-/* Google Fonts are loaded via <link> tags in layout/_partial/common/head.njk. */
+/* Google Fonts are loaded via <link> tags in layout/_partial/common/head.njk.
+ * The critical title + body families share one display=swap request (preloaded in
+ * head.njk) so the title and body text stay visible and reliably swap to the brand
+ * fonts once ready (scripts/helpers.js → google_font_urls). */
 
 /* ── Cascade layers ──
  *

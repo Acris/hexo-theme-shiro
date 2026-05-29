@@ -753,6 +753,13 @@ function googleFontUrl(families, display) {
 }
 
 hexo.extend.helper.register('google_font_urls', function (page, config, themeConfig, hasCode) {
+    // Critical families (title + body) render the above-the-fold content, so they use
+    // display=swap: the title and body text stay visible immediately and the brand fonts
+    // swap in once ready. The bundle is preloaded in head.njk to shrink the swap window.
+    // The title font (Yuji Syuku) stays in this swap bundle on purpose: isolating it into
+    // a display=optional request made it unreliable on cold caches — the font missed the
+    // ~100ms optional block period (zero swap window), so the serif fallback stuck for the
+    // whole view and the brand title only appeared after several refreshes.
     const criticalFamilies = [
         { name: 'Cardo', weights: ['400', '700'] },
         { name: 'Yuji Syuku' },
@@ -764,8 +771,8 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
         criticalFamilies.push({ name: cjkFamily, weights: ['400', '600'] });
     }
 
-    // The first URL bundles the title + body critical families (display=swap)
-    // and is preloaded in head.njk to shrink the FOUT swap window; keep it first.
+    // The first URL bundles the critical (title + body) families with display=swap and is
+    // preloaded in head.njk; keep it first.
     const urls = [
         googleFontUrl(criticalFamilies, 'swap'),
         googleFontUrl([{ name: 'Cormorant Garamond', weights: ['400', '600'] }], 'optional')

@@ -10,8 +10,8 @@
     {% endif %}
     {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
     {% if google_fonts.length %}
-    <!-- Preload the critical (title + body) font stylesheet so it is fetched at
-         highest priority ahead of the blocking theme script, shrinking the swap window.
+    <!-- Preload the critical (title + body) font stylesheet so it is fetched at highest
+         priority ahead of the blocking theme script, shrinking the swap window.
          Kept as a preload (not a stylesheet) here so it does not delay the theme script. -->
     <link rel="preload" as="style" href="{{ google_fonts[0] | safe }}" />
     {% endif %}
