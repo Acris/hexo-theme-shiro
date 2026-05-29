@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until the brand title font is ready, then gently fades away so the title never visibly swaps fonts.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image is kept eager for the initial viewport, and LightGallery assets are prefetched on the first image interaction (hover/press/focus) so the lightbox opens instantly.
+- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image stays eager for the initial viewport. LightGallery assets are prefetched ahead of the first click, so the lightbox opens instantly — even on touch devices.
 - **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).

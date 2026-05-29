@@ -138,8 +138,55 @@
         warm();
     }
 
+    // Touch devices have no hover, so per-image intent fires too late (pointerdown is
+    // almost simultaneous with click). Proactively warm when the first image nears the
+    // viewport (or on idle), gated on connection quality to avoid wasting metered data.
+    function connectionAllowsWarm() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (!connection) return true;
+        if (connection.saveData) return false;
+        return !/(^|-)2g$/.test(connection.effectiveType || '');
+    }
+
+    function proactiveWarm() {
+        if (warmed || !connectionAllowsWarm()) return;
+        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 1200));
+        idle(() => warm(), { timeout: 2000 });
+    }
+
+    function firstGalleryImage() {
+        const images = document.querySelectorAll('.prose-shiro img');
+        for (let i = 0; i < images.length; i += 1) {
+            if (shouldHandleImage(images[i])) return images[i];
+        }
+        return null;
+    }
+
+    function scheduleProactiveWarm() {
+        const firstImage = firstGalleryImage();
+        if (!firstImage) return;
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries.some((entry) => entry.isIntersecting)) {
+                    observer.disconnect();
+                    proactiveWarm();
+                }
+            }, { rootMargin: '300px' });
+            observer.observe(firstImage);
+        } else {
+            proactiveWarm();
+        }
+    }
+
     document.addEventListener('click', handleClick, true);
     document.addEventListener('pointerover', handleIntent, true);
     document.addEventListener('pointerdown', handleIntent, true);
     document.addEventListener('focusin', handleIntent, true);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', scheduleProactiveWarm, { once: true });
+    } else {
+        scheduleProactiveWarm();
+    }
 })();

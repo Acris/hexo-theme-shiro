@@ -7,6 +7,12 @@
     {% if needs_lightgallery %}
     <!-- Warm the CDN connection so the lightbox assets download instantly on first interaction. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <!-- Prefetch the LightGallery JS/CSS and same-origin wrapper at lowest priority so the lightbox
+         opens instantly on the first tap, even on touch devices with no hover to warm on.
+         crossorigin matches the SRI requests; keep lightgallery@<version> in sync with lightgallery.js. -->
+    <link rel="prefetch" as="script" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js" crossorigin />
+    <link rel="prefetch" as="style" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" crossorigin />
+    <link rel="prefetch" as="script" href="{{ versioned_url('js/lightgallery.min.js') }}" />
     {% endif %}
     {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
     {% if google_fonts.length %}
