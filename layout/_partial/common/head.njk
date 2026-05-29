@@ -69,7 +69,14 @@
     })();
     </script>
     {% for google_fonts_url in google_fonts %}
+    {% if loop.first %}
     <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />
+    {% else %}
+    <!-- Non-critical (display=optional) font stylesheets load async so they never block first
+         paint or compete with the critical title+body stylesheet above. -->
+    <link rel="preload" as="style" href="{{ google_fonts_url | safe }}" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="{{ google_fonts_url | safe }}" /></noscript>
+    {% endif %}
     {% endfor %}
     {# --- SEO Variables --- #}
     {% set page_title = build_page_title(page, config) %}

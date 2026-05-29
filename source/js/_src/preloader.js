@@ -46,8 +46,15 @@
         });
     };
 
-    // Failsafe: hide even if font loading never settles (shorter than the CSS delay).
-    failsafe = setTimeout(() => hide(false), 1500);
+    // Failsafe: hide even if font loading never settles (kept shorter than the 2s CSS delay).
+    // On metered/slow links (Save-Data or 2g) the brand font likely won't arrive in time, so
+    // fade out sooner instead of holding content back — mirrors the LightGallery/search warm gate.
+    const slowConnection = () => {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (!connection) return false;
+        return Boolean(connection.saveData) || /(^|-)2g$/.test(connection.effectiveType || '');
+    };
+    failsafe = setTimeout(() => hide(false), slowConnection() ? 600 : 1200);
 
     if (document.fonts && document.fonts.load) {
         // Pass the title text so we wait for its unicode-range chunks.
