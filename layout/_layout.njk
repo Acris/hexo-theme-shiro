@@ -22,6 +22,15 @@
 {% include "_partial/common/head.njk" %}
 
 <body class="h-full fog-bg text-slate-800"{% if needs_lightgallery %} data-shiro-lightgallery="true"{% endif %}>
+    <!-- Font-load preloader: covers the title-font swap until preloader.min.js fades it out.
+         data-shiro-font-text lists the title glyphs to wait for. -->
+    <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true"
+        data-shiro-font-text="{{ config.title | default('白夜書簡', true) }}{{ site_config.seal_text | default('白', true) }}白は、余白の名。">
+        <div class="shiro-preloader-ripple" aria-hidden="true">
+            <span class="shiro-preloader-ring"></span>
+            <span class="shiro-preloader-ring"></span>
+        </div>
+    </div>
     {% if site_seal_enabled %}
     {{ svg_filters() }}
     {% endif %}

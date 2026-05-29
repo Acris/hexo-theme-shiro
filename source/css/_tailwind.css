@@ -209,6 +209,138 @@
         }
     }
 
+    /* Font-load preloader: an opaque veil that hides the title-font (Yuji Syuku)
+       swap, then fades out. A CSS failsafe also dismisses it when JS never runs. */
+    .shiro-preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        opacity: 1;
+        visibility: visible;
+        background:
+            radial-gradient(650px 420px at 25% 45%, rgba(180, 160, 130, 0.024), transparent 65%),
+            radial-gradient(480px 380px at 72% 35%, rgba(165, 150, 130, 0.02), transparent 55%),
+            linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
+        animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 2s forwards;
+    }
+
+    .shiro-preloader::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.12;
+        background:
+            radial-gradient(circle at 22% 30%, rgba(0, 0, 0, 0.035) 0 0.5px, transparent 0.9px) 0 0 / 170px 210px,
+            radial-gradient(circle at 70% 62%, rgba(0, 0, 0, 0.025) 0 0.6px, transparent 1px) 0 0 / 250px 290px;
+    }
+
+    /* Skip the overlay before first paint on later same-tab navigations.
+       :not(.is-loaded) keeps it from cutting the JS fade-out short. */
+    html.shiro-preloader-done .shiro-preloader:not(.is-loaded) {
+        display: none;
+    }
+
+    /* JS-driven dismiss (fast path): cancel the failsafe and fade out. */
+    .shiro-preloader.is-loaded {
+        animation: none;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.42s var(--ease-soft),
+            visibility 0s linear 0.42s;
+    }
+
+    /* Small status mark: a calm vermilion dot with soft ripples. */
+    .shiro-preloader-ripple {
+        position: relative;
+        z-index: 1;
+        width: 3rem;
+        height: 3rem;
+        color: var(--color-seal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .shiro-preloader-ripple::before {
+        content: "";
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background: currentColor;
+        animation: shiro-preloader-dot-pulse 1.8s var(--ease-soft) infinite;
+    }
+
+    .shiro-preloader-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        border: 1px solid currentColor;
+        opacity: 0;
+        transform: scale(0.3);
+        animation: shiro-preloader-wave 1.8s var(--ease-soft) infinite;
+    }
+
+    .shiro-preloader-ring:nth-child(2) {
+        animation-delay: 0.9s;
+    }
+
+    @keyframes shiro-preloader-failsafe {
+        from {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        to {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+
+    @keyframes shiro-preloader-dot-pulse {
+        0%,
+        100% {
+            opacity: 0.55;
+            transform: scale(0.85);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes shiro-preloader-wave {
+        0% {
+            opacity: 0.5;
+            transform: scale(0.3);
+        }
+
+        70% {
+            opacity: 0.08;
+        }
+
+        100% {
+            opacity: 0;
+            transform: scale(1);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .shiro-preloader-ripple::before {
+            animation: none;
+            opacity: 0.9;
+        }
+
+        .shiro-preloader-ring {
+            display: none;
+        }
+    }
+
     .btn-ink {
         @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive;
 
@@ -629,6 +761,23 @@
                 background-size: 100% 100%, 100% 100%, 100% 100%;
             }
         }
+    }
+
+    /* Dark: opaque fog-toned veil hides the font swap in dark mode too */
+    .shiro-preloader {
+        @variant dark {
+            background:
+                radial-gradient(700px 500px at 30% 40%, rgba(200, 200, 200, 0.008), transparent 70%),
+                radial-gradient(550px 400px at 70% 50%, rgba(200, 200, 200, 0.006), transparent 65%),
+                linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+        }
+    }
+
+    html[data-theme="dark"] .shiro-preloader::before {
+        opacity: 0.24;
+        background:
+            radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.03) 0 0.5px, transparent 0.9px) 0 0 / 170px 210px,
+            radial-gradient(circle at 70% 62%, rgba(255, 255, 255, 0.02) 0 0.6px, transparent 1px) 0 0 / 250px 290px;
     }
 
     /* Dark: paper card — elevated above fog-bg with subtle glow */
