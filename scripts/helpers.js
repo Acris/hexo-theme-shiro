@@ -764,6 +764,8 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
         criticalFamilies.push({ name: cjkFamily, weights: ['400', '600'] });
     }
 
+    // The first URL bundles the title + body critical families (display=swap)
+    // and is preloaded in head.njk to shrink the FOUT swap window; keep it first.
     const urls = [
         googleFontUrl(criticalFamilies, 'swap'),
         googleFontUrl([{ name: 'Cormorant Garamond', weights: ['400', '600'] }], 'optional')

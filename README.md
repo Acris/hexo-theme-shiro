@@ -30,7 +30,7 @@ Made by Acris with ❤️
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image is kept eager for the initial viewport, and LightGallery assets load on first image click.
+- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image is kept eager for the initial viewport, and LightGallery assets are prefetched on the first image interaction (hover/press/focus) so the lightbox opens instantly.
 - **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
 - **Google Analytics**: GA4 support with non-blocking script loading.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).

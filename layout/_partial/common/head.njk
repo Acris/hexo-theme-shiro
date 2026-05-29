@@ -4,6 +4,17 @@
     <meta name="generator" content="Hexo {{ hexo.version }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {% if needs_lightgallery %}
+    <!-- Warm the CDN connection so the lightbox assets download instantly on first interaction. -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    {% endif %}
+    {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
+    {% if google_fonts.length %}
+    <!-- Preload the critical (title + body) font stylesheet so it is fetched at
+         highest priority ahead of the blocking theme script, shrinking the swap window.
+         Kept as a preload (not a stylesheet) here so it does not delay the theme script. -->
+    <link rel="preload" as="style" href="{{ google_fonts[0] | safe }}" />
+    {% endif %}
     <!-- FOUC prevention: resolve theme before first paint.
          Flow: read default → build valid states → read localStorage (try/catch for Safari private mode)
          → validate saved state → set data-theme-state on <html> → resolve effective dark/light
@@ -24,7 +35,7 @@
         html.style.colorScheme = isDark ? 'dark' : 'light';
     })();
     </script>
-    {% for google_fonts_url in google_font_urls(page, config, theme, needs_code) %}
+    {% for google_fonts_url in google_fonts %}
     <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />
     {% endfor %}
     {# --- SEO Variables --- #}

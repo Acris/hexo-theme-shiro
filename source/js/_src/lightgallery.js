@@ -371,6 +371,12 @@
 
     window.__shiroLightGalleryOpen = openFromElement;
 
+    // Prefetch the LightGallery library + styles ahead of the first click so a
+    // warmed gallery opens instantly. Failures are swallowed; the click path retries.
+    window.__shiroLightGalleryWarm = () => {
+        ensureLightGalleryAssets().catch(() => {});
+    };
+
     document.addEventListener('click', (event) => {
         const img = clickedImage(event);
         if (!img) return;
@@ -385,6 +391,9 @@
         const target = window.__shiroLightGalleryAutoOpen;
         window.__shiroLightGalleryAutoOpen = null;
         openFromElement(target);
+    } else if (window.__shiroLightGalleryWarmRequested) {
+        window.__shiroLightGalleryWarmRequested = false;
+        window.__shiroLightGalleryWarm();
     }
 
 })();
