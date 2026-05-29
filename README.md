@@ -37,7 +37,7 @@ Made by Acris with ❤️
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **SEO-friendly**: Per-page meta description, Open Graph (with `article:*` and `og:locale`) and Twitter Card tags, canonical plus paginated `rel=prev`/`rel=next` links, and schema.org JSON-LD (`BlogPosting` for posts, `WebSite` for the home page).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
-- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) — index is generated automatically after `hexo generate`, no external service required.
+- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) — index is generated automatically after `hexo generate`, no external service required. Search assets are prefetched and warmed ahead of the first click, so the search box opens instantly — even on touch devices.
 - **Fast**: Optimized for performance with minimal JavaScript, cached build-time page analysis, and content image loading/size hints.
 
 ## Installation

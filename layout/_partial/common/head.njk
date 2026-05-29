@@ -14,6 +14,14 @@
     <link rel="prefetch" as="style" href="https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css" crossorigin />
     <link rel="prefetch" as="script" href="{{ versioned_url('js/lightgallery.min.js') }}" />
     {% endif %}
+    {% if search_enabled %}
+    <!-- Prefetch the search script/CSS and Pagefind UI assets at lowest priority so the first
+         click (or "/" shortcut) opens the search box instantly, even on touch devices with no hover. -->
+    <link rel="prefetch" as="script" href="{{ versioned_url('js/search.min.js') }}" />
+    <link rel="prefetch" as="style" href="{{ versioned_url('css/search.min.css') }}" />
+    <link rel="prefetch" as="script" href="{{ url_for('/pagefind/pagefind-ui.js') }}" />
+    <link rel="prefetch" as="style" href="{{ url_for('/pagefind/pagefind-ui.css') }}" />
+    {% endif %}
     {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
     {% if google_fonts.length %}
     <!-- Preload the critical (title + body) font stylesheet so it is fetched at highest

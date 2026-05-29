@@ -11,10 +11,39 @@
 
     const toggle = document.getElementById('searchToggle');
     let loading = false;
+    let warmed = false;
 
-    function removeBootstrapListeners() {
+    function removeOpenListeners() {
         document.removeEventListener('click', handleClick);
         document.removeEventListener('keydown', handleKeydown);
+    }
+
+    function removeWarmListeners() {
+        if (!toggle) return;
+        toggle.removeEventListener('pointerover', warm);
+        toggle.removeEventListener('pointerdown', warm);
+        toggle.removeEventListener('focusin', warm);
+    }
+
+    function removeBootstrapListeners() {
+        removeOpenListeners();
+        removeWarmListeners();
+    }
+
+    function loadSearch() {
+        loading = true;
+        loadBootstrapScript(script, {
+            onload: () => {
+                loading = false;
+                removeBootstrapListeners();
+            },
+            onerror: () => {
+                loading = false;
+                warmed = false;
+                window.__shiroSearchAutoOpen = false;
+                window.__shiroSearchWarmRequested = false;
+            }
+        });
     }
 
     function openSearch() {
@@ -26,18 +55,38 @@
 
         window.__shiroSearchAutoOpen = true;
         if (loading) return;
-        loading = true;
+        loadSearch();
+    }
 
-        loadBootstrapScript(script, {
-            onload: () => {
-                loading = false;
-                removeBootstrapListeners();
-            },
-            onerror: () => {
-                loading = false;
-                window.__shiroSearchAutoOpen = false;
-            }
-        });
+    // The search button has no hover on touch devices, so eagerly fetch the search
+    // script + assets on the first intent (hover / press / focus) or on idle, so the
+    // click itself opens instantly. Gated on connection quality to spare metered data.
+    function warm() {
+        if (warmed) return;
+        warmed = true;
+        removeWarmListeners();
+
+        if (window.__shiroSearchWarm) {
+            window.__shiroSearchWarm();
+            return;
+        }
+        if (loading) return;
+
+        window.__shiroSearchWarmRequested = true;
+        loadSearch();
+    }
+
+    function connectionAllowsWarm() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (!connection) return true;
+        if (connection.saveData) return false;
+        return !/(^|-)2g$/.test(connection.effectiveType || '');
+    }
+
+    function proactiveWarm() {
+        if (warmed || !connectionAllowsWarm()) return;
+        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 1200));
+        idle(() => warm(), { timeout: 2000 });
     }
 
     function handleKeydown(event) {
@@ -56,4 +105,10 @@
 
     document.addEventListener('click', handleClick);
     document.addEventListener('keydown', handleKeydown);
+    if (toggle) {
+        toggle.addEventListener('pointerover', warm);
+        toggle.addEventListener('pointerdown', warm);
+        toggle.addEventListener('focusin', warm);
+    }
+    proactiveWarm();
 })();

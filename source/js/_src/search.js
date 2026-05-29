@@ -7,6 +7,8 @@
     const searchCss = window.__searchCss || '';
     let loaded = false;
     let loading = null;
+    let assetsLoaded = false;
+    let assetsLoading = null;
     let cssLoaded = false;
     let cssLoading = null;
     let lastFocus = null;
@@ -31,10 +33,10 @@
         return cssLoading;
     }
 
-    function ensurePagefind() {
-        if (loaded) return Promise.resolve();
-        if (loading) return loading;
-        loading = loadAsset('link', {
+    function ensurePagefindAssets() {
+        if (assetsLoaded) return Promise.resolve();
+        if (assetsLoading) return assetsLoading;
+        assetsLoading = loadAsset('link', {
             rel: 'stylesheet',
             href: base + 'pagefind-ui.css',
             'data-shiro-pagefind-css': 'true'
@@ -43,6 +45,20 @@
                 src: base + 'pagefind-ui.js',
                 'data-shiro-pagefind-js': 'true'
             }, 'script[data-shiro-pagefind-js]'))
+            .then(() => {
+                assetsLoaded = true;
+            })
+            .catch((error) => {
+                assetsLoading = null;
+                throw error;
+            });
+        return assetsLoading;
+    }
+
+    function ensurePagefind() {
+        if (loaded) return Promise.resolve();
+        if (loading) return loading;
+        loading = ensurePagefindAssets()
             .then(() => {
                 /* global PagefindUI */
                 if (typeof PagefindUI !== 'function') throw new Error('Pagefind UI is unavailable');
@@ -190,6 +206,14 @@
 
     window.__shiroSearchOpen = open;
 
+    // Warm the modal CSS + Pagefind UI assets ahead of the first open so the
+    // search box appears instantly. Does not instantiate PagefindUI (that pulls
+    // the index/WASM) or open the modal; failures are swallowed and retried on open.
+    window.__shiroSearchWarm = () => {
+        ensureSearchCss().catch(() => {});
+        ensurePagefindAssets().catch(() => {});
+    };
+
     const toggle = document.getElementById('searchToggle');
     if (toggle) {
         toggle.addEventListener('click', (event) => {
@@ -214,5 +238,8 @@
     if (window.__shiroSearchAutoOpen) {
         window.__shiroSearchAutoOpen = false;
         open();
+    } else if (window.__shiroSearchWarmRequested) {
+        window.__shiroSearchWarmRequested = false;
+        window.__shiroSearchWarm();
     }
 })();
