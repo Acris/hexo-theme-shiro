@@ -204,10 +204,20 @@
 }
 
 @media (min-width: 1024px) {
+    /* Pre-apply the wrapper's full-bleed width so the first paint matches the
+       final width and the block doesn't widen when clipboard.js wraps it. */
+    .prose-shiro .highlight:not(.not-prose),
     .highlight-wrapper {
         width: calc(100% + 7rem);
         margin-right: -3.5rem;
         margin-left: -3.5rem;
+    }
+
+    /* Once wrapped, let the wrapper own the geometry to avoid doubling margins. */
+    .highlight-wrapper > .highlight:not(.not-prose) {
+        width: 100%;
+        margin-right: 0;
+        margin-left: 0;
     }
 }
 
