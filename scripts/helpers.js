@@ -960,3 +960,94 @@ hexo.extend.helper.register('og_image', function (page) {
     }
     return normalizeOpenGraphImageUrl(this.first_image(page), this, page);
 });
+
+function isoDateString(value) {
+    if (!value) return '';
+    if (typeof value.toISOString === 'function') {
+        try {
+            return value.toISOString();
+        } catch (_) {
+            return '';
+        }
+    }
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString();
+}
+
+// Normalize a language tag (e.g. zh-CN, en, ja_JP) into an Open Graph locale (zh_CN, en, ja_JP).
+function openGraphLocale(language) {
+    const normalized = primaryLanguage(language).replace(/-/g, '_');
+    const segments = normalized.split('_').filter(Boolean);
+    if (!segments.length) return '';
+    if (segments.length === 1) return segments[0];
+    return segments[0] + '_' + segments.slice(1).join('_').toUpperCase();
+}
+
+hexo.extend.helper.register('og_locale', function (page, config) {
+    return openGraphLocale(pageLanguage(page, config));
+});
+
+// Build schema.org JSON-LD nodes for the current page: BlogPosting for posts,
+// WebSite for the home page. Returns an array so the template can emit a single
+// <script type="application/ld+json"> only when there is something to describe.
+hexo.extend.helper.register('structured_data', function (page, config) {
+    if (!page) return [];
+
+    const cfg = config || this.config || {};
+    const siteName = cfg.title || '';
+    const siteUrl = String(cfg.url || '').replace(/\/$/, '');
+    const pageUrl = this.url || page.permalink || siteUrl;
+    const description = typeof this.clean_description === 'function'
+        ? this.clean_description(page, cfg)
+        : '';
+    const image = typeof this.og_image === 'function' ? this.og_image(page) : '';
+
+    const isPost = typeof this.is_post === 'function' && this.is_post();
+    const isHome = typeof this.is_home === 'function' && this.is_home();
+
+    if (isPost) {
+        const node = {
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: page.title || siteName
+        };
+        if (pageUrl) node.mainEntityOfPage = { '@type': 'WebPage', '@id': pageUrl };
+        if (description) node.description = description;
+        if (image) node.image = [image];
+
+        const published = isoDateString(page.date);
+        const modified = isoDateString(page.updated || page.date);
+        if (published) node.datePublished = published;
+        if (modified) node.dateModified = modified;
+
+        const author = page.author || cfg.author || '';
+        if (author) node.author = { '@type': 'Person', name: author };
+
+        if (siteName) {
+            const publisher = { '@type': 'Organization', name: siteName };
+            const logo = typeof this.full_url_for === 'function' ? this.full_url_for('/favicon.svg') : '';
+            if (logo) publisher.logo = { '@type': 'ImageObject', url: logo };
+            node.publisher = publisher;
+        }
+
+        const tags = collectionToArray(page.tags)
+            .map(tag => tag && tag.name)
+            .filter(Boolean);
+        if (tags.length) node.keywords = tags.join(', ');
+
+        return [node];
+    }
+
+    if (isHome) {
+        const node = {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: siteName,
+            url: siteUrl || pageUrl
+        };
+        if (description) node.description = description;
+        return [node];
+    }
+
+    return [];
+});

@@ -82,8 +82,29 @@
     <meta property="og:url" content="{{ url }}" />
     <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
     <meta property="og:site_name" content="{{ config.title }}" />
+    {% set og_locale_value = og_locale(page, config) %}
+    {% if og_locale_value %}
+    <meta property="og:locale" content="{{ og_locale_value }}" />
+    {% endif %}
     {% if og_img %}
     <meta property="og:image" content="{{ og_img }}" />
+    <meta property="og:image:alt" content="{{ page_title }}" />
+    {% endif %}
+    {% if is_post() %}
+    {% if page.date %}
+    <meta property="article:published_time" content="{{ date_xml(page.date) }}" />
+    {% endif %}
+    {% if page.updated %}
+    <meta property="article:modified_time" content="{{ date_xml(page.updated) }}" />
+    {% endif %}
+    {% if page_author %}
+    <meta property="article:author" content="{{ page_author }}" />
+    {% endif %}
+    {% if page.tags and page.tags.length %}
+    {% for tag in page.tags.toArray() %}
+    <meta property="article:tag" content="{{ tag.name }}" />
+    {% endfor %}
+    {% endif %}
     {% endif %}
 
     <!-- Twitter Card -->
@@ -98,6 +119,22 @@
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url }}" />
+
+    <!-- Pagination rel hints for paginated list pages (home / archive / tag / category) -->
+    {% if page.total and page.total > 1 %}
+    {% if page.prev %}
+    <link rel="prev" href="{{ full_url_for(page.prev_link or '/') }}" />
+    {% endif %}
+    {% if page.next %}
+    <link rel="next" href="{{ full_url_for(page.next_link or '/') }}" />
+    {% endif %}
+    {% endif %}
+
+    <!-- Structured data (JSON-LD) -->
+    {% set structured_data_nodes = structured_data(page, config) %}
+    {% if structured_data_nodes.length %}
+    <script type="application/ld+json">{{ js_value(structured_data_nodes) | safe }}</script>
+    {% endif %}
 
     <!-- Favicon -->
     {% if site_favicon %}

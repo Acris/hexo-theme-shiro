@@ -341,7 +341,11 @@ function optimizeImages(html, options) {
             setMissingAttr(attrs, lookup, 'loading', 'lazy');
             setMissingAttr(attrs, lookup, 'fetchpriority', 'auto');
         }
-        setMissingAttr(attrs, lookup, 'sizes', DEFAULT_IMAGE_SIZES);
+        // `sizes` only influences resource selection when a `srcset` is present, so
+        // skip it for plain Markdown images (no srcset) to avoid emitting dead markup.
+        if (getAttr(attrs, lookup, 'srcset')) {
+            setMissingAttr(attrs, lookup, 'sizes', DEFAULT_IMAGE_SIZES);
+        }
 
         const hasWidth = !!getAttr(attrs, lookup, 'width');
         const hasHeight = !!getAttr(attrs, lookup, 'height');
