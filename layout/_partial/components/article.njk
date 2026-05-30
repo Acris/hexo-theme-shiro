@@ -10,7 +10,8 @@
 
 <article class="py-2">
     <header class="text-center mb-8">
-        <h1 class="page-title mb-4" data-pagefind-meta="title">
+        {# data-pagefind-body keeps the title searchable; data-pagefind-meta sets the result title. #}
+        <h1 class="page-title mb-4" data-pagefind-body data-pagefind-meta="title">
             {{ page.title }}
         </h1>
         {% if show_article_meta %}
