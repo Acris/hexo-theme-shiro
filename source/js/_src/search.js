@@ -12,6 +12,8 @@
     let cssLoaded = false;
     let cssLoading = null;
     let lastFocus = null;
+    let inertedNodes = [];
+    let backgroundLocked = false;
     /* global loadAsset */
     // <shiro-asset-loader>
     // Source requires build injection; do not serve this file directly.
@@ -171,6 +173,34 @@
         if (input) { try { input.focus(); } catch (_) {} }
     }
 
+    // Make the rest of the page inert so the Tab focus trap can't escape and screen
+    // readers ignore the background; only attributes we add here are restored on close.
+    function lockBackground() {
+        const body = document.body;
+        if (!body || !modal || backgroundLocked) return;
+        backgroundLocked = true;
+        inertedNodes = [];
+        Array.prototype.forEach.call(body.children, (node) => {
+            if (node === modal) return;
+            const tag = node.tagName;
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'TEMPLATE' || tag === 'NOSCRIPT') return;
+            const entry = { node: node, inert: false, hidden: false };
+            if (!node.hasAttribute('inert')) { node.setAttribute('inert', ''); entry.inert = true; }
+            if (!node.hasAttribute('aria-hidden')) { node.setAttribute('aria-hidden', 'true'); entry.hidden = true; }
+            if (entry.inert || entry.hidden) inertedNodes.push(entry);
+        });
+    }
+
+    function unlockBackground() {
+        if (!backgroundLocked) return;
+        backgroundLocked = false;
+        inertedNodes.forEach((entry) => {
+            if (entry.inert) entry.node.removeAttribute('inert');
+            if (entry.hidden) entry.node.removeAttribute('aria-hidden');
+        });
+        inertedNodes = [];
+    }
+
     function showModal() {
         ensureModal();
         modal.setAttribute('data-open', 'true');
@@ -178,6 +208,8 @@
         // Mark <html> as modal-open so CSS can lock body scroll without
         // mutating inline styles (lets multiple modals coexist cleanly).
         document.documentElement.setAttribute('data-modal-open', 'true');
+        // Inert the background so focus and assistive tech stay inside the dialog.
+        lockBackground();
         // Move focus into the dialog now so it doesn't linger behind the backdrop
         // while Pagefind loads; focusInput takes over once the input mounts.
         const closeBtn = modal.querySelector('.search-modal__close');
@@ -203,6 +235,8 @@
         modal.setAttribute('data-open', 'false');
         modal.setAttribute('aria-hidden', 'true');
         document.documentElement.removeAttribute('data-modal-open');
+        // Lift inert before restoring focus: lastFocus lives in the now-inert background.
+        unlockBackground();
         if (lastFocus && typeof lastFocus.focus === 'function') {
             try { lastFocus.focus(); } catch (_) {}
         }

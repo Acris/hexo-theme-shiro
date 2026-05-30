@@ -21,6 +21,7 @@ nav:
 
 page:
   next: 下一页
+  number: 第 %s 页
   pagination: 分页导航
   prev: 上一页
 

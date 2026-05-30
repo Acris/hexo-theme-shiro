@@ -247,17 +247,27 @@ function countHeadingsInHtml(html) {
 }
 
 function defineAnalysisGetters(analysis, html, textHtml) {
-    let firstImageCache;
+    let firstImageInfoCache;
     let imageCountCache;
     let hasCodeCache;
     let headingCountsCache;
+
+    function firstImageData() {
+        if (firstImageInfoCache === undefined) firstImageInfoCache = firstImageInfo(html);
+        return firstImageInfoCache;
+    }
 
     Object.defineProperties(analysis, {
         firstImage: {
             enumerable: true,
             get() {
-                if (firstImageCache === undefined) firstImageCache = firstImageSrc(html);
-                return firstImageCache;
+                return firstImageData().src;
+            }
+        },
+        firstImageInfo: {
+            enumerable: true,
+            get() {
+                return firstImageData();
             }
         },
         imageCount: {
@@ -613,8 +623,18 @@ hexo.extend.helper.register('build_toc', function (page, tocConfig) {
     return cachedToc(page, tocConfig);
 });
 
-function firstImageSrc(content) {
-    if (!content) return '';
+function imageDimensionAttr(attrs, name) {
+    const value = decodeHtmlEntities(imageAttrValue(attrs, name)).trim();
+    if (!/^\d+$/.test(value)) return 0;
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : 0;
+}
+
+// First usable content image plus the width/height scripts/images.js injected onto it
+// (0 when unknown), reused by og_image and the og:image:width/height meta.
+function firstImageInfo(content) {
+    const empty = { src: '', width: 0, height: 0 };
+    if (!content) return empty;
     const source = String(content);
     const imgRe = HTML_IMAGE_RE;
     imgRe.lastIndex = 0;
@@ -622,19 +642,20 @@ function firstImageSrc(content) {
     while ((img = imgRe.exec(source))) {
         const attrs = img[2];
         if (attrs === undefined) continue;
-        const src = imageAttrValue(attrs, 'src');
-        if (isUsableImageSrcCandidate(src)) {
-            imgRe.lastIndex = 0;
-            return String(src).trim();
-        }
-        const dataSrc = imageAttrValue(attrs, 'data-src');
-        if (isUsableImageSrcCandidate(dataSrc)) {
-            imgRe.lastIndex = 0;
-            return String(dataSrc).trim();
+        for (const name of ['src', 'data-src']) {
+            const value = imageAttrValue(attrs, name);
+            if (isUsableImageSrcCandidate(value)) {
+                imgRe.lastIndex = 0;
+                return {
+                    src: String(value).trim(),
+                    width: imageDimensionAttr(attrs, 'width'),
+                    height: imageDimensionAttr(attrs, 'height')
+                };
+            }
         }
     }
     imgRe.lastIndex = 0;
-    return '';
+    return empty;
 }
 
 function imageAttrValue(attrs, name) {
@@ -933,11 +954,16 @@ hexo.extend.helper.register('copyright_year', function (since) {
 
 hexo.extend.helper.register('build_page_title', function (page, config) {
     const site = config.title || '';
-    if (this.is_home()) return site;
+    // Disambiguate paginated list pages (home/archive/tag/category page 2+), whose
+    // <title> would otherwise be identical to page 1, with a "Page N" label.
+    const current = Number(page && page.current) || 0;
+    const pageLabel = current > 1 ? this.__('page.number', current) : '';
+    const suffix = pageLabel ? ' - ' + pageLabel : '';
+    if (this.is_home()) return pageLabel ? pageLabel + ' | ' + site : site;
     if (page.title) return page.title + ' | ' + site;
-    if (this.is_archive()) return this.__('nav.archives') + (page.year ? ': ' + page.year : '') + ' | ' + site;
-    if (this.is_tag()) return this.__('nav.tags') + (page.tag ? ': ' + page.tag : '') + ' | ' + site;
-    if (this.is_category()) return this.__('nav.categories') + (page.category ? ': ' + page.category : '') + ' | ' + site;
+    if (this.is_archive()) return this.__('nav.archives') + (page.year ? ': ' + page.year : '') + suffix + ' | ' + site;
+    if (this.is_tag()) return this.__('nav.tags') + (page.tag ? ': ' + page.tag : '') + suffix + ' | ' + site;
+    if (this.is_category()) return this.__('nav.categories') + (page.category ? ': ' + page.category : '') + suffix + ' | ' + site;
     return site;
 });
 
@@ -959,14 +985,28 @@ hexo.extend.generator.register('favicon_svg', function () {
     return { path: 'favicon.svg', data: svg };
 });
 
-hexo.extend.helper.register('og_image', function (page) {
-    if (!page) return '';
+function resolveOpenGraphImage(context, page) {
+    if (!page) return { url: '', width: 0, height: 0 };
     const photos = scalarOrCollectionToArray(page.photos);
     for (const photo of photos) {
-        const src = normalizeOpenGraphImageUrl(photo, this, page);
-        if (src) return src;
+        const url = normalizeOpenGraphImageUrl(photo, context, page);
+        if (url) return { url, width: 0, height: 0 };
     }
-    return normalizeOpenGraphImageUrl(this.first_image(page), this, page);
+    const info = pageAnalysis(page).firstImageInfo;
+    const url = normalizeOpenGraphImageUrl(info.src, context, page);
+    return url ? { url, width: info.width, height: info.height } : { url: '', width: 0, height: 0 };
+}
+
+hexo.extend.helper.register('og_image', function (page) {
+    return resolveOpenGraphImage(this, page).url;
+});
+
+// og:image dimensions, reused from the width/height scripts/images.js injects into the
+// rendered content <img>. Null unless both are known (skips remote/photo-sourced images).
+hexo.extend.helper.register('og_image_size', function (page) {
+    const resolved = resolveOpenGraphImage(this, page);
+    if (!resolved.url || resolved.width <= 0 || resolved.height <= 0) return null;
+    return { width: resolved.width, height: resolved.height };
 });
 
 function isoDateString(value) {

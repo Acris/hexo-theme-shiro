@@ -21,6 +21,7 @@ nav:
 
 page:
   next: Suivant
+  number: Page %s
   pagination: Pagination
   prev: Précédent
 
