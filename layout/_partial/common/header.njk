@@ -30,7 +30,7 @@
             <div class="mt-3 sm:mt-4 flex justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="focus-elegant header-pill-btn"
-                    href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener" aria-label="RSS">
+                    href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener noreferrer" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
@@ -42,7 +42,7 @@
                 </button>
                 {% endif %}
                 {% if search_enabled %}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ __('search.button') }}">
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-label="{{ __('search.button') }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}

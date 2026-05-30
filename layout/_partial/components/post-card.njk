@@ -22,7 +22,8 @@
     {% if excerpt.truncated %}
     <div class="mt-6 text-center">
         <a href="{{ url_for(post.path) }}"
-            class="focus-elegant btn-ink">
+            class="focus-elegant btn-ink"
+            aria-label="{{ __('index.read_more') }}: {{ post.title }}">
             {{ __('index.read_more') }}
         </a>
     </div>

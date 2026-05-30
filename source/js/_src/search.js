@@ -178,6 +178,10 @@
         // Mark <html> as modal-open so CSS can lock body scroll without
         // mutating inline styles (lets multiple modals coexist cleanly).
         document.documentElement.setAttribute('data-modal-open', 'true');
+        // Move focus into the dialog now so it doesn't linger behind the backdrop
+        // while Pagefind loads; focusInput takes over once the input mounts.
+        const closeBtn = modal.querySelector('.search-modal__close');
+        if (closeBtn) { try { closeBtn.focus(); } catch (_) {} }
         loadPagefind();
     }
 

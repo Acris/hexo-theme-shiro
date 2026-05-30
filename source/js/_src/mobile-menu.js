@@ -56,4 +56,13 @@
             setOpen(false);
         }
     });
+
+    // Reset state at the desktop breakpoint, where the panel is display:none but
+    // its data-open/aria-expanded would otherwise stay stuck on "true".
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    const resetOnDesktop = () => {
+        if (desktopQuery.matches && panel.dataset.open === 'true') setOpen(false);
+    };
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
+    else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 })();
