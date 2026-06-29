@@ -31,6 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until the brand title font is ready, then gently fades away so the title never visibly swaps fonts.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
+- **MathJax**: Optional TeX math rendering with per-page opt-in CDN loading.
 - **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image stays eager for the initial viewport. LightGallery assets are prefetched ahead of the first click, so the lightbox opens instantly — even on touch devices.
 - **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
 - **Google Analytics**: GA4 support with non-blocking script loading.
@@ -155,6 +156,14 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
+# MathJax TeX rendering. Add `mathjax: true` to a post/page front matter
+# to load MathJax and protect TeX from Markdown escaping on that page.
+mathjax:
+  # MathJax script URL; override to pin, self-host, or change CDN provider.
+  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # Equation numbering: none, ams, or all.
+  tags: none
+
 # Dark mode
 # Default theme: system (follow OS), light, or dark
 # When default is "system", the toggle cycles through 3 states: system → light → dark.
@@ -273,6 +282,27 @@ wish to use them in the menu.
    layout: category
    ---
    ```
+
+### MathJax
+
+Shiro can render TeX formulas with [MathJax](https://www.mathjax.org/) without installing a theme dependency. Configure the script URL and equation numbering in `_config.yml` or `_config.shiro.yml`:
+
+```yaml
+mathjax:
+  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  tags: none
+```
+
+Load MathJax on an individual post/page by adding front matter:
+
+```yaml
+---
+title: Fourier Notes
+mathjax: true
+---
+```
+
+Only pages with `mathjax: true` load the MathJax script. On those pages Shiro protects common TeX math forms before Markdown rendering — `$...$`, `$$...$$`, `\(...\)`, `\[...\]`, and bare math environments such as `\begin{align}...\end{align}` — then restores them after rendering, so Markdown renderers do not strip TeX escapes such as `\[` or `\!` before MathJax sees them. MathJax's `processEscapes` is always enabled, so authors can write escaped dollar signs such as `\$5` without starting inline math.
 
 ### Search
 

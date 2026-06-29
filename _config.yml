@@ -46,6 +46,14 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
+# MathJax TeX rendering. Add `mathjax: true` to a post/page front matter
+# to load MathJax and protect TeX from Markdown escaping on that page.
+mathjax:
+  # MathJax script URL; override to pin, self-host, or change CDN provider.
+  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # Equation numbering: none, ams, or all.
+  tags: none
+
 # Dark mode
 # Default theme: system (follow OS), light, or dark
 # When default is "system", the toggle cycles through 3 states: system → light → dark.

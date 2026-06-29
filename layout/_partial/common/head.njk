@@ -68,6 +68,22 @@
         } catch (_) {}
     })();
     </script>
+    {% if needs_mathjax %}
+    <!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
+         theme/font hints, while still before blocking stylesheets can delay discovery. -->
+    <script data-cfasync="false">
+        window.MathJax = {
+            tex: {
+                inlineMath: {{ js_value([['$', '$'], ['\\(', '\\)']]) | safe }},
+                displayMath: {{ js_value([['$$', '$$'], ['\\[', '\\]']]) | safe }},
+                processEscapes: true,
+                processEnvironments: true,
+                tags: {{ js_value(mathjax_config.tags | default('none', true)) | safe }}
+            }
+        };
+    </script>
+    <script defer data-cfasync="false" src="{{ mathjax_src }}"></script>
+    {% endif %}
     {% for google_fonts_url in google_fonts %}
     {% if loop.first %}
     <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />

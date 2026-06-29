@@ -29,6 +29,7 @@
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **字体加载遮罩**：在品牌标题字体就绪前，用一层主题雾面遮罩盖住页面，配以淡淡的朱红涟漪，随后轻轻淡出，让标题不会出现明显的字体切换。
 - **代码块**：语法高亮，带复制按钮和语言标签。
+- **MathJax**：可选的 TeX 数学公式渲染，通过 front matter 单页开启 CDN 脚本。
 - **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性，文章首图保留 eager 以照顾首屏。LightGallery 资源会提前预取，因此即便是没有悬停的触摸设备也能点击即开。
 - **评论系统**：支持 Disqus 和 giscus（GitHub Discussions）评论系统，接近评论区时按需加载。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
@@ -152,6 +153,14 @@ toc:
   # 显示目录的最少标题数
   min_headings: 3
 
+# MathJax TeX 公式渲染。在文章/页面 front matter 中添加 `mathjax: true`
+# 即可加载 MathJax，并保护 TeX 不被 Markdown 转义改写。
+mathjax:
+  # MathJax 脚本 URL；可覆盖为固定版本、自托管地址或其他 CDN。
+  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # 公式编号：none、ams 或 all。
+  tags: none
+
 # 暗色模式
 # 默认主题：system（跟随系统）、light 或 dark
 # 当默认为 "system" 时，切换按钮在三个状态间循环：系统 → 亮色 → 暗色。
@@ -268,6 +277,27 @@ search:
    layout: category
    ---
    ```
+
+### MathJax
+
+Shiro 可以通过 [MathJax](https://www.mathjax.org/) 渲染 TeX 公式，主题本身不需要额外安装依赖。可在 `_config.yml` 或 `_config.shiro.yml` 中配置脚本 URL 和公式编号：
+
+```yaml
+mathjax:
+  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  tags: none
+```
+
+在需要公式的文章/页面 front matter 中添加：
+
+```yaml
+---
+title: Fourier Notes
+mathjax: true
+---
+```
+
+只有设置 `mathjax: true` 的页面会加载 MathJax 脚本。在这些页面里，Shiro 会在 Markdown 渲染前保护常见 TeX 公式写法：`$...$`、`$$...$$`、`\(...\)`、`\[...\]`，以及 `\begin{align}...\end{align}` 这类裸数学环境，并在渲染后恢复，避免常见 Markdown 渲染器在 MathJax 处理前吃掉 `\[` 或 `\!` 等 TeX 反斜杠转义。MathJax 的 `processEscapes` 始终启用，因此作者可以写转义美元符号（如 `\$5`）而不触发行内公式。
 
 ### 搜索
 

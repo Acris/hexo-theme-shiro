@@ -336,6 +336,15 @@
         }
     }
 
+    /* MathJax v4 modal dialog (<dialog class="mjx-dialog">, e.g. the Explorer
+       help box) centers itself via the browser's default `margin: auto`, but
+       Tailwind Preflight's `*{margin:0}` overrides that and pins the dialog to
+       the top-left corner. Restore the auto margins for this dialog only so it
+       centers again; MathJax's intended `top: -4%` vertical offset is kept. */
+    dialog.mjx-dialog {
+        margin: auto;
+    }
+
     .btn-ink {
         @apply relative inline-flex items-center justify-center overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive;
 
