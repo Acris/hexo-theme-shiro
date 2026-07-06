@@ -1,13 +1,14 @@
 ;(() => {
     'use strict';
 
-    // Font-load preloader: fades #shiroPreloader out once the title font is ready
-    // (or after a short failsafe timeout). A CSS animation dismisses it if this
+    // Font-load preloader: fades #shiroPreloader out once document fonts are ready
+    // (or after a bounded failsafe timeout). A CSS animation dismisses it if this
     // script never runs.
     const overlay = document.getElementById('shiroPreloader');
     if (!overlay) return;
 
-    const storageKey = 'shiro:title-font-ready';
+    const storageKey = 'shiro:fonts-ready';
+    const fontWaitTimeout = 5000;
     const markReady = () => {
         document.documentElement.classList.add('shiro-preloader-done');
         try {
@@ -28,7 +29,10 @@
     };
 
     const hide = (remember) => {
-        if (hidden) return;
+        if (hidden) {
+            if (remember) markReady();
+            return;
+        }
         hidden = true;
         if (failsafe) clearTimeout(failsafe);
 
@@ -46,30 +50,11 @@
         });
     };
 
-    // Failsafe: hide even if font loading never settles (kept shorter than the 2s CSS delay).
-    // On metered/slow links (Save-Data or 2g) the brand font likely won't arrive in time, so
-    // fade out sooner instead of holding content back — mirrors the LightGallery/search warm gate.
-    const slowConnection = () => {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (!connection) return false;
-        return Boolean(connection.saveData) || /(^|-)2g$/.test(connection.effectiveType || '');
-    };
-    failsafe = setTimeout(() => hide(false), slowConnection() ? 600 : 1200);
+    // Failsafe: hide even if font loading never settles.
+    failsafe = setTimeout(() => hide(false), fontWaitTimeout);
 
-    if (document.fonts && document.fonts.load) {
-        // Pass the title text so we wait for its unicode-range chunks.
-        const text = overlay.getAttribute('data-shiro-font-text') || '';
-        let ready;
-        try {
-            ready = document.fonts.load('1em "Yuji Syuku"', text);
-        } catch (error) {
-            ready = null;
-        }
-        if (ready && ready.then) {
-            ready.then(() => hide(true), () => hide(false));
-        } else {
-            document.fonts.ready.then(() => hide(true), () => hide(false));
-        }
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => hide(true), () => hide(false));
     } else if (document.readyState === 'complete') {
         hide(true);
     } else {

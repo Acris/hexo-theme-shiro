@@ -1,7 +1,7 @@
 /* Google Fonts are loaded via <link> tags in layout/_partial/common/head.njk.
- * The critical title + body families share one display=swap request (preloaded in
- * head.njk) so the title and body text stay visible and reliably swap to the brand
- * fonts once ready (scripts/helpers.js → google_font_urls). */
+ * All theme font families share one display=swap request (preloaded in head.njk);
+ * the preloader keeps the page covered until document fonts finish loading or the
+ * bounded timeout fires (scripts/helpers.js → google_font_urls). */
 
 /* ── Cascade layers ──
  *
@@ -223,8 +223,8 @@
         }
     }
 
-    /* Font-load preloader: an opaque veil that hides the title-font (Yuji Syuku)
-       swap, then fades out. A CSS failsafe also dismisses it when JS never runs. */
+    /* Font-load preloader: an opaque veil that hides font loading, then fades out.
+       A CSS failsafe also dismisses it when JS never runs. */
     .shiro-preloader {
         position: fixed;
         inset: 0;
@@ -236,7 +236,7 @@
         opacity: 1;
         visibility: visible;
         background: linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
-        animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 2s forwards;
+        animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 6s forwards;
     }
 
     /* Skip the overlay before first paint on later same-tab navigations.

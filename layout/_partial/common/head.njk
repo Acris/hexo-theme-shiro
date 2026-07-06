@@ -25,8 +25,8 @@
     {% endif %}
     {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
     {% if google_fonts.length %}
-    <!-- Preload the critical (title + body) font stylesheet so it is fetched at highest
-         priority ahead of the blocking theme script, shrinking the swap window.
+    <!-- Preload the bundled theme font stylesheet so it is fetched at highest
+         priority ahead of the blocking theme script, shrinking the hidden wait window.
          Kept as a preload (not a stylesheet) here so it does not delay the theme script. -->
     <link rel="preload" as="style" href="{{ google_fonts[0] | safe }}" />
     {% endif %}
@@ -63,7 +63,7 @@
             else if (darkQuery.addListener) darkQuery.addListener(followSystem);
         }
         try {
-            if (sessionStorage.getItem('shiro:title-font-ready') === '1') {
+            if (sessionStorage.getItem('shiro:fonts-ready') === '1') {
                 html.classList.add('shiro-preloader-done');
             }
         } catch (_) {}
@@ -86,14 +86,7 @@
     <script defer data-cfasync="false" src="{{ mathjax_src }}"></script>
     {% endif %}
     {% for google_fonts_url in google_fonts %}
-    {% if loop.first %}
     <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />
-    {% else %}
-    <!-- Non-critical (display=optional) font stylesheets load async so they never block first
-         paint or compete with the critical title+body stylesheet above. -->
-    <link rel="preload" as="style" href="{{ google_fonts_url | safe }}" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="{{ google_fonts_url | safe }}" /></noscript>
-    {% endif %}
     {% endfor %}
     {# --- SEO Variables --- #}
     {% set page_title = build_page_title(page, config) %}

@@ -29,7 +29,7 @@ Made by Acris with ❤️
 - **Table of Contents**: Build-time generated sidebar TOC for articles with configurable heading depth; client JavaScript only handles folding and active-section highlighting.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Back to Top**: Smooth scroll back-to-top button.
-- **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until the brand title font is ready, then gently fades away so the title never visibly swaps fonts.
+- **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until document fonts are ready, with a bounded timeout so a slow font CDN cannot hold the page indefinitely.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **MathJax**: Optional TeX math rendering with per-page opt-in CDN loading.
 - **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image stays eager for the initial viewport. LightGallery assets are prefetched ahead of the first click, so the lightbox opens instantly — even on touch devices.
