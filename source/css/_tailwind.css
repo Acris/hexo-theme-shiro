@@ -77,6 +77,12 @@
     --shadow-ink: 0 4px 12px rgba(16, 24, 40, 0.14);
     --shadow-ink-pressed: 0 2px 8px rgba(16, 24, 40, 0.12);
     --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    /* Narrowest viewport where the fixed sidebar TOC fits beside the paper card
+     * without overlapping it: 56rem card + 2 × (12.5rem panel + 1.25rem gap +
+     * 1rem viewport margin) = 85.5rem. Keep in sync with the .toc-sidebar
+     * geometry in source/css/_src/toc.css. */
+    --breakpoint-toc: 85.5rem;
 }
 
 @utility transition-menu {
