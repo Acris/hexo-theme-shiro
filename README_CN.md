@@ -153,6 +153,12 @@ toc:
   # 显示目录的最少标题数
   min_headings: 3
 
+# LightGallery 图片灯箱。官方项目名使用大写 G。
+lightGallery:
+  enabled: true
+  css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
+  js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
+
 # MathJax TeX 公式渲染。在文章/页面 front matter 中添加 `mathjax: true`
 # 即可加载 MathJax，并保护 TeX 不被 Markdown 转义改写。
 mathjax:
@@ -277,6 +283,17 @@ search:
    layout: category
    ---
    ```
+
+### LightGallery
+
+Shiro 默认会在包含图片的文章/页面中启用图片灯箱。你可以在 `_config.yml` / `_config.shiro.yml` 中关闭它，或替换 LightGallery CDN URL：
+
+```yaml
+lightGallery:
+  enabled: true
+  css: https://cdn.example.com/npm/lightgallery@2.9.0/css/lightgallery.min.css
+  js: https://cdn.example.com/npm/lightgallery@2.9.0/lightgallery.min.js
+```
 
 ### MathJax
 

@@ -1,10 +1,11 @@
 ;(() => {
     'use strict';
 
-    const cssHref = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
-    const cssIntegrity = 'sha384-YlypU+LX5577RgeZebpBZTy28roXf0lHGaOSxrroczh16ktxM0BoAMPXsrehqxx8';
-    const jsSrc = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
-    const jsIntegrity = 'sha384-yshhQEAY0bBxbxfLyRlLQ7v1z45XofL6adlFh192s2NpDzXS+HPKjXoloaHiNcYO';
+    const configValue = (key, fallback) => (
+        Object.prototype.hasOwnProperty.call(window, key) ? window[key] : fallback
+    );
+    const cssHref = configValue('__lightgalleryCss', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css');
+    const jsSrc = configValue('__lightgalleryJs', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js');
     const themeCssHref = window.__lightgalleryThemeCss || '';
 
     let assetsLoading = null;
@@ -20,8 +21,6 @@
         return loadAsset('link', {
             rel: 'stylesheet',
             href: cssHref,
-            integrity: cssIntegrity,
-            crossorigin: 'anonymous',
             'data-shiro-lightgallery-css': 'true'
         }, 'link[data-shiro-lightgallery-css]');
     }
@@ -41,8 +40,6 @@
         }
         return loadAsset('script', {
             src: jsSrc,
-            integrity: jsIntegrity,
-            crossorigin: 'anonymous',
             async: true,
             'data-shiro-lightgallery-js': 'true'
         }, 'script[data-shiro-lightgallery-js]');

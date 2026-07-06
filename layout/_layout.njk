@@ -1,6 +1,7 @@
 <!doctype html>
 {% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n with context %}
 {% set site_config = theme.site or {} %}
+{% set lightgallery_config = theme.lightGallery or {} %}
 {% set toc_config = theme.toc or {} %}
 {% set mathjax_config = theme.mathjax or {} %}
 {% set search_config = theme.search or {} %}
@@ -20,7 +21,15 @@
 {% set needs_toc = toc_config.enabled != false and (is_post() or is_page()) and should_render_toc(page, toc_config) %}
 {% set needs_mathjax = (is_post() or is_page()) and page.mathjax == true %}
 {% set mathjax_src = safe_resource_url_for(mathjax_config.src, 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js') if needs_mathjax else '' %}
-{% set needs_lightgallery = (is_post() or is_page()) and has_images(page) %}
+{% set needs_lightgallery = lightgallery_config.enabled != false and (is_post() or is_page()) and has_images(page) %}
+{% set lightgallery_default_js = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js' %}
+{% set lightgallery_default_css = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css' %}
+{% set lightgallery_raw_js = lightgallery_config.js | default(lightgallery_default_js, true) %}
+{% set lightgallery_raw_css = lightgallery_config.css | default(lightgallery_default_css, true) %}
+{% set lightgallery_js_url = safe_resource_url_for(lightgallery_raw_js, lightgallery_default_js) if needs_lightgallery else '' %}
+{% set lightgallery_css_url = safe_resource_url_for(lightgallery_raw_css, lightgallery_default_css) if needs_lightgallery else '' %}
+{% set lightgallery_preconnect_fallback = resource_origin_for(lightgallery_js_url) if needs_lightgallery else '' %}
+{% set lightgallery_preconnect_url = lightgallery_preconnect_fallback if needs_lightgallery else '' %}
 <html lang="{{ page_lang }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
@@ -108,6 +117,8 @@
             visit_source: __('gallery.visit_source')
         }) }}
         {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
+        {{ feature_var('__lightgalleryCss', lightgallery_css_url) }}
+        {{ feature_var('__lightgalleryJs', lightgallery_js_url) }}
         {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
         {% if needs_code %}

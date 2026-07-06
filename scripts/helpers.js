@@ -1071,6 +1071,16 @@ function fontFamilyParam(name, weights) {
     return 'family=' + family + (weights && weights.length ? ':wght@' + weights.join(';') : '');
 }
 
+function resourceOrigin(value) {
+    const text = normalizedUrlText(value);
+    if (!text || !/^(?:https?:)?\/\//i.test(text)) return '';
+    try {
+        return new URL(text.indexOf('//') === 0 ? 'https:' + text : text).origin;
+    } catch (_) {
+        return '';
+    }
+}
+
 function googleFontUrl(families, display) {
     const params = families.map(item => fontFamilyParam(item.name, item.weights));
     params.push('display=' + display);
@@ -1171,6 +1181,10 @@ hexo.extend.helper.register('safe_url_for', function (value, fallback) {
 
 hexo.extend.helper.register('safe_resource_url_for', function (value, fallback, options) {
     return safeResourceUrl(value, this, fallback, options);
+});
+
+hexo.extend.helper.register('resource_origin_for', function (value, fallback) {
+    return resourceOrigin(safeResourceUrl(value, this, fallback || ''));
 });
 
 hexo.extend.helper.register('link_target', function (value) {

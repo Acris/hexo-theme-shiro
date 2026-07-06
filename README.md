@@ -156,6 +156,12 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
+# LightGallery image lightbox. The official project name uses a capital G.
+lightGallery:
+  enabled: true
+  css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
+  js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
+
 # MathJax TeX rendering. Add `mathjax: true` to a post/page front matter
 # to load MathJax and protect TeX from Markdown escaping on that page.
 mathjax:
@@ -282,6 +288,17 @@ wish to use them in the menu.
    layout: category
    ---
    ```
+
+### LightGallery
+
+Shiro enables the image lightbox by default on post/page content that contains images. You can disable it or replace the LightGallery CDN URLs in `_config.yml` / `_config.shiro.yml`:
+
+```yaml
+lightGallery:
+  enabled: true
+  css: https://cdn.example.com/npm/lightgallery@2.9.0/css/lightgallery.min.css
+  js: https://cdn.example.com/npm/lightgallery@2.9.0/lightgallery.min.js
+```
 
 ### MathJax
 
