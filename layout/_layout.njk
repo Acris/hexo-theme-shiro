@@ -87,28 +87,38 @@
         </svg>
     </button>
     {% endif %}
+    {% if search_enabled %}
+    {# Default instance; no host id (Pagefind would copy it onto the internal dialog).
+       Expanded so pagefind-input can take search.placeholder. Bootstrap forces the
+       light-DOM dialog id to shiroSearchDialog (aria-controls) and syncs scroll-lock
+       chrome from pagefind-modal.isOpen while open. #}
+    <div class="shiro-search-components" data-pagefind-ignore>
+        <pagefind-config bundle-path="{{ url_for('/pagefind/') }}"{% if search_config.force_language %} lang="{{ search_config.force_language }}"{% endif %}></pagefind-config>
+        <pagefind-modal reset-on-close>
+            <pagefind-modal-header>
+                <pagefind-input placeholder="{{ __('search.placeholder') }}"></pagefind-input>
+            </pagefind-modal-header>
+            <pagefind-modal-body>
+                <pagefind-summary></pagefind-summary>
+                <pagefind-results></pagefind-results>
+            </pagefind-modal-body>
+            <pagefind-modal-footer>
+                <pagefind-keyboard-hints></pagefind-keyboard-hints>
+            </pagefind-modal-footer>
+        </pagefind-modal>
+    </div>
+    {% endif %}
 
     <!-- Scripts -->
     {% set needs_mobile_menu = menu_items.length %}
     {% if search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     <script>
-        {% if search_enabled or needs_lightgallery or needs_code %}
+        {% if needs_lightgallery or needs_code %}
         window.__i18n = window.__i18n || {};
         {% endif %}
         {% if search_enabled %}
-        {{ feature_i18n('search', {
-            button: __('search.button'),
-            close: __('search.close'),
-            loading: __('search.loading'),
-            many_results: __('search.many_results'),
-            one_result: __('search.one_result'),
-            placeholder: __('search.placeholder'),
-            unavailable: __('search.unavailable'),
-            zero_results: __('search.zero_results')
-        }) }}
         {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}
         {{ feature_var('__searchCss', versioned_url('css/search.min.css')) }}
-        {{ feature_var('__searchScript', versioned_url('js/search.min.js')) }}
         {% endif %}
         {% if needs_lightgallery %}
         {{ feature_i18n('gallery', {

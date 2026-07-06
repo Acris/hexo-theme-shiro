@@ -1,163 +1,66 @@
-/* Search modal and Pagefind UI accents.
-   Loaded only when search.enabled is true. */
+/* Pagefind Component UI accents (modal only).
+   Lazy-loaded with the Component UI bundle when search is opened or warmed.
+   The header control is a native .header-pill-btn + icon_search (full hit area);
+   scroll-lock chrome is owned by search-bootstrap.js (isOpen poll + data-modal-open);
+   theming here is for the modal shell, results, and marks. */
 
-.search-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: clamp(1rem, 8vh, 5rem) 1rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s var(--ease-soft);
-    overscroll-behavior: contain;
+.shiro-search-components {
+    --pf-text: var(--color-text-body);
+    --pf-text-secondary: var(--color-text-muted);
+    --pf-text-muted: var(--color-text-subtle);
+    --pf-background: var(--color-paper);
+    --pf-border: var(--color-soft-border);
+    --pf-border-focus: var(--color-seal);
+    --pf-skeleton: var(--color-bg-inset);
+    --pf-skeleton-shine: var(--color-bg-overlay);
+    --pf-hover: var(--color-bg-inset);
+    --pf-mark: var(--color-seal);
+    --pf-scroll-shadow: rgba(15, 23, 42, 0.08);
+    --pf-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.08);
+    --pf-shadow-md: 0 10px 30px rgba(16, 24, 40, 0.10);
+    --pf-shadow-lg: var(--shadow-paper);
+    --pf-error-bg: color-mix(in srgb, var(--color-seal) 8%, var(--color-paper));
+    --pf-error-border: color-mix(in srgb, var(--color-seal) 28%, var(--color-soft-border));
+    --pf-error-text: var(--color-seal);
+    --pf-error-text-secondary: color-mix(in srgb, var(--color-seal) 80%, var(--color-text-body));
+    --pf-outline-focus: var(--color-seal);
+    --pf-outline-width: 2px;
+    --pf-outline-offset: 2px;
+    --pf-font: var(--font-serif);
+    --pf-input-height: 2.75rem;
+    --pf-input-font-size: 1rem;
+    --pf-summary-font-size: 0.78rem;
+    --pf-result-title-font-size: 0.95rem;
+    --pf-result-excerpt-font-size: 0.875rem;
+    --pf-results-gap: 0.5rem;
+    --pf-border-radius: 0.5rem;
+    --pf-image-width: 0;
+    --pf-image-height: 0;
+    --pf-modal-backdrop: color-mix(in srgb, var(--color-ink) 28%, transparent);
+    --pf-modal-max-width: 38rem;
+    --pf-modal-max-height: min(82dvh, 44rem);
+    --pf-modal-top: clamp(1rem, 8vh, 5rem);
 }
 
-.search-modal[data-open="true"] {
-    opacity: 1;
-    pointer-events: auto;
+/* Site theme only; Pagefind built-in dark UI still uses data-pf-theme (set in head/theme-toggle). */
+html[data-theme="dark"] .shiro-search-components {
+    --pf-scroll-shadow: rgba(255, 255, 255, 0.10);
+    --pf-skeleton-shine: color-mix(in srgb, var(--color-text-subtle) 8%, transparent);
+    --pf-modal-backdrop: color-mix(in srgb, #000 55%, transparent);
 }
 
-.search-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    background: color-mix(in srgb, var(--color-ink) 28%, transparent);
-    backdrop-filter: blur(6px) saturate(120%);
-    -webkit-backdrop-filter: blur(6px) saturate(120%);
-}
-
-html[data-theme="dark"] .search-modal__backdrop {
-    background: color-mix(in srgb, #000 55%, transparent);
-}
-
-.search-modal__panel {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 38rem;
-    max-height: 100%;
-    background: var(--color-paper);
-    color: var(--color-text-body);
-    border: 1px solid var(--color-soft-border);
-    border-radius: 0.875rem;
-    box-shadow: var(--shadow-paper);
-    transform: translateY(-0.5rem);
-    transition: transform 0.2s var(--ease-soft);
-
-    --pagefind-ui-primary: var(--color-seal);
-    --pagefind-ui-text: var(--color-text-body);
-    --pagefind-ui-background: var(--color-paper);
-    --pagefind-ui-border: var(--color-soft-border);
-    --pagefind-ui-tag: var(--color-bg-inset);
-    --pagefind-ui-font: var(--font-serif);
-    --pagefind-ui-border-width: 1px;
-    --pagefind-ui-border-radius: 0.5rem;
-    --pagefind-ui-scale: 1;
-}
-
-.search-modal[data-open="true"] .search-modal__panel {
-    transform: translateY(0);
-}
-
-.search-modal__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid var(--color-soft-border);
-}
-
-.search-modal__title {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: var(--color-text-heading);
-    text-transform: uppercase;
-}
-
-.search-modal__title::before {
-    content: "";
-    display: inline-block;
-    width: 0.4rem;
-    height: 0.4rem;
-    margin-right: 0.55rem;
-    vertical-align: 0.15em;
-    background: var(--color-seal);
-    border-radius: 9999px;
-}
-
-.search-modal__close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    padding: 0;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 9999px;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    transition: 0.15s var(--ease-soft);
-    transition-property: color, background-color, border-color;
-}
-
-.search-modal__close:hover {
+.shiro-search-components mark {
+    background: color-mix(in srgb, var(--color-seal) 16%, transparent);
     color: var(--color-seal);
-    background: var(--color-bg-inset);
-    border-color: var(--color-soft-border);
-}
-
-.search-modal__close svg {
-    width: 1rem;
-    height: 1rem;
-}
-
-.search-modal__body {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0.75rem 1.25rem 1rem;
-}
-
-.search-modal__status {
-    margin: 1rem 0;
-    color: var(--color-text-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-}
-
-.search-modal .pagefind-ui__search-input:focus,
-.search-modal .pagefind-ui__search-input:focus-visible {
-    outline: none;
-    border-color: var(--color-seal);
-    box-shadow: inset 0 0 0 2px var(--color-seal);
-}
-
-.search-modal .pagefind-ui__result-link:hover {
-    color: var(--color-seal);
-}
-
-.search-modal .pagefind-ui__result mark,
-.search-modal .pagefind-ui__result-excerpt mark {
-    background: color-mix(in srgb, var(--color-seal) 18%, transparent);
-    color: var(--color-seal);
-    font-weight: 600;
-    border-radius: 0.15rem;
+    border-radius: 0.125rem;
     padding: 0 0.1rem;
+    font-weight: 600;
 }
 
-.search-modal .pagefind-ui__result-nested .pagefind-ui__result-link::before {
-    color: var(--color-seal);
+.shiro-search-components a {
+    transition: color 0.15s var(--ease-soft);
 }
 
-.search-modal .pagefind-ui__button:hover {
+.shiro-search-components a:hover {
     color: var(--color-seal);
-    border-color: color-mix(in srgb, var(--color-seal) 45%, var(--color-soft-border));
 }

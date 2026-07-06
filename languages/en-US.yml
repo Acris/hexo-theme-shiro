@@ -26,14 +26,8 @@ page:
   prev: Previous
 
 search:
-  button: Search
-  close: Close
-  loading: Loading...
-  many_results: '[COUNT] results for "[SEARCH_TERM]"'
-  one_result: '[COUNT] result for "[SEARCH_TERM]"'
   placeholder: Search posts...
-  unavailable: Search is temporarily unavailable.
-  zero_results: No results for "[SEARCH_TERM]"
+  trigger: Search
 
 theme:
   dark: Dark

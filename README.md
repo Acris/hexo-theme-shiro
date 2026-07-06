@@ -38,7 +38,7 @@ Made by Acris with ❤️
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **SEO-friendly**: Per-page meta description, Open Graph (with `article:*`, `og:locale`, and `og:image` width/height) and Twitter Card tags, canonical plus paginated `rel=prev`/`rel=next` links (paginated `<title>`s carry a page number so they aren't duplicates of page 1), and schema.org JSON-LD (`BlogPosting` for posts, `WebSite` for the home page).
 - **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
-- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) — index is generated automatically after `hexo generate`, no external service required. Search assets are prefetched and warmed ahead of the first click, so the search box opens instantly — even on touch devices.
+- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) Component UI — index is generated automatically after `hexo generate`, no external service required. A header pill button (same style as RSS / theme toggle) opens the modal; `/` and asset warm-up are handled by a tiny bootstrap script so Component UI stays off the critical path.
 - **Fast**: Optimized for performance with minimal JavaScript, cached build-time page analysis, and content image loading/size hints.
 
 ## Installation
@@ -246,12 +246,11 @@ analytics:
     # e.g., "G-XXXXXXXXXX"
     id: ""
 
-# Site search powered by Pagefind (https://pagefind.app/)
+# Site search powered by Pagefind (https://pagefind.app/) Component UI.
 # Index is built automatically after `hexo generate` and written to `public/pagefind/`.
-# Strongly recommended: install Pagefind as a site-level devDependency:
-# `npm install pagefind --save-dev`
-# Without it the hook falls back to `npx --yes pagefind`, which may download during
-# `hexo generate` and noticeably slow builds or fail in offline CI.
+# Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
+#   npm install pagefind --save-dev
+# Generation fails with an install hint if Pagefind is missing or too old.
 search:
   enabled: false
   # Pagefind document root selector. Defaults to body to tolerate generated pages
@@ -323,17 +322,19 @@ Only pages with `mathjax: true` load the MathJax script. On those pages Shiro pr
 
 ### Search
 
-Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically after `hexo generate`, so you do not need to run a separate search command before publishing generated output.
+Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/) Component UI. The index is generated automatically after `hexo generate`, so you do not need to run a separate search command before publishing generated output.
 
-**npm install (strongly recommended)**
+**npm install (required when search is enabled)**
 
-For the fastest and most reproducible builds, install Pagefind as a devDependency in your **site root** (not the theme directory):
+When `search.enabled: true`, install Pagefind 1.5.0+ as a devDependency in your **site root** (not the theme directory):
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-This is recommended for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. After that, `hexo g` resolves Pagefind from your site's `node_modules` automatically. If Pagefind is not installed, the build hook falls back to `npx --yes pagefind`, which can download during `hexo generate`, noticeably slow the build, and fail in offline CI. When `search.enabled: true`, indexing failures fail Hexo generation so broken search is caught before publishing. Treat the `npx` fallback as an emergency convenience path, not a setup for regular publishing.
+This is required for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. There is no `npx` fallback: if Pagefind is missing, or older than 1.5.0, `hexo generate` / `hexo deploy` fails with an install hint so broken search is caught before publishing. Shiro uses Pagefind's Component UI assets (`pagefind-component-ui.js` / `pagefind-component-ui.css`), which need 1.5.0+.
+
+Most search UI strings (summary, empty results, keyboard hints) use Pagefind's built-in translations from `<html lang>` (or `search.force_language`). The theme localizes the header button label (`search.trigger`) and the modal input placeholder (`search.placeholder`) in `languages/`.
 
 **Configuration (`_config.yml` / `_config.shiro.yml`)**
 
@@ -343,12 +344,13 @@ search:
   # Pagefind document root selector. Defaults to body to tolerate generated pages
   # without an outer <html> element; set to html to keep Pagefind's default.
   root_selector: body
-  # Force language for tokenization (auto-detected from <html lang> by default).
+  # Force language for tokenization and Component UI translations
+  # (auto-detected from <html lang> by default).
   # Override only if Pagefind fails to detect your site language correctly.
   # force_language: zh
 ```
 
-Set `search.enabled: false` to disable the feature: the build hook is skipped and the search button is not rendered.
+Set `search.enabled: false` to disable the feature: the build hook is skipped and the search trigger is not rendered.
 
 **Local preview**
 

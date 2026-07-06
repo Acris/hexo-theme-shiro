@@ -136,17 +136,18 @@ analytics:
     # e.g., "G-XXXXXXXXXX"
     id: ""
 
-# Site search powered by Pagefind (https://pagefind.app/)
+# Site search powered by Pagefind (https://pagefind.app/) Component UI.
 # Index is built automatically after `hexo generate` and written to `public/pagefind/`.
-# Strongly recommended: install Pagefind as a site-level devDependency:
-# `npm install pagefind --save-dev`
-# Without it the hook falls back to `npx --yes pagefind`, which may download during
-# `hexo generate` and noticeably slow builds or fail in offline CI.
+# Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
+#   npm install pagefind --save-dev
+# Generation fails with an install hint if Pagefind is missing or too old.
+# Component UI CSS/JS are prefetched and injected on idle / first trigger intent.
 search:
   enabled: false
   # Pagefind document root selector. Defaults to body to tolerate generated pages
   # without an outer <html> element; set to html to keep Pagefind's default.
   root_selector: body
-  # Force language for tokenization (auto-detected from <html lang> by default).
+  # Force language for tokenization and Component UI translations
+  # (auto-detected from <html lang> by default).
   # Override only if Pagefind fails to detect your site language correctly.
   # force_language: zh

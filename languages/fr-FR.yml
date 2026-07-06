@@ -26,14 +26,8 @@ page:
   prev: Précédent
 
 search:
-  button: Rechercher
-  close: Fermer
-  loading: Chargement…
-  many_results: '[COUNT] résultats pour « [SEARCH_TERM] »'
-  one_result: '[COUNT] résultat pour « [SEARCH_TERM] »'
   placeholder: Rechercher des articles…
-  unavailable: La recherche est temporairement indisponible.
-  zero_results: Aucun résultat pour « [SEARCH_TERM] »
+  trigger: Rechercher
 
 theme:
   dark: Sombre

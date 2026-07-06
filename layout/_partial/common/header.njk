@@ -27,7 +27,9 @@
                 {{ config.subtitle }}
             </p>
             {% endif %}
-            <div class="mt-3 sm:mt-4 flex justify-center gap-2">
+            {% set has_header_actions = rss_config.enabled or dark_mode_toggle or search_enabled %}
+            {% if has_header_actions %}
+            <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="focus-elegant header-pill-btn"
                     href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener noreferrer" aria-label="RSS">
@@ -42,11 +44,13 @@
                 </button>
                 {% endif %}
                 {% if search_enabled %}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-label="{{ __('search.button') }}">
+                {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ __('search.trigger') }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
     </div>
 </header>

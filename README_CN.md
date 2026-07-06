@@ -36,7 +36,7 @@
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **SEO 友好**：为每个页面输出 meta 描述、Open Graph（含 `article:*`、`og:locale` 与 `og:image` 宽高）与 Twitter Card 标签、canonical 及分页 `rel=prev`/`rel=next` 链接（分页页面的 `<title>` 带页码，避免与第 1 页重复），以及 schema.org JSON-LD（文章页用 `BlogPosting`，首页用 `WebSite`）。
 - **印章**：可选的装饰性朱红印章图标显示在页头，可通过 `seal_text` 自定义印章文字。
-- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——`hexo generate` 之后自动生成索引，无需任何外部服务。搜索资源会提前预取并预热，因此即便是没有悬停的触摸设备也能点击即开。
+- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) Component UI 的静态站内搜索——`hexo generate` 之后自动生成索引，无需任何外部服务。页头使用与 RSS / 主题切换同风格的 pill 按钮打开弹窗；`/` 快捷键与资源预热由轻量 bootstrap 处理，Component UI 不占用首屏关键路径。
 - **快速**：优化性能，最小化 JavaScript，并在构建期缓存页面分析、补充正文图片加载与尺寸提示。
 
 ## 安装
@@ -242,12 +242,11 @@ analytics:
     # 例如 "G-XXXXXXXXXX"
     id: ""
 
-# 站内搜索，由 Pagefind 提供（https://pagefind.app/）
+# 站内搜索，由 Pagefind Component UI 提供（https://pagefind.app/）
 # 索引会在 `hexo generate` 之后自动构建并写入 `public/pagefind/`。
-# 强烈建议将 Pagefind 安装为站点级 devDependency：
-# `npm install pagefind --save-dev`
-# 若未安装，钩子会回退到 `npx --yes pagefind`，可能在 `hexo generate`
-# 期间联网下载，明显拖慢构建，或在离线 CI 中失败。
+# 启用搜索时必须安装 Pagefind 1.5.0+ 为站点级 devDependency：
+#   npm install pagefind --save-dev
+# 若未安装或版本过旧，生成会失败并提示安装。
 search:
   enabled: false
   # Pagefind 文档根选择器。默认使用 body，以兼容缺少外层 <html> 的生成页；
@@ -318,17 +317,19 @@ mathjax: true
 
 ### 搜索
 
-Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成；发布已生成的输出前，无需再单独运行搜索索引命令。
+Shiro 内置基于 [Pagefind](https://pagefind.app/) Component UI 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成；发布已生成的输出前，无需再单独运行搜索索引命令。
 
-**npm 安装（强烈推荐）**
+**npm 安装（启用搜索时必须）**
 
-为了让构建更快、更稳定、也更适合 CI，请将 Pagefind 作为 devDependency 安装到 **站点根目录**（不是主题目录）：
+当 `search.enabled: true` 时，必须将 Pagefind 1.5.0+ 作为 devDependency 安装到 **站点根目录**（不是主题目录）：
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-无论你通过 `npm i hexo-theme-shiro` 安装主题，还是以 `git clone` 方式将主题放在 `themes/shiro/`，都建议这样做。之后 `hexo g` 会自动从站点的 `node_modules` 解析 Pagefind。若没有安装 Pagefind，构建钩子会回退到 `npx --yes pagefind`，可能在 `hexo generate` 期间联网下载，明显拖慢构建，并在离线 CI 中失败。当 `search.enabled: true` 时，索引失败会让 Hexo 生成失败，以便发布前发现搜索不可用。这个 `npx` fallback 只适合作为临时兜底，不应作为日常发布方案。
+无论你通过 `npm i hexo-theme-shiro` 安装主题，还是以 `git clone` 方式将主题放在 `themes/shiro/`，都需要这样做。主题**不会**再回退到 `npx`：若未安装 Pagefind，或版本低于 1.5.0，`hexo generate` / `hexo deploy` 会直接失败并给出安装提示，以便发布前发现搜索不可用。Shiro 使用 Pagefind 的 Component UI 资产（`pagefind-component-ui.js` / `pagefind-component-ui.css`），需要 1.5.0+。
+
+多数搜索 UI 文案（结果摘要、空结果、键盘提示）使用 Pagefind 内置翻译，语言来自 `<html lang>`（或 `search.force_language`）。主题在 `languages/` 中本地化页头按钮标签（`search.trigger`）与弹层输入框占位（`search.placeholder`）。
 
 **配置（`_config.yml` / `_config.shiro.yml`）**
 
@@ -338,12 +339,12 @@ search:
   # Pagefind 文档根选择器。默认使用 body，以兼容缺少外层 <html> 的生成页；
   # 若想保持 Pagefind 默认行为，可设为 html。
   root_selector: body
-  # 强制指定分词语言（默认从 <html lang> 自动检测）。
+  # 强制指定分词语言与 Component UI 翻译（默认从 <html lang> 自动检测）。
   # 仅当 Pagefind 无法正确识别站点语言时才需要覆盖。
   # force_language: zh
 ```
 
-将 `search.enabled` 设为 `false` 即可关闭：构建钩子被跳过，搜索按钮也不会渲染。
+将 `search.enabled` 设为 `false` 即可关闭：构建钩子被跳过，搜索触发器也不会渲染。
 
 **本地预览**
 

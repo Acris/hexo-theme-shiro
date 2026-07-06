@@ -4,65 +4,69 @@ const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
+// Component UI assets require Pagefind 1.5.0+.
+const MIN_PAGEFIND_VERSION = '1.5.0';
+
 function uniqueDirs(dirs) {
     return Array.from(new Set(dirs.filter(Boolean).map(dir => path.resolve(dir))));
 }
 
-function localPagefindBin(searchDirs) {
-    const binName = process.platform === 'win32' ? 'pagefind.cmd' : 'pagefind';
-    for (const dir of searchDirs) {
-        const binPath = path.join(dir, 'node_modules', '.bin', binName);
-        if (fs.existsSync(binPath)) return binPath;
-    }
-    return '';
+function searchDirsFor(baseDir) {
+    return uniqueDirs([baseDir, process.cwd(), path.join(__dirname, '..')]);
 }
 
-function packageCommand(pkgPath) {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+function readPackage(pkgPath) {
+    try {
+        return JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    } catch (error) {
+        throw new Error('failed to read pagefind package at ' + pkgPath + ': ' + (error && error.message ? error.message : error));
+    }
+}
+
+// Resolve from pagefind/package.json only (bin + version). Returns null if missing.
+function commandFromPackage(pkgPath) {
+    const pkg = readPackage(pkgPath);
     const binRel = typeof pkg.bin === 'string' ? pkg.bin : (pkg.bin && pkg.bin.pagefind);
-    if (!binRel) throw new Error('pagefind bin not declared');
+    if (!binRel) throw new Error('pagefind bin not declared in ' + pkgPath);
 
     return {
         command: process.execPath,
         args: [path.join(path.dirname(pkgPath), binRel)],
-        source: 'local'
+        version: pkg.version || ''
     };
 }
 
-function pagefindCommand(baseDir) {
-    const searchDirs = uniqueDirs([baseDir, process.cwd(), path.join(__dirname, '..')]);
-    const binPath = localPagefindBin(searchDirs);
-    if (binPath) {
-        return {
-            command: binPath,
-            args: [],
-            source: 'local',
-            checkedDirs: searchDirs
-        };
-    }
-
+function resolveLocalPagefind(searchDirs) {
     for (const dir of searchDirs) {
         const pkgPath = path.join(dir, 'node_modules', 'pagefind', 'package.json');
-        if (fs.existsSync(pkgPath)) {
-            const command = packageCommand(pkgPath);
-            command.checkedDirs = searchDirs;
-            return command;
-        }
+        if (fs.existsSync(pkgPath)) return commandFromPackage(pkgPath);
     }
 
     try {
         const pkgPath = require.resolve('pagefind/package.json', { paths: searchDirs });
-        const command = packageCommand(pkgPath);
-        command.checkedDirs = searchDirs;
-        return command;
-    } catch (_) {
-        return {
-            command: process.platform === 'win32' ? 'npx.cmd' : 'npx',
-            args: ['--yes', 'pagefind'],
-            source: 'npx',
-            checkedDirs: searchDirs
-        };
+        return commandFromPackage(pkgPath);
+    } catch (error) {
+        if (error && error.code === 'MODULE_NOT_FOUND') return null;
+        throw error;
     }
+}
+
+function versionParts(version) {
+    const match = String(version || '').match(/^(\d+)\.(\d+)\.(\d+)/);
+    if (!match) return null;
+    return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+function versionAtLeast(version, minimum) {
+    const current = versionParts(version);
+    const target = versionParts(minimum);
+    if (!current || !target) return false;
+
+    for (let i = 0; i < target.length; i += 1) {
+        if (current[i] > target[i]) return true;
+        if (current[i] < target[i]) return false;
+    }
+    return true;
 }
 
 function runPagefind(args, command) {
@@ -78,10 +82,11 @@ function pushStringArg(args, flag, value) {
     if (text) args.push(flag, text);
 }
 
-// Run Pagefind after Hexo has finished writing files to `public/`.
-// `after_generate` filter fires *before* the generate console writes routes to
-// disk, so we hook `before_exit` (which Hexo runs after the console command
-// completes) and limit it to commands that actually produce `public/`.
+function installHint() {
+    return 'Install Pagefind ' + MIN_PAGEFIND_VERSION + '+ in your site root with `npm install pagefind --save-dev`, or set search.enabled: false.';
+}
+
+// after_generate runs before routes are written; hook before_exit after generate/deploy.
 hexo.extend.filter.register('before_exit', function () {
     const hexoCmd = (hexo.env && hexo.env.cmd) || '';
     if (!/^(generate|g|deploy|d)$/.test(hexoCmd)) return;
@@ -95,23 +100,26 @@ hexo.extend.filter.register('before_exit', function () {
         throw new Error('[pagefind] public dir not found: ' + publicDir);
     }
 
+    const searchDirs = searchDirsFor(hexo.base_dir);
+    const command = resolveLocalPagefind(searchDirs);
+    if (!command) {
+        throw new Error('[pagefind] search.enabled is true but Pagefind was not found in: ' + searchDirs.join(', ') + '. ' + installHint());
+    }
+    if (!versionAtLeast(command.version, MIN_PAGEFIND_VERSION)) {
+        throw new Error('[pagefind] Pagefind ' + (command.version || 'unknown') + ' is too old for Shiro search (need ' + MIN_PAGEFIND_VERSION + '+). ' + installHint());
+    }
+
     const args = ['--site', publicDir];
     pushStringArg(args, '--root-selector', cfg.root_selector || 'body');
     pushStringArg(args, '--force-language', cfg.force_language);
 
-    const command = pagefindCommand(hexo.base_dir);
-    if (command.source === 'npx') {
-        hexo.log.warn('[pagefind] local package not found in: ' + command.checkedDirs.join(', '));
-        hexo.log.warn('[pagefind] falling back to `npx --yes pagefind`, which may download and slow this build. Install it in your site root with `npm install pagefind --save-dev`.');
-    }
-
-    hexo.log.info('[pagefind] building search index...');
+    hexo.log.info('[pagefind] building search index with local Pagefind ' + command.version + '...');
     try {
         runPagefind(args, command);
         hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
     } catch (error) {
         hexo.log.error('[pagefind] failed: ' + error.message);
-        hexo.log.error('[pagefind] install Pagefind in your site root with `npm install pagefind --save-dev`, or set search.enabled: false');
+        hexo.log.error('[pagefind] ' + installHint());
         throw error;
     }
 }, 20);

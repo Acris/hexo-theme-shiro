@@ -16,12 +16,11 @@
     <link rel="prefetch" as="script" href="{{ versioned_url('js/lightgallery.min.js') }}" />
     {% endif %}
     {% if search_enabled %}
-    <!-- Prefetch the search script/CSS and Pagefind UI assets at lowest priority so the first
-         click (or "/" shortcut) opens the search box instantly, even on touch devices with no hover. -->
-    <link rel="prefetch" as="script" href="{{ versioned_url('js/search.min.js') }}" />
+    <!-- Prefetch search accents + Pagefind Component UI at lowest priority; search-bootstrap
+         injects them on idle or first trigger intent so the first open is instant. -->
     <link rel="prefetch" as="style" href="{{ versioned_url('css/search.min.css') }}" />
-    <link rel="prefetch" as="script" href="{{ url_for('/pagefind/pagefind-ui.js') }}" />
-    <link rel="prefetch" as="style" href="{{ url_for('/pagefind/pagefind-ui.css') }}" />
+    <link rel="prefetch" as="style" href="{{ url_for('/pagefind/pagefind-component-ui.css') }}" />
+    <link rel="prefetch" as="script" href="{{ url_for('/pagefind/pagefind-component-ui.js') }}" />
     {% endif %}
     {% set google_fonts = google_font_urls(page, config, theme, needs_code) %}
     {% if google_fonts.length %}
@@ -48,16 +47,23 @@
         const html = document.documentElement;
         html.setAttribute('data-theme-state', state);
         const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const isDark = state === 'dark' || (state !== 'light' && darkQuery.matches);
-        html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        html.style.colorScheme = isDark ? 'dark' : 'light';
+        // Pagefind dark contract only when search is enabled (mirrored in theme-toggle.js).
+        const syncPagefindTheme = {{ 'true' if search_enabled else 'false' }};
+        window.__shiroSearchEnabled = syncPagefindTheme;
+        const applyResolvedTheme = (dark) => {
+            html.setAttribute('data-theme', dark ? 'dark' : 'light');
+            if (syncPagefindTheme) {
+                if (dark) html.setAttribute('data-pf-theme', 'dark');
+                else html.removeAttribute('data-pf-theme');
+            }
+            html.style.colorScheme = dark ? 'dark' : 'light';
+        };
+        applyResolvedTheme(state === 'dark' || (state !== 'light' && darkQuery.matches));
         if (defaultTheme === 'system') {
-            // Keep following OS light/dark changes while in "system" mode even when the
-            // toggle (and theme-toggle.js) is disabled, so the page updates without a reload.
+            // Follow OS theme while in system mode even if the toggle script is absent.
             const followSystem = () => {
                 if (html.getAttribute('data-theme-state') !== 'system') return;
-                html.setAttribute('data-theme', darkQuery.matches ? 'dark' : 'light');
-                html.style.colorScheme = darkQuery.matches ? 'dark' : 'light';
+                applyResolvedTheme(darkQuery.matches);
             };
             if (darkQuery.addEventListener) darkQuery.addEventListener('change', followSystem);
             else if (darkQuery.addListener) darkQuery.addListener(followSystem);

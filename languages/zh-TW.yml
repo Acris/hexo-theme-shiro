@@ -26,14 +26,8 @@ page:
   prev: 上一頁
 
 search:
-  button: 搜尋
-  close: 關閉
-  loading: 載入中…
-  many_results: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
-  one_result: 找到 [COUNT] 個與 "[SEARCH_TERM]" 相關的結果
   placeholder: 搜尋文章…
-  unavailable: 搜尋暫時無法使用。
-  zero_results: 未找到與 "[SEARCH_TERM]" 相關的內容
+  trigger: 搜尋
 
 theme:
   dark: 深色

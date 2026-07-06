@@ -26,14 +26,8 @@ page:
   prev: 前へ
 
 search:
-  button: 検索
-  close: 閉じる
-  loading: 読み込み中…
-  many_results: '"[SEARCH_TERM]" の検索結果 [COUNT] 件'
-  one_result: '"[SEARCH_TERM]" の検索結果 [COUNT] 件'
   placeholder: 記事を検索…
-  unavailable: 検索は一時的に利用できません。
-  zero_results: '"[SEARCH_TERM]" に一致する結果はありません'
+  trigger: 検索
 
 theme:
   dark: ダーク

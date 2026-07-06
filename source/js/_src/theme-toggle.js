@@ -2,7 +2,8 @@
  * Theme Toggle — smart cycling based on default theme config.
  * When default is "system": 3-state cycle (system → light → dark).
  * When default is "light" or "dark": 2-state toggle (light ↔ dark).
- * Applies data-theme on <html> and persists preference in localStorage.
+ * Applies data-theme and colorScheme on <html>; when search is enabled also
+ * syncs data-pf-theme for Pagefind. Persists preference in localStorage.
  * Inline script in <head> handles initial state (FOUC) and live OS theme
  * following in "system" mode, so following works even when this toggle is off.
  */
@@ -14,6 +15,7 @@
 
     const html = document.documentElement;
     const defaultTheme = window.__themeDefault || 'system';
+    const syncPagefindTheme = window.__shiroSearchEnabled === true;
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const states = defaultTheme === 'system'
         ? ['system', 'light', 'dark']
@@ -34,10 +36,19 @@
         if (label) btn.setAttribute('aria-label', label);
     }
 
+    // Mirrors head.njk FOUC script (data-pf-theme only when search is enabled).
+    function applyResolvedTheme(dark) {
+        html.setAttribute('data-theme', dark ? 'dark' : 'light');
+        if (syncPagefindTheme) {
+            if (dark) html.setAttribute('data-pf-theme', 'dark');
+            else html.removeAttribute('data-pf-theme');
+        }
+        html.style.colorScheme = dark ? 'dark' : 'light';
+    }
+
     function apply(state) {
         const isDark = state === 'dark' || (state !== 'light' && prefersDarkQuery.matches);
-        html.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        html.style.colorScheme = isDark ? 'dark' : 'light';
+        applyResolvedTheme(isDark);
         updateIcon(state);
     }
 
