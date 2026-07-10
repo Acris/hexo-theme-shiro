@@ -36,3 +36,8 @@ theme:
 
 toc:
   title: 目次
+
+word_count:
+  count: 文字数
+  time: 読了時間
+  time_minutes: 分

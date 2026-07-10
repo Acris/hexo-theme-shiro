@@ -26,6 +26,7 @@
 - **暗色模式**：优雅的暗色主题，采用暖中性色调，三态切换（系统/亮色/暗色）。
 - **目录**：构建期生成文章侧边栏目录，可配置标题深度；客户端 JavaScript 仅负责折叠和当前章节高亮。
 - **阅读进度条**：页面顶部的朱红色细进度条。
+- **字数与阅读时长**：可选的文章 meta，由 [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) 提供（基于 Unicode 的多语言字数统计）；安装插件并将 `word_count.enabled` 设为 `true` 后显示。
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **字体加载遮罩**：在本页主题字体就绪前（字体 stylesheet + `document.fonts.ready`），用一层主题雾面遮罩盖住页面，配以淡淡的朱红涟漪，并带有随网络情况变化的最大等待时间，避免字体 CDN 过慢时无限遮挡页面。
 - **代码块**：语法高亮，带复制按钮和语言标签。
@@ -199,6 +200,13 @@ dark_mode:
 progress_bar:
   enabled: true
 
+# 字数统计与阅读时长（仅展示）
+# 需要站点插件：npm install hexo-word-counter
+# 在站点根目录 _config.yml 的 symbols_count_time 下配置计数/WPM
+# 以及 symbols/time 开关。未启用或未安装插件时不会显示对应 meta，也不会报错。
+word_count:
+  enabled: false
+
 # 回到顶部按钮
 back_to_top:
   enabled: true
@@ -369,6 +377,43 @@ mathjax: true
 
 `mathjax.src` 建议固定具体版本（默认 `4.1.3`），与 LightGallery 的 pin 策略一致，便于可复现构建。
 
+### 字数统计与阅读时长
+
+Shiro 可在文章 meta（首页卡片与详情页标题下方）显示字数与预估阅读时长。计数由站点级插件 [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) 提供（Unicode UAX #29，对中日韩与中英混排更准确）。主题只负责展示；未安装插件或 `word_count.enabled: false` 时不会显示对应 meta，生成也不会失败。
+
+**npm 安装（需要显示字数时）**
+
+在 **站点根目录**（不是主题目录）安装：
+
+```bash
+npm install hexo-word-counter
+hexo clean
+```
+
+**站点根目录 `_config.yml`（插件选项）**
+
+```yaml
+symbols_count_time:
+  symbols: true
+  time: true
+  # 插件默认为 false；技术文建议 true，避免代码块抬高字数/阅读时长
+  exclude_codeblock: true
+  wpm: 275                 # 插件默认；以中文为主可设 300
+```
+
+**主题配置（`_config.yml` / `_config.shiro.yml`）**
+
+```yaml
+word_count:
+  enabled: true   # 默认 false；安装插件后设为 true
+```
+
+将 `word_count.enabled` 设为 `false` 可隐藏 meta。若只需字数或只需阅读时长，请用站点插件的 `symbols_count_time.symbols` / `time`。
+
+**60 分钟以内**的阅读时长单位使用主题语言包（`languages/` 中的 `word_count.time_minutes`）。**达到或超过 60 分钟**时，[hexo-word-counter](https://github.com/next-theme/hexo-word-counter) 会格式化为 `H:MM`（例如 `1:05`），**不会**再附加该单位文案。
+
+开启字数展示时，小屏上的文章 meta 会略加密（`text-xs`、更紧的间距），以便日期、分类与「字数 / 时长」同排更整齐；未开启字数时仍为常规 `text-sm`。
+
 ### 搜索
 
 Shiro 内置基于 [Pagefind](https://pagefind.app/) Component UI 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成；发布已生成的输出前，无需再单独运行搜索索引命令。
@@ -431,7 +476,8 @@ hexo-theme-shiro/
 │   ├── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
 │   ├── mathjax.js          # MathJax 加载门控 + Markdown TeX 保护/还原
 │   ├── images.js           # after_post_render 图片加载、解码与尺寸优化
-│   └── pagefind.js         # Pagefind 索引钩子
+│   ├── pagefind.js         # Pagefind 索引钩子
+│   └── word_count.js       # 可选字数/阅读时长 meta（hexo-word-counter）
 ├── source/
 │   ├── css/_tailwind.css   # 核心 Tailwind CSS 源文件（编译为 style.min.css）
 │   ├── css/_src/*.css      # 可选功能 CSS 源文件，会被 Hexo 忽略

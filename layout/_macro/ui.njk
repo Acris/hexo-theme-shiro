@@ -79,6 +79,12 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 </svg>
 {% endmacro %}
 
+{% macro icon_book(class="size-4 text-slate-400 shrink-0", id="") %}
+<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+</svg>
+{% endmacro %}
+
 {% macro icon_theme_system(class="size-3.5") %}
 <svg data-icon="system" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
@@ -124,16 +130,25 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% set post_year = date(post.date, 'YYYY') %}
 {% set post_date_attr = date(post.date, 'YYYY-MM-DD') %}
 {% set post_date_text = date(post.date, 'YYYY/MM/DD') %}
-<div class="{{ class }} flex items-center justify-center gap-4 text-sm text-slate-500 flex-wrap">
+{% set wc = word_count_meta(post, {
+    timeSuffix: __('word_count.time_minutes'),
+    countLabel: __('word_count.count'),
+    timeLabel: __('word_count.time')
+}) %}
+{% set meta_dense = wc and (wc.count != null or wc.time != null) %}
+{% set meta_icon = "size-3.5 text-slate-400 shrink-0 sm:size-4" if meta_dense else "size-4 text-slate-400 shrink-0" %}
+{# ~3 clusters when word count is on (date • category • count/time). Sibling
+   bullets + gap-x keep separators visually centered between chips. #}
+<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-slate-500 {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
     <div class="flex items-center gap-1.5">
-        {{ icon_nav_arrow() }}
+        {{ icon_nav_arrow(class=meta_icon) }}
         <a href="{{ archive_url(post_year) }}" class="oldstyle-nums link-muted"><time datetime="{{ post_date_attr }}">{{ post_date_text }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         {% set post_categories = post.categories.toArray() %}
-        <span class="text-slate-300" aria-hidden="true">•</span>
+        <span class="select-none text-slate-300" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
-            {{ icon_folder() }}
+            {{ icon_folder(class=meta_icon) }}
             {% if show_all_cats %}
                 {% for cat in post_categories %}
                     <a class="link-muted" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
@@ -142,6 +157,22 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
             {% else %}
                 {% set first_cat = post_categories[0] %}
                 <a class="link-muted" href="{{ url_for(first_cat.path) }}">{{ first_cat.name }}</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if meta_dense %}
+        <span class="select-none text-slate-300" aria-hidden="true">•</span>
+        {# One chip: "1.2k / 5 mins" — slash for sub-fields; bullet for clusters. #}
+        <div class="flex items-center gap-1.5 oldstyle-nums"{% if wc.title %} title="{{ wc.title }}"{% endif %}>
+            {{ icon_book(class=meta_icon) }}
+            {% if wc.count != null %}
+            <span aria-label="{{ __('word_count.count') }}: {{ wc.count }}">{{ wc.count }}</span>
+            {% endif %}
+            {% if wc.count != null and wc.time != null %}
+            <span class="select-none text-slate-300" aria-hidden="true">/</span>
+            {% endif %}
+            {% if wc.time != null %}
+            <span aria-label="{{ __('word_count.time') }}: {{ wc.time }}">{{ wc.time }}</span>
             {% endif %}
         </div>
     {% endif %}

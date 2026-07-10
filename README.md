@@ -28,6 +28,7 @@ Made by Acris with ❤️
 - **Dark Mode**: Elegant dark theme with warm neutral tones, 3-state toggle (system/light/dark).
 - **Table of Contents**: Build-time generated sidebar TOC for articles with configurable heading depth; client JavaScript only handles folding and active-section highlighting.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
+- **Word Count & Reading Time**: Optional post meta powered by [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) (Unicode-aware multi-language counting); install the plugin and set `word_count.enabled: true`.
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until this page's theme fonts settle (font stylesheet + `document.fonts.ready`), with a connection-aware timeout so a slow font CDN cannot hold the page indefinitely.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
@@ -202,6 +203,14 @@ dark_mode:
 progress_bar:
   enabled: true
 
+# Word count & reading time (display only)
+# Requires site plugin: npm install hexo-word-counter
+# Configure counting/WPM (and symbols/time toggles) in the site root _config.yml
+# under symbols_count_time. When disabled or the plugin is missing, meta items
+# are omitted with no error.
+word_count:
+  enabled: false
+
 # Back to top button
 back_to_top:
   enabled: true
@@ -374,6 +383,44 @@ With `protect: true` (default), the Markdown shield runs on the **same pages tha
 
 Pin `mathjax.src` to a concrete version (default `4.1.3`) for reproducible builds, similar to LightGallery.
 
+### Word Count & Reading Time
+
+Shiro can show word count and estimated reading time in post meta (home cards and article headers). Counting is provided by the site-level plugin [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) (Unicode UAX #29, accurate for CJK and mixed-language posts). The theme only controls display; without the plugin (or with `word_count.enabled: false`), meta items are omitted and generation still succeeds.
+
+**npm install (required for counts to appear)**
+
+Install in your **site root** (not the theme directory):
+
+```bash
+npm install hexo-word-counter
+hexo clean
+```
+
+**Site root `_config.yml` (plugin options)**
+
+```yaml
+symbols_count_time:
+  symbols: true
+  time: true
+  # Plugin default is false; Shiro recommends true for tech posts so code fences
+  # do not inflate word count / reading time.
+  exclude_codeblock: true
+  wpm: 275                 # plugin default; Chinese-heavy blogs often use 300
+```
+
+**Theme configuration (`_config.yml` / `_config.shiro.yml`)**
+
+```yaml
+word_count:
+  enabled: true   # default false; set true after installing the plugin
+```
+
+Set `word_count.enabled: false` to hide meta chips. To show only count or only reading time, use the site plugin flags (`symbols_count_time.symbols` / `time`).
+
+Reading-time unit labels under **60 minutes** use the theme locale (`word_count.time_minutes` in `languages/`). From **60 minutes** upward, [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) formats duration as `H:MM` (for example `1:05`) and does **not** append that suffix.
+
+When word count is shown, post meta uses slightly denser type on small screens (`text-xs`, tighter gaps) so date, category, and the combined count/time chip fit more cleanly. Without word count, meta keeps the usual `text-sm` spacing.
+
 ### Search
 
 Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/) Component UI. The index is generated automatically after `hexo generate`, so you do not need to run a separate search command before publishing generated output.
@@ -437,7 +484,8 @@ hexo-theme-shiro/
 │   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
 │   ├── mathjax.js          # MathJax load gate + Markdown TeX protect/restore
 │   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
-│   └── pagefind.js         # Pagefind indexing hook
+│   ├── pagefind.js         # Pagefind indexing hook
+│   └── word_count.js       # Optional word count / reading time meta (hexo-word-counter)
 ├── source/
 │   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
 │   ├── css/_src/*.css      # Optional feature CSS sources ignored by Hexo

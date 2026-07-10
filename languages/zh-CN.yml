@@ -36,3 +36,8 @@ theme:
 
 toc:
   title: 目录
+
+word_count:
+  count: 字数
+  time: 阅读时长
+  time_minutes: 分钟

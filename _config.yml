@@ -92,6 +92,14 @@ dark_mode:
 progress_bar:
   enabled: true
 
+# Word count & reading time (display only)
+# Requires site plugin: npm install hexo-word-counter
+# Configure counting/WPM (and symbols/time toggles) in the site root _config.yml
+# under symbols_count_time. When disabled or the plugin is missing, meta items
+# are omitted with no error.
+word_count:
+  enabled: false
+
 # Back to top button
 back_to_top:
   enabled: true

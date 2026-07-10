@@ -36,3 +36,8 @@ theme:
 
 toc:
   title: Sommaire
+
+word_count:
+  count: Mots
+  time: Temps de lecture
+  time_minutes: min

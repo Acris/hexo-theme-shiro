@@ -36,3 +36,8 @@ theme:
 
 toc:
   title: Contents
+
+word_count:
+  count: Words
+  time: Reading time
+  time_minutes: mins
