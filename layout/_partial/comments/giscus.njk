@@ -1,25 +1,18 @@
-{% set comments_config = theme.comments or {} %}
-{% set giscus_config = giscus if giscus is defined else (comments_config.giscus or {}) %}
-{% set giscus_src = giscus_config.src or '' %}
-{% set giscus_repo = giscus_config.repo or '' %}
-{% set giscus_repo_id = giscus_config.repo_id or '' %}
-{% set giscus_category = giscus_config.category or '' %}
-{% set giscus_category_id = giscus_config.category_id or '' %}
-{% set giscus_mapping = giscus_config.mapping or 'pathname' %}
-{% set giscus_term = giscus_config.term %}
-{% set giscus_strict = giscus_config.strict | default('0') %}
-{% set giscus_reactions_enabled = giscus_config.reactions_enabled | default('1') %}
-{% set giscus_emit_metadata = giscus_config.emit_metadata | default('0') %}
-{% set giscus_input_position = giscus_config.input_position or 'bottom' %}
-{% set giscus_theme = giscus_config.theme or 'preferred_color_scheme' %}
-{% set giscus_lang = giscus_config.lang or 'en' %}
-<div id="giscus-container" class="giscus" data-pagefind-ignore></div>
+{# Container in comments/index.njk; config from window.__shiroCommentsConfig (foot). #}
 <script{{ csp_nonce_attr() }}>
-;(() => {
+// Stub (bootstrap.njk) queues until deferred comments-bootstrap drains.
+(window.__shiroWhenCommentsReady || function (fn) {
+    console.warn('[shiro-comments] giscus boot skipped: whenReady missing');
+    if (typeof fn === 'function') try { fn(); } catch (_) {}
+})(function () {
     const d = document, w = window;
     const container = d.getElementById('giscus-container');
-    if (!container) return;
+    if (!container) {
+        console.warn('[shiro-comments] #giscus-container missing');
+        return;
+    }
 
+    const g = (w.__shiroCommentsConfig && w.__shiroCommentsConfig.giscus) || {};
     const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
     let loaded = false;
 
@@ -52,28 +45,26 @@
         };
 
         const s = d.createElement('script');
-        s.src = safeScriptSrc({{ js_value(giscus_src) | safe }}, 'https://giscus.app/client.js');
+        s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
         s.async = true;
         s.crossOrigin = 'anonymous';
+        const nonce = w.__shiroCspNonce || '';
+        if (nonce) s.setAttribute('nonce', nonce);
         const attrs = {
-            'data-repo': {{ js_value(giscus_repo) | safe }},
-            'data-repo-id': {{ js_value(giscus_repo_id) | safe }},
-            'data-category': {{ js_value(giscus_category) | safe }},
-            'data-category-id': {{ js_value(giscus_category_id) | safe }},
-            'data-mapping': {{ js_value(giscus_mapping) | safe }},
-            {%- if giscus_term %}
-            'data-term': {{ js_value(giscus_term) | safe }},
-            {%- endif %}
-            'data-strict': binaryAttr({{ js_value(giscus_strict) | safe }}, '0'),
-            'data-reactions-enabled': binaryAttr({{ js_value(giscus_reactions_enabled) | safe }}, '1'),
-            'data-emit-metadata': binaryAttr({{ js_value(giscus_emit_metadata) | safe }}, '0'),
-            'data-input-position': {{ js_value(giscus_input_position) | safe }},
-            'data-theme': {{ js_value(giscus_theme) | safe }},
-            'data-lang': {{ js_value(giscus_lang) | safe }},
-            {%- if giscus_config.lazy_loading %}
-            'data-loading': 'lazy',
-            {%- endif %}
+            'data-repo': g.repo || '',
+            'data-repo-id': g.repo_id || '',
+            'data-category': g.category || '',
+            'data-category-id': g.category_id || '',
+            'data-mapping': g.mapping || 'pathname',
+            'data-strict': binaryAttr(g.strict, '0'),
+            'data-reactions-enabled': binaryAttr(g.reactions_enabled, '1'),
+            'data-emit-metadata': binaryAttr(g.emit_metadata, '0'),
+            'data-input-position': g.input_position || 'bottom',
+            'data-theme': g.theme || 'preferred_color_scheme',
+            'data-lang': g.lang || 'en'
         };
+        if (g.term) attrs['data-term'] = g.term;
+        if (g.lazy_loading) attrs['data-loading'] = 'lazy';
         for (const [key, value] of Object.entries(attrs)) {
             s.setAttribute(key, value);
         }
@@ -95,7 +86,11 @@
         paintFrame();
     }).observe(d.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
+    if (typeof w.__shiroOnNearViewport !== 'function') {
+        console.warn('[shiro-comments] near-viewport helper missing');
+        return;
+    }
     w.__shiroOnNearViewport(container, loadGiscus);
-})();
+});
 </script>
-<noscript>Please enable JavaScript to view the comments.</noscript>
+<noscript>{{ __('comments.noscript') }}</noscript>

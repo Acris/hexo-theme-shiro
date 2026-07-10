@@ -1,16 +1,20 @@
 ;(() => {
     'use strict';
 
+    // Mirrors scripts/lib/boot-queue.js (createBootQueue) — keep behavior aligned.
+    // Stub in comments/bootstrap.njk enqueues; this deferred file activates + drains.
+
     const commentsCss = window.__commentsCss || '';
     let commentsCssLoading = null;
 
-    // Resolve loadAsset at call time so a late-loaded runtime still works if
-    // comments bootstrap runs before runtime in unusual orderings.
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
         if (!commentsCss) return Promise.resolve();
         if (commentsCssLoading) return commentsCssLoading;
         const loadAsset = window.__shiroRuntime && window.__shiroRuntime.loadAsset;
-        if (!loadAsset) return Promise.resolve();
+        if (!loadAsset) {
+            console.warn('[shiro-comments] runtime loadAsset missing; comments CSS skipped');
+            return Promise.resolve();
+        }
         commentsCssLoading = loadAsset('link', {
             rel: 'stylesheet',
             href: commentsCss,
@@ -35,4 +39,24 @@
         }, options || { rootMargin: '200px 0px', threshold: 0 });
         io.observe(element);
     });
+
+    function runCommentBoot(callback) {
+        if (typeof callback !== 'function') return;
+        try {
+            callback();
+        } catch (error) {
+            console.warn('[shiro-comments] provider boot failed', error);
+        }
+    }
+
+    // Activate: replace stub so later callers run immediately; drain queued boots.
+    window.__shiroWhenCommentsReady = (callback) => {
+        runCommentBoot(callback);
+    };
+
+    const queued = Array.isArray(window.__shiroCommentsReadyQueue)
+        ? window.__shiroCommentsReadyQueue.slice()
+        : [];
+    window.__shiroCommentsReadyQueue = [];
+    queued.forEach(runCommentBoot);
 })();

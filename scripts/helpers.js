@@ -13,8 +13,12 @@ const {
     safeScriptJson,
     resourceOrigin,
     normalizedLinkTarget,
+    isFeatureEnabled,
+    normalizeLangAttr,
     resolveAbsolutePageUrl,
+    normalizeSriIntegrity,
     sriAttrsHtml,
+    normalizeCspNonce,
     cspNonceAttrHtml
 } = require('./lib/urls');
 const {
@@ -35,7 +39,12 @@ const {
 } = require('./lib/seo');
 const { googleFontUrls } = require('./lib/fonts');
 const { SEAL_PATH_D } = require('./lib/seal');
-const { pageLanguage } = require('./lib/util');
+const { pageLanguage, escapeHtml, escapeAttr } = require('./lib/util');
+const { resolveCommentsState } = require('./lib/comments');
+const {
+    resolveFeatureGates,
+    buildCommentsClientConfig
+} = require('./lib/feature-gates');
 
 const assetHashCache = new Map();
 
@@ -63,15 +72,35 @@ hexo.extend.helper.register('js_value', function (value) {
     return safeScriptJson(value);
 });
 
+// HTML text / attribute escaping (hexo-renderer-nunjucks sets autoescape: false).
+hexo.extend.helper.register('escape_html', function (value) {
+    return escapeHtml(value);
+});
+
+hexo.extend.helper.register('escape_attr', function (value) {
+    return escapeAttr(value);
+});
+
 // Optional SRI attribute string for CDN tags (integrity + crossorigin), or "".
 hexo.extend.helper.register('sri_attrs', function (integrity) {
     return sriAttrsHtml(integrity);
+});
+
+// Normalized SRI digest or "" (for client-side integrity globals).
+hexo.extend.helper.register('sri_integrity', function (integrity) {
+    return normalizeSriIntegrity(integrity);
 });
 
 // Optional CSP nonce attribute for theme-injected scripts when security.csp_nonce is set.
 hexo.extend.helper.register('csp_nonce_attr', function () {
     const security = (this.theme && this.theme.security) || {};
     return cspNonceAttrHtml(security.csp_nonce);
+});
+
+// Raw CSP nonce value (safe chars only) for window.__shiroCspNonce / dynamic scripts.
+hexo.extend.helper.register('csp_nonce_value', function () {
+    const security = (this.theme && this.theme.security) || {};
+    return normalizeCspNonce(security.csp_nonce);
 });
 
 hexo.extend.helper.register('url_query', function (value) {
@@ -98,20 +127,91 @@ hexo.extend.helper.register('is_blank_target', function (value) {
     return normalizedLinkTarget(value).toLowerCase() === '_blank';
 });
 
+// defaultOn true → enabled unless false; defaultOn false → enabled only when true.
+hexo.extend.helper.register('feature_enabled', function (value, defaultOn) {
+    return isFeatureEnabled(value, defaultOn === true || defaultOn === 'true');
+});
+
+// Single source for comments container / foot scripts / runtime gate.
+hexo.extend.helper.register('comments_state', function (page) {
+    return resolveCommentsState(this.theme, page, {
+        isPost: typeof this.is_post === 'function' && this.is_post(),
+        isPage: typeof this.is_page === 'function' && this.is_page()
+    });
+});
+
+// Page feature gates + CDN URLs for layout (pure policy lives in feature-gates.js).
+hexo.extend.helper.register('page_feature_gates', function () {
+    const page = this.page || {};
+    const theme = this.theme || {};
+    const security = theme.security || {};
+    const isPost = typeof this.is_post === 'function' && this.is_post();
+    const isPage = typeof this.is_page === 'function' && this.is_page();
+    const isHome = typeof this.is_home === 'function' && this.is_home();
+    const tocConfig = theme.toc || {};
+    const menu = theme.menu || [];
+
+    return resolveFeatureGates({
+        theme,
+        page,
+        config: this.config || {},
+        isPost,
+        isPage,
+        isHome,
+        hasCode: typeof this.page_has_code === 'function'
+            ? this.page_has_code(page, theme)
+            : false,
+        hasImages: typeof this.has_images === 'function' ? this.has_images(page) : false,
+        looksLong: typeof this.page_looks_long === 'function' ? this.page_looks_long(page) : false,
+        shouldRenderToc: typeof this.should_render_toc === 'function'
+            ? this.should_render_toc(page, tocConfig)
+            : false,
+        menuLength: menu.length,
+        resolveResourceUrl: (value, fallback) => safeResourceUrl(value, this, fallback),
+        cspNonce: security.csp_nonce
+    });
+});
+
+// Client config for giscus/disqus scripts (one feature_var payload).
+hexo.extend.helper.register('comments_client_config', function (page) {
+    const p = page || this.page || {};
+    return buildCommentsClientConfig(this.theme, p, {
+        isPost: typeof this.is_post === 'function' && this.is_post(),
+        isPage: typeof this.is_page === 'function' && this.is_page(),
+        pageUrl: p.permalink || this.url || '',
+        pageIdentifier: p.path || this.path || p.permalink || this.url || ''
+    });
+});
+
+hexo.extend.helper.register('lang_attr', function (value) {
+    return normalizeLangAttr(value);
+});
+
 // Yearly archive URL helper: honours Hexo's archive_dir instead of a hard-coded
 // 'archives/' segment, so custom archive_dir sites link to the right page.
 hexo.extend.helper.register('archive_url', function (year) {
     const configured = String((hexo.config && hexo.config.archive_dir) || 'archives').replace(/^\/+|\/+$/g, '');
     const archiveDir = configured || 'archives';
-    return this.url_for(archiveDir + '/' + year) + '/';
+    const path = String(this.url_for(archiveDir + '/' + year) || '').replace(/\/+$/, '');
+    return path + '/';
 });
 
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
 hexo.extend.helper.register('versioned_url', function (assetPath) {
-    const sourceDir = pathFn.join(hexo.theme_dir, 'source');
-    const filePath = pathFn.join(sourceDir, assetPath);
+    const rel = String(assetPath || '').replace(/^\/+/, '');
+    // Reject absolute paths and parent segments (theme-controlled paths only).
+    if (!rel || pathFn.isAbsolute(String(assetPath || '')) || /(^|[\\/])\.\.([\\/]|$)/.test(rel)) {
+        return this.url_for(assetPath);
+    }
 
-    const url = this.url_for(assetPath);
+    const sourceDir = pathFn.join(hexo.theme_dir, 'source');
+    const filePath = pathFn.join(sourceDir, rel);
+    const relative = pathFn.relative(sourceDir, filePath);
+    if (!relative || relative.startsWith('..') || pathFn.isAbsolute(relative)) {
+        return this.url_for(assetPath);
+    }
+
+    const url = this.url_for(rel);
     let versionedUrl = url;
     try {
         const stat = fs.statSync(filePath);
@@ -222,5 +322,8 @@ module.exports = {
     seo: require('./lib/seo'),
     fonts: require('./lib/fonts'),
     seal: require('./lib/seal'),
-    util: require('./lib/util')
+    util: require('./lib/util'),
+    comments: require('./lib/comments'),
+    featureGates: require('./lib/feature-gates'),
+    bootQueue: require('./lib/boot-queue')
 };

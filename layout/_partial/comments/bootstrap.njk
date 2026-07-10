@@ -1,8 +1,14 @@
-{# Shared comments bootstrap. runtime.min.js first (idempotent if also deferred
-   in the layout foot); then comments helpers so __shiroLoadCommentsCss /
-   __shiroOnNearViewport exist before provider partials. #}
-<script{{ csp_nonce_attr() }} src="{{ versioned_url('js/runtime.min.js') }}"></script>
+{# After deferred runtime. Sync stub queues provider boots; deferred comments-bootstrap
+   installs helpers and drains the queue (honest load order — no silent fallback). #}
 <script{{ csp_nonce_attr() }}>
     window.__commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
+    {% if shiro_csp_nonce %}
+    window.__shiroCspNonce = window.__shiroCspNonce || {{ js_value(shiro_csp_nonce) | safe }};
+    {% endif %}
+    {# Queue stub: provider inlines run during parse before defer comments-bootstrap. #}
+    window.__shiroCommentsReadyQueue = window.__shiroCommentsReadyQueue || [];
+    window.__shiroWhenCommentsReady = window.__shiroWhenCommentsReady || function (fn) {
+        if (typeof fn === 'function') window.__shiroCommentsReadyQueue.push(fn);
+    };
 </script>
-<script{{ csp_nonce_attr() }} src="{{ versioned_url('js/comments-bootstrap.min.js') }}"></script>
+<script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/comments-bootstrap.min.js') }}"></script>

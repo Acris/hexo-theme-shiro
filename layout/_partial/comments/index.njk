@@ -1,20 +1,8 @@
-{% set comments = theme.comments or {} %}
-{% set disqus = comments.disqus or {} %}
-{% set giscus = comments.giscus or {} %}
-{% set disqus_comments_ready = comments.enabled and comments.provider == "disqus" and disqus.shortname %}
-{% set giscus_mapping = giscus.mapping or "pathname" %}
-{% set giscus_mapping_ready = giscus.term if giscus_mapping == "specific" or giscus_mapping == "number" else true %}
-{% set giscus_comments_ready = comments.enabled and comments.provider == "giscus"
-    and giscus.repo
-    and giscus.repo_id
-    and giscus.category
-    and giscus.category_id
-    and giscus_mapping_ready %}
-{% if disqus_comments_ready or giscus_comments_ready %}
-{% include "_partial/comments/bootstrap.njk" %}
-{% if disqus_comments_ready %}
-{% include "_partial/comments/disqus.njk" %}
-{% elif giscus_comments_ready %}
-{% include "_partial/comments/giscus.njk" %}
-{% endif %}
+{# Containers only — scripts in comments/foot.njk after deferred runtime.
+   Prefer layout-set shiro_comments; fall back to comments_state(page). #}
+{% set state = shiro_comments if shiro_comments is defined else comments_state(page) %}
+{% if state.disqusReady %}
+<div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
+{% elif state.giscusReady %}
+<div id="giscus-container" class="giscus" data-pagefind-ignore></div>
 {% endif %}

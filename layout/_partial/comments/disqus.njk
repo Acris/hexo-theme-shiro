@@ -1,26 +1,30 @@
-{% set comments_config = theme.comments or {} %}
-{% set disqus_config = disqus if disqus is defined else (comments_config.disqus or {}) %}
-{% set disqus_page_url = page.permalink or url %}
-{% set disqus_page_identifier = page.path or path or disqus_page_url %}
-{% set disqus_shortname = disqus_config.shortname or '' %}
-<div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
+{# Container in comments/index.njk; config from window.__shiroCommentsConfig (foot). #}
 <script{{ csp_nonce_attr() }}>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always
        matches the live `<html data-theme>` state instead of Disqus's flaky
        text-contrast auto-detection. */
     window.disqus_config = function () {
-        this.page.url = {{ js_value(disqus_page_url) | safe }};
-        this.page.identifier = {{ js_value(disqus_page_identifier) | safe }}.replace(/\/$/, '');
+        const cfg = (window.__shiroCommentsConfig && window.__shiroCommentsConfig.disqus) || {};
+        this.page.url = cfg.pageUrl || location.href;
+        this.page.identifier = String(cfg.pageIdentifier || location.pathname).replace(/\/$/, '');
         this.colorScheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
     };
 
-    ;(() => {
+    // Stub (bootstrap.njk) queues until deferred comments-bootstrap drains.
+    (window.__shiroWhenCommentsReady || function (fn) {
+        console.warn('[shiro-comments] Disqus boot skipped: whenReady missing');
+        if (typeof fn === 'function') try { fn(); } catch (_) {}
+    })(function () {
         const d = document, w = window;
         const disqus_thread = d.getElementById('disqus_thread');
-        if (!disqus_thread) return;
+        if (!disqus_thread) {
+            console.warn('[shiro-comments] #disqus_thread missing');
+            return;
+        }
 
-        const SHORTNAME = {{ js_value(disqus_shortname) | safe }};
+        const cfg = (w.__shiroCommentsConfig && w.__shiroCommentsConfig.disqus) || {};
+        const SHORTNAME = String(cfg.shortname || '').trim();
         if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
         const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;
@@ -31,10 +35,16 @@
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
+            const nonce = w.__shiroCspNonce || '';
+            if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => { (d.head || d.body).appendChild(s); };
             loadCommentsCss().then(appendScript).catch(appendScript);
         };
 
+        if (typeof w.__shiroOnNearViewport !== 'function') {
+            console.warn('[shiro-comments] near-viewport helper missing');
+            return;
+        }
         w.__shiroOnNearViewport(disqus_thread, loadDisqus);
 
         /* Disqus locks in its color scheme at iframe load time.
@@ -49,7 +59,6 @@
 
         const resetDisqusForTheme = () => {
             if (!loaded || !w.DISQUS || typeof w.DISQUS.reset !== 'function') return;
-            /* Debounce rapid toggles and let any view-transition settle first. */
             clearTimeout(resetTimer);
             resetTimer = setTimeout(() => {
                 try {
@@ -83,13 +92,12 @@
 
         const themeObserver = new MutationObserver(() => {
             const isDark = root.dataset.theme === 'dark';
-            /* Ignore unrelated mutations (e.g. transient `theme-transition`). */
             if (isDark === prevDark) return;
             prevDark = isDark;
             if (!loaded) return;
             resetWhenCommentsAreNear();
         });
         themeObserver.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
-    })();
+    });
 </script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<noscript>{{ __('comments.noscript') }} <a href="https://disqus.com/?ref_noscript">Disqus</a></noscript>
