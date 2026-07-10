@@ -222,11 +222,12 @@ html[data-theme="dark"] .toc-toggle-title::after {
     color: var(--color-border-strong);
 }
 
-html[data-theme="dark"] .toc-sidebar .toc-link {
-    color: var(--color-text-muted);
+/* Body (not muted): dark muted/slate-500 on panel is ~4.1:1; body stays AA for links. */
+html[data-theme="dark"] .toc-link {
+    color: var(--color-text-body);
 }
 
-html[data-theme="dark"] .toc-sidebar .toc-link:hover,
-html[data-theme="dark"] .toc-sidebar .toc-link.active {
+html[data-theme="dark"] .toc-link:hover,
+html[data-theme="dark"] .toc-link.active {
     color: var(--color-seal);
 }

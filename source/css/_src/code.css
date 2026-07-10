@@ -32,7 +32,8 @@
     user-select: none;
     border-right: 1px solid var(--color-slate-200);
     background-color: var(--color-slate-100);
-    color: var(--color-slate-400);
+    /* slate-600 (~6.9:1 on gutter) — slate-400 failed WCAG AA as line-number chrome */
+    color: var(--color-slate-600);
     text-align: right;
 }
 
@@ -195,7 +196,7 @@
 }
 
 .prose-shiro .gist .line-numbers {
-    color: var(--color-slate-400);
+    color: var(--color-slate-600);
 }
 
 .highlight-wrapper {
@@ -286,7 +287,8 @@ html[data-theme="dark"] .prose-shiro .highlight:not(.not-prose) {
 html[data-theme="dark"] .prose-shiro .highlight td.gutter {
     border-color: var(--color-border-strong);
     background-color: var(--color-code-gutter);
-    color: var(--color-text-subtle);
+    /* Remapped slate-600 (#918e8a) clears AA on code-gutter; subtle/muted-dark do not. */
+    color: var(--color-slate-600);
 }
 
 html[data-theme="dark"] .prose-shiro .highlight .comment,
@@ -394,7 +396,7 @@ html[data-theme="dark"] .prose-shiro .gist .gist-meta a:hover {
 }
 
 html[data-theme="dark"] .prose-shiro .gist .line-numbers {
-    color: var(--color-text-subtle);
+    color: var(--color-slate-600);
 }
 
 html[data-theme="dark"] .highlight-wrapper > .copy-btn {

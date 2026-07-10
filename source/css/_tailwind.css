@@ -373,7 +373,9 @@
         @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
 
         @variant dark {
-            @apply border-border-strong bg-bg-inset text-text-subtle;
+            /* Idle chrome: slate-600 dark (#918e8a) meets WCAG AA on paper (~5.1:1);
+               subtle/muted-dark fall short of 4.5:1 on paper-dark. */
+            @apply border-border-strong bg-bg-inset text-slate-600;
         }
 
         &:hover {
@@ -541,12 +543,13 @@
 
     /* ── Back to Top ── */
     .back-to-top {
-        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-400 shadow-sm ease-soft;
+        /* Idle icon uses muted/body (not subtle) so the control stays AA on paper. */
+        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-500 shadow-sm ease-soft;
         transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         will-change: opacity;
 
         @variant dark {
-            @apply border-border-strong bg-bg-panel text-text-muted;
+            @apply border-border-strong bg-bg-panel text-text-body;
         }
 
         &:hover {
