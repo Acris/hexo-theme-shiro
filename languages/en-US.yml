@@ -1,6 +1,10 @@
 clipboard:
   copied: Copied
   copy: Copy code
+  failed: Copy failed
+
+comments:
+  noscript: Please enable JavaScript to view the comments.
 
 common:
   back_to_top: Back to Top

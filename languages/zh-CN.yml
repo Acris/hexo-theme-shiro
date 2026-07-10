@@ -1,6 +1,10 @@
 clipboard:
   copied: 已复制
   copy: 复制代码
+  failed: 复制失败
+
+comments:
+  noscript: 请启用 JavaScript 以查看评论。
 
 common:
   back_to_top: 回到顶部

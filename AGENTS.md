@@ -48,7 +48,14 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Keep default LightGallery CDN versions in sync across `_config.yml`, `layout/_layout.njk`, and `source/js/_src/lightgallery.js`.
 - Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
 - MathJax: set `protect: false` when using pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
-- Optional `security.csp_nonce` is emitted on theme `<script>` tags via `csp_nonce_attr`; optional CDN SRI via `sri_attrs` / `lightGallery.*_integrity` / `mathjax.integrity` (empty = no attributes).
+- Optional `security.csp_nonce` is emitted on theme `<script>` tags via `csp_nonce_attr`, injected as `window.__shiroCspNonce`, and applied by `runtime.js` to dynamically created scripts; optional CDN SRI via `sri_attrs` / `sri_integrity` / `lightGallery.*_integrity` / `mathjax.integrity` (empty = no attributes).
+- Hexo’s `hexo-renderer-nunjucks` sets `autoescape: false`. Escape text/attrs with helpers `escape_html` / `escape_attr` (not `| safe`). Menu `target` is allowlisted (`_self|_blank|_parent|_top`).
+- Feature flags: use helper `feature_enabled(value, defaultOn)` (default-off: search/comments/mathjax/word_count; default-on: toc/lightGallery/progress/back_to_top/dark_mode.toggle).
+- Page gates + CDN URLs: pure `scripts/lib/feature-gates.js` → helper `page_feature_gates()` → layout binds names only (do not re-implement policy in Nunjucks).
+- Comments readiness: `scripts/lib/comments.js` + `comments_state` / gates.`shiroComments`. Containers: `comments/index.njk`; scripts: `comments/foot.njk` after deferred `runtime.min.js`. Client config: `comments_client_config` → `window.__shiroCommentsConfig`. Boot: sync queue stub in `comments/bootstrap.njk` → defer `comments-bootstrap.min.js` (helpers + drain) → provider inlines call `__shiroWhenCommentsReady` only.
+- Feature CSS minify (`tools/build-assets.js`) sets Lightning CSS `targets` so nesting flattens for older browsers; prefer flat `html[data-theme=dark] …` selectors in `_src` sources.
+- Lazy client features use bootstrap + body scripts (`*-bootstrap.js` + feature file). Canonical loader: `runtime.loadBootstrapScript(src, { onload, onerror }, id)` with a short stable `id` + optional `scheduleIdleWarm`. Do not invent a parallel path.
+- Comments boot queue protocol is specified by pure `scripts/lib/boot-queue.js` (unit-tested); the browser mirrors it (stub enqueue in `comments/bootstrap.njk`, activate+drain in `comments-bootstrap.js`).
 
 ## Workflow rules
 

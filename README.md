@@ -156,7 +156,7 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
-# Optional host CSP nonce (added to theme <script> tags) and empty SRI hooks below.
+# Optional host CSP nonce (static theme scripts + runtime-injected loaders) and SRI hooks below.
 security:
   csp_nonce: ""
 
@@ -229,6 +229,8 @@ back_to_top:
 # giscus: a comment system powered by GitHub Discussions.
 # Go to https://giscus.app/ to generate your configuration values.
 # Make sure your repository is public and has Discussions enabled.
+# Comments load on posts when enabled. Static pages need front-matter comments: true.
+# Optional page front-matter: show_meta: true (date/category on pages), comments: false (opt out on a post).
 comments:
   enabled: false
   # disqus or giscus

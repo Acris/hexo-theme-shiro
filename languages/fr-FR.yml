@@ -1,6 +1,10 @@
 clipboard:
   copied: Copié
   copy: Copier le code
+  failed: Échec de la copie
+
+comments:
+  noscript: Activez JavaScript pour afficher les commentaires.
 
 common:
   back_to_top: Retour en haut

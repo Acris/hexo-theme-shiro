@@ -153,7 +153,7 @@ toc:
   # 显示目录的最少标题数
   min_headings: 3
 
-# 可选：站点 CSP nonce（会加到主题注入的 <script>）与下方 CDN SRI 钩子。
+# 可选：站点 CSP nonce（静态主题脚本 + runtime 动态注入的脚本）与下方 CDN SRI 钩子。
 security:
   csp_nonce: ""
 
@@ -226,6 +226,8 @@ back_to_top:
 # giscus：基于 GitHub Discussions 的评论系统。
 # 前往 https://giscus.app/ 生成你的配置值。
 # 确保你的仓库是公开的并且已启用 Discussions。
+# 开启后默认在文章页加载评论。独立页面需 front-matter comments: true。
+# 可选 front-matter：show_meta: true（页面显示日期/分类）、comments: false（单篇文章关闭评论）。
 comments:
   enabled: false
   # disqus 或 giscus

@@ -1,6 +1,10 @@
 clipboard:
   copied: コピーしました
   copy: コードをコピー
+  failed: コピーに失敗しました
+
+comments:
+  noscript: コメントを表示するには JavaScript を有効にしてください。
 
 common:
   back_to_top: トップへ戻る
