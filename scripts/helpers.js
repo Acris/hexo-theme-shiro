@@ -784,9 +784,7 @@ function googleFontUrl(families, display) {
 }
 
 hexo.extend.helper.register('google_font_urls', function (page, config, themeConfig, hasCode) {
-    // Keep all theme font faces in one display=swap stylesheet. The preloader waits for
-    // document.fonts.ready with a timeout, so avoid optional-display fonts escaping the
-    // wait path or silently sticking to fallbacks on cold caches.
+    // One display=swap bundle (preloader + sessionStorage skip token).
     const fontFamilies = [
         { name: 'Cardo', weights: ['400', '700'] },
         { name: 'Yuji Syuku' },

@@ -1,7 +1,5 @@
-/* Google Fonts are loaded via <link> tags in layout/_partial/common/head.njk.
- * All theme font families share one display=swap request (preloaded in head.njk);
- * the preloader keeps the page covered until document fonts finish loading or the
- * bounded timeout fires (scripts/helpers.js → google_font_urls). */
+/* Google Fonts via head.njk (one display=swap bundle from google_font_urls).
+ * Preloader: font <link> load + fonts.ready twice (rAF), connection-aware deadline, longer CSS failsafe. */
 
 /* ── Cascade layers ──
  *
@@ -224,8 +222,7 @@
         }
     }
 
-    /* Font-load preloader: an opaque veil that hides font loading, then fades out.
-       A CSS failsafe also dismisses it when JS never runs. */
+    /* Preloader veil; CSS failsafe (6s) must outlive longest JS deadline (5s). */
     .shiro-preloader {
         position: fixed;
         inset: 0;

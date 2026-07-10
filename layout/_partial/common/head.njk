@@ -68,8 +68,11 @@
             if (darkQuery.addEventListener) darkQuery.addEventListener('change', followSystem);
             else if (darkQuery.addListener) darkQuery.addListener(followSystem);
         }
+        // Preloader skip: session value must match this page's font-bundle URL.
+        const fontsReadyToken = {{ js_value(google_fonts[0] if google_fonts.length else '') | safe }};
+        window.__shiroFontsReadyToken = fontsReadyToken;
         try {
-            if (sessionStorage.getItem('shiro:fonts-ready') === '1') {
+            if (fontsReadyToken && sessionStorage.getItem('shiro:fonts-ready') === fontsReadyToken) {
                 html.classList.add('shiro-preloader-done');
             }
         } catch (_) {}

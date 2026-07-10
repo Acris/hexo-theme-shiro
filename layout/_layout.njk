@@ -48,8 +48,7 @@
 {% include "_partial/common/head.njk" %}
 
 <body class="h-full fog-bg text-slate-800"{% if needs_lightgallery %} data-shiro-lightgallery="true"{% endif %}>
-    <!-- Font-load preloader: covers the page until document fonts finish loading
-         or preloader.min.js reaches its timeout. -->
+    <!-- Preloader: font CSS load + fonts.ready, or preloader.min.js deadline. -->
     <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true">
         <div class="shiro-preloader-ripple" aria-hidden="true">
             <span class="shiro-preloader-ring"></span>
