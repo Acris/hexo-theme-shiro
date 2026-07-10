@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until document fonts are ready, with a bounded timeout so a slow font CDN cannot hold the page indefinitely.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **MathJax**: Optional TeX math rendering with per-page opt-in CDN loading.
+- **MathJax**: Optional MathJax v4 TeX rendering (`enabled` / `every_page` / front-matter, Markdown shield; `$...$` opt-in via `inline_dollars`; no KaTeX).
 - **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image stays eager for the initial viewport. LightGallery assets are prefetched ahead of the first click, so the lightbox opens instantly — even on touch devices.
 - **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
 - **Google Analytics**: GA4 support with non-blocking script loading.
@@ -162,13 +162,31 @@ lightGallery:
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
 
-# MathJax TeX rendering. Add `mathjax: true` to a post/page front matter
-# to load MathJax and protect TeX from Markdown escaping on that page.
+# MathJax TeX rendering (MathJax only; no KaTeX). Official defaults are
+# \(...\) / $$...$$ / \[...\]; single $...$ stays off unless inline_dollars: true.
+# Usage: set enabled: true, then front-matter mathjax: true and/or every_page: true.
 mathjax:
-  # MathJax script URL; override to pin, self-host, or change CDN provider.
-  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # false = never inject; true = follow every_page / front-matter.
+  enabled: false
+  # false = only pages with mathjax: true in front-matter.
+  # true  = all post/page views except mathjax: false (opt-out).
+  # When true and protect is on, every such page is scanned by the Markdown
+  # shield (including pages with no formulas) — same gate as script load.
+  every_page: false
+  # MathJax script URL; pin a version for reproducibility (like lightGallery).
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
   # Equation numbering: none, ams, or all.
   tags: none
+  # Enable $...$ as inline math. Default false matches MathJax v4; demos opt in
+  # with inlineMath: {'[+]': [['$', '$']]}. When true, also shields prose \$.
+  inline_dollars: false
+  # Process bare \begin{env}...\end{env} outside delimiters (MathJax default).
+  process_environments: true
+  # Treat \$ as a literal dollar in text (MathJax processEscapes; default true).
+  process_escapes: true
+  # Markdown shield in scripts/mathjax.js. Set false if you use
+  # hexo-renderer-pandoc --mathjax or hexo-filter-mathjax (avoid double work).
+  protect: true
 
 # Dark mode
 # Default theme: system (follow OS), light, or dark
@@ -301,15 +319,37 @@ lightGallery:
 
 ### MathJax
 
-Shiro can render TeX formulas with [MathJax](https://www.mathjax.org/) without installing a theme dependency. Configure the script URL and equation numbering in `_config.yml` or `_config.shiro.yml`:
+Shiro renders TeX with [MathJax](https://docs.mathjax.org/en/v4.0/) only (no KaTeX). There is no extra theme dependency: the CDN script loads on demand. Configure in `_config.yml` or `_config.shiro.yml`:
 
 ```yaml
 mathjax:
-  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
-  tags: none
+  enabled: false          # must set true to allow any MathJax injection
+  every_page: false       # false = only front-matter mathjax: true; true = all posts/pages except mathjax: false (also runs protect on those pages)
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
+  tags: none              # none | ams | all
+  inline_dollars: false   # set true to append $...$ via MathJax '[+]' API (MathJax v4 default is off)
+  process_environments: true  # bare \begin{env}...\end{env} outside delimiters
+  process_escapes: true   # MathJax processEscapes — \$ as a literal dollar in text
+  protect: true           # Markdown shield in scripts/mathjax.js
 ```
 
-Load MathJax on an individual post/page by adding front matter:
+**Loading rules** (post/page only; home/archives never load):
+
+| `enabled` | `every_page` | front-matter | Load? |
+|-----------|--------------|--------------|-------|
+| `false` | * | * | No |
+| `true` | `false` | `mathjax: true` | Yes |
+| `true` | `false` | unset / `false` | No |
+| `true` | `true` | unset / `true` | Yes |
+| `true` | `true` | `mathjax: false` | No (opt-out) |
+
+Typical setup — enable the feature, then mark posts that need math:
+
+```yaml
+# _config.shiro.yml
+mathjax:
+  enabled: true
+```
 
 ```yaml
 ---
@@ -318,7 +358,21 @@ mathjax: true
 ---
 ```
 
-Only pages with `mathjax: true` load the MathJax script. On those pages Shiro protects common TeX math forms before Markdown rendering — `$...$`, `$$...$$`, `\(...\)`, `\[...\]`, and bare math environments such as `\begin{align}...\end{align}` — then restores them after rendering, so Markdown renderers do not strip TeX escapes such as `\[` or `\!` before MathJax sees them. MathJax's `processEscapes` is always enabled, so authors can write escaped dollar signs such as `\$5` without starting inline math.
+Site-wide math blog: `enabled: true` and `every_page: true`; use `mathjax: false` on pages that should stay script-free. With `every_page: true` and `protect: true`, the Markdown shield scans every post/page that loads MathJax (including pages without formulas) so load and protect never diverge; the extra build cost is intentional and usually small.
+
+With `protect: true` (default), the Markdown shield runs on the **same pages that load MathJax** — so `\(...\)`, `\[...\]`, `$$...$$`, and whitelisted bare environments such as `\begin{align}...\end{align}` keep their TeX escapes (`\[`, `\!`, …). When `inline_dollars: true`, `$...$` and prose `\$` are shielded as well. Unclosed delimiters (e.g. a lone `\[` without `\]`, or `\begin{align}` without `\end{align}`) are left unprotected so the rest of the page is not swallowed into a placeholder; during `hexo generate` / `hexo g` the theme also logs a warning (`[mathjax] unclosed …`, including the post source path when available) without changing protect results. Bare-env **shielding** is independent of `process_environments` (that flag only controls the browser MathJax option).
+
+**Delimiters.** MathJax v4 defaults are `\(...\)` (inline) and `$$...$$` / `\[...\]` (display). Single-dollar `$...$` is **off** by default (official docs and stock config). Set `inline_dollars: true` to opt in the same way as the [MathJax demos](https://mathjax.github.io/MathJax-demos-web/page/tex-chtml.html) (`inlineMath: {'[+]': [['$', '$']]}`).
+
+**Currency.** With default `inline_dollars: false`, ordinary `$5` is plain text. If you enable single dollars, prefer `\$2.50` (Markdown shield + client `process_escapes: true`) or `<span>$</span>2.50`; ambiguous `$…$` pairs can still be misread as math. Note: the Markdown shield for prose `\$` is gated only by `inline_dollars` — `process_escapes` is a **client-only** MathJax option and does not turn the shield on or off.
+
+**Advanced / mutual exclusion.**
+
+- **`hexo-renderer-pandoc`** with `--mathjax`: set `mathjax.protect: false` so only one layer handles math-in-Markdown.
+- **`hexo-filter-mathjax`** (server-side): set `mathjax.enabled: false` (or leave it false) so the theme never injects a second renderer; do not combine with `every_page: true` or front-matter `mathjax: true` while the filter is active.
+- **KaTeX** is not shipped. Use a site-level markdown-it KaTeX plugin if you need it, and do not enable Shiro MathJax on the same pages.
+
+Pin `mathjax.src` to a concrete version (default `4.1.3`) for reproducible builds, similar to LightGallery.
 
 ### Search
 
@@ -381,6 +435,7 @@ hexo-theme-shiro/
 │   └── category.njk        # Category page
 ├── scripts/
 │   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
+│   ├── mathjax.js          # MathJax load gate + Markdown TeX protect/restore
 │   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
 │   └── pagefind.js         # Pagefind indexing hook
 ├── source/

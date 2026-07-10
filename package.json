@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch",
-    "build": "node tools/build-assets.js"
+    "build": "node tools/build-assets.js",
+    "test": "node --test test/**/*.js"
   },
   "keywords": [
     "hexo",

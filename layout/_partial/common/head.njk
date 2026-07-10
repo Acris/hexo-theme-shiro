@@ -76,16 +76,21 @@
     })();
     </script>
     {% if needs_mathjax %}
+    {# MathJax v4 defaults already include \(...\) and $$ / \[ \]. Optionally
+       append $...$ via the official '[+]' API when inline_dollars is enabled. #}
+    {% set mathjax_tags_raw = mathjax_config.tags | default('none', true) %}
+    {% set mathjax_tags = mathjax_tags_raw if mathjax_tags_raw == 'ams' or mathjax_tags_raw == 'all' else 'none' %}
     <!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
          theme/font hints, while still before blocking stylesheets can delay discovery. -->
     <script data-cfasync="false">
         window.MathJax = {
             tex: {
-                inlineMath: {{ js_value([['$', '$'], ['\\(', '\\)']]) | safe }},
-                displayMath: {{ js_value([['$$', '$$'], ['\\[', '\\]']]) | safe }},
-                processEscapes: true,
-                processEnvironments: true,
-                tags: {{ js_value(mathjax_config.tags | default('none', true)) | safe }}
+                {% if mathjax_inline_dollars %}
+                inlineMath: { '[+]': {{ js_value([['$', '$']]) | safe }} },
+                {% endif %}
+                processEscapes: {{ js_value(mathjax_process_escapes) | safe }},
+                processEnvironments: {{ js_value(mathjax_process_environments) | safe }},
+                tags: {{ js_value(mathjax_tags) | safe }}
             }
         };
     </script>

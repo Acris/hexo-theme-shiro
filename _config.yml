@@ -52,13 +52,31 @@ lightGallery:
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
 
-# MathJax TeX rendering. Add `mathjax: true` to a post/page front matter
-# to load MathJax and protect TeX from Markdown escaping on that page.
+# MathJax TeX rendering (MathJax only; no KaTeX). Official defaults are
+# \(...\) / $$...$$ / \[...\]; single $...$ stays off unless inline_dollars: true.
+# Usage: set enabled: true, then front-matter mathjax: true and/or every_page: true.
 mathjax:
-  # MathJax script URL; override to pin, self-host, or change CDN provider.
-  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # false = never inject; true = follow every_page / front-matter.
+  enabled: false
+  # false = only pages with mathjax: true in front-matter.
+  # true  = all post/page views except mathjax: false (opt-out).
+  # When true and protect is on, every such page is scanned by the Markdown
+  # shield (including pages with no formulas) — same gate as script load.
+  every_page: false
+  # MathJax script URL; pin a version for reproducibility (like lightGallery).
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
   # Equation numbering: none, ams, or all.
   tags: none
+  # Enable $...$ as inline math. Default false matches MathJax v4; demos opt in
+  # with inlineMath: {'[+]': [['$', '$']]}. When true, also shields prose \$.
+  inline_dollars: false
+  # Process bare \begin{env}...\end{env} outside delimiters (MathJax default).
+  process_environments: true
+  # Treat \$ as a literal dollar in text (MathJax processEscapes; default true).
+  process_escapes: true
+  # Markdown shield in scripts/mathjax.js. Set false if you use
+  # hexo-renderer-pandoc --mathjax or hexo-filter-mathjax (avoid double work).
+  protect: true
 
 # Dark mode
 # Default theme: system (follow OS), light, or dark

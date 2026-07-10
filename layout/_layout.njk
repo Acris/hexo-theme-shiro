@@ -19,8 +19,22 @@
 {% set page_lang = page.lang or page.language or config_lang %}
 {% set needs_code = page_has_code(page, theme) %}
 {% set needs_toc = toc_config.enabled != false and (is_post() or is_page()) and should_render_toc(page, toc_config) %}
-{% set needs_mathjax = (is_post() or is_page()) and page.mathjax == true %}
-{% set mathjax_src = safe_resource_url_for(mathjax_config.src, 'https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js') if needs_mathjax else '' %}
+{# MathJax: enabled + (every_page | front-matter); mathjax: false always opts out.
+   Resolve config once per post/page via mathjax_options(), then reuse for the gate
+   and (when loading) client flags — defaults match resolveMathjaxConfig. #}
+{% set needs_mathjax = false %}
+{% set mathjax_src = '' %}
+{% if is_post() or is_page() %}
+{% set mathjax_opts = mathjax_options() %}
+{% set needs_mathjax = page_wants_mathjax(page, mathjax_opts) %}
+{% if needs_mathjax %}
+{% set mathjax_default_src = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js' %}
+{% set mathjax_src = safe_resource_url_for(mathjax_config.src, mathjax_default_src) %}
+{% set mathjax_inline_dollars = mathjax_opts.inlineDollars %}
+{% set mathjax_process_environments = mathjax_opts.processEnvironments %}
+{% set mathjax_process_escapes = mathjax_opts.processEscapes %}
+{% endif %}
+{% endif %}
 {% set needs_lightgallery = lightgallery_config.enabled != false and (is_post() or is_page()) and has_images(page) %}
 {% set lightgallery_default_js = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js' %}
 {% set lightgallery_default_css = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css' %}

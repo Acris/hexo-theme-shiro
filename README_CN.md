@@ -29,7 +29,7 @@
 - **回到顶部**：平滑滚动的回到顶部按钮。
 - **字体加载遮罩**：在页面字体就绪前，用一层主题雾面遮罩盖住页面，配以淡淡的朱红涟漪，并带有最大等待时间，避免字体 CDN 过慢时无限遮挡页面。
 - **代码块**：语法高亮，带复制按钮和语言标签。
-- **MathJax**：可选的 TeX 数学公式渲染，通过 front matter 单页开启 CDN 脚本。
+- **MathJax**：可选的 MathJax v4 TeX 渲染（`enabled` / `every_page` / front-matter、Markdown 护栏；`$...$` 需 `inline_dollars` 开启；不内置 KaTeX）。
 - **图片**：构建期为正文图片补充加载、解码、尺寸和优先级属性，文章首图保留 eager 以照顾首屏。LightGallery 资源会提前预取，因此即便是没有悬停的触摸设备也能点击即开。
 - **评论系统**：支持 Disqus 和 giscus（GitHub Discussions）评论系统，接近评论区时按需加载。
 - **Google Analytics**：GA4 支持，非阻塞脚本加载。
@@ -159,13 +159,31 @@ lightGallery:
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
 
-# MathJax TeX 公式渲染。在文章/页面 front matter 中添加 `mathjax: true`
-# 即可加载 MathJax，并保护 TeX 不被 Markdown 转义改写。
+# MathJax TeX 公式渲染（仅 MathJax，无 KaTeX）。官方默认是
+# \(...\) / $$...$$ / \[...\]；单美元 $...$ 默认关闭，需 inline_dollars: true。
+# 用法：先设 enabled: true，再 front-matter mathjax: true 和/或 every_page: true。
 mathjax:
-  # MathJax 脚本 URL；可覆盖为固定版本、自托管地址或其他 CDN。
-  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
+  # false = 永不注入；true = 按 every_page / front-matter 决定。
+  enabled: false
+  # false = 仅 front-matter 写了 mathjax: true 的页。
+  # true  = 所有文章/页面，除非 front-matter 写 mathjax: false（单页关闭）。
+  # 为 true 且 protect 开启时，上述每个 post/page 都会跑 Markdown 护栏
+  # （含无公式页）——与脚本加载条件一致。
+  every_page: false
+  # MathJax 脚本 URL；建议像 lightGallery 一样固定版本以保证可复现。
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
   # 公式编号：none、ams 或 all。
   tags: none
+  # 启用 $...$ 行内公式。默认 false 与 MathJax v4 一致；演示站用
+  # inlineMath: {'[+]': [['$', '$']]} 显式开启。开启后才会护栏正文 \$。
+  inline_dollars: false
+  # 是否处理定界符外的裸 \begin{env}...\end{env}（与 MathJax 默认一致）。
+  process_environments: true
+  # 将正文 \$ 视为字面美元符号（MathJax processEscapes；默认 true）。
+  process_escapes: true
+  # scripts/mathjax.js 的 Markdown 护栏。若使用 hexo-renderer-pandoc --mathjax
+  # 或 hexo-filter-mathjax，请设为 false，避免重复处理。
+  protect: true
 
 # 暗色模式
 # 默认主题：system（跟随系统）、light 或 dark
@@ -296,15 +314,37 @@ lightGallery:
 
 ### MathJax
 
-Shiro 可以通过 [MathJax](https://www.mathjax.org/) 渲染 TeX 公式，主题本身不需要额外安装依赖。可在 `_config.yml` 或 `_config.shiro.yml` 中配置脚本 URL 和公式编号：
+Shiro **仅**使用 [MathJax](https://docs.mathjax.org/en/v4.0/) 渲染 TeX（不内置 KaTeX），无需额外主题依赖；CDN 脚本按需加载。可在 `_config.yml` 或 `_config.shiro.yml` 中配置：
 
 ```yaml
 mathjax:
-  src: https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js
-  tags: none
+  enabled: false          # 必须设为 true 才允许任何 MathJax 注入
+  every_page: false       # false = 仅 front-matter mathjax: true；true = 全部 post/page（mathjax: false 除外，且会对这些页跑 protect）
+  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
+  tags: none              # none | ams | all
+  inline_dollars: false   # true 时通过 MathJax 官方 '[+]' API 追加 $...$（v4 默认关闭单 $）
+  process_environments: true  # 定界符外的裸 \begin{env}...\end{env}
+  process_escapes: true   # MathJax processEscapes — 正文 \$ 为字面美元
+  protect: true           # scripts/mathjax.js 的 Markdown 护栏
 ```
 
-在需要公式的文章/页面 front matter 中添加：
+**加载规则**（仅 post/page；首页/归档等永不加载）：
+
+| `enabled` | `every_page` | front-matter | 是否加载 |
+|-----------|--------------|--------------|----------|
+| `false` | * | * | 否 |
+| `true` | `false` | `mathjax: true` | 是 |
+| `true` | `false` | 未写 / `false` | 否 |
+| `true` | `true` | 未写 / `true` | 是 |
+| `true` | `true` | `mathjax: false` | 否（单页关闭） |
+
+常见用法：先打开功能，再在需要公式的文章上标记：
+
+```yaml
+# _config.shiro.yml
+mathjax:
+  enabled: true
+```
 
 ```yaml
 ---
@@ -313,7 +353,21 @@ mathjax: true
 ---
 ```
 
-只有设置 `mathjax: true` 的页面会加载 MathJax 脚本。在这些页面里，Shiro 会在 Markdown 渲染前保护常见 TeX 公式写法：`$...$`、`$$...$$`、`\(...\)`、`\[...\]`，以及 `\begin{align}...\end{align}` 这类裸数学环境，并在渲染后恢复，避免常见 Markdown 渲染器在 MathJax 处理前吃掉 `\[` 或 `\!` 等 TeX 反斜杠转义。MathJax 的 `processEscapes` 始终启用，因此作者可以写转义美元符号（如 `\$5`）而不触发行内公式。
+全站数学向博客可设 `enabled: true` 与 `every_page: true`，个别无公式页写 `mathjax: false` 即可跳过脚本。在 `every_page: true` 且 `protect: true` 时，凡会加载 MathJax 的 post/page（含无公式页）都会跑 Markdown 护栏扫描，使加载与护栏条件始终一致；多出来的构建开销是有意为之，通常可忽略。
+
+当 `protect: true`（默认）时，护栏与加载使用**同一套页面条件**，会在 Markdown 渲染前保护 TeX 并在之后恢复——包括 `\(...\)`、`\[...\]`、`$$...$$`，以及 `\begin{align}...\end{align}` 等白名单裸环境，避免 `\[`、`\!` 等被渲染器吃掉。仅当 `inline_dollars: true` 时才额外保护 `$...$` 与正文 `\$`。未闭合的定界符（如只有 `\[` 没有 `\]`，或 `\begin{align}` 没有 `\end{align}`）不会整段吞到文末，以免误伤后续正文；在 `hexo generate` / `hexo g` 时还会打出 `[mathjax] unclosed …` 警告（尽量带上文章 source 路径；不改变 protect 结果）。裸 env 的**护栏**不受 `process_environments` 影响（该开关只控制浏览器端 MathJax）。
+
+**定界符。** MathJax v4 默认是行内 `\(...\)`、独立 `$$...$$` / `\[...\]`。单美元 `$...$` **默认关闭**（官方文档与默认配置）。若需要，设 `inline_dollars: true`，与 [MathJax 演示](https://mathjax.github.io/MathJax-demos-web/page/tex-chtml.html) 相同：`inlineMath: {'[+]': [['$', '$']]}`。
+
+**货币。** 默认 `inline_dollars: false` 时，普通 `$5` 就是正文。若开启单美元，请优先写 `\$2.50`（Markdown 护栏 + 客户端 `process_escapes: true`）或 `<span>$</span>2.50`；成对的裸 `$…$` 仍可能被当成公式。注意：正文 `\$` 的 Markdown 护栏只由 `inline_dollars` 控制；`process_escapes` 是**仅客户端**的 MathJax 选项，不会开关护栏。
+
+**进阶 / 互斥。**
+
+- **`hexo-renderer-pandoc`** 使用 `--mathjax` 时：将 `mathjax.protect` 设为 `false`，只保留一层 Markdown 数学处理。
+- **`hexo-filter-mathjax`（服务端渲染）**：将 `mathjax.enabled` 设为 `false`（或保持默认 false），避免主题再注入第二套渲染；不要与 `every_page: true` 或 front-matter `mathjax: true` 同时使用。
+- **KaTeX**：主题不提供。若需要，请在站点侧使用 markdown-it KaTeX 等方案，并与 Shiro MathJax 互斥。
+
+`mathjax.src` 建议固定具体版本（默认 `4.1.3`），与 LightGallery 的 pin 策略一致，便于可复现构建。
 
 ### 搜索
 
@@ -375,6 +429,7 @@ hexo-theme-shiro/
 │   └── category.njk        # 分类页
 ├── scripts/
 │   ├── helpers.js          # 自定义 Hexo 辅助函数和生成器（build_toc、clean_description、og_image、favicon_svg 等）
+│   ├── mathjax.js          # MathJax 加载门控 + Markdown TeX 保护/还原
 │   ├── images.js           # after_post_render 图片加载、解码与尺寸优化
 │   └── pagefind.js         # Pagefind 索引钩子
 ├── source/
