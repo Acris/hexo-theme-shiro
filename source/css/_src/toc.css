@@ -6,228 +6,233 @@
    Templates only show it from the `toc` breakpoint (--breakpoint-toc, 85.5rem
    in source/css/_tailwind.css) — the exact width where this geometry first
    fits — so the panel never overlaps the card; keep both in sync. */
-.toc-sidebar {
-    position: fixed;
-    top: 50%;
-    z-index: 30;
-    width: 12.5rem;
-    right: max(1rem, calc((100vw - 56rem) / 2 - 13.75rem));
-    transform: translateY(-50%);
-}
 
-.toc-sidebar-inner {
-    display: flex;
-    flex-direction: column;
-    max-height: 60vh;
-    overflow: hidden;
-    border: 1px solid var(--color-soft-border);
-    border-radius: 0.5rem;
-    background: var(--color-bg-panel);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-}
+/* Participates in the same cascade layers as style.min.css (see _tailwind.css).
+   Keeps feature rules from beating Tailwind utilities as unlayered CSS. */
+@layer components {
+    .toc-sidebar {
+        position: fixed;
+        top: 50%;
+        z-index: 30;
+        width: 12.5rem;
+        right: max(1rem, calc((100vw - 56rem) / 2 - 13.75rem));
+        transform: translateY(-50%);
+    }
 
-.toc-fade-in {
-    opacity: 0;
-    transition: opacity 0.4s var(--ease-soft);
-}
+    .toc-sidebar-inner {
+        display: flex;
+        flex-direction: column;
+        max-height: 60vh;
+        overflow: hidden;
+        border: 1px solid var(--color-soft-border);
+        border-radius: 0.5rem;
+        background: var(--color-bg-panel);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    }
 
-.toc-fade-in.toc-visible {
-    opacity: 1;
-}
+    .toc-fade-in {
+        opacity: 0;
+        transition: opacity 0.4s var(--ease-soft);
+    }
 
-.toc-sidebar-title {
-    flex-shrink: 0;
-    margin: 0;
-    padding: 1rem 1rem 0.75rem;
-    color: var(--color-slate-400);
-    font-family: var(--font-title);
-    font-size: 0.75rem;
-    line-height: 1rem;
-    letter-spacing: var(--tracking-wide);
-    text-align: center;
-}
+    .toc-fade-in.toc-visible {
+        opacity: 1;
+    }
 
-.toc-sidebar-title::before {
-    content: "—\00a0";
-    color: var(--color-slate-300);
-}
+    .toc-sidebar-title {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 1rem 1rem 0.75rem;
+        color: var(--color-slate-400);
+        font-family: var(--font-title);
+        font-size: 0.75rem;
+        line-height: 1rem;
+        letter-spacing: var(--tracking-wide);
+        text-align: center;
+    }
 
-.toc-sidebar-title::after {
-    content: "\00a0—";
-    color: var(--color-slate-300);
-}
+    .toc-sidebar-title::before {
+        content: "—\00a0";
+        color: var(--color-slate-300);
+    }
 
-.toc-sidebar-inner .toc-body {
-    flex: 1 1 0%;
-    overflow-y: auto;
-    padding: 0 1rem 1rem;
-    scrollbar-width: none;
-}
+    .toc-sidebar-title::after {
+        content: "\00a0—";
+        color: var(--color-slate-300);
+    }
 
-.toc-sidebar-inner .toc-body::-webkit-scrollbar {
-    display: none;
-}
+    .toc-sidebar-inner .toc-body {
+        flex: 1 1 0%;
+        overflow-y: auto;
+        padding: 0 1rem 1rem;
+        scrollbar-width: none;
+    }
 
-.toc-inline {
-    overflow: hidden;
-    border: 1px solid var(--color-soft-border);
-    border-radius: 0.5rem;
-    background: var(--color-bg-panel);
-}
+    .toc-sidebar-inner .toc-body::-webkit-scrollbar {
+        display: none;
+    }
 
-.toc-toggle {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.75rem 1rem;
-    color: var(--color-slate-500);
-    cursor: pointer;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    transition: color 0.15s var(--ease-soft);
-}
+    .toc-inline {
+        overflow: hidden;
+        border: 1px solid var(--color-soft-border);
+        border-radius: 0.5rem;
+        background: var(--color-bg-panel);
+    }
 
-.toc-toggle:hover {
-    color: var(--color-seal);
-}
+    .toc-toggle {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        color: var(--color-slate-500);
+        cursor: pointer;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 500;
+        transition: color 0.15s var(--ease-soft);
+    }
 
-.toc-toggle-title {
-    font-family: var(--font-title);
-    font-size: 0.75rem;
-    line-height: 1rem;
-    letter-spacing: var(--tracking-wide);
-}
+    .toc-toggle:hover {
+        color: var(--color-seal);
+    }
 
-.toc-toggle-title::before {
-    content: "—\00a0";
-    color: var(--color-slate-300);
-}
+    .toc-toggle-title {
+        font-family: var(--font-title);
+        font-size: 0.75rem;
+        line-height: 1rem;
+        letter-spacing: var(--tracking-wide);
+    }
 
-.toc-toggle-title::after {
-    content: "\00a0—";
-    color: var(--color-slate-300);
-}
+    .toc-toggle-title::before {
+        content: "—\00a0";
+        color: var(--color-slate-300);
+    }
 
-.toc-inline .toc-body {
-    max-height: 0;
-    overflow: hidden;
-    padding-inline: 1rem;
-    opacity: 0;
-    transition: max-height 0.3s var(--ease-soft), opacity 0.3s var(--ease-soft), padding 0.3s var(--ease-soft);
-}
+    .toc-toggle-title::after {
+        content: "\00a0—";
+        color: var(--color-slate-300);
+    }
 
-.toc-inline .toc-body[data-open="true"] {
-    padding-bottom: 1rem;
-    opacity: 1;
-}
+    .toc-inline .toc-body {
+        max-height: 0;
+        overflow: hidden;
+        padding-inline: 1rem;
+        opacity: 0;
+        transition: max-height 0.3s var(--ease-soft), opacity 0.3s var(--ease-soft), padding 0.3s var(--ease-soft);
+    }
 
-.toc-list {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
+    .toc-inline .toc-body[data-open="true"] {
+        padding-bottom: 1rem;
+        opacity: 1;
+    }
 
-.toc-list > :not(:last-child) {
-    margin-bottom: 0.25rem;
-}
+    .toc-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
 
-.toc-item {
-    line-height: var(--leading-snug);
-}
+    .toc-list > :not(:last-child) {
+        margin-bottom: 0.25rem;
+    }
 
-.toc-item[data-level="0"] {
-    padding-left: 0.75rem;
-}
+    .toc-item {
+        line-height: var(--leading-snug);
+    }
 
-.toc-item[data-level="1"] {
-    padding-left: 1.5rem;
-}
+    .toc-item[data-level="0"] {
+        padding-left: 0.75rem;
+    }
 
-.toc-item[data-level="2"] {
-    padding-left: 2.25rem;
-}
+    .toc-item[data-level="1"] {
+        padding-left: 1.5rem;
+    }
 
-.toc-link {
-    position: relative;
-    display: block;
-    padding: 0.25rem 0;
-    color: var(--color-slate-500);
-    font-family: var(--font-serif);
-    font-size: 0.8rem;
-    line-height: 1.6;
-    text-decoration: none;
-    transition: color 0.2s var(--ease-soft);
-}
+    .toc-item[data-level="2"] {
+        padding-left: 2.25rem;
+    }
 
-.toc-link::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -0.65rem;
-    width: 4px;
-    height: 4px;
-    border-radius: 9999px;
-    background: var(--color-seal);
-    opacity: 0;
-    transform: translateY(-50%) scale(0);
-    transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
-}
+    .toc-link {
+        position: relative;
+        display: block;
+        padding: 0.25rem 0;
+        color: var(--color-slate-500);
+        font-family: var(--font-serif);
+        font-size: 0.8rem;
+        line-height: 1.6;
+        text-decoration: none;
+        transition: color 0.2s var(--ease-soft);
+    }
 
-.toc-link:hover,
-.toc-link.active {
-    color: var(--color-seal);
-}
+    .toc-link::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: -0.65rem;
+        width: 4px;
+        height: 4px;
+        border-radius: 9999px;
+        background: var(--color-seal);
+        opacity: 0;
+        transform: translateY(-50%) scale(0);
+        transition: opacity 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
+    }
 
-.toc-link.active {
-    font-weight: 500;
-}
+    .toc-link:hover,
+    .toc-link.active {
+        color: var(--color-seal);
+    }
 
-.toc-link.active::before {
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
-}
+    .toc-link.active {
+        font-weight: 500;
+    }
 
-html[data-theme="dark"] .toc-sidebar-inner {
-    border-color: var(--color-soft-border);
-    background: var(--color-bg-panel);
-    box-shadow: 0 0 0 1px rgba(200, 200, 200, 0.05), 0 4px 16px rgba(0, 0, 0, 0.3);
-}
+    .toc-link.active::before {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
 
-html[data-theme="dark"] .toc-sidebar-title {
-    color: var(--color-text-subtle);
-}
+    html[data-theme="dark"] .toc-sidebar-inner {
+        border-color: var(--color-soft-border);
+        background: var(--color-bg-panel);
+        box-shadow: 0 0 0 1px rgba(200, 200, 200, 0.05), 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
 
-html[data-theme="dark"] .toc-sidebar-title::before,
-html[data-theme="dark"] .toc-sidebar-title::after {
-    color: var(--color-border-strong);
-}
+    html[data-theme="dark"] .toc-sidebar-title {
+        color: var(--color-text-subtle);
+    }
 
-html[data-theme="dark"] .toc-inline {
-    border-color: var(--color-soft-border);
-    background: var(--color-bg-panel);
-}
+    html[data-theme="dark"] .toc-sidebar-title::before,
+    html[data-theme="dark"] .toc-sidebar-title::after {
+        color: var(--color-border-strong);
+    }
 
-html[data-theme="dark"] .toc-toggle {
-    color: var(--color-text-muted);
-}
+    html[data-theme="dark"] .toc-inline {
+        border-color: var(--color-soft-border);
+        background: var(--color-bg-panel);
+    }
 
-html[data-theme="dark"] .toc-toggle:hover {
-    color: var(--color-seal);
-}
+    html[data-theme="dark"] .toc-toggle {
+        color: var(--color-text-muted);
+    }
 
-html[data-theme="dark"] .toc-toggle-title::before,
-html[data-theme="dark"] .toc-toggle-title::after {
-    color: var(--color-border-strong);
-}
+    html[data-theme="dark"] .toc-toggle:hover {
+        color: var(--color-seal);
+    }
 
-/* Body (not muted): dark muted/slate-500 on panel is ~4.1:1; body stays AA for links. */
-html[data-theme="dark"] .toc-link {
-    color: var(--color-text-body);
-}
+    html[data-theme="dark"] .toc-toggle-title::before,
+    html[data-theme="dark"] .toc-toggle-title::after {
+        color: var(--color-border-strong);
+    }
 
-html[data-theme="dark"] .toc-link:hover,
-html[data-theme="dark"] .toc-link.active {
-    color: var(--color-seal);
+    /* Body (not muted): dark muted/slate-500 on panel is ~4.1:1; body stays AA for links. */
+    html[data-theme="dark"] .toc-link {
+        color: var(--color-text-body);
+    }
+
+    html[data-theme="dark"] .toc-link:hover,
+    html[data-theme="dark"] .toc-link.active {
+        color: var(--color-seal);
+    }
 }

@@ -7,14 +7,18 @@
  *   theme → base → components → utilities.
  *
  * Entry file: imports core parts under source/css/_core/.
- * Optional feature styles live under source/css/_src/ (code, toc, search,
- * lightgallery, comments, giscus) and are minified separately — they mostly
- * adapt runtime/third-party UI and do not need Tailwind compilation.
+ * Optional feature styles under source/css/_src/ (code, toc, search,
+ * lightgallery, comments) are minified separately without Tailwind, but each
+ * file wraps rules in `@layer components` so they share this layer order and
+ * do not win as unlayered CSS over utilities. (giscus.min.css is an iframe
+ * theme served to giscus — not part of the site cascade.)
+ * Feature dark overrides use `html[data-theme=dark]` (same contract as the
+ * custom `dark` variant below) because those files are not Tailwind-scanned.
  *
  *   base        Reset, scrollbars, html/body, global modal scroll lock,
  *               and dark-theme root token swap via Tailwind's custom `dark` variant.
  *   components  Core component classes, light theme + dark overrides,
- *               and theme toggle styles.
+ *               theme toggle styles, and optional feature CSS above.
  *   utilities   Tailwind utility classes + custom `focus-elegant`
  *               (with its dark variant kept in the same layer).
  */

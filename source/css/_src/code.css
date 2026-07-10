@@ -1,418 +1,442 @@
 /* Code block, syntax highlighting, Gist, and clipboard styles.
    Loaded only on pages where rendered content contains code. */
 
-.prose-shiro .highlight:not(.not-prose) {
-    width: 100%;
-    min-width: 0;
-    margin: 1.5rem 0;
-    padding: 0;
-    overflow-x: auto;
-    border: 1px solid var(--color-slate-100);
-    border-radius: 0.5rem;
-    background-color: var(--color-slate-50);
-    color: var(--color-slate-700);
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-
-.prose-shiro .highlight table {
-    width: 100%;
-    min-width: 100%;
-    margin: 0;
-    border-collapse: collapse;
-}
-
-.prose-shiro .highlight td {
-    padding: 0;
-    border: 0;
-}
-
-.prose-shiro .highlight td.gutter {
-    width: 2.5rem;
-    min-width: 2.5rem;
-    user-select: none;
-    border-right: 1px solid var(--color-slate-200);
-    background-color: var(--color-slate-100);
-    /* slate-600 (~6.9:1 on gutter) — slate-400 failed WCAG AA as line-number chrome */
-    color: var(--color-slate-600);
-    text-align: right;
-}
-
-.prose-shiro .highlight pre {
-    margin: 0;
-    background: transparent;
-    color: inherit;
-    font-size: 0.875rem;
-    line-height: var(--leading-relaxed);
-}
-
-.prose-shiro .highlight .comment,
-.prose-shiro .highlight .quote {
-    color: #a8a29e;
-    font-style: italic;
-}
-
-.prose-shiro .highlight .keyword,
-.prose-shiro .highlight .selector-tag,
-.prose-shiro .highlight .literal,
-.prose-shiro .highlight .section,
-.prose-shiro .highlight .link,
-.prose-shiro .highlight .meta-keyword {
-    color: var(--color-seal);
-}
-
-.prose-shiro .highlight .string,
-.prose-shiro .highlight .doctag,
-.prose-shiro .highlight .template-tag,
-.prose-shiro .highlight .template-variable,
-.prose-shiro .highlight .regexp,
-.prose-shiro .highlight .meta-string,
-.prose-shiro .highlight .attr {
-    color: #5b6e3a;
-}
-
-.prose-shiro .highlight .number,
-.prose-shiro .highlight .symbol,
-.prose-shiro .highlight .bullet {
-    color: #a85a1f;
-}
-
-.prose-shiro .highlight .title,
-.prose-shiro .highlight .name,
-.prose-shiro .highlight .selector-id,
-.prose-shiro .highlight .selector-class,
-.prose-shiro .highlight .built_in,
-.prose-shiro .highlight .builtin-name,
-.prose-shiro .highlight .type,
-.prose-shiro .highlight .class .title,
-.prose-shiro .highlight .params {
-    color: var(--color-ink);
-    font-weight: 600;
-}
-
-.prose-shiro .highlight .attribute,
-.prose-shiro .highlight .variable,
-.prose-shiro .highlight .tag {
-    color: #8a4a1a;
-}
-
-.prose-shiro .highlight .meta {
-    color: #8a8278;
-}
-
-.prose-shiro .highlight .addition {
-    color: #4a6b2a;
-    background-color: rgba(91, 110, 58, 0.1);
-}
-
-.prose-shiro .highlight .deletion {
-    color: var(--color-seal);
-    background-color: rgba(175, 58, 82, 0.08);
-}
-
-.prose-shiro .highlight .emphasis {
-    font-style: italic;
-}
-
-.prose-shiro .highlight .strong {
-    font-weight: 600;
-}
-
-.prose-shiro .highlight figcaption {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 0;
-    padding: 0.375rem 0.75rem;
-    border-bottom: 1px solid var(--color-slate-200);
-    background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-    color: var(--color-slate-500);
-    font-size: 0.75rem;
-    line-height: 1rem;
-}
-
-.prose-shiro .highlight figcaption a {
-    color: var(--color-slate-500);
-    text-decoration: none;
-}
-
-.prose-shiro .highlight figcaption a:hover {
-    color: var(--color-seal);
-}
-
-.prose-shiro .highlight .line.marked {
-    background-color: color-mix(in srgb, var(--color-seal) 8%, transparent);
-}
-
-.prose-shiro pre > code {
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    color: inherit;
-    font-weight: inherit;
-    text-shadow: none;
-}
-
-.prose-shiro pre > code::before,
-.prose-shiro pre > code::after {
-    content: "";
-}
-
-.prose-shiro .gist {
-    margin: 1.5rem 0;
-    overflow-x: auto;
-    border: 1px solid var(--color-slate-100);
-    border-radius: 0.5rem;
-    background-color: var(--color-slate-50);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
-}
-
-.prose-shiro .gist .gist-file {
-    margin: 0;
-    border: 0;
-}
-
-.prose-shiro .gist .gist-data {
-    border-bottom: 1px solid var(--color-slate-200);
-    background: transparent;
-}
-
-.prose-shiro .gist .gist-meta {
-    padding: 0.5rem 0.75rem;
-    background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-    color: var(--color-slate-500);
-    font-size: 0.75rem;
-    line-height: 1rem;
-}
-
-.prose-shiro .gist .gist-meta a {
-    color: var(--color-slate-600);
-    text-decoration: none;
-}
-
-.prose-shiro .gist .gist-meta a:hover {
-    color: var(--color-seal);
-}
-
-.prose-shiro .gist .line-numbers {
-    color: var(--color-slate-600);
-}
-
-.highlight-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-@media (min-width: 1024px) {
-    /* Slight full-bleed past the intentional 65ch reading measure (not full paper
-       width). Bleed distance is owned by .prose-shiro --shiro-code-bleed so the
-       measure and expansion stay one design contract. Pre-apply on .highlight so
-       first paint matches the width after clipboard.js wraps the block. */
-    .prose-shiro .highlight:not(.not-prose),
-    .highlight-wrapper {
-        width: calc(100% + (2 * var(--shiro-code-bleed, 3.5rem)));
-        margin-right: calc(-1 * var(--shiro-code-bleed, 3.5rem));
-        margin-left: calc(-1 * var(--shiro-code-bleed, 3.5rem));
-    }
-
-    /* Once wrapped, let the wrapper own the geometry to avoid doubling margins. */
-    .highlight-wrapper > .highlight:not(.not-prose) {
+/* Participates in the same cascade layers as style.min.css (see _tailwind.css).
+   Keeps feature rules from beating Tailwind utilities as unlayered CSS. */
+@layer components {
+    .prose-shiro .highlight:not(.not-prose) {
         width: 100%;
-        margin-right: 0;
-        margin-left: 0;
+        min-width: 0;
+        margin: 1.5rem 0;
+        padding: 0;
+        overflow-x: auto;
+        border: 1px solid var(--color-slate-100);
+        border-radius: 0.5rem;
+        background-color: var(--color-slate-50);
+        color: var(--color-slate-700);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
     }
-}
 
-.highlight-wrapper > .copy-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.375rem;
-    border: 1px solid color-mix(in srgb, var(--color-slate-200) 60%, transparent);
-    border-radius: 2px;
-    background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
-    color: var(--color-slate-300);
-    cursor: pointer;
-    opacity: 0;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft), color 0.3s var(--ease-soft), background-color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft), box-shadow 0.3s var(--ease-soft);
-}
+    .prose-shiro .highlight table {
+        width: 100%;
+        min-width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
 
-.highlight-wrapper > .copy-btn svg {
-    width: 0.875rem;
-    height: 0.875rem;
-}
+    .prose-shiro .highlight td {
+        padding: 0;
+        border: 0;
+    }
 
-.highlight-wrapper > .copy-btn:hover {
-    border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
-    background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
-    color: var(--color-seal);
-}
+    .prose-shiro .highlight td.gutter {
+        width: 2.5rem;
+        min-width: 2.5rem;
+        user-select: none;
+        border-right: 1px solid var(--color-slate-200);
+        background-color: var(--color-slate-100);
+        /* slate-600 (~6.9:1 on gutter) — slate-400 failed WCAG AA as line-number chrome */
+        color: var(--color-slate-600);
+        text-align: right;
+    }
 
-.highlight-wrapper > .copy-btn.copied {
-    border-color: var(--color-seal);
-    color: var(--color-seal);
-    opacity: 0.85;
-}
+    .prose-shiro .highlight pre {
+        margin: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 0.875rem;
+        line-height: var(--leading-relaxed);
+    }
 
-.highlight-wrapper:hover > .copy-btn {
-    opacity: 0.7;
-}
+    .prose-shiro .highlight .comment,
+    .prose-shiro .highlight .quote {
+        color: #a8a29e;
+        font-style: italic;
+    }
 
-.highlight-wrapper:hover > .copy-btn:hover {
-    opacity: 1;
-}
+    .prose-shiro .highlight .keyword,
+    .prose-shiro .highlight .selector-tag,
+    .prose-shiro .highlight .literal,
+    .prose-shiro .highlight .section,
+    .prose-shiro .highlight .link,
+    .prose-shiro .highlight .meta-keyword {
+        color: var(--color-seal);
+    }
 
-.highlight-wrapper > .code-lang {
-    position: absolute;
-    right: 0.5rem;
-    bottom: 0.5rem;
-    color: var(--color-text-faint);
-    font-family: var(--font-code);
-    font-size: 0.65rem;
-    letter-spacing: 0.04em;
-    pointer-events: none;
-    user-select: none;
-}
+    .prose-shiro .highlight .string,
+    .prose-shiro .highlight .doctag,
+    .prose-shiro .highlight .template-tag,
+    .prose-shiro .highlight .template-variable,
+    .prose-shiro .highlight .regexp,
+    .prose-shiro .highlight .meta-string,
+    .prose-shiro .highlight .attr {
+        color: #5b6e3a;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight:not(.not-prose) {
-    border-color: var(--color-border-strong);
-    background-color: var(--color-code-bg);
-    color: var(--color-text-body);
-}
+    .prose-shiro .highlight .number,
+    .prose-shiro .highlight .symbol,
+    .prose-shiro .highlight .bullet {
+        color: #a85a1f;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight td.gutter {
-    border-color: var(--color-border-strong);
-    background-color: var(--color-code-gutter);
-    /* Remapped slate-600 (#918e8a) clears AA on code-gutter; subtle/muted-dark do not. */
-    color: var(--color-slate-600);
-}
+    .prose-shiro .highlight .title,
+    .prose-shiro .highlight .name,
+    .prose-shiro .highlight .selector-id,
+    .prose-shiro .highlight .selector-class,
+    .prose-shiro .highlight .built_in,
+    .prose-shiro .highlight .builtin-name,
+    .prose-shiro .highlight .type,
+    .prose-shiro .highlight .class .title,
+    .prose-shiro .highlight .params {
+        color: var(--color-ink);
+        font-weight: 600;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .comment,
-html[data-theme="dark"] .prose-shiro .highlight .quote {
-    color: var(--color-text-subtle);
-    font-style: italic;
-}
+    .prose-shiro .highlight .attribute,
+    .prose-shiro .highlight .variable,
+    .prose-shiro .highlight .tag {
+        color: #8a4a1a;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .keyword,
-html[data-theme="dark"] .prose-shiro .highlight .selector-tag,
-html[data-theme="dark"] .prose-shiro .highlight .literal,
-html[data-theme="dark"] .prose-shiro .highlight .section,
-html[data-theme="dark"] .prose-shiro .highlight .link,
-html[data-theme="dark"] .prose-shiro .highlight .meta-keyword {
-    color: color-mix(in srgb, var(--color-seal) 75%, white);
-}
+    .prose-shiro .highlight .meta {
+        color: #8a8278;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .string,
-html[data-theme="dark"] .prose-shiro .highlight .doctag,
-html[data-theme="dark"] .prose-shiro .highlight .template-tag,
-html[data-theme="dark"] .prose-shiro .highlight .template-variable,
-html[data-theme="dark"] .prose-shiro .highlight .regexp,
-html[data-theme="dark"] .prose-shiro .highlight .meta-string,
-html[data-theme="dark"] .prose-shiro .highlight .attr {
-    color: #b5c48a;
-}
+    .prose-shiro .highlight .addition {
+        color: #4a6b2a;
+        background-color: rgba(91, 110, 58, 0.1);
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .number,
-html[data-theme="dark"] .prose-shiro .highlight .symbol,
-html[data-theme="dark"] .prose-shiro .highlight .bullet {
-    color: #e0a571;
-}
+    .prose-shiro .highlight .deletion {
+        color: var(--color-seal);
+        background-color: rgba(175, 58, 82, 0.08);
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .title,
-html[data-theme="dark"] .prose-shiro .highlight .name,
-html[data-theme="dark"] .prose-shiro .highlight .selector-id,
-html[data-theme="dark"] .prose-shiro .highlight .selector-class,
-html[data-theme="dark"] .prose-shiro .highlight .built_in,
-html[data-theme="dark"] .prose-shiro .highlight .builtin-name,
-html[data-theme="dark"] .prose-shiro .highlight .type,
-html[data-theme="dark"] .prose-shiro .highlight .class .title,
-html[data-theme="dark"] .prose-shiro .highlight .params {
-    color: var(--color-text-heading);
-    font-weight: 600;
-}
+    .prose-shiro .highlight .emphasis {
+        font-style: italic;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .attribute,
-html[data-theme="dark"] .prose-shiro .highlight .variable,
-html[data-theme="dark"] .prose-shiro .highlight .tag {
-    color: #d49a6a;
-}
+    .prose-shiro .highlight .strong {
+        font-weight: 600;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .meta {
-    color: var(--color-text-subtle);
-}
+    .prose-shiro .highlight figcaption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0;
+        padding: 0.375rem 0.75rem;
+        border-bottom: 1px solid var(--color-slate-200);
+        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
+        color: var(--color-slate-500);
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .addition {
-    color: #b5c48a;
-    background-color: rgba(181, 196, 138, 0.1);
-}
+    .prose-shiro .highlight figcaption a {
+        color: var(--color-slate-500);
+        text-decoration: none;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .deletion {
-    color: color-mix(in srgb, var(--color-seal) 75%, white);
-    background-color: rgba(175, 58, 82, 0.15);
-}
+    .prose-shiro .highlight figcaption a:hover {
+        color: var(--color-seal);
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight figcaption {
-    border-bottom-color: var(--color-border-strong);
-    background-color: var(--color-code-gutter);
-    color: var(--color-text-muted);
-}
+    .prose-shiro .highlight .line.marked {
+        background-color: color-mix(in srgb, var(--color-seal) 8%, transparent);
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight figcaption a {
-    color: var(--color-text-muted);
-}
+    .prose-shiro pre > code {
+        padding: 0;
+        border-radius: 0;
+        background: none;
+        color: inherit;
+        font-weight: inherit;
+        text-shadow: none;
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight figcaption a:hover {
-    color: var(--color-seal);
-}
+    .prose-shiro pre > code::before,
+    .prose-shiro pre > code::after {
+        content: "";
+    }
 
-html[data-theme="dark"] .prose-shiro .highlight .line.marked {
-    background-color: color-mix(in srgb, var(--color-seal) 12%, transparent);
-}
+    .prose-shiro .gist {
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        border: 1px solid var(--color-slate-100);
+        border-radius: 0.5rem;
+        background-color: var(--color-slate-50);
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
 
-html[data-theme="dark"] .prose-shiro .gist {
-    border-color: var(--color-border-strong);
-    background-color: var(--color-code-bg);
-}
+    .prose-shiro .gist .gist-file {
+        margin: 0;
+        border: 0;
+    }
 
-html[data-theme="dark"] .prose-shiro .gist .gist-data {
-    border-bottom-color: var(--color-border-strong);
-}
+    .prose-shiro .gist .gist-data {
+        border-bottom: 1px solid var(--color-slate-200);
+        background: transparent;
+    }
 
-html[data-theme="dark"] .prose-shiro .gist .gist-meta {
-    background-color: var(--color-code-gutter);
-    color: var(--color-text-muted);
-}
+    .prose-shiro .gist .gist-meta {
+        padding: 0.5rem 0.75rem;
+        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
+        color: var(--color-slate-500);
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
 
-html[data-theme="dark"] .prose-shiro .gist .gist-meta a {
-    color: var(--color-text-muted);
-}
+    .prose-shiro .gist .gist-meta a {
+        color: var(--color-slate-600);
+        text-decoration: none;
+    }
 
-html[data-theme="dark"] .prose-shiro .gist .gist-meta a:hover {
-    color: var(--color-seal);
-}
+    .prose-shiro .gist .gist-meta a:hover {
+        color: var(--color-seal);
+    }
 
-html[data-theme="dark"] .prose-shiro .gist .line-numbers {
-    color: var(--color-slate-600);
-}
+    .prose-shiro .gist .line-numbers {
+        color: var(--color-slate-600);
+    }
 
-html[data-theme="dark"] .highlight-wrapper > .copy-btn {
-    border-color: var(--color-border-decorative);
-    background-color: var(--color-bg-overlay);
-    color: var(--color-text-subtle);
-}
+    .highlight-wrapper {
+        position: relative;
+        width: 100%;
+    }
 
-html[data-theme="dark"] .highlight-wrapper > .copy-btn:hover {
-    border-color: var(--color-seal);
-    background-color: var(--color-bg-panel);
-    color: var(--color-seal);
-}
+    @media (min-width: 1024px) {
+        /* Slight full-bleed past the intentional 65ch reading measure (not full paper
+           width). Bleed distance is owned by .prose-shiro --shiro-code-bleed so the
+           measure and expansion stay one design contract. Pre-apply on .highlight so
+           first paint matches the width after clipboard.js wraps the block. */
+        .prose-shiro .highlight:not(.not-prose),
+        .highlight-wrapper {
+            width: calc(100% + (2 * var(--shiro-code-bleed, 3.5rem)));
+            margin-right: calc(-1 * var(--shiro-code-bleed, 3.5rem));
+            margin-left: calc(-1 * var(--shiro-code-bleed, 3.5rem));
+        }
 
-html[data-theme="dark"] .highlight-wrapper > .code-lang {
-    color: var(--color-text-faint);
+        /* Once wrapped, let the wrapper own the geometry to avoid doubling margins. */
+        .highlight-wrapper > .highlight:not(.not-prose) {
+            width: 100%;
+            margin-right: 0;
+            margin-left: 0;
+        }
+    }
+
+    .highlight-wrapper > .copy-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.375rem;
+        border: 1px solid color-mix(in srgb, var(--color-slate-200) 60%, transparent);
+        border-radius: 2px;
+        background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
+        color: var(--color-slate-300);
+        cursor: pointer;
+        /* Hidden until hover/focus on pointer devices; always discoverable on touch. */
+        opacity: 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft), color 0.3s var(--ease-soft), background-color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft), box-shadow 0.3s var(--ease-soft);
+    }
+
+    .highlight-wrapper > .copy-btn svg {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .highlight-wrapper > .copy-btn:hover {
+        border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
+        background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
+        color: var(--color-seal);
+    }
+
+    .highlight-wrapper > .copy-btn.copied {
+        border-color: var(--color-seal);
+        color: var(--color-seal);
+        opacity: 0.85;
+    }
+
+    /* Pointer hover, keyboard focus into the block, or focus on the control itself. */
+    .highlight-wrapper:hover > .copy-btn,
+    .highlight-wrapper:focus-within > .copy-btn,
+    .highlight-wrapper > .copy-btn:focus-visible {
+        opacity: 0.7;
+    }
+
+    .highlight-wrapper:hover > .copy-btn:hover,
+    .highlight-wrapper > .copy-btn:focus-visible {
+        opacity: 1;
+    }
+
+    .highlight-wrapper > .copy-btn:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--color-seal) 55%, transparent);
+        outline-offset: 2px;
+        border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
+        color: var(--color-seal);
+    }
+
+    /* Touch / no-hover: keep the control visible so it is discoverable. */
+    @media (hover: none) {
+        .highlight-wrapper > .copy-btn {
+            opacity: 0.7;
+        }
+    }
+
+    .highlight-wrapper > .code-lang {
+        position: absolute;
+        right: 0.5rem;
+        bottom: 0.5rem;
+        color: var(--color-text-faint);
+        font-family: var(--font-code);
+        font-size: 0.65rem;
+        letter-spacing: 0.04em;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight:not(.not-prose) {
+        border-color: var(--color-border-strong);
+        background-color: var(--color-code-bg);
+        color: var(--color-text-body);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight td.gutter {
+        border-color: var(--color-border-strong);
+        background-color: var(--color-code-gutter);
+        /* Remapped slate-600 (#918e8a) clears AA on code-gutter; subtle/muted-dark do not. */
+        color: var(--color-slate-600);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .comment,
+    html[data-theme="dark"] .prose-shiro .highlight .quote {
+        color: var(--color-text-subtle);
+        font-style: italic;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .keyword,
+    html[data-theme="dark"] .prose-shiro .highlight .selector-tag,
+    html[data-theme="dark"] .prose-shiro .highlight .literal,
+    html[data-theme="dark"] .prose-shiro .highlight .section,
+    html[data-theme="dark"] .prose-shiro .highlight .link,
+    html[data-theme="dark"] .prose-shiro .highlight .meta-keyword {
+        color: color-mix(in srgb, var(--color-seal) 75%, white);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .string,
+    html[data-theme="dark"] .prose-shiro .highlight .doctag,
+    html[data-theme="dark"] .prose-shiro .highlight .template-tag,
+    html[data-theme="dark"] .prose-shiro .highlight .template-variable,
+    html[data-theme="dark"] .prose-shiro .highlight .regexp,
+    html[data-theme="dark"] .prose-shiro .highlight .meta-string,
+    html[data-theme="dark"] .prose-shiro .highlight .attr {
+        color: #b5c48a;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .number,
+    html[data-theme="dark"] .prose-shiro .highlight .symbol,
+    html[data-theme="dark"] .prose-shiro .highlight .bullet {
+        color: #e0a571;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .title,
+    html[data-theme="dark"] .prose-shiro .highlight .name,
+    html[data-theme="dark"] .prose-shiro .highlight .selector-id,
+    html[data-theme="dark"] .prose-shiro .highlight .selector-class,
+    html[data-theme="dark"] .prose-shiro .highlight .built_in,
+    html[data-theme="dark"] .prose-shiro .highlight .builtin-name,
+    html[data-theme="dark"] .prose-shiro .highlight .type,
+    html[data-theme="dark"] .prose-shiro .highlight .class .title,
+    html[data-theme="dark"] .prose-shiro .highlight .params {
+        color: var(--color-text-heading);
+        font-weight: 600;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .attribute,
+    html[data-theme="dark"] .prose-shiro .highlight .variable,
+    html[data-theme="dark"] .prose-shiro .highlight .tag {
+        color: #d49a6a;
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .meta {
+        color: var(--color-text-subtle);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .addition {
+        color: #b5c48a;
+        background-color: rgba(181, 196, 138, 0.1);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .deletion {
+        color: color-mix(in srgb, var(--color-seal) 75%, white);
+        background-color: rgba(175, 58, 82, 0.15);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight figcaption {
+        border-bottom-color: var(--color-border-strong);
+        background-color: var(--color-code-gutter);
+        color: var(--color-text-muted);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight figcaption a {
+        color: var(--color-text-muted);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight figcaption a:hover {
+        color: var(--color-seal);
+    }
+
+    html[data-theme="dark"] .prose-shiro .highlight .line.marked {
+        background-color: color-mix(in srgb, var(--color-seal) 12%, transparent);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist {
+        border-color: var(--color-border-strong);
+        background-color: var(--color-code-bg);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist .gist-data {
+        border-bottom-color: var(--color-border-strong);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist .gist-meta {
+        background-color: var(--color-code-gutter);
+        color: var(--color-text-muted);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist .gist-meta a {
+        color: var(--color-text-muted);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist .gist-meta a:hover {
+        color: var(--color-seal);
+    }
+
+    html[data-theme="dark"] .prose-shiro .gist .line-numbers {
+        color: var(--color-slate-600);
+    }
+
+    html[data-theme="dark"] .highlight-wrapper > .copy-btn {
+        border-color: var(--color-border-decorative);
+        background-color: var(--color-bg-overlay);
+        color: var(--color-text-subtle);
+    }
+
+    html[data-theme="dark"] .highlight-wrapper > .copy-btn:hover,
+    html[data-theme="dark"] .highlight-wrapper > .copy-btn:focus-visible {
+        border-color: var(--color-seal);
+        background-color: var(--color-bg-panel);
+        color: var(--color-seal);
+    }
+
+    html[data-theme="dark"] .highlight-wrapper > .code-lang {
+        color: var(--color-text-faint);
+    }
 }
