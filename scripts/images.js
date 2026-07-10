@@ -367,3 +367,15 @@ hexo.extend.filter.register('after_post_render', function (data) {
     if (data.excerpt) data.excerpt = optimizeImages(data.excerpt, { post: data, firstImageEager: false });
     return data;
 });
+
+// Pure surface for unit tests (filter registration stays the side effect of this file).
+module.exports = {
+    optimizeImages,
+    parseAttrs,
+    renderAttrs,
+    isRemoteUrl,
+    cleanUrl,
+    setMissingAttr,
+    getAttr,
+    attrLookup
+};

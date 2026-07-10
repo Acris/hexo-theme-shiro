@@ -25,7 +25,8 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 | Path                       | Role                                                                                                                                                              |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category` |
-| `scripts/`                 | Hexo helpers/filters: `helpers.js`, `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js`                                                                     |
+| `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js` |
+| `scripts/lib/`             | Pure modules required by `helpers.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                    |
 | `source/css/_tailwind.css` | Theme tokens + core components → `style.min.css`                                                                                                                  |
 | `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus)                                                                          |
 | `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix)                                                                                 |

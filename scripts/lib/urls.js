@@ -1,0 +1,140 @@
+'use strict';
+
+const { decodeHtmlEntities } = require('./util');
+
+function hasUrlControlChars(value) {
+    return /[\u0000-\u001F\u007F]/.test(value);
+}
+
+function normalizedUrlText(value) {
+    const text = String(value || '').trim();
+    return text && !hasUrlControlChars(text) ? text : '';
+}
+
+function resolveNavigationUrl(text, context) {
+    if (!text) return '';
+    if (text[0] === '#') return text;
+    if (/^(?:https?:)?\/\//i.test(text)) return text;
+    if (/^(?:mailto|tel):/i.test(text)) return text;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return '';
+    return context.url_for(text);
+}
+
+function isSafeDataImageUrl(text) {
+    return /^data:image\/(?:avif|bmp|gif|ico|jpeg|jpg|png|svg\+xml|vnd\.microsoft\.icon|webp|x-icon)(?:;[^,]*)?,/i.test(text);
+}
+
+function resourceUrlOptions(options) {
+    if (options === true) return { allowDataImage: true };
+    return options && typeof options === 'object' ? options : {};
+}
+
+function resolveResourceUrl(text, context, options) {
+    const opts = resourceUrlOptions(options);
+    if (!text) return '';
+    if (/^(?:https?:)?\/\//i.test(text)) return text;
+    if (opts.allowDataImage && isSafeDataImageUrl(text)) return text;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return '';
+    return context.url_for(text);
+}
+
+function safeNavigationUrl(value, context, fallback) {
+    const safeFallback = resolveNavigationUrl(normalizedUrlText(fallback), context) || '#';
+    return resolveNavigationUrl(normalizedUrlText(value), context) || safeFallback;
+}
+
+function safeResourceUrl(value, context, fallback, options) {
+    const safeFallback = resolveResourceUrl(normalizedUrlText(fallback), context, options);
+    return resolveResourceUrl(normalizedUrlText(value), context, options) || safeFallback;
+}
+
+function normalizedLinkTarget(value) {
+    return normalizedUrlText(value);
+}
+
+function safeScriptJson(value) {
+    let json;
+    try {
+        json = JSON.stringify(value === undefined ? null : value);
+    } catch (_) {
+        json = JSON.stringify(String(value));
+    }
+    return (json === undefined ? 'null' : json)
+        .replace(/</g, '\\u003C')
+        .replace(/>/g, '\\u003E')
+        .replace(/&/g, '\\u0026')
+        .replace(/\u2028/g, '\\u2028')
+        .replace(/\u2029/g, '\\u2029');
+}
+
+function resourceOrigin(value) {
+    const text = normalizedUrlText(value);
+    if (!text || !/^(?:https?:)?\/\//i.test(text)) return '';
+    try {
+        return new URL(text.indexOf('//') === 0 ? 'https:' + text : text).origin;
+    } catch (_) {
+        return '';
+    }
+}
+
+function absoluteUrlForLocalPath(value, context) {
+    if (context && typeof context.full_url_for === 'function') {
+        const fullUrl = context.full_url_for(value);
+        if (/^https?:\/\//i.test(fullUrl)) return fullUrl;
+    }
+
+    const assetUrl = context && typeof context.url_for === 'function'
+        ? context.url_for(value, { relative: false })
+        : value;
+    if (/^https?:\/\//i.test(assetUrl)) return assetUrl;
+
+    const base = String((context && context.config && context.config.url) || '').replace(/\/$/, '');
+    if (!base) return assetUrl;
+
+    try {
+        const parsed = new URL(base);
+        const basePath = parsed.pathname.replace(/\/$/, '');
+        if (basePath && (assetUrl === basePath || assetUrl.startsWith(basePath + '/'))) {
+            return parsed.origin + assetUrl;
+        }
+    } catch (_) {}
+
+    return base + (assetUrl[0] === '/' ? assetUrl : '/' + assetUrl);
+}
+
+function pageRelativeImageUrl(value, page) {
+    if (!page || !page.permalink || value[0] === '/') return '';
+
+    try {
+        const resolved = new URL(value, page.permalink).href;
+        return /^https?:\/\//i.test(resolved) ? resolved : '';
+    } catch (_) {
+        return '';
+    }
+}
+
+function normalizeOpenGraphImageUrl(src, context, page) {
+    const value = decodeHtmlEntities(String(src || '')).trim();
+    if (!value || value[0] === '#') return '';
+    if (hasUrlControlChars(value)) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    if (value.indexOf('//') === 0) return 'https:' + value;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return '';
+
+    return pageRelativeImageUrl(value, page) || absoluteUrlForLocalPath(value, context);
+}
+
+module.exports = {
+    hasUrlControlChars,
+    normalizedUrlText,
+    resolveNavigationUrl,
+    isSafeDataImageUrl,
+    safeNavigationUrl,
+    safeResourceUrl,
+    normalizedLinkTarget,
+    safeScriptJson,
+    resourceOrigin,
+    absoluteUrlForLocalPath,
+    pageRelativeImageUrl,
+    normalizeOpenGraphImageUrl
+};
