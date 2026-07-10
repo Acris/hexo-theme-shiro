@@ -35,6 +35,7 @@
         }
     }
 
+    /* iframe color-scheme follows site data-theme so giscus CSS media dark works */
     .giscus .giscus-frame {
         color-scheme: light;
     }

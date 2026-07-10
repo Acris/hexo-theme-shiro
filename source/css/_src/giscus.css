@@ -1,8 +1,6 @@
 /*!
- * Custom giscus theme for hexo-theme-shiro
- * Warm paper tones + vermilion accent — matches the Shiro theme aesthetic.
- * Light mode by default, dark mode via prefers-color-scheme.
- * Served via jsDelivr CDN and loaded by giscus iframe as a custom theme.
+ * Shiro giscus theme (light default; dark via prefers-color-scheme).
+ * Host sets iframe color-scheme from html[data-theme] (comments.css).
  * Based on giscus preferred_color_scheme.css (MIT License, GitHub Inc.)
  */
 

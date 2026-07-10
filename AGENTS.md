@@ -29,7 +29,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 | `scripts/lib/`             | Pure modules required by `helpers.js` / `mathjax.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                   |
 | `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                          |
 | `source/css/_core/`        | Core theme CSS parts: tokens, base, components, dark, theme-toggle (imported by `_tailwind.css`)                                                                                                                 |
-| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus). Site-cascade files wrap rules in `@layer components` (match `style.min.css`); giscus is an iframe theme and stays unlayered. |
+| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus). Site-cascade files wrap rules in `@layer components` (match `style.min.css`); giscus iframe theme stays unlayered. |
 | `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix). Shared helpers: `runtime.js` → `runtime.min.js` (loaded before feature bootstraps).                                          |
 | `tools/`                   | `build-assets.js` (Tailwind + lightningcss + terser minify)                                                                                                                                                      |
 | `test/`                    | Unit tests (`npm test`)                                                                                                                                                                                          |
@@ -67,6 +67,15 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Assets: use `versioned_url` for static theme assets.
 - CSS: match existing tokens and minimalist style; do not reformat unrelated code or rewrite large files without need.
 - Gate scripts in `_layout.njk` by page type, feature flags, and DOM needs so unused pages stay JS-free. Keep feature `{% set %}` in the layout parent — Nunjucks include scope does not leak sets to the parent.
+- **Comments:** short (one line when possible). Prefer clear names over essays. Deep design notes belong here or in `DESIGN.md`, not in source headers.
+- Prefer the smallest fix that restores prior behavior; do not add dual configs, retries, or abstractions unless a real bug needs them.
+
+## Docs style
+
+- **`README.md` / `README_CN.md`:** user-facing setup and config. Keys, defaults, and short usage only — not implementation internals (hooks, cascade, postMessage, FOUC, etc.).
+- **`AGENTS.md`:** agent/maintainer rules, pitfalls, architecture.
+- **`DESIGN.md`:** visual system only.
+- When docs must mention behavior, one short sentence is enough; put the “why” here.
 
 ## Testing and validation
 
@@ -90,6 +99,7 @@ Also:
 - Treat copied `_config.shiro.yml` as possibly older than defaults.
 - Breaking: renaming/removing top-level keys in `_config.yml` (see that file for the current set).
 - Release-coupled: default giscus theme URL embeds `hexo-theme-shiro@<version>` — bump with package version in `_config.yml`, `README.md`, and `README_CN.md`.
+- giscus dark: one CSS with `@media (prefers-color-scheme: dark)`; host sets `.giscus-frame { color-scheme }` from `html[data-theme]` (comments.css). Paint `iframe.style.colorScheme` when the iframe mounts and when `data-theme` changes — no second theme URL.
 - Do not commit secrets, analytics IDs, Disqus shortnames, giscus IDs, or private values.
 - Treat config-rendered attributes/URLs as untrusted; be careful with external integrations (giscus, GA, LightGallery, Pagefind, CDN versions). Optional SRI hashes must be valid `sha256|384|512-…` digests; invalid values are ignored.
 

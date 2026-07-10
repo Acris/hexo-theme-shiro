@@ -257,8 +257,7 @@ comments:
     input_position: bottom
     # 语言代码（例如 en、zh-CN、ja）
     lang: en
-    # giscus 主题 CSS URL 或内置主题名（例如 light、dark、preferred_color_scheme）
-    # 默认使用通过 jsDelivr CDN 分发的 Shiro 自定义主题。
+    # 主题 CSS URL 或内置名（如 light、dark、preferred_color_scheme）
     theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.5.2/source/css/giscus.min.css
     # true 启用懒加载
     lazy_loading: false
