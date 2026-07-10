@@ -448,7 +448,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-After changing CSS/JS sources under `source/` or build snippets under `tools/snippets/`, run `npm run build` to regenerate minified assets.
+After changing CSS/JS sources under `source/`, run `npm run build` to regenerate minified assets.
 
 ### Adding a New Language
 

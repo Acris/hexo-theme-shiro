@@ -442,7 +442,7 @@ hexo-theme-shiro/
    npm run build
    ```
 
-修改 `source/` 下的 CSS/JS 源文件或 `tools/snippets/` 下的构建片段后，请运行 `npm run build` 重新生成压缩资源。
+修改 `source/` 下的 CSS/JS 源文件后，请运行 `npm run build` 重新生成压缩资源。
 
 ### 添加新语言
 

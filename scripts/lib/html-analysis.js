@@ -10,7 +10,8 @@ const {
 const { hasUrlControlChars } = require('./urls');
 
 const DEFAULT_EXCERPT_LENGTH = 200;
-const pageAnalysisCache = new Map();
+// WeakMap so hexo server / watch can drop analysis when page objects are GC'd.
+const pageAnalysisCache = new WeakMap();
 const excerptCache = new WeakMap();
 
 const HTML_SKIPPED_CONTENT_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)/gi;

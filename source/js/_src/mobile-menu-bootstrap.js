@@ -1,13 +1,13 @@
 ;(() => {
     'use strict';
 
+    const rt = window.__shiroRuntime;
+    if (!rt) return;
+
     const script = window.__mobileMenuScript || '';
     if (!script) return;
 
-    /* global loadBootstrapScript */
-    // <shiro-script-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-script-loader>
+    const { loadBootstrapScript } = rt;
 
     const query = window.matchMedia('(max-width: 767px)');
     let loading = false;

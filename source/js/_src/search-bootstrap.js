@@ -1,14 +1,14 @@
 ;(() => {
     'use strict';
 
+    const rt = window.__shiroRuntime;
+    if (!rt) return;
+
     const pagefindBase = window.__pagefindBase || '';
     const searchCss = window.__searchCss || '';
     if (!pagefindBase) return;
 
-    /* global loadAsset */
-    // <shiro-asset-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-asset-loader>
+    const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;
 
     // Host has no id so Pagefind does not copy a host id onto the internal dialog
     // (duplicate ids). Stable dialog id matches header aria-controls.
@@ -140,11 +140,6 @@
             })
             .catch(logError);
     }
-
-    /* global connectionAllowsWarm, scheduleIdleWarm */
-    // <shiro-connection-warm>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-connection-warm>
 
     function proactiveWarm() {
         if (loaded || !connectionAllowsWarm()) return;

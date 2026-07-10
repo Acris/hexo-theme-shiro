@@ -12,11 +12,11 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 | --------------- | ------------------------------------------------------------------------------------- |
 | `npm install`   | Install dev dependencies                                                              |
 | `npm run dev`   | Tailwind watch (unminified `source/css/style.min.css`)                                |
-| `npm run build` | Release assets: core CSS, optional `*.min.css`, browser `*.min.js` (+ snippet inject) |
+| `npm run build` | Release assets: core CSS, optional `*.min.css`, browser `*.min.js` |
 | `npm test`      | Node built-in tests (`test/**/*.js`)                                                  |
 
 - Both `dev` and `build` read `source/css/_tailwind.css` → `source/css/style.min.css`.
-- After changing `_tailwind.css`, `source/css/_src/*`, Tailwind utilities in templates, `source/js/_src/*`, or `tools/snippets/*`: run **`npm run build`** (see Testing for committing outputs).
+- After changing `_tailwind.css`, `source/css/_src/*`, Tailwind utilities in templates, or `source/js/_src/*`: run **`npm run build`** (see Testing for committing outputs).
 - Do **not** hand-edit `source/css/style.min.css`, `source/css/*.min.css`, or `source/js/*.min.js`; do not delete generated CSS or the package lock without clear reason.
 - Prefer `npm run build` over `npm run dev` for one-shot validation.
 
@@ -26,12 +26,12 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category`                                                |
 | `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js` |
-| `scripts/lib/`             | Pure modules required by `helpers.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                                    |
+| `scripts/lib/`             | Pure modules required by `helpers.js` / `mathjax.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                   |
 | `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                          |
 | `source/css/_core/`        | Core theme CSS parts: tokens, base, components, dark, theme-toggle (imported by `_tailwind.css`)                                                                                                                 |
 | `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus). Site-cascade files wrap rules in `@layer components` (match `style.min.css`); giscus is an iframe theme and stays unlayered. |
-| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix)                                                                                                                                |
-| `tools/`                   | `build-assets.js`, `snippets/` (asset-loader, script-loader, image-safety, connection-warm)                                                                                                                      |
+| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix). Shared helpers: `runtime.js` → `runtime.min.js` (loaded before feature bootstraps).                                          |
+| `tools/`                   | `build-assets.js` (Tailwind + lightningcss + terser minify)                                                                                                                                                      |
 | `test/`                    | Unit tests (`npm test`)                                                                                                                                                                                          |
 | `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                                                                     |
 | `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                                                                         |
@@ -73,7 +73,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 **Required after relevant edits (blockers if red):**
 
 1. Logic under `scripts/` or `test/` (or behavior those tests cover) → **`npm test`**
-2. CSS/JS sources or build snippets → **`npm run build`** and include regenerated minified assets in the change set
+2. CSS/JS sources → **`npm run build`** and include regenerated minified assets in the change set
 3. Pure function / gate changes (MathJax protect/load, word-count display, etc.) → extend `test/` in the same change set
 
 Also:

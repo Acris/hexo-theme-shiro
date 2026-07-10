@@ -1,26 +1,23 @@
 ;(() => {
     'use strict';
 
+    const rt = window.__shiroRuntime;
+    if (!rt) return;
+
     const script = window.__lightgalleryScript || '';
     if (!script) return;
 
-    /* global loadBootstrapScript */
-    // <shiro-script-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-script-loader>
+    const {
+        loadBootstrapScript,
+        isSafeImageUrl,
+        isDecorativeImg,
+        imageSource,
+        connectionAllowsWarm,
+        scheduleIdleWarm
+    } = rt;
 
     let loading = false;
     let warmed = false;
-
-    /* global isSafeImageUrl, isDecorativeImg, imageSource */
-    // <shiro-image-safety>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-image-safety>
-
-    /* global connectionAllowsWarm, scheduleIdleWarm */
-    // <shiro-connection-warm>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-connection-warm>
 
     function shouldHandleImage(img) {
         const src = imageSource(img);

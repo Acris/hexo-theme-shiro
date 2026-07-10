@@ -1,13 +1,13 @@
 ;(() => {
     'use strict';
 
+    const rt = window.__shiroRuntime;
+    if (!rt) return;
+
     const script = window.__clipboardScript || '';
     if (!script) return;
 
-    /* global loadBootstrapScript */
-    // <shiro-script-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-script-loader>
+    const { loadBootstrapScript } = rt;
 
     function createCodeBlockCursor() {
         const root = document.querySelector('main') || document.body;

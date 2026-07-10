@@ -126,6 +126,8 @@
 
     <!-- Scripts -->
     {% set needs_mobile_menu = menu_items.length %}
+    {# Shared client helpers (loadAsset, warm, image safety). Bootstraps expect this first. #}
+    {% set needs_runtime = search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     {% if search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     <script{{ csp_nonce_attr() }}>
         {% if needs_lightgallery or needs_code %}
@@ -158,6 +160,9 @@
         {{ feature_var('__mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
         {% endif %}
     </script>
+    {% endif %}
+    {% if needs_runtime %}
+    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/runtime.min.js') }}"></script>
     {% endif %}
     {% if search_enabled %}
     <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>

@@ -10,14 +10,15 @@
     const cssIntegrity = String(window.__lightgalleryCssIntegrity || '').trim();
     const jsIntegrity = String(window.__lightgalleryJsIntegrity || '').trim();
 
+    const rt = window.__shiroRuntime;
+    if (!rt) return;
+
+    const { loadAsset, isSafeImageUrl, isDecorativeImg, imageSource } = rt;
+
     let assetsLoading = null;
     const instances = new Map();
     const preparedImages = new WeakSet();
     const galleryItemCache = new WeakMap();
-    /* global loadAsset */
-    // <shiro-asset-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-asset-loader>
 
     function withSri(attrs, integrity) {
         if (!integrity) return attrs;
@@ -92,11 +93,6 @@
         const value = String(url || '').trim();
         return !/[\u0000-\u001F\u007F]/.test(value) && /^https?:\/\//i.test(value) ? value : null;
     };
-
-    /* global isSafeImageUrl, isDecorativeImg, imageSource */
-    // <shiro-image-safety>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-image-safety>
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 

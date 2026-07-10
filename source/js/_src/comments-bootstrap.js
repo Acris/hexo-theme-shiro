@@ -2,17 +2,15 @@
     'use strict';
 
     const commentsCss = window.__commentsCss || '';
-
-    /* global loadAsset */
-    // <shiro-asset-loader>
-    // Source requires build injection; do not serve this file directly.
-    // </shiro-asset-loader>
-
     let commentsCssLoading = null;
 
+    // Resolve loadAsset at call time so a late-loaded runtime still works if
+    // comments bootstrap runs before runtime in unusual orderings.
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
         if (!commentsCss) return Promise.resolve();
         if (commentsCssLoading) return commentsCssLoading;
+        const loadAsset = window.__shiroRuntime && window.__shiroRuntime.loadAsset;
+        if (!loadAsset) return Promise.resolve();
         commentsCssLoading = loadAsset('link', {
             rel: 'stylesheet',
             href: commentsCss,

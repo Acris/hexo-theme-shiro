@@ -19,88 +19,6 @@ const optionalCssFiles = [
     ['source/css/_src/search.css', 'source/css/search.min.css']
 ];
 
-const snippetDir = path.join(root, 'tools', 'snippets');
-const snippetCache = new Map();
-const snippetMarkers = {
-    assetLoader: {
-        start: '    // <shiro-asset-loader>',
-        end: '    // </shiro-asset-loader>',
-        file: 'asset-loader.js',
-        requires: /\bloadAsset\s*\(/
-    },
-    scriptLoader: {
-        start: '    // <shiro-script-loader>',
-        end: '    // </shiro-script-loader>',
-        file: 'script-loader.js',
-        requires: /\bloadBootstrapScript\s*\(/
-    },
-    imageSafety: {
-        start: '    // <shiro-image-safety>',
-        end: '    // </shiro-image-safety>',
-        file: 'image-safety.js',
-        requires: /\bisSafeImageUrl\s*\(|\bisDecorativeImg\s*\(|\bimageSource\s*\(/
-    },
-    connectionWarm: {
-        start: '    // <shiro-connection-warm>',
-        end: '    // </shiro-connection-warm>',
-        file: 'connection-warm.js',
-        requires: /\bconnectionAllowsWarm\s*\(|\bscheduleIdleWarm\s*\(/
-    }
-};
-
-function countOccurrences(source, needle) {
-    if (!needle) return 0;
-    let count = 0;
-    let index = source.indexOf(needle);
-    while (index !== -1) {
-        count += 1;
-        index = source.indexOf(needle, index + needle.length);
-    }
-    return count;
-}
-
-function readSnippet(file) {
-    if (!snippetCache.has(file)) {
-        snippetCache.set(file, fs.readFileSync(path.join(snippetDir, file), 'utf8').replace(/\s+$/, ''));
-    }
-    return snippetCache.get(file);
-}
-
-function applySnippet(code, name, config, sourceFile) {
-    const startCount = countOccurrences(code, config.start);
-    const endCount = countOccurrences(code, config.end);
-    if (startCount !== endCount) {
-        throw new Error(sourceFile + ': ' + name + ' snippet marker mismatch: ' + startCount + ' start marker(s), ' + endCount + ' end marker(s)');
-    }
-    if (!startCount) {
-        if (config.requires.test(code)) {
-            throw new Error(sourceFile + ': ' + name + ' snippet marker missing in file that references its API');
-        }
-        return code;
-    }
-    if (startCount > 1) {
-        throw new Error(sourceFile + ': ' + name + ' snippet marker must appear at most once per file');
-    }
-
-    const start = code.indexOf(config.start);
-    const end = code.indexOf(config.end, start);
-    if (end < start) throw new Error(sourceFile + ': ' + name + ' snippet end marker appears before start marker');
-
-    const snippet = readSnippet(config.file);
-    return code.slice(0, start)
-        + config.start + '\n'
-        + snippet + '\n'
-        + config.end
-        + code.slice(end + config.end.length);
-}
-
-function applySharedSnippets(code, sourceFile) {
-    return Object.entries(snippetMarkers).reduce(
-        (nextCode, [name, config]) => applySnippet(nextCode, name, config, sourceFile),
-        code
-    );
-}
-
 function runTailwind() {
     execFileSync(tailwindBin, [
         '-i', './source/css/_tailwind.css',
@@ -155,7 +73,7 @@ function minifyCssFile(inputRel, outputRel) {
 async function minifyJsFile(inputRel, outputRel) {
     const input = path.join(root, inputRel);
     const output = path.join(root, outputRel);
-    const code = applySharedSnippets(fs.readFileSync(input, 'utf8'), inputRel);
+    const code = fs.readFileSync(input, 'utf8');
     const result = await terser.minify(code, {
         compress: true,
         mangle: true,
