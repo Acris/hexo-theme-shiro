@@ -9,7 +9,7 @@
         {{ post_date_text }}
     </time>
     <h3 class="text-base font-normal text-slate-700 transition-colors group-hover:text-seal">
-        <a href="{{ url_for(post.path) }}" class="link-underline">{{ post.title }}</a>
+        <a href="{{ url_for(post.path) }}" class="link-underline">{{ escape_html(post.title) }}</a>
     </h3>
 </article>
 {% endmacro %}
@@ -41,10 +41,15 @@
     </div>
 {% endmacro %}
 
-{% macro render_simple_list(posts) %}
+{# limit > 0: only the first N posts (category cloud / previews). #}
+{% macro render_simple_list(posts, limit=0) %}
     <div class="space-y-4">
-        {% for post in posts.toArray() %}
-        {{ archive_item(post) }}
+        {% set items = posts.toArray() if posts else [] %}
+        {% for post in items %}
+            {% if limit <= 0 or loop.index <= limit %}
+            {{ archive_item(post) }}
+            {% endif %}
         {% endfor %}
     </div>
 {% endmacro %}
+

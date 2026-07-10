@@ -1,0 +1,10 @@
+{# Deferred comment scripts (after runtime). Same shiro_comments as containers. #}
+{% set state = shiro_comments if shiro_comments is defined else comments_state(page) %}
+{% if state.shouldRender %}
+{% include "_partial/comments/bootstrap.njk" %}
+{% if state.disqusReady %}
+{% include "_partial/comments/disqus.njk" %}
+{% elif state.giscusReady %}
+{% include "_partial/comments/giscus.njk" %}
+{% endif %}
+{% endif %}

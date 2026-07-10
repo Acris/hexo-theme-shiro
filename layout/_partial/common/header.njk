@@ -1,4 +1,4 @@
-{% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark with context %}
+{% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark, menu_link with context %}
 {% set rss_config = site_config.rss or {} %}
 <header class="relative" data-pagefind-ignore>
 
@@ -7,11 +7,11 @@
             <div class="relative inline-block">
                 {% if is_home() %}
                 <h1 class="site-title">
-                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ url_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
                 </h1>
                 {% else %}
                 <p class="site-title">
-                    <a href="{{ url_for('/') }}">{{ config.title | default("白夜書簡", true) }}</a>
+                    <a href="{{ url_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
                 </p>
                 {% endif %}
                 <!-- Seal: Mathematically Centered -->
@@ -24,7 +24,7 @@
             </div>
             {% if config.subtitle %}
             <p class="site-subtitle">
-                {{ config.subtitle }}
+                {{ escape_html(config.subtitle) }}
             </p>
             {% endif %}
             {% set has_header_actions = rss_config.enabled or dark_mode_toggle or search_enabled %}
@@ -37,7 +37,7 @@
                 </a>
                 {% endif %}
                 {% if dark_mode_toggle %}
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ __('theme.' + dark_mode_default) }}" data-label-system="{{ __('theme.system') }}" data-label-light="{{ __('theme.light') }}" data-label-dark="{{ __('theme.dark') }}">
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + dark_mode_default)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
@@ -45,7 +45,7 @@
                 {% endif %}
                 {% if search_enabled %}
                 {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ __('search.trigger') }}">
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}">
                     {{ icon_search() }}
                 </button>
                 {% endif %}
@@ -57,13 +57,13 @@
 
 <!-- Navigation -->
 {% if menu_items.length %}
-<nav class="mt-8 md:mt-10" aria-label="{{ __('nav.menu') }}" data-pagefind-ignore>
+<nav class="mt-8 md:mt-10" aria-label="{{ escape_attr(__('nav.menu')) }}" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn" type="button"
             class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
-            <span class="text-base leading-none tracking-widest">{{ __('nav.menu') }}</span>
+            <span class="text-base leading-none tracking-widest">{{ escape_html(__('nav.menu')) }}</span>
             {{ icon_chevron_down(id="menuChevron") }}
         </button>
     </div>
@@ -72,10 +72,7 @@
     <div class="hidden md:block">
         <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             {% for item in menu_items %}
-            {% set item_url = safe_url_for(item.url) %}
-            {% set item_target = link_target(item.target) %}
-            <li><a class="focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors"
-                    href="{{ item_url }}" {% if item_target %}target="{{ item_target }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+            <li>{{ menu_link(item, "focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors") }}</li>
             {% if not loop.last %}
             <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
@@ -83,15 +80,12 @@
         </ul>
     </div>
 
-    <!-- Mobile Menu Panel -->
+    <!-- Mobile Menu Panel: open without JS (progressive enhancement); html.js collapses until toggled. -->
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
             {% for item in menu_items %}
-            {% set item_url = safe_url_for(item.url) %}
-            {% set item_target = link_target(item.target) %}
-            <li><a class="focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors"
-                    href="{{ item_url }}" {% if item_target %}target="{{ item_target }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ item.name }}</a></li>
+            <li>{{ menu_link(item, "focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors") }}</li>
             {% if not loop.last %}
             <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
             {% endif %}

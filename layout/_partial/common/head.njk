@@ -38,8 +38,13 @@
          (it must run synchronously for both theme resolution and the preloader skip). -->
     <script{{ csp_nonce_attr() }} data-cfasync="false">
     ;(() => {
+        // Progressive enhancement marker (mobile nav CSS uses html.js).
+        document.documentElement.classList.add('js');
         const defaultTheme = {{ js_value(dark_mode_default) | safe }};
         window.__themeDefault = defaultTheme;
+        {% if shiro_csp_nonce %}
+        window.__shiroCspNonce = {{ js_value(shiro_csp_nonce) | safe }};
+        {% endif %}
         const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
         let saved;
         try { saved = localStorage.getItem('theme'); } catch (_) {}
@@ -86,9 +91,8 @@
        ui/no-dark-mode: MathJax UI follows prefers-color-scheme, but Shiro theme
        is driven by html[data-theme] (can force light/dark against the OS). Disable
        OS dark chrome so explorer/dialogs do not fight a forced theme; site dark
-       skin is applied in CSS (dialog.mjx-dialog + prose color inherit). #}
-    {% set mathjax_tags_raw = mathjax_config.tags | default('none', true) %}
-    {% set mathjax_tags = mathjax_tags_raw if mathjax_tags_raw == 'ams' or mathjax_tags_raw == 'all' else 'none' %}
+       skin is applied in CSS (dialog.mjx-dialog + prose color inherit).
+       tags/src/integrity come from mathjax_options() (resolveMathjaxConfig). #}
     <!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
          theme/font hints, while still before blocking stylesheets can delay discovery. -->
     <script{{ csp_nonce_attr() }} data-cfasync="false">
@@ -106,7 +110,7 @@
             }
         };
     </script>
-    <script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ mathjax_src }}"{{ sri_attrs(mathjax_config.integrity) }}></script>
+    <script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ mathjax_src }}"{{ sri_attrs(mathjax_integrity) }}></script>
     {% endif %}
     {% for google_fonts_url in google_fonts %}
     <link rel="stylesheet" href="{{ google_fonts_url | safe }}" />
@@ -121,34 +125,34 @@
         {% set keywords %}{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
     {% endif %}
     {% set keywords = keywords or config.keywords %}
-    <title>{{ page_title }}</title>
+    <title>{{ escape_html(page_title) }}</title>
 
     <!-- SEO Meta -->
     {% if clean_desc %}
-    <meta name="description" content="{{ clean_desc }}" />
+    <meta name="description" content="{{ escape_attr(clean_desc) }}" />
     {% endif %}
     {% if page_author %}
-    <meta name="author" content="{{ page_author }}" />
+    <meta name="author" content="{{ escape_attr(page_author) }}" />
     {% endif %}
     {% if keywords %}
-    <meta name="keywords" content="{{ keywords }}" />
+    <meta name="keywords" content="{{ escape_attr(keywords) }}" />
     {% endif %}
 
     <!-- Open Graph -->
-    <meta property="og:title" content="{{ page_title }}" />
+    <meta property="og:title" content="{{ escape_attr(page_title) }}" />
     {% if clean_desc %}
-    <meta property="og:description" content="{{ clean_desc }}" />
+    <meta property="og:description" content="{{ escape_attr(clean_desc) }}" />
     {% endif %}
-    <meta property="og:url" content="{{ url }}" />
+    <meta property="og:url" content="{{ escape_attr(url) }}" />
     <meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
-    <meta property="og:site_name" content="{{ config.title }}" />
+    <meta property="og:site_name" content="{{ escape_attr(config.title) }}" />
     {% set og_locale_value = og_locale(page, config) %}
     {% if og_locale_value %}
-    <meta property="og:locale" content="{{ og_locale_value }}" />
+    <meta property="og:locale" content="{{ escape_attr(og_locale_value) }}" />
     {% endif %}
     {% if og_img %}
-    <meta property="og:image" content="{{ og_img }}" />
-    <meta property="og:image:alt" content="{{ page_title }}" />
+    <meta property="og:image" content="{{ escape_attr(og_img) }}" />
+    <meta property="og:image:alt" content="{{ escape_attr(page_title) }}" />
     {% set og_img_size = og_image_size(page) %}
     {% if og_img_size %}
     <meta property="og:image:width" content="{{ og_img_size.width }}" />
@@ -163,27 +167,27 @@
     <meta property="article:modified_time" content="{{ date_xml(page.updated) }}" />
     {% endif %}
     {% if page_author %}
-    <meta property="article:author" content="{{ page_author }}" />
+    <meta property="article:author" content="{{ escape_attr(page_author) }}" />
     {% endif %}
     {% if page.tags and page.tags.length %}
     {% for tag in page.tags.toArray() %}
-    <meta property="article:tag" content="{{ tag.name }}" />
+    <meta property="article:tag" content="{{ escape_attr(tag.name) }}" />
     {% endfor %}
     {% endif %}
     {% endif %}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="{% if og_img %}summary_large_image{% else %}summary{% endif %}" />
-    <meta name="twitter:title" content="{{ page_title }}" />
+    <meta name="twitter:title" content="{{ escape_attr(page_title) }}" />
     {% if clean_desc %}
-    <meta name="twitter:description" content="{{ clean_desc }}" />
+    <meta name="twitter:description" content="{{ escape_attr(clean_desc) }}" />
     {% endif %}
     {% if og_img %}
-    <meta name="twitter:image" content="{{ og_img }}" />
+    <meta name="twitter:image" content="{{ escape_attr(og_img) }}" />
     {% endif %}
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ url }}" />
+    <link rel="canonical" href="{{ escape_attr(url) }}" />
 
     <!-- Pagination rel hints for paginated list pages (home / archive / tag / category) -->
     {% if page.total and page.total > 1 %}
@@ -209,7 +213,7 @@
     <!-- RSS -->
     {% set rss_config = site_config.rss or {} %}
     {% if rss_config.enabled %}
-    <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" />
+    <link rel="alternate" type="application/atom+xml" title="{{ escape_attr(config.title) }}" href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" />
     {% endif %}
 
     <!-- CSS -->

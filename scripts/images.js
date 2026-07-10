@@ -281,9 +281,20 @@ function readFileHeader(filePath) {
     }
 }
 
+function fileStatKey(filePath) {
+    try {
+        const stat = fs.statSync(filePath);
+        return stat.mtimeMs + ':' + stat.size;
+    } catch (_) {
+        return '0:0';
+    }
+}
+
 function imageSizeFromFile(filePath) {
     const normalized = path.normalize(filePath);
-    if (imageMetaCache.has(normalized)) return imageMetaCache.get(normalized);
+    const stamp = fileStatKey(normalized);
+    const cached = imageMetaCache.get(normalized);
+    if (cached && cached.stamp === stamp) return cached.size;
     let size = null;
     try {
         const buffer = readFileHeader(normalized);
@@ -291,7 +302,7 @@ function imageSizeFromFile(filePath) {
     } catch (_) {
         size = null;
     }
-    imageMetaCache.set(normalized, size);
+    imageMetaCache.set(normalized, { stamp, size });
     return size;
 }
 
@@ -302,7 +313,12 @@ function localImageSizeCacheKey(src, post) {
 
 function localImageSize(src, post) {
     const cacheKey = localImageSizeCacheKey(src, post);
-    if (localImageSizeCache.has(cacheKey)) return localImageSizeCache.get(cacheKey);
+    const cached = localImageSizeCache.get(cacheKey);
+    if (cached) {
+        // Re-validate via mtime when the resolved file path is known.
+        if (!cached.filePath) return cached.size;
+        if (fileStatKey(cached.filePath) === cached.stamp) return cached.size;
+    }
 
     const candidates = localImageCandidates(src, post);
     for (const candidate of candidates) {
@@ -310,12 +326,16 @@ function localImageSize(src, post) {
         if (!fileExists(filePath)) continue;
         const size = imageSizeFromFile(filePath);
         if (size && size.width && size.height) {
-            localImageSizeCache.set(cacheKey, size);
+            localImageSizeCache.set(cacheKey, {
+                size,
+                filePath,
+                stamp: fileStatKey(filePath)
+            });
             return size;
         }
     }
 
-    localImageSizeCache.set(cacheKey, null);
+    localImageSizeCache.set(cacheKey, { size: null, filePath: '', stamp: '' });
     return null;
 }
 

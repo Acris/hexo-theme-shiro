@@ -1,5 +1,7 @@
 {% extends "_layout.njk" %}
 
 {% block content %}
+{# Static pages: hide post-style date/category meta unless front-matter sets show_meta. #}
+{% set article_show_meta = page.show_meta == true %}
 {% include "_partial/components/article.njk" %}
 {% endblock %}

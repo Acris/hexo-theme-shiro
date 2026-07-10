@@ -123,3 +123,13 @@ hexo.extend.filter.register('before_exit', function () {
         throw error;
     }
 }, 20);
+
+// Pure surface for unit tests (filter registration stays the side effect).
+module.exports = {
+    MIN_PAGEFIND_VERSION,
+    versionParts,
+    versionAtLeast,
+    uniqueDirs,
+    searchDirsFor,
+    installHint
+};

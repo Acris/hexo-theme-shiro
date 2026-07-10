@@ -408,7 +408,10 @@ function excerptFor(post, length) {
 
     let result;
     if (post.excerpt) {
-        result = { content: post.excerpt, truncated: true };
+        // Manual excerpt: "Read more" only when excerpt is not the full body.
+        const full = String(post.content || '');
+        const manual = String(post.excerpt);
+        result = { content: post.excerpt, truncated: !full || manual !== full };
     } else if (limit > 0) {
         const plain = htmlTextFromHtml(post.content, limit);
         if (plain.length > limit) {

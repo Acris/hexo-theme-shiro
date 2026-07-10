@@ -48,8 +48,24 @@ function safeResourceUrl(value, context, fallback, options) {
     return resolveResourceUrl(normalizedUrlText(value), context, options) || safeFallback;
 }
 
+// HTML target attribute allowlist only. Empty / unknown → "" (omit the attribute).
 function normalizedLinkTarget(value) {
-    return normalizedUrlText(value);
+    const text = normalizedUrlText(value);
+    if (!text) return '';
+    return /^(?:_self|_blank|_parent|_top)$/i.test(text) ? text : '';
+}
+
+// Default-off features require explicit true; default-on treat only false as off.
+function isFeatureEnabled(value, defaultOn) {
+    if (defaultOn) return value !== false;
+    return value === true;
+}
+
+// BCP 47-ish language tag for lang= attributes (page / force_language).
+function normalizeLangAttr(value) {
+    const text = String(value == null ? '' : value).trim();
+    if (!text || /[\s"'<>`]/.test(text)) return '';
+    return /^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{1,8})*$/.test(text) ? text : '';
 }
 
 function safeScriptJson(value) {
@@ -145,13 +161,20 @@ function sriAttrsHtml(integrity) {
     return ' integrity="' + hash + '" crossorigin="anonymous"';
 }
 
+// Safe CSP nonce value only (no whitespace / quotes). Empty when unused/invalid.
+function normalizeCspNonce(nonce) {
+    const text = String(nonce == null ? '' : nonce).trim();
+    if (!text || /[\s"'<>`]/.test(text)) return '';
+    return text;
+}
+
 /**
  * HTML nonce="…" attribute when a host CSP nonce is configured.
  * Rejects values with whitespace or quote characters (cannot be attribute-safe).
  */
 function cspNonceAttrHtml(nonce) {
-    const text = String(nonce == null ? '' : nonce).trim();
-    if (!text || /[\s"'<>`]/.test(text)) return '';
+    const text = normalizeCspNonce(nonce);
+    if (!text) return '';
     return ' nonce="' + text + '"';
 }
 
@@ -203,6 +226,8 @@ module.exports = {
     safeNavigationUrl,
     safeResourceUrl,
     normalizedLinkTarget,
+    isFeatureEnabled,
+    normalizeLangAttr,
     safeScriptJson,
     resourceOrigin,
     absoluteUrlForLocalPath,
@@ -211,5 +236,6 @@ module.exports = {
     resolveAbsolutePageUrl,
     normalizeSriIntegrity,
     sriAttrsHtml,
+    normalizeCspNonce,
     cspNonceAttrHtml
 };

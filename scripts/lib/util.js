@@ -25,6 +25,11 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+// Attribute-safe escape (Hexo nunjucks autoescape is off by default).
+function escapeAttr(value) {
+    return escapeHtml(value);
+}
+
 function htmlCodePoint(match, code, radix) {
     const value = parseInt(code, radix);
     if (!Number.isFinite(value)) return match;
@@ -91,6 +96,7 @@ module.exports = {
     scalarOrCollectionToArray,
     escapeRegExp,
     escapeHtml,
+    escapeAttr,
     decodeHtmlEntities,
     normalizePlainText,
     plainHeadingText,

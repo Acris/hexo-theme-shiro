@@ -6,7 +6,8 @@ const {
     normalizePlainText,
     primaryLanguage,
     pageLanguage,
-    escapeHtml
+    escapeHtml,
+    truncateText
 } = require('./util');
 const { normalizeOpenGraphImageUrl } = require('./urls');
 const {
@@ -102,9 +103,7 @@ function cleanDescription(page, config, options) {
 
     const text = cachedCleanDescriptionText(owner, cacheField, raw, producer);
     if (!text) return '';
-    return text.length > META_DESCRIPTION_LENGTH
-        ? text.substring(0, META_DESCRIPTION_LENGTH) + '...'
-        : text;
+    return truncateText(text, META_DESCRIPTION_LENGTH);
 }
 
 function copyrightYear(since, currentYear) {

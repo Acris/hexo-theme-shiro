@@ -10,10 +10,13 @@ const {
     resourceOrigin,
     hasUrlControlChars,
     normalizedLinkTarget,
+    isFeatureEnabled,
+    normalizeLangAttr,
     resolveAbsolutePageUrl,
     sriAttrsHtml,
     cspNonceAttrHtml,
-    normalizeSriIntegrity
+    normalizeSriIntegrity,
+    normalizeCspNonce
 } = require('../scripts/lib/urls');
 
 function ctx(map) {
@@ -94,13 +97,6 @@ describe('scripts/lib/urls', () => {
         });
     });
 
-    describe('normalizedLinkTarget', () => {
-        it('trims and rejects control characters', () => {
-            assert.equal(normalizedLinkTarget(' _blank '), '_blank');
-            assert.equal(normalizedLinkTarget('x\u0000'), '');
-        });
-    });
-
     describe('resolveAbsolutePageUrl', () => {
         it('prefers an absolute permalink', () => {
             assert.equal(
@@ -150,6 +146,36 @@ describe('scripts/lib/urls', () => {
         });
     });
 
+    describe('normalizedLinkTarget', () => {
+        it('allowlists standard targets only', () => {
+            assert.equal(normalizedLinkTarget('_blank'), '_blank');
+            assert.equal(normalizedLinkTarget(' _blank '), '_blank');
+            assert.equal(normalizedLinkTarget('_self'), '_self');
+            assert.equal(normalizedLinkTarget('_parent'), '_parent');
+            assert.equal(normalizedLinkTarget('_top'), '_top');
+            assert.equal(normalizedLinkTarget('" onclick="alert(1)'), '');
+            assert.equal(normalizedLinkTarget('javascript:x'), '');
+            assert.equal(normalizedLinkTarget('x\u0000'), '');
+            assert.equal(normalizedLinkTarget(''), '');
+        });
+    });
+
+    describe('isFeatureEnabled / normalizeLangAttr', () => {
+        it('uses strict true for default-off and not-false for default-on', () => {
+            assert.equal(isFeatureEnabled(true, false), true);
+            assert.equal(isFeatureEnabled(1, false), false);
+            assert.equal(isFeatureEnabled(undefined, true), true);
+            assert.equal(isFeatureEnabled(false, true), false);
+        });
+
+        it('accepts BCP47-like language tags only', () => {
+            assert.equal(normalizeLangAttr('zh-CN'), 'zh-CN');
+            assert.equal(normalizeLangAttr('en'), 'en');
+            assert.equal(normalizeLangAttr('bad tag'), '');
+            assert.equal(normalizeLangAttr('en"onmouseover=x'), '');
+        });
+    });
+
     describe('sriAttrsHtml / cspNonceAttrHtml', () => {
         it('emits integrity+crossorigin only for valid SRI digests', () => {
             const ok = 'sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC';
@@ -164,6 +190,9 @@ describe('scripts/lib/urls', () => {
         });
 
         it('emits nonce only for safe non-empty values', () => {
+            assert.equal(normalizeCspNonce('abc123XYZ'), 'abc123XYZ');
+            assert.equal(normalizeCspNonce('  token  '), 'token');
+            assert.equal(normalizeCspNonce('bad quote"'), '');
             assert.equal(cspNonceAttrHtml('abc123XYZ'), ' nonce="abc123XYZ"');
             assert.equal(cspNonceAttrHtml('  token  '), ' nonce="token"');
             assert.equal(cspNonceAttrHtml(''), '');

@@ -12,7 +12,7 @@
     <header class="text-center mb-8">
         {# data-pagefind-body keeps the title searchable; data-pagefind-meta sets the result title. #}
         <h1 class="page-title mb-4" data-pagefind-body data-pagefind-meta="title">
-            {{ page.title }}
+            {{ escape_html(page.title) }}
         </h1>
         {% if show_article_meta %}
         {{ meta(page, true, "mb-4") }}
@@ -38,5 +38,8 @@
 
     {{ article_extra_html | safe }}
 
+    {# Containers only; scripts load from layout foot via comments/foot.njk. #}
+    {% if needs_comments %}
     {% include "_partial/comments/index.njk" %}
+    {% endif %}
 </article>

@@ -6,6 +6,14 @@ window[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {%- endmacro %}
 
+{# Shared nav link: safe URL + allowlisted target + escaped label. #}
+{% macro menu_link(item, className="") %}
+{% set item_url = safe_url_for(item.url) %}
+{% set item_target = link_target(item.target) %}
+<a class="{{ className }}"
+    href="{{ item_url }}"{% if item_target %} target="{{ item_target }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ escape_html(item.name) }}</a>
+{% endmacro %}
+
 {% macro svg_filters() %}
 <svg width="0" height="0" class="absolute pointer-events-none" aria-hidden="true">
     <defs>
@@ -31,7 +39,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
         font-size="42" fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)"
-        class="seal-text select-none">{{ title }}</text>
+        class="seal-text select-none">{{ escape_html(title) }}</text>
 </svg>
 {% endmacro %}
 
@@ -52,7 +60,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% macro section_title(label, value="") %}
 <header class="mb-10 text-center">
     <h1 class="section-title">
-        {% if value %}{{ label }}: {{ value }}{% else %}{{ label }}{% endif %}
+        {% if value %}{{ escape_html(label) }}: {{ escape_html(value) }}{% else %}{{ escape_html(label) }}{% endif %}
     </h1>
     {{ divider() }}
 </header>
@@ -151,28 +159,28 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
             {{ icon_folder(class=meta_icon) }}
             {% if show_all_cats %}
                 {% for cat in post_categories %}
-                    <a class="link-muted" href="{{ url_for(cat.path) }}">{{ cat.name }}</a>
+                    <a class="link-muted" href="{{ url_for(cat.path) }}">{{ escape_html(cat.name) }}</a>
                     {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
                 {% endfor %}
             {% else %}
                 {% set first_cat = post_categories[0] %}
-                <a class="link-muted" href="{{ url_for(first_cat.path) }}">{{ first_cat.name }}</a>
+                <a class="link-muted" href="{{ url_for(first_cat.path) }}">{{ escape_html(first_cat.name) }}</a>
             {% endif %}
         </div>
     {% endif %}
     {% if meta_dense %}
         <span class="select-none text-slate-300" aria-hidden="true">•</span>
         {# One chip: "1.2k / 5 mins" — slash for sub-fields; bullet for clusters. #}
-        <div class="flex items-center gap-1.5 oldstyle-nums"{% if wc.title %} title="{{ wc.title }}"{% endif %}>
+        <div class="flex items-center gap-1.5 oldstyle-nums"{% if wc.title %} title="{{ escape_attr(wc.title) }}"{% endif %}>
             {{ icon_book(class=meta_icon) }}
             {% if wc.count != null %}
-            <span aria-label="{{ __('word_count.count') }}: {{ wc.count }}">{{ wc.count }}</span>
+            <span aria-label="{{ escape_attr(__('word_count.count') + ': ' + wc.count) }}">{{ wc.count }}</span>
             {% endif %}
             {% if wc.count != null and wc.time != null %}
             <span class="select-none text-slate-300" aria-hidden="true">/</span>
             {% endif %}
             {% if wc.time != null %}
-            <span aria-label="{{ __('word_count.time') }}: {{ wc.time }}">{{ wc.time }}</span>
+            <span aria-label="{{ escape_attr(__('word_count.time') + ': ' + wc.time) }}">{{ escape_html(wc.time) }}</span>
             {% endif %}
         </div>
     {% endif %}
@@ -185,7 +193,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
         <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
     </svg>
-    {{ tag.name }}
+    {{ escape_html(tag.name) }}
     {% if show_count %}
         <span class="text-slate-400 ml-1 text-xs">{{ tag.length }}</span>
     {% endif %}

@@ -53,6 +53,12 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(result.truncated, true);
         });
 
+        it('marks manual excerpt as not truncated when it equals full content', () => {
+            const html = '<p>same</p>';
+            const result = excerptFor({ excerpt: html, content: html }, 200);
+            assert.equal(result.truncated, false);
+        });
+
         it('auto-truncates long content', () => {
             const content = '<p>' + 'word '.repeat(80) + '</p>';
             const result = excerptFor({ content }, 40);

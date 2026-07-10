@@ -7,9 +7,11 @@
 
     {% if is_tag() %}
         {% from "_macro/archive.njk" import render_list with context %}
-        {% set currentTag = site.tags.findOne({name: page.tag}) %}
-        {% if currentTag and currentTag.posts.length > 0 %}
-            {{ render_list(currentTag.posts.sort('date', -1)) }}
+        {# Use Hexo paginated page.posts (honours per_page), not the full tag collection. #}
+        {% set posts = page.posts.sort('date', -1) if page.posts else null %}
+        {% if posts and posts.length > 0 %}
+            {{ render_list(posts) }}
+            {% include "_partial/common/pagination.njk" %}
         {% else %}
             {% include "_partial/common/empty.njk" %}
         {% endif %}
