@@ -1,163 +1,104 @@
 # AGENTS.md
 
+Human docs: `README.md` / `README_CN.md`. Design tokens: `DESIGN.md`. User chat overrides this file; nearest nested `AGENTS.md` wins.
+
 ## Project overview
 
-Shiro (白) is a clean, minimalist, multilingual Hexo theme built with Nunjucks templates and Tailwind CSS v4. It focuses on typography, whitespace, performance, dark mode, table of contents, optional MathJax rendering, optional word count / reading time (site plugin `hexo-word-counter`), static search, comments, analytics, and minimal client-side JavaScript for static Hexo output. Visual identity for coding agents is documented in `DESIGN.md` ([design.md](https://github.com/google-labs-code/design.md) format: machine-readable tokens + prose). When changing colors, type, spacing, elevation, or component look-and-feel, update `DESIGN.md` alongside `source/css/_tailwind.css` and related feature CSS.
-
-## Repository layout
-
-- `DESIGN.md` — design system for agents (tokens + rationale): paper/fog/seal palette, serif typography, layout geometry, elevation, shapes, components, do's/don'ts. Keep in sync with `_tailwind.css` theme tokens and core components.
-- `layout/` — Nunjucks templates for Hexo pages.
-- `layout/_layout.njk` — base HTML layout, shared page shell, conditional script loading, and global i18n data injection. It gates MathJax via `(is_post() or is_page()) and page_wants_mathjax(page)` (`enabled` / `every_page` / front-matter) and sets `mathjax_src` only when needed; `head.njk` emits config then a deferred CDN script. Client flags (`inlineDollars` / `processEnvironments` / `processEscapes`) come from the `mathjax_options()` helper (`resolveMathjaxConfig`) so layout defaults stay aligned with the filter gate; config follows MathJax v4 for `\(...\)` / `$$` / `\[...\]`, optionally appends `$...$` via official `inlineMath: {'[+]': ...}` when `inline_dollars` is true, and reads `tags` from theme config. It also always renders the font-load preloader overlay (`#shiroPreloader`) as the first `<body>` child, showing an opaque themed veil with a minimal vermilion dot-ripple mark; `preloader.min.js` — loaded with `defer` from `head.njk` so its fetch starts during head parse — waits for the font stylesheet load then `document.fonts.ready` twice (rAF yield; connection-aware JS deadline; CSS failsafe longer; error/timeout without caching skip). Same-tab skip: `head.njk` compares `sessionStorage['shiro:fonts-ready']` to this page's font-bundle URL (`window.__shiroFontsReadyToken`) and adds `shiro-preloader-done` only on match; that inline script and `preloader.min.js` both carry `data-cfasync="false"` so Cloudflare Rocket Loader does not defer them past first paint (otherwise the overlay re-shows on every reload).
-- `layout/_macro/` — shared Nunjucks macros: `ui.njk` (e.g., `svg_filters` used by the seal, `seal` shape, `section_title` for archive/tag/category headers, icons, post `meta` including optional word count / reading time) and `archive.njk` (archive list rendering). The `seal` macro reads its path geometry from the `seal_path_d` helper so it stays in sync with the generated `favicon.svg`. The `meta` macro calls `word_count_meta` and shows chips only when theme `word_count.enabled` is true and the site plugin helpers are present; labels come from `languages/` (`word_count.*`).
-- `layout/_partial/common/` — shared shell partials: `head.njk` (document head and SEO meta: description, Open Graph + `article:*`/`og:locale`/`og:image:alt`/`og:image:width`/`og:image:height`, Twitter Card, canonical, paginated `rel=prev`/`rel=next`, and schema.org JSON-LD emitted via the `structured_data` helper; paginated list-page `<title>`s get a localized `page.number` suffix so page 2+ isn't a duplicate of page 1), `header.njk`, `footer.njk`, `pagination.njk`, `empty.njk`.
-- `layout/_partial/components/` — page components: `article.njk`, `post-card.njk`, `toc.njk`. `article.njk` indexes two combined `data-pagefind-body` regions — the rendered post/page body and the title `<h1>` (everything else — header, nav, TOC, comments, footer — is `data-pagefind-ignore`). The title `<h1>` carries `data-pagefind-body` so the title text is part of the search index and title-only queries match on every Pagefind version (Pagefind only searches metadata since v1.5.0, so without this older Pagefind misses title-only matches), plus `data-pagefind-meta="title"` so Pagefind uses the real article title for the search-result title instead of relying on the first `<h1>` it happens to find; keep both attributes on the title when editing the header.
-- `layout/_partial/comments/` — comment entrypoint and providers: `index.njk` includes shared lazy bootstrapping (`bootstrap.njk`) and the configured provider (`disqus.njk` / `giscus.njk`).
-- `layout/_partial/analytics/` — analytics providers: `google.njk`.
-- `layout/index.njk`, `post.njk`, `page.njk`, `archive.njk`, `tag.njk`, `category.njk` — main page templates.
-- `scripts/helpers.js` — custom Hexo helpers (`should_render_toc`, `build_toc`, `js_value`, `url_query`, `safe_url_for`, `safe_resource_url_for`, `resource_origin_for`, `link_target`, `is_blank_target`, `archive_url`, `google_font_urls`, `page_has_code`, `page_looks_long`, `versioned_url`, `has_images`, `first_image`, `excerpt_for`, `clean_description`, `copyright_year`, `build_page_title`, `seal_path_d`, `og_image`, `og_image_size`, `og_locale`, `structured_data`) and the dynamic `favicon.svg` generator (`favicon_svg`). Treat this list as authoritative — check `scripts/helpers.js` before adding new helpers or duplicating logic. TOC, image, code, long-page, description, and excerpt helpers share page-level cached analysis; pass the full `page` object to these helpers instead of `page.content` so the cache is reused. The `seal` macro and the `favicon_svg` generator share the same SVG path constant (`SEAL_PATH_D`) exposed via `seal_path_d` — when tweaking the seal shape, edit only that constant. The SEO helpers `og_locale` (Open Graph locale from the page language), `og_image_size` (Open Graph image dimensions reused from the `width`/`height` that `scripts/images.js` injects into rendered content `<img>`, so social cards skip a second fetch), and `structured_data` (schema.org `BlogPosting`/`WebSite` JSON-LD nodes) are consumed by `head.njk`. The `archive_url` helper builds the yearly archive link from Hexo's `archive_dir` (not a hard-coded `archives/`) so the post `meta` macro stays correct on sites with a custom `archive_dir`.
-- `scripts/word_count.js` — optional word count / reading time display for post meta. Theme key: `enabled` (default false). Exports pure `wordCountMeta(ctx, post[, options])` and registers helper `word_count_meta`; `options` is `{ timeSuffix, countLabel, timeLabel }`. Returns `{ count?, time?, title? } | null` by calling site plugin helpers `symbolsCount` / `symbolsTime` when present (`title` is a `countLabel / timeLabel` tooltip string). Count-vs-time sub-toggles belong to site `symbols_count_time.symbols` / `time` (plugin registration), not theme config. Returns null when disabled or the plugin is missing so templates never throw. Unit tests: `test/word_count.test.js`.
-- `scripts/mathjax.js` — MathJax load gate + Markdown shield. Theme keys: `enabled` (default false; set true to allow injection), `every_page` (default false; when true all post/page except `mathjax: false`), `inline_dollars` (default false), `process_environments` / `process_escapes` (client; default true), `protect`, `src`, `tags`. Helpers: `mathjax_options()` (`resolveMathjaxConfig`), `page_wants_mathjax(page[, opts])` (same predicate as filters; optional pre-resolved opts so layout resolves once per post/page). Load and protect share that predicate (so `every_page: true` scans every opted-in post/page, including pages without formulas). When `protect` and the page wants MathJax, `before_post_render` shields `\(...\)`, `$$...$$`, `\[...\]`, whitelisted bare envs, and when `inline_dollars` also `$...$` and prose `\$` (shield `\$` is independent of `process_escapes`); `after_post_render` (priority 5) restores from segments only (no second gate check) for `content` / `excerpt` / `more`. Placeholders use sequential ids (`@@SHIRO_MATH_n@@`) and are stored non-enumerable on the post until restore. Unclosed `\[` / `\(` / `$$` / `\begin{env}` are not protected (no EOF swallow); during `hexo generate` / `hexo g` only, unclosed scans emit `hexo.log.warn` (post path threaded via protect options, not module state) without changing protect results. Set `protect: false` for pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
-- `scripts/images.js` — `after_post_render` hook that adds loading/decoding/fetchpriority/sizes attributes to rendered content images and infers local image dimensions when possible; the first article content image is eager/high priority, later content and excerpt images are lazy.
-- `scripts/pagefind.js` — `before_exit` hook that runs Pagefind against the current `public/` output for `hexo generate` / `hexo deploy` when `search.enabled: true`; always resolves a **local** install from `pagefind/package.json` (bin + version), requires Pagefind 1.5.0+ because the frontend uses Component UI assets, passes `search.root_selector` to Pagefind (default `body`), and fails the Hexo command with an install hint when Pagefind is missing, too old, or indexing fails. There is no `npx` fallback. For publishing, generate before deployment so `public/pagefind/` is written before upload.
-- `source/css/_tailwind.css` — core Tailwind CSS v4 source, theme tokens, core component styles, and custom utilities; compiled to `style.min.css`. All theme font families share one `display=swap` Google Fonts request from `google_font_urls`, preloaded in `head.njk`, so the preloader can wait on the font stylesheet and `document.fonts.ready` without optional-display families escaping the wait path; the same URL is the sessionStorage token for same-tab skip. If you change the title, body, display, or code font families, update the family list in `google_font_urls`. It also defines the `.shiro-preloader` overlay styles (opaque fog-toned veil with light/dark variants, minimal vermilion dot-ripple mark, and a pure-CSS failsafe whose delay must outlive the longest JS deadline); these are plain selectors (not runtime Tailwind utilities) so the JS-toggled `.is-loaded` / `.shiro-preloader-done` classes are always compiled. It also keeps a plain `dialog.mjx-dialog` rule (in `@layer components`, so it overrides Preflight's `*{margin:0}`) that restores `margin: auto` to re-center MathJax v4's runtime-injected modal (e.g. the Explorer help box), which Preflight otherwise pins to the top-left corner; keep it a plain selector because `.mjx-dialog` never appears in scanned templates.
-- `source/css/style.min.css` — compiled core CSS output generated from `_tailwind.css` by `npm run build`.
-- `source/css/_src/code.css` / `source/css/code.min.css` — optional plain CSS source and minified output for syntax-highlighted code blocks, Gist embeds, and clipboard buttons; loaded only on pages whose rendered content contains code.
-- `source/css/_src/toc.css` / `source/css/toc.min.css` — optional plain CSS source and minified output for table-of-contents UI; loaded only when a TOC is rendered.
-- `source/css/_src/search.css` / `source/css/search.min.css` — optional plain CSS source and minified output for Pagefind Component UI modal accents (`--pf-*` tokens); lazy-loaded by `search-bootstrap.js` with the generated `pagefind-component-ui.css` / `pagefind-component-ui.js` on idle or first search intent. `head.njk` only adds lowest-priority `prefetch` hints when `search.enabled`. Markup uses the default Pagefind instance: expanded `<pagefind-modal>` (no host `id` — Pagefind would copy a host id onto the internal `<dialog>`, creating duplicate ids) so `<pagefind-input>` can take `search.placeholder`; summary/hints still use Pagefind translations from `<html lang>` / `pagefind-config lang`. The header control is a native `#searchToggle` `.header-pill-btn` (`aria-controls="shiroSearchDialog"`) with the shared `icon_search` macro; `search-bootstrap.js` warms assets, opens the modal, and handles the `/` shortcut; it keeps `aria-expanded` / `html[data-modal-open]` in sync by setting true on open and, while open, polling `pagefind-modal.isOpen` with a self-clearing timeout (first tick ASAP, then every 50ms — covers Esc/backdrop/close and Pagefind re-renders that replace the internal dialog; host has no bubbling close event). The internal light-DOM dialog id is forced to `shiroSearchDialog` so `aria-controls` stays stable. When search is enabled, the FOUC script and theme toggle also set Pagefind's `data-pf-theme="dark"` alongside `data-theme`.
-- `source/css/_src/comments.css` / `source/css/comments.min.css` — optional plain CSS source and minified output for comment containers (giscus / Disqus); loaded only on post/page views with a configured comment provider.
-- `source/css/_src/lightgallery.css` / `source/css/lightgallery.min.css` — optional plain CSS source and minified output for LightGallery theme overrides; loaded when the lightbox is warmed (on first image intent — hover/press/focus, when the first image nears the viewport, or when opened). `head.njk` adds a derived preconnect for the configured LightGallery JS URL plus lowest-priority `prefetch` hints for the configured LightGallery CDN JS/CSS and the same-origin wrapper; `source/js/_src/lightgallery.js` reads the same URLs from page globals. Keep the default `lightgallery@<version>` URLs in `_config.yml`, `_layout.njk`, and `source/js/_src/lightgallery.js` in sync. The proactive viewport/idle warm lives in `lightgallery-bootstrap.js` (`IntersectionObserver` + `requestIdleCallback`), gated on `navigator.connection` (skips `saveData`/`2g`) so touch devices with no hover still open the lightbox instantly.
-- `source/css/_src/giscus.css` / `source/css/giscus.min.css` — custom giscus iframe theme source and minified output, also published via jsDelivr; **not** processed by Tailwind.
-- `source/js/_src/` — lightweight browser script sources ignored by Hexo because the folder is underscore-prefixed.
-- `source/js/*.min.js` — generated browser script outputs: `theme-toggle`, `search-bootstrap`, `toc`, `progress`, `back-to-top`, `preloader`, `clipboard`, `clipboard-bootstrap`, `lightgallery`, `lightgallery-bootstrap`, `mobile-menu`, `mobile-menu-bootstrap`. `preloader.min.js` waits for the font stylesheet load and `document.fonts.ready` twice (rAF yield), then fades out `#shiroPreloader` (connection-aware JS deadline, longer CSS failsafe, font-bundle-token same-tab skip; error/timeout without caching). Some source files include build-time snippet markers such as `<shiro-asset-loader>` and must be consumed through `npm run build`, not served directly.
-- `test/` — Node built-in unit tests (`npm test`); currently `mathjax.test.js` (Markdown math shield) and `word_count.test.js` (word-count display gate).
-- `tools/build-assets.js` — release asset build script; minifies CSS/JS and injects shared snippets before JS minification.
-- `tools/snippets/` — build-time JavaScript snippets shared by client scripts, currently `asset-loader.js` for lazy asset loading helpers and `script-loader.js` for tiny bootstrap handoffs.
-- `languages/` — i18n YAML files for supported locales and locale aliases.
-- `_config.yml` — default theme configuration users may copy into `_config.shiro.yml`.
-- `package.json` — npm scripts and Tailwind development dependencies.
+Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates, Tailwind CSS v4, optional MathJax, word count (host plugin), Pagefind search, comments, analytics, and minimal client JS for static output.
 
 ## Setup commands
 
-- Install dev dependencies: `npm install`
-- Watch CSS during development: `npm run dev` (long-running Tailwind watch; writes an unminified `source/css/style.min.css`)
-- Build minified CSS and JS for release: `npm run build` (runs Tailwind for core CSS, then minifies optional CSS modules and browser JS)
+| Command         | Purpose                                                                               |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `npm install`   | Install dev dependencies                                                              |
+| `npm run dev`   | Tailwind watch (unminified `source/css/style.min.css`)                                |
+| `npm run build` | Release assets: core CSS, optional `*.min.css`, browser `*.min.js` (+ snippet inject) |
+| `npm test`      | Node built-in tests (`test/**/*.js`)                                                  |
 
-Both `dev` and `build` read `source/css/_tailwind.css` and write `source/css/style.min.css`; `build` also minifies optional CSS modules from `source/css/_src/` to `source/css/*.min.css` and browser scripts from `source/js/_src/` to `source/js/*.min.js`. Before minifying browser scripts, `build` injects shared snippets from `tools/snippets/` into marked source regions. After changing `_tailwind.css`, optional CSS modules in `source/css/_src/`, Tailwind utility usage in templates, any `source/js/_src/*.js` source file, or `tools/snippets/*`, always finish with `npm run build` and include the regenerated minified assets in the same change set; these files are part of the published package (see `Release and publishing`). Use `npm run build`, not `npm run dev`, for one-shot validation before finishing changes.
-- Do not hand-edit generated minified assets (`source/css/style.min.css`, `source/css/*.min.css`, `source/js/*.min.js`); change their source files under `source/css/_src/` or `source/js/_src/`, then regenerate them with `npm run build`.
-- Run unit tests: `npm test` (Node built-in runner; `test/**/*.js`; no extra deps)
+- Both `dev` and `build` read `source/css/_tailwind.css` → `source/css/style.min.css`.
+- After changing `_tailwind.css`, `source/css/_src/*`, Tailwind utilities in templates, `source/js/_src/*`, or `tools/snippets/*`: run **`npm run build`** (see Testing for committing outputs).
+- Do **not** hand-edit `source/css/style.min.css`, `source/css/*.min.css`, or `source/js/*.min.js`; do not delete generated CSS or the package lock without clear reason.
+- Prefer `npm run build` over `npm run dev` for one-shot validation.
 
-## Development workflow
+## Repository map
 
-- Prefer small, focused changes that preserve Hexo theme compatibility.
-- Keep generated output, templates, scripts, config, README docs, and language files consistent.
-- When changing the repository/file layout or adding a new feature, update `README.md`, `README_CN.md`, and `AGENTS.md` in the same change set so project structure and agent guidance stay current.
-- When changing npm dependencies or bumping the package version, update `package.json` and `package-lock.json` together using `npm install` or `npm install --package-lock-only`; avoid manual lockfile edits unless there is a clear reason.
-- When adding config options, update `_config.yml`, `README.md`, `README_CN.md` if needed, and any relevant template or script logic.
-- When adding user-facing strings, update every file in `languages/` and keep the same key structure across locales. Word-count labels live under `word_count` (`count`, `time`, `time_minutes`).
-- When modifying templates, check the relevant Hexo page types: home, post, page, archive, tag, and category.
+| Path                       | Role                                                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category` |
+| `scripts/`                 | Hexo helpers/filters: `helpers.js`, `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js`                                                                     |
+| `source/css/_tailwind.css` | Theme tokens + core components → `style.min.css`                                                                                                                  |
+| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus)                                                                          |
+| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix)                                                                                 |
+| `tools/`                   | `build-assets.js`, `snippets/` (injected at build)                                                                                                                |
+| `test/`                    | Unit tests (`npm test`)                                                                                                                                           |
+| `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                      |
+| `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                          |
+| `DESIGN.md`                | Design system; sync with CSS when changing colors, type, spacing, elevation, or component look                                                                    |
 
-- Avoid introducing heavy client-side dependencies unless clearly justified by the feature and consistent with the existing lazy/deferred loading approach.
-- **After any code change that touches logic under test (or adds/updates tests), run `npm test` before finishing.** Treat a failing `npm test` as a blocker. Prefer running tests after each coherent edit batch, not only at the end of a long session. When changing minified asset sources, also run `npm run build` as required by Setup commands.
+**Do not invent helpers** — check `scripts/helpers.js` first. Implementation details live in source and tests.
+
+### Pitfalls
+
+- No static `source/favicon.svg` — generator overwrites it; seal path is `SEAL_PATH_D` / `seal_path_d`.
+- Font family changes: update the family list in `google_font_urls` (shared preload / preloader token).
+- Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Indexing runs on `hexo generate` / `hexo deploy` `before_exit`, **not** `hexo server`. No `npx` fallback.
+- Word count: theme `word_count.enabled` only controls display; counting needs host [hexo-word-counter](https://github.com/next-theme/hexo-word-counter). Missing plugin omits meta — does **not** fail generate.
+- Keep default LightGallery CDN versions in sync across `_config.yml`, `_layout.njk`, and `source/js/_src/lightgallery.js`.
+- Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
+- MathJax: set `protect: false` when using pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
+
+## Workflow rules
+
+- Small, focused changes; preserve Hexo theme compatibility and the Shiro minimal aesthetic.
+- Layout/feature changes that affect structure or agent-facing rules: update `README.md`, `README_CN.md`, and this file.
+- New/changed npm deps or version bumps: update `package.json` **and** `package-lock.json` via npm (not hand-edited lockfiles).
+- New config keys: follow **Config, i18n, and security** (`_config.yml` + docs; safe defaults).
+- New user-facing strings: every file under `languages/`; keys sorted alphabetically per level; group under existing namespaces (`clipboard`, `common`, `gallery`, `nav`, `search`, `word_count`, …).
+- Template edits: consider home, post, page, archive, tag, category (and dark mode / TOC / search / code / lightbox / MathJax when relevant).
+- Avoid heavy client dependencies; prefer lazy/deferred loading.
 
 ## Code style
 
-- Keep Nunjucks templates readable and modular; use existing macros and partials where possible.
-- Keep Tailwind utility usage consistent with the existing design system and minimalist aesthetic.
-- Preserve the Shiro visual style: clean whitespace, warm neutral tones, subtle vermilion accents, strong typography, and performance-conscious UI.
-- JavaScript should be plain, lightweight, browser-compatible, and suitable for static Hexo output.
-- Match existing JS conventions: `'use strict'` at the top, 4-space indentation, single quotes, CommonJS (`require` / `hexo.extend.*`) in `scripts/`, and DOMContentLoaded-guarded IIFEs in `source/js/_src/`. Do not introduce ESM, TypeScript, bundlers, or build pipelines for client scripts.
-- Do not rely on Tailwind scanning client JavaScript for runtime-injected class names; put those styles in a feature CSS module or ensure the utility is also present in a scanned template.
-- Reference static assets via the `versioned_url` helper so cache-busting hashes are added automatically.
-- YAML config and language files should remain human-readable and well-commented where helpful.
-- Do not rewrite large files unnecessarily.
-- Do not reformat unrelated code.
+- Nunjucks: modular macros/partials; semantic HTML; keyboard/a11y for toggles, search, copy, lightbox.
+- JS: plain browser-compatible code — `'use strict'`, 4-space indent, single quotes; CommonJS in `scripts/`; DOMContentLoaded-guarded IIFEs in `source/js/_src/`. No ESM/TypeScript/bundlers for client scripts.
+- Assets: use `versioned_url` for static theme assets.
+- CSS: match existing tokens and minimalist style; do not reformat unrelated code or rewrite large files without need.
+- Gate scripts in `_layout.njk` by page type, feature flags, and DOM needs so unused pages stay JS-free.
 
 ## Testing and validation
 
-- **Unit tests (required after code changes): `npm test`** — Node's built-in test runner (`node --test test/**/*.js`). No extra test framework dependency. Current coverage lives under `test/` (e.g. `test/mathjax.test.js` for the MathJax Markdown shield and load gate; `test/word_count.test.js` for word-count meta display gates).
-- **Agent requirement:** whenever an agent edits application or test code (especially `scripts/`, `test/`, or behavior that existing tests assert), it **must** run `npm test` before reporting the task complete. If tests fail, fix them or update tests when behavior intentionally changes; do not leave a red suite. If the change set only touches docs/comments with no logic impact, tests are still recommended when nearby features have coverage.
-- **When to add or extend tests:** if you change protect/restore math logic, load-gate rules (`enabled` / `every_page` / front-matter), word-count display gates (`wordCountMeta` / `word_count.enabled`), or other pure functions under `scripts/`, update or add cases in `test/` in the same change set.
-- **Primary asset validation: `npm run build`** — regenerate minified CSS/JS when sources change. See `Setup commands` for exactly when to rebuild and which files to commit; verify rendering in a host Hexo site when possible.
-- There is no separate lint or formatter script.
-- This repository is a theme package, not a full Hexo site fixture. To verify theme rendering, run `hexo clean && hexo generate` from a host Hexo site that uses this theme, unless a fixture site is added later.
-- If search is enabled, remember Pagefind indexing runs in the `before_exit` filter for `hexo generate` / `hexo deploy`, **not** during `hexo server`. For publishing checks, prefer `hexo clean && hexo generate` before deployment so `public/pagefind/` is written before upload.
-- Pagefind is **not** declared as a devDependency of this theme; when `search.enabled: true`, the host Hexo site **must** install Pagefind 1.5.0+ (`npm i pagefind -D`). Missing or too-old installs fail generation with an install hint — there is no `npx` fallback.
-- When changing `_config.yml`, also keep the documented YAML snippets in `README.md` and `README_CN.md` aligned with the same defaults.
-- Manually inspect generated pages when possible: home, post, page, archive, tag, category, dark mode, TOC, comments, search trigger/modal, code blocks, image lightbox, MathJax pages, and responsive layout.
-- Treat build failures, test failures, template rendering errors, missing translation keys, and broken config defaults as blockers.
+**Required after relevant edits (blockers if red):**
 
-## Internationalization
+1. Logic under `scripts/` or `test/` (or behavior those tests cover) → **`npm test`**
+2. CSS/JS sources or build snippets → **`npm run build`** and include regenerated minified assets in the change set
+3. Pure function / gate changes (MathJax protect/load, word-count display, etc.) → extend `test/` in the same change set
 
-- Keep all language YAML files structurally aligned.
-- When adding a new key to one locale, add it to all supported locales and aliases, and group related strings under an existing feature namespace such as `clipboard`, `common`, `gallery`, `nav`, or `search`.
-- Keep locale keys sorted alphabetically at each YAML level; insert new keys in sorted order.
-- Do not hard-code English text in templates when an existing i18n pattern should be used.
-- Preserve support for English, Simplified Chinese, Traditional Chinese, Japanese, and French unless the repository has changed.
-- Current locale files include `default.yml`, `en.yml`, `en-US.yml`, `zh-CN.yml`, `zh-TW.yml`, `ja.yml`, `ja-JP.yml`, `fr.yml`, and `fr-FR.yml`.
+Also:
 
-## Configuration compatibility
+- No separate lint/format script.
+- This repo is a theme package, not a full Hexo site. For render checks: host site `hexo clean && hexo generate`.
+- Docs-only changes: tests optional unless nearby tested behavior is described.
+- Treat build/test failures, template errors, missing i18n keys, and broken config defaults as blockers.
 
-- Preserve backward compatibility for existing `_config.yml` options whenever possible.
-- Prefer adding new optional config keys with safe defaults.
-- Do not remove or rename config keys without updating docs and adding clear migration notes.
-- Be careful with comments in `_config.yml` because users copy this file into `_config.shiro.yml`.
-- Treat copied user config as potentially older than the current default config; templates and scripts should handle missing optional keys safely.
-- Current top-level config keys: `site`, `menu`, `excerpt`, `toc`, `lightGallery`, `mathjax`, `dark_mode`, `progress_bar`, `word_count`, `back_to_top`, `comments` (`disqus` / `giscus`), `analytics` (`google`), `search` (Pagefind). Renaming or removing any of them is a breaking change.
-- `word_count` controls display only (`enabled` default false). Actual counting requires the host site to install [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) and optionally configure site-level `symbols_count_time` (`wpm`, `exclude_codeblock`, `symbols`, `time`, etc.). Unlike Pagefind, a missing plugin does **not** fail `hexo generate` — meta items are simply omitted.
-- `site.seal_text` controls both the header seal and the dynamically generated `favicon.svg` (see `hexo.extend.generator.favicon_svg` in `scripts/helpers.js`). Do not add a static `favicon.svg` into `source/` — it will be overwritten on each generate.
-- The default giscus theme URL in `_config.yml` (`https://cdn.jsdelivr.net/npm/hexo-theme-shiro@<version>/source/css/giscus.min.css`) hard-codes a release version. When cutting a new release, bump this version in `_config.yml`, `README.md`, and `README_CN.md` to match the published npm/git tag so existing users keep loading a matching `giscus.min.css`. Note any breaking changes to `giscus.css` / `giscus.min.css` in the release notes.
+## Config, i18n, and security
 
-## Performance and accessibility
+- Prefer optional keys with safe defaults; missing optional keys must not throw.
+- Do not remove/rename config without docs and migration notes.
+- Treat copied `_config.shiro.yml` as possibly older than defaults.
+- Breaking: renaming/removing top-level keys in `_config.yml` (see that file for the current set).
+- Release-coupled: default giscus theme URL embeds `hexo-theme-shiro@<version>` — bump with package version in `_config.yml`, `README.md`, and `README_CN.md`.
+- Do not commit secrets, analytics IDs, Disqus shortnames, giscus IDs, or private values.
+- Treat config-rendered attributes/URLs as untrusted; be careful with external integrations (giscus, GA, LightGallery, Pagefind, CDN versions / future SRI).
 
-- Keep JavaScript minimal and defer or lazy-load non-critical behavior where appropriate.
-- Avoid blocking scripts and unnecessary assets.
-- Gate each `<script>` tag in `layout/_layout.njk` by the narrowest applicable page predicates, feature toggles, and DOM needs (`is_home()` / `is_post()` / `is_page()`, `theme.toc.enabled`, `page_wants_mathjax(page)` / `theme.mathjax.enabled`, `theme.search.enabled`, rendered content checks, etc.) so unused pages stay JS-free.
-- Preserve responsive behavior across mobile and desktop layouts.
-- Use semantic HTML where possible.
-- Keep keyboard and screen-reader accessibility in mind for toggles, buttons, navigation, search, copy buttons, and lightbox interactions.
-- Do not degrade Core Web Vitals with unnecessary dependencies or large assets.
+## PR, commits, and release
 
-## Security
+**PR:** focused; summarize user-visible changes; list `npm test` / `npm run build` / Hexo checks; note config, i18n, docs, and UI verification.
 
-- Do not include secrets, analytics IDs, Disqus shortnames, giscus IDs, or private repository values in the repository.
-- Treat user-provided config values as untrusted when rendering attributes or URLs.
-- Avoid unsafe inline script patterns unless already established and necessary.
-- Be careful when changing external script integrations such as giscus, Google Analytics, LightGallery, or Pagefind.
-- When changing external CDN asset versions, verify the asset still loads correctly; if an integration adds SRI in the future, keep the matching `integrity` hashes in sync.
+**Commits:** [Conventional Commits](https://www.conventionalcommits.org/) — `<type>(optional-scope): description`; imperative, lowercase subject ≤72 chars; scopes like `toc`, `search`, `readme`. Breaking: `!` and/or `BREAKING CHANGE:` footer.
 
-## Pull request guidance
+**Release:** package is published to npm without a restrictive `files` list — run `npm pack --dry-run` before tagging; keep generated `*.min.css` / `*.min.js` in the package. Align `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL:
 
-- Summarize user-visible changes clearly.
-- List validation commands run, especially `npm test`, `npm run build`, and any Hexo generation checks.
-- Mention screenshots or visual checks for layout/UI changes.
-- Call out config, i18n, or documentation updates.
-- Keep PRs focused.
-
-## Commit messages
-
-- Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification: `<type>(<optional scope>): <description>`.
-- Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-- Use the imperative mood ("add", "fix", "update"), keep the subject line concise (≤ 72 chars), and prefer lowercase.
-- Use scopes that map to the affected area when helpful, e.g. `feat(toc): ...`, `fix(search): ...`, `docs(readme): ...`, `style(css): ...`.
-- For breaking changes, append `!` after the type/scope (e.g., `feat(config)!: ...`) and/or include a `BREAKING CHANGE:` footer.
-- Use the commit body to explain motivation and context when the subject alone is not enough.
-
-## Release and publishing
-
-- This package is published to npm; `package.json` does not set `files` and there is no `.npmignore`, so most non-ignored project files may be packed. Run `npm pack --dry-run` before release to verify the exact contents, and keep the package tidy.
-- `source/css/style.min.css` and other generated `*.min.css` / `*.min.js` files are build outputs and **must** be included in the release/npm package — consumers install the theme straight from npm/git without running a build step, so without it the theme will be unstyled. Re-run the release build (see `Setup commands`) and include the regenerated files before tagging a release.
-- When cutting a release, bump `package.json`, `package-lock.json`, and the `hexo-theme-shiro@<version>` reference in `_config.yml`, `README.md`, and `README_CN.md` together so the bundled giscus theme URL points at the matching published tag. Before release, verify `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL all point to the same version.
-- Self-check release versions in two parts: verify `package.json` and `package-lock.json` agree with `node -e "const p=require('./package.json').version,l=require('./package-lock.json'); if (l.version !== p || l.packages[''].version !== p) process.exit(1); console.log(p)"`, then verify documented CDN URLs with `grep -RnE 'hexo-theme-shiro@[0-9]+\.[0-9]+\.[0-9]+' _config.yml README.md README_CN.md`.
-
-## Agent-specific notes
-
-- Read existing files before editing.
-- Prefer modifying the smallest relevant file.
-- If an agent needs to run Python scripts, use `uv` to run them.
-- Treat `node_modules/` as generated dependency output; do not edit files inside it.
-- Do not delete generated CSS or package lock files unless there is a clear reason.
-- If unsure about Hexo behavior, verify against Hexo conventions or existing project patterns.
-- After finishing code edits, run `npm test` when tests exist for the touched area (see **Testing and validation**); do not mark work done with a failing suite.
-- Explicit user instructions override this `AGENTS.md`.
-- If there are nested `AGENTS.md` files in the future, the closest one to the edited file should take precedence.
+```bash
+node -e "const p=require('./package.json').version,l=require('./package-lock.json'); if (l.version !== p || l.packages[''].version !== p) process.exit(1); console.log(p)"
+grep -RnE 'hexo-theme-shiro@[0-9]+\.[0-9]+\.[0-9]+' _config.yml README.md README_CN.md
+```

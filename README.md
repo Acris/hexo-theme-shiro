@@ -22,25 +22,24 @@ Made by Acris with ❤️
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
 - **Responsive**: Fully responsive design for mobile and desktop.
-- **Tailwind CSS**: Modern utility-first CSS framework.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`).
-- **Dark Mode**: Elegant dark theme with warm neutral tones, 3-state toggle (system/light/dark).
-- **Table of Contents**: Build-time generated sidebar TOC for articles with configurable heading depth; client JavaScript only handles folding and active-section highlighting.
+- **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
+- **Table of Contents**: Sidebar TOC for articles with configurable heading depth.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
-- **Word Count & Reading Time**: Optional post meta powered by [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) (Unicode-aware multi-language counting); install the plugin and set `word_count.enabled: true`.
+- **Word Count & Reading Time**: Optional post meta via [hexo-word-counter](https://github.com/next-theme/hexo-word-counter).
 - **Back to Top**: Smooth scroll back-to-top button.
-- **Font-load Preloader**: A themed veil with a subtle vermilion ripple covers the page until this page's theme fonts settle (font stylesheet + `document.fonts.ready`), with a connection-aware timeout so a slow font CDN cannot hold the page indefinitely.
+- **Font-load Preloader**: A themed veil covers the page until theme fonts are ready.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
-- **MathJax**: Optional MathJax v4 TeX rendering (`enabled` / `every_page` / front-matter, Markdown shield; `$...$` opt-in via `inline_dollars`; no KaTeX).
-- **Images**: Content images get build-time loading, decoding, size, and priority attributes; the first article image stays eager for the initial viewport. LightGallery assets are prefetched ahead of the first click, so the lightbox opens instantly — even on touch devices.
-- **Comments**: Disqus and giscus (GitHub Discussions) comment systems, loaded near the comments area.
-- **Google Analytics**: GA4 support with non-blocking script loading.
+- **MathJax**: Optional MathJax v4 TeX rendering (per-page or site-wide; no KaTeX).
+- **Images**: Optimized content images and LightGallery lightbox.
+- **Comments**: Disqus and giscus (GitHub Discussions), loaded when needed.
+- **Google Analytics**: GA4 support.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
-- **SEO-friendly**: Per-page meta description, Open Graph (with `article:*`, `og:locale`, and `og:image` width/height) and Twitter Card tags, canonical plus paginated `rel=prev`/`rel=next` links (paginated `<title>`s carry a page number so they aren't duplicates of page 1), and schema.org JSON-LD (`BlogPosting` for posts, `WebSite` for the home page).
-- **Seal Stamp**: Optional decorative vermilion seal (印章) icon in the header, with customizable character via `seal_text`.
-- **Static Site Search**: Built-in static site search powered by [Pagefind](https://pagefind.app/) Component UI — index is generated automatically after `hexo generate`, no external service required. A header pill button (same style as RSS / theme toggle) opens the modal; `/` and asset warm-up are handled by a tiny bootstrap script so Component UI stays off the critical path.
-- **Fast**: Optimized for performance with minimal JavaScript, cached build-time page analysis, and content image loading/size hints.
+- **SEO-friendly**: Meta tags, social cards, and structured data.
+- **Seal Stamp**: Optional decorative vermilion seal (印章) in the header; customize the character with `seal_text`.
+- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after `hexo generate`, with no external service.
+- **Fast**: Performance-focused with minimal JavaScript and careful asset loading.
 
 ## Installation
 
@@ -157,36 +156,33 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
-# LightGallery image lightbox. The official project name uses a capital G.
+# Image lightbox (config key is lightGallery with capital G). Swap CDN URLs if needed.
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
 
-# MathJax TeX rendering (MathJax only; no KaTeX). Official defaults are
-# \(...\) / $$...$$ / \[...\]; single $...$ stays off unless inline_dollars: true.
+# MathJax TeX rendering (MathJax only; no KaTeX).
+# Default delimiters: \(...\) / $$...$$ / \[...\]; enable $...$ with inline_dollars.
 # Usage: set enabled: true, then front-matter mathjax: true and/or every_page: true.
 mathjax:
-  # false = never inject; true = follow every_page / front-matter.
+  # false = never load; true = follow every_page / front-matter.
   enabled: false
   # false = only pages with mathjax: true in front-matter.
-  # true  = all post/page views except mathjax: false (opt-out).
-  # When true and protect is on, every such page is scanned by the Markdown
-  # shield (including pages with no formulas) — same gate as script load.
+  # true  = all posts/pages except mathjax: false (opt-out).
   every_page: false
   # MathJax script URL; pin a version for reproducibility (like lightGallery).
   src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
   # Equation numbering: none, ams, or all.
   tags: none
-  # Enable $...$ as inline math. Default false matches MathJax v4; demos opt in
-  # with inlineMath: {'[+]': [['$', '$']]}. When true, also shields prose \$.
+  # Enable $...$ as inline math (off by default, matching MathJax v4).
   inline_dollars: false
-  # Process bare \begin{env}...\end{env} outside delimiters (MathJax default).
+  # Process bare \begin{env}...\end{env} outside delimiters.
   process_environments: true
-  # Treat \$ as a literal dollar in text (MathJax processEscapes; default true).
+  # Treat \$ as a literal dollar in text.
   process_escapes: true
-  # Markdown shield in scripts/mathjax.js. Set false if you use
-  # hexo-renderer-pandoc --mathjax or hexo-filter-mathjax (avoid double work).
+  # Protect TeX in Markdown before render. Set false if you use
+  # hexo-renderer-pandoc --mathjax or hexo-filter-mathjax.
   protect: true
 
 # Dark mode
@@ -205,9 +201,8 @@ progress_bar:
 
 # Word count & reading time (display only)
 # Requires site plugin: npm install hexo-word-counter
-# Configure counting/WPM (and symbols/time toggles) in the site root _config.yml
-# under symbols_count_time. When disabled or the plugin is missing, meta items
-# are omitted with no error.
+# Configure counting/WPM under symbols_count_time in the site root _config.yml.
+# When disabled or the plugin is missing, meta items are omitted with no error.
 word_count:
   enabled: false
 
@@ -259,7 +254,7 @@ comments:
     # giscus theme CSS URL or built-in theme name (e.g., light, dark, preferred_color_scheme)
     # Default uses the bundled Shiro custom theme via jsDelivr CDN.
     theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.5.2/source/css/giscus.min.css
-    # true to enable lazy loading (adds data-loading="lazy")
+    # true to enable lazy loading
     lazy_loading: false
 
 # Analytics
@@ -273,18 +268,17 @@ analytics:
     # e.g., "G-XXXXXXXXXX"
     id: ""
 
-# Site search powered by Pagefind (https://pagefind.app/) Component UI.
-# Index is built automatically after `hexo generate` and written to `public/pagefind/`.
+# Site search powered by Pagefind (https://pagefind.app/).
+# Index is built automatically after `hexo generate` into `public/pagefind/`.
 # Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
 #   npm install pagefind --save-dev
 # Generation fails with an install hint if Pagefind is missing or too old.
 search:
   enabled: false
-  # Pagefind document root selector. Defaults to body to tolerate generated pages
-  # without an outer <html> element; set to html to keep Pagefind's default.
+  # Document root selector for indexing (default: body).
   root_selector: body
   # Force language for tokenization (auto-detected from <html lang> by default).
-  # Override only if Pagefind fails to detect your site language correctly.
+  # Override only if language detection is wrong for your site.
   # force_language: zh
 ```
 
@@ -294,12 +288,14 @@ Since Hexo does not generate 'all tags' or 'all categories' pages by default, yo
 wish to use them in the menu.
 
 1. Create the pages:
+
    ```bash
    hexo new page tags
    hexo new page categories
    ```
 
 2. Modify `source/tags/index.md`:
+
    ```yaml
    ---
    title: Tags
@@ -315,42 +311,19 @@ wish to use them in the menu.
    ---
    ```
 
-### LightGallery
-
-Shiro enables the image lightbox by default on post/page content that contains images. You can disable it or replace the LightGallery CDN URLs in `_config.yml` / `_config.shiro.yml`:
-
-```yaml
-lightGallery:
-  enabled: true
-  css: https://cdn.example.com/npm/lightgallery@2.9.0/css/lightgallery.min.css
-  js: https://cdn.example.com/npm/lightgallery@2.9.0/lightgallery.min.js
-```
-
 ### MathJax
 
-Shiro renders TeX with [MathJax](https://docs.mathjax.org/en/v4.0/) only (no KaTeX). There is no extra theme dependency: the CDN script loads on demand. Configure in `_config.yml` or `_config.shiro.yml`:
+Shiro renders TeX with [MathJax](https://docs.mathjax.org/en/v4.0/) only (no KaTeX). Options are listed in the config block above.
 
-```yaml
-mathjax:
-  enabled: false          # must set true to allow any MathJax injection
-  every_page: false       # false = only front-matter mathjax: true; true = all posts/pages except mathjax: false (also runs protect on those pages)
-  src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
-  tags: none              # none | ams | all
-  inline_dollars: false   # set true to append $...$ via MathJax '[+]' API (MathJax v4 default is off)
-  process_environments: true  # bare \begin{env}...\end{env} outside delimiters
-  process_escapes: true   # MathJax processEscapes — \$ as a literal dollar in text
-  protect: true           # Markdown shield in scripts/mathjax.js
-```
+**When MathJax loads** (posts and pages only; home/archives never load it):
 
-**Loading rules** (post/page only; home/archives never load):
-
-| `enabled` | `every_page` | front-matter | Load? |
-|-----------|--------------|--------------|-------|
-| `false` | * | * | No |
-| `true` | `false` | `mathjax: true` | Yes |
-| `true` | `false` | unset / `false` | No |
-| `true` | `true` | unset / `true` | Yes |
-| `true` | `true` | `mathjax: false` | No (opt-out) |
+| `enabled` | `every_page` | front-matter     | Load?        |
+| --------- | ------------ | ---------------- | ------------ |
+| `false`   | *            | *                | No           |
+| `true`    | `false`      | `mathjax: true`  | Yes          |
+| `true`    | `false`      | unset / `false`  | No           |
+| `true`    | `true`       | unset / `true`   | Yes          |
+| `true`    | `true`       | `mathjax: false` | No (opt-out) |
 
 Typical setup — enable the feature, then mark posts that need math:
 
@@ -367,95 +340,60 @@ mathjax: true
 ---
 ```
 
-Site-wide math blog: `enabled: true` and `every_page: true`; use `mathjax: false` on pages that should stay script-free. With `every_page: true` and `protect: true`, the Markdown shield scans every post/page that loads MathJax (including pages without formulas) so load and protect never diverge; the extra build cost is intentional and usually small.
+For a site-wide math blog, set `enabled: true` and `every_page: true`; use `mathjax: false` on pages that should stay script-free.
 
-With `protect: true` (default), the Markdown shield runs on the **same pages that load MathJax** — so `\(...\)`, `\[...\]`, `$$...$$`, and whitelisted bare environments such as `\begin{align}...\end{align}` keep their TeX escapes (`\[`, `\!`, …). When `inline_dollars: true`, `$...$` and prose `\$` are shielded as well. Unclosed delimiters (e.g. a lone `\[` without `\]`, or `\begin{align}` without `\end{align}`) are left unprotected so the rest of the page is not swallowed into a placeholder; during `hexo generate` / `hexo g` the theme also logs a warning (`[mathjax] unclosed …`, including the post source path when available) without changing protect results. Bare-env **shielding** is independent of `process_environments` (that flag only controls the browser MathJax option).
+**Delimiters.** Defaults follow MathJax v4: `\(...\)` (inline) and `$$...$$` / `\[...\]` (display). Single-dollar `$...$` is **off** by default. Set `inline_dollars: true` to enable it.
 
-**Delimiters.** MathJax v4 defaults are `\(...\)` (inline) and `$$...$$` / `\[...\]` (display). Single-dollar `$...$` is **off** by default (official docs and stock config). Set `inline_dollars: true` to opt in the same way as the [MathJax demos](https://mathjax.github.io/MathJax-demos-web/page/tex-chtml.html) (`inlineMath: {'[+]': [['$', '$']]}`).
+**Currency.** With default `inline_dollars: false`, ordinary `$5` stays plain text. If you enable single dollars, write `\$2.50` (with `process_escapes: true`) or `<span>$</span>2.50`; ambiguous `$…$` pairs can still be treated as math.
 
-**Currency.** With default `inline_dollars: false`, ordinary `$5` is plain text. If you enable single dollars, prefer `\$2.50` (Markdown shield + client `process_escapes: true`) or `<span>$</span>2.50`; ambiguous `$…$` pairs can still be misread as math. Note: the Markdown shield for prose `\$` is gated only by `inline_dollars` — `process_escapes` is a **client-only** MathJax option and does not turn the shield on or off.
+**Using other math tools.**
 
-**Advanced / mutual exclusion.**
-
-- **`hexo-renderer-pandoc`** with `--mathjax`: set `mathjax.protect: false` so only one layer handles math-in-Markdown.
-- **`hexo-filter-mathjax`** (server-side): set `mathjax.enabled: false` (or leave it false) so the theme never injects a second renderer; do not combine with `every_page: true` or front-matter `mathjax: true` while the filter is active.
-- **KaTeX** is not shipped. Use a site-level markdown-it KaTeX plugin if you need it, and do not enable Shiro MathJax on the same pages.
-
-Pin `mathjax.src` to a concrete version (default `4.1.3`) for reproducible builds, similar to LightGallery.
+- **`hexo-renderer-pandoc`** with `--mathjax`: set `mathjax.protect: false` to avoid double-processing.
+- **`hexo-filter-mathjax`** (server-side): keep `mathjax.enabled: false` so the theme does not inject a second renderer.
+- **KaTeX** is not included. If you use a site-level KaTeX plugin, do not enable Shiro MathJax on the same pages.
 
 ### Word Count & Reading Time
 
-Shiro can show word count and estimated reading time in post meta (home cards and article headers). Counting is provided by the site-level plugin [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) (Unicode UAX #29, accurate for CJK and mixed-language posts). The theme only controls display; without the plugin (or with `word_count.enabled: false`), meta items are omitted and generation still succeeds.
+Shiro can show word count and estimated reading time in post meta (home cards and article headers). Counting is provided by the site-level plugin [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) (accurate for CJK and mixed-language posts). The theme only controls display; without the plugin (or with `word_count.enabled: false`), meta items are omitted and generation still succeeds.
 
-**npm install (required for counts to appear)**
-
-Install in your **site root** (not the theme directory):
+**Install** (required for counts to appear) — in your **site root**, not the theme directory:
 
 ```bash
 npm install hexo-word-counter
 hexo clean
 ```
 
-**Site root `_config.yml` (plugin options)**
+**Site root `_config.yml`** (plugin options):
 
 ```yaml
 symbols_count_time:
   symbols: true
   time: true
-  # Plugin default is false; Shiro recommends true for tech posts so code fences
+  # Plugin default is false; recommended true for tech posts so code blocks
   # do not inflate word count / reading time.
   exclude_codeblock: true
-  wpm: 275                 # plugin default; Chinese-heavy blogs often use 300
+  wpm: 275 # plugin default; Chinese-heavy blogs often use 300
 ```
 
-**Theme configuration (`_config.yml` / `_config.shiro.yml`)**
-
-```yaml
-word_count:
-  enabled: true   # default false; set true after installing the plugin
-```
-
-Set `word_count.enabled: false` to hide meta chips. To show only count or only reading time, use the site plugin flags (`symbols_count_time.symbols` / `time`).
-
-Reading-time unit labels under **60 minutes** use the theme locale (`word_count.time_minutes` in `languages/`). From **60 minutes** upward, [hexo-word-counter](https://github.com/next-theme/hexo-word-counter) formats duration as `H:MM` (for example `1:05`) and does **not** append that suffix.
-
-When word count is shown, post meta uses slightly denser type on small screens (`text-xs`, tighter gaps) so date, category, and the combined count/time chip fit more cleanly. Without word count, meta keeps the usual `text-sm` spacing.
+In theme config (`_config.shiro.yml`), set `word_count.enabled: true` after installing the plugin (default is `false`). To show only count or only reading time, use the site plugin flags (`symbols_count_time.symbols` / `time`).
 
 ### Search
 
-Shiro ships with a built-in static site search powered by [Pagefind](https://pagefind.app/) Component UI. The index is generated automatically after `hexo generate`, so you do not need to run a separate search command before publishing generated output.
+Shiro ships with built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically after `hexo generate`, so you do not need a separate search command before publishing.
 
-**npm install (required when search is enabled)**
-
-When `search.enabled: true`, install Pagefind 1.5.0+ as a devDependency in your **site root** (not the theme directory):
+**Install** (required when search is enabled) — Pagefind 1.5.0+ as a devDependency in your **site root** (not the theme directory):
 
 ```bash
 npm install pagefind --save-dev
 ```
 
-This is required for both `npm i hexo-theme-shiro` installs and `git clone` installs under `themes/shiro/`. There is no `npx` fallback: if Pagefind is missing, or older than 1.5.0, `hexo generate` / `hexo deploy` fails with an install hint so broken search is caught before publishing. Shiro uses Pagefind's Component UI assets (`pagefind-component-ui.js` / `pagefind-component-ui.css`), which need 1.5.0+.
+This applies to both npm and git theme installs. If Pagefind is missing or older than 1.5.0, `hexo generate` / `hexo deploy` fails with an install hint so broken search is caught before publishing.
 
-Most search UI strings (summary, empty results, keyboard hints) use Pagefind's built-in translations from `<html lang>` (or `search.force_language`). The theme localizes the header button label (`search.trigger`) and the modal input placeholder (`search.placeholder`) in `languages/`.
-
-**Configuration (`_config.yml` / `_config.shiro.yml`)**
-
-```yaml
-search:
-  enabled: true
-  # Pagefind document root selector. Defaults to body to tolerate generated pages
-  # without an outer <html> element; set to html to keep Pagefind's default.
-  root_selector: body
-  # Force language for tokenization and Component UI translations
-  # (auto-detected from <html lang> by default).
-  # Override only if Pagefind fails to detect your site language correctly.
-  # force_language: zh
-```
-
-Set `search.enabled: false` to disable the feature: the build hook is skipped and the search trigger is not rendered.
+Set `search.enabled: true` in theme config to turn search on. Search UI language follows `<html lang>` (or `search.force_language` if set).
 
 **Local preview**
 
-The hook runs on Hexo's `before_exit` event for the `generate` (`g`) and `deploy` (`d`) commands. For publishing, run `hexo generate` before deployment so `public/pagefind/` is written before upload. `hexo server` renders pages from memory and does **not** trigger this hook, so the search index is not rebuilt during local preview. To preview search locally, run a real build and serve the output:
+The search index is built during `hexo generate` / `hexo deploy`, not during `hexo server`. For publishing, run `hexo generate` before upload so `public/pagefind/` is included. To preview search locally:
 
 ```bash
 hexo clean && hexo g
@@ -470,45 +408,26 @@ If you want to modify the theme source code or contribute:
 
 ```
 hexo-theme-shiro/
-├── layout/                 # Nunjucks templates
-│   ├── _layout.njk         # Base layout
-│   ├── _macro/             # Reusable macros (ui, archive)
-│   ├── _partial/           # Partials (head, header, footer, components, comments/index, analytics)
-│   ├── index.njk           # Home page
-│   ├── post.njk            # Article page
-│   ├── page.njk            # Standalone page
-│   ├── archive.njk         # Archive page
-│   ├── tag.njk             # Tag page
-│   └── category.njk        # Category page
-├── scripts/
-│   ├── helpers.js          # Custom Hexo helpers and generators (build_toc, clean_description, og_image, favicon_svg, etc.)
-│   ├── mathjax.js          # MathJax load gate + Markdown TeX protect/restore
-│   ├── images.js           # after_post_render image loading/decoding/sizing optimizer
-│   ├── pagefind.js         # Pagefind indexing hook
-│   └── word_count.js       # Optional word count / reading time meta (hexo-word-counter)
-├── source/
-│   ├── css/_tailwind.css   # Core Tailwind CSS source (compiled to style.min.css)
-│   ├── css/_src/*.css      # Optional feature CSS sources ignored by Hexo
-│   ├── css/*.min.css       # Generated CSS assets loaded on demand
-│   ├── js/_src/*.js        # Client-side script sources ignored by Hexo
-│   └── js/*.min.js         # Generated client-side scripts and feature bootstraps
-├── tools/
-│   ├── build-assets.js     # Release asset build script
-│   └── snippets/           # Build-time JS snippets injected before minification
-├── languages/              # i18n YAML files (en, zh-CN, zh-TW, ja, fr, etc.)
-├── _config.yml             # Theme default config
+├── layout/       # Nunjucks templates
+├── scripts/      # Hexo helpers and filters
+├── source/       # CSS/JS sources and generated assets
+├── tools/        # Asset build scripts
+├── languages/    # i18n YAML
+├── _config.yml   # Theme default config
 └── package.json
 ```
 
 ### Getting Started
 
 1. Install dependencies in the theme directory:
+
    ```bash
    cd themes/shiro
    npm install
    ```
 
-2. Watch for CSS changes during development:
+2. Watch CSS during development:
+
    ```bash
    npm run dev
    ```
@@ -518,13 +437,13 @@ hexo-theme-shiro/
    npm run build
    ```
 
-Note: After modifying `_tailwind.css`, optional feature CSS under `source/css/_src/`, files under `source/js/_src/`, or build-time snippets under `tools/snippets/`, run `npm run build` to regenerate `style.min.css`, feature `*.min.css`, and `*.min.js` assets.
+After changing CSS/JS sources under `source/` or build snippets under `tools/snippets/`, run `npm run build` to regenerate minified assets.
 
 ### Adding a New Language
 
 1. Create a new YAML file in `languages/` (e.g., `ko.yml`).
 2. Copy the structure from `languages/en.yml` and translate all values.
-3. Keep keys sorted alphabetically at each level and ensure all top-level namespaces (`clipboard`, `common`, `gallery`, `index`, `nav`, `page`, `search`, `theme`, `toc`) are present.
+3. Keep keys sorted alphabetically and include the same top-level namespaces as `en.yml`.
 
 ## Thanks
 
