@@ -30,7 +30,7 @@
                 removeViewportListener();
             },
             onerror: () => { loading = false; }
-        });
+        }, 'mobile-menu');
     }
 
     function handleViewportChange(event) {

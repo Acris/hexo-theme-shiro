@@ -50,10 +50,11 @@
         }
     });
 
-    // Close when clicking outside (skip if already closed)
+    // Close when clicking outside (skip if already closed); restore focus to toggle.
     document.addEventListener('click', (e) => {
         if (panel.dataset.open === 'true' && !btn.contains(e.target) && !panel.contains(e.target)) {
             setOpen(false);
+            btn.focus();
         }
     });
 

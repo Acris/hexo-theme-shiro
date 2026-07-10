@@ -4,6 +4,7 @@
     const i18nClipboard = () => (window.__i18n && window.__i18n.clipboard) || {};
     const i18nCopy = () => i18nClipboard().copy || 'Copy code';
     const i18nCopied = () => i18nClipboard().copied || 'Copied';
+    const i18nFailed = () => i18nClipboard().failed || 'Copy failed';
 
     // Clipboard write with fallback for insecure contexts (HTTP)
     function copyText(text) {
@@ -69,7 +70,12 @@
                     btn.classList.remove('copied');
                     btn.setAttribute('aria-label', i18nCopy());
                 }, 2000);
-            }).catch(() => {});
+            }).catch(() => {
+                btn.setAttribute('aria-label', i18nFailed());
+                setTimeout(() => {
+                    btn.setAttribute('aria-label', i18nCopy());
+                }, 2000);
+            });
         });
 
         const wrapper = document.createElement('div');
@@ -86,16 +92,15 @@
         }
     }
 
-    function schedule(task) {
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(task, { timeout: 800 });
-        } else {
-            window.setTimeout(() => task(), 32);
-        }
-    }
-
     function scheduleEnhance(blocks) {
         const queue = Array.from(blocks);
+        const schedule = (window.__shiroRuntime && window.__shiroRuntime.scheduleIdle)
+            || ((task, options) => {
+                const opts = options || {};
+                const idle = window.requestIdleCallback
+                    || ((fn) => window.setTimeout(fn, opts.fallbackMs || 32));
+                idle(() => task(), { timeout: opts.timeout || 800 });
+            });
         const run = (deadline) => {
             const hasTime = () => !deadline || deadline.timeRemaining() > 4;
             let count = 0;
@@ -103,9 +108,9 @@
                 enhanceBlock(queue.shift());
                 count += 1;
             }
-            if (queue.length) schedule(run);
+            if (queue.length) schedule(run, { timeout: 800, fallbackMs: 32 });
         };
-        schedule(run);
+        schedule(run, { timeout: 800, fallbackMs: 32 });
     }
 
     window.__shiroEnhanceClipboard = (blocks) => {

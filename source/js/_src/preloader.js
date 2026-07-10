@@ -49,7 +49,7 @@
                 clearTimeout(fallbackTimer);
                 remove();
             }
-        });
+        }, { once: true });
     };
 
     const slowConnection = () => {

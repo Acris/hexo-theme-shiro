@@ -8,6 +8,25 @@
 
     const assetTimeout = 12000;
 
+    // Prefer the template-injected global (set from a nonced inline script). Fall
+    // back to this classic script's own nonce when the global is not yet set.
+    function cspNonce() {
+        if (typeof window.__shiroCspNonce === 'string' && window.__shiroCspNonce) {
+            return window.__shiroCspNonce;
+        }
+        try {
+            const current = document.currentScript;
+            if (current && current.nonce) return current.nonce;
+        } catch (_) {}
+        return '';
+    }
+
+    function applyCspNonce(el) {
+        if (el.tagName !== 'SCRIPT') return;
+        const nonce = cspNonce();
+        if (nonce) el.setAttribute('nonce', nonce);
+    }
+
     function watchAssetLoad(el, reject) {
         let settled = false;
         let timer;
@@ -66,10 +85,11 @@
             Object.keys(attrs).forEach((key) => {
                 if (attrs[key] === true) {
                     el.setAttribute(key, '');
-                } else {
+                } else if (attrs[key] != null && attrs[key] !== false) {
                     el.setAttribute(key, attrs[key]);
                 }
             });
+            applyCspNonce(el);
             el.onload = () => {
                 settle(() => {
                     el.dataset.shiroLoaded = 'true';
@@ -84,36 +104,31 @@
         });
     }
 
-    function loadBootstrapScript(src, callbacks) {
+    // Canonical lazy-feature loader for *-bootstrap.js scripts.
+    // Protocol: window URL -> loadBootstrapScript(url, {onload,onerror}, shortId)
+    // -> optional scheduleIdleWarm. Do not invent a parallel loader path.
+    // `id` is a short stable token for dedupe (not the full URL - URLs break CSS selectors).
+    function loadBootstrapScript(src, callbacks, id) {
         const opts = callbacks || {};
-        const timeout = 12000;
-        const loader = document.createElement('script');
-        let settled = false;
-        let timer;
-        const settle = (callback) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            callback();
-        };
-        const fail = (error) => {
-            settle(() => {
-                loader.remove();
-                if (typeof opts.onerror === 'function') opts.onerror(error);
-            });
-        };
-        timer = setTimeout(() => fail(new Error('Script load timed out')), timeout);
-        loader.src = src;
-        loader.defer = true;
-        loader.onload = () => {
-            settle(() => {
-                if (typeof opts.onload === 'function') opts.onload();
-            });
-        };
-        loader.onerror = (event) => {
-            fail(event);
-        };
-        document.head.appendChild(loader);
+        const token = String(id || src || 'bootstrap')
+            .replace(/[^a-zA-Z0-9_-]+/g, '-')
+            .slice(0, 64) || 'bootstrap';
+        if (!src) {
+            const err = new Error('Missing bootstrap script URL for ' + token);
+            if (typeof opts.onerror === 'function') opts.onerror(err);
+            return Promise.reject(err);
+        }
+        const selector = 'script[data-shiro-bootstrap="' + token + '"]';
+        return loadAsset('script', {
+            src: src,
+            defer: true,
+            'data-shiro-bootstrap': token
+        }, selector).then(() => {
+            if (typeof opts.onload === 'function') opts.onload();
+        }).catch((error) => {
+            if (typeof opts.onerror === 'function') opts.onerror(error);
+            return Promise.reject(error);
+        });
     }
 
     function isSafeImageUrl(url) {
@@ -150,10 +165,19 @@
         return !/(^|-)2g$/.test(connection.effectiveType || '');
     }
 
+    function scheduleIdle(task, options) {
+        const opts = options || {};
+        const idle = window.requestIdleCallback
+            || ((fn) => window.setTimeout(fn, opts.fallbackMs != null ? opts.fallbackMs : 64));
+        idle(() => task(), { timeout: opts.timeout != null ? opts.timeout : 1000 });
+    }
+
     function scheduleIdleWarm(task, options) {
         const opts = options || {};
-        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, opts.fallbackMs || 1200));
-        idle(() => task(), { timeout: opts.timeout || 2000 });
+        scheduleIdle(task, {
+            timeout: opts.timeout != null ? opts.timeout : 2000,
+            fallbackMs: opts.fallbackMs != null ? opts.fallbackMs : 1200
+        });
     }
 
     window.__shiroRuntime = {
@@ -163,6 +187,8 @@
         isDecorativeImg,
         imageSource,
         connectionAllowsWarm,
-        scheduleIdleWarm
+        scheduleIdle,
+        scheduleIdleWarm,
+        cspNonce
     };
 })();

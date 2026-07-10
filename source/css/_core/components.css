@@ -5,7 +5,7 @@
 
     .fog-bg {
         /* Base tone only on the element itself for fast compositing */
-        background: linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
+        background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
 
         /* Decorative grain layers stay on a static fixed pseudo-element.
            Avoid forcing a persistent GPU layer; the texture is not animated. */
@@ -62,7 +62,7 @@
         pointer-events: none;
         opacity: 1;
         visibility: visible;
-        background: linear-gradient(180deg, #f5f4f2 0%, #f1f0ee 55%, #f5f4f2 100%);
+        background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
         animation: shiro-preloader-failsafe 0.5s var(--ease-soft) 6s forwards;
     }
 
@@ -223,12 +223,21 @@
         }
     }
 
+    /* Progressive enhancement: open on small screens without JS.
+       html.js (FOUC script) collapses the panel until the toggle opens it. */
     .menu-panel {
-        @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0 transition-menu duration-260 ease-out;
+        @apply translate-y-0 opacity-100 transition-menu duration-[260ms] ease-out;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    html.js .menu-panel {
+        @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0;
 
         &[data-open="true"] {
             @apply translate-y-0 opacity-100;
             max-height: 70vh;
+            overflow-y: auto;
         }
     }
 
@@ -381,7 +390,6 @@
         /* Idle icon uses muted/body (not subtle) so the control stays AA on paper. */
         @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-500 shadow-sm ease-soft;
         transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        will-change: opacity;
 
         @variant dark {
             @apply border-border-strong bg-bg-panel text-text-body;
@@ -424,8 +432,9 @@
         --tw-prose-quote-borders: var(--color-slate-300);
         --tw-prose-captions: var(--color-slate-500);
         --tw-prose-code: var(--color-seal);
-        --tw-prose-pre-code: var(--color-slate-200);
-        --tw-prose-pre-bg: var(--color-slate-900);
+        /* Align bare <pre> with highlight/code surfaces (not terminal black). */
+        --tw-prose-pre-code: var(--color-text-body);
+        --tw-prose-pre-bg: var(--color-code-bg);
         --tw-prose-th-borders: var(--color-slate-300);
         --tw-prose-td-borders: var(--color-slate-200);
 

@@ -78,7 +78,7 @@
                 if (typeof onLoaded === 'function') onLoaded();
             },
             onerror: () => { loading = false; }
-        });
+        }, 'clipboard');
     }
 
     function enhanceRemaining() {
@@ -90,6 +90,10 @@
     }
 
     function schedule(task) {
+        if (rt.scheduleIdle) {
+            rt.scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
+            return;
+        }
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(task, { timeout: 1000 });
         } else {

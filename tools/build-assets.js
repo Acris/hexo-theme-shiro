@@ -57,6 +57,16 @@ function removeStaleGeneratedFiles(dirRel, expectedRelFiles, suffix) {
     }
 }
 
+// Feature CSS is not Tailwind-processed. Target pre-nesting engines so any
+// nested rules (or future nesting) flatten to long selectors in *.min.css.
+// Chrome/Safari/Firefox versions below native CSS nesting support.
+const FEATURE_CSS_TARGETS = {
+    chrome: 90 << 16,
+    edge: 90 << 16,
+    firefox: 90 << 16,
+    safari: (14 << 16)
+};
+
 function minifyCssFile(inputRel, outputRel) {
     const input = path.join(root, inputRel);
     const output = path.join(root, outputRel);
@@ -65,7 +75,8 @@ function minifyCssFile(inputRel, outputRel) {
     const result = transform({
         filename: input,
         code: fs.readFileSync(input),
-        minify: true
+        minify: true,
+        targets: FEATURE_CSS_TARGETS
     });
     writeFileIfChanged(output, result.code);
 }

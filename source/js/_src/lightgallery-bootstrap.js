@@ -58,7 +58,7 @@
                 window.__shiroLightGalleryAutoOpen = null;
                 window.__shiroLightGalleryWarmRequested = false;
             }
-        });
+        }, 'lightgallery');
     }
 
     // Eagerly fetch the gallery script and CDN assets on the first hint of

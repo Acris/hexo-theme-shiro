@@ -274,6 +274,10 @@
     }
 
     function schedule(task) {
+        if (rt.scheduleIdle) {
+            rt.scheduleIdle(task, { timeout: 1000, fallbackMs: 48 });
+            return;
+        }
         if ('requestIdleCallback' in window) {
             window.requestIdleCallback(task, { timeout: 1000 });
         } else {

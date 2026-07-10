@@ -23,6 +23,8 @@
             --color-paper: #1f1e1d;
             --color-ink: #d4d0cc;
             --color-seal: #d4453a;
+            --color-fog: #181817;
+            --color-fog-mid: #191918;
             --color-soft-border: rgba(200, 195, 190, 0.03);
             --color-focus-ring: rgba(200, 195, 190, 0.18);
 
@@ -109,7 +111,7 @@
     /* Dark: fog background — deeper than card, subtle texture */
     .fog-bg {
         @variant dark {
-            background: linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+            background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
 
             &::before {
                 background:
@@ -126,7 +128,7 @@
     /* Dark: opaque fog-toned veil hides the font swap in dark mode too */
     .shiro-preloader {
         @variant dark {
-            background: linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+            background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
         }
     }
 
