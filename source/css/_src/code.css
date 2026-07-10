@@ -205,13 +205,15 @@
 }
 
 @media (min-width: 1024px) {
-    /* Pre-apply the wrapper's full-bleed width so the first paint matches the
-       final width and the block doesn't widen when clipboard.js wraps it. */
+    /* Slight full-bleed past the intentional 65ch reading measure (not full paper
+       width). Bleed distance is owned by .prose-shiro --shiro-code-bleed so the
+       measure and expansion stay one design contract. Pre-apply on .highlight so
+       first paint matches the width after clipboard.js wraps the block. */
     .prose-shiro .highlight:not(.not-prose),
     .highlight-wrapper {
-        width: calc(100% + 7rem);
-        margin-right: -3.5rem;
-        margin-left: -3.5rem;
+        width: calc(100% + (2 * var(--shiro-code-bleed, 3.5rem)));
+        margin-right: calc(-1 * var(--shiro-code-bleed, 3.5rem));
+        margin-left: calc(-1 * var(--shiro-code-bleed, 3.5rem));
     }
 
     /* Once wrapped, let the wrapper own the geometry to avoid doubling margins. */

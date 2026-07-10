@@ -124,6 +124,49 @@ function normalizeOpenGraphImageUrl(src, context, page) {
     return pageRelativeImageUrl(value, page) || absoluteUrlForLocalPath(value, context);
 }
 
+function isAbsoluteHttpUrl(value) {
+    return /^https?:\/\//i.test(String(value || ''));
+}
+
+/**
+ * Absolute page URL for JSON-LD / SEO (same absoluteization path as OG images).
+ * Prefer permalink → full_url_for(path) → absolute context.url → site base + path.
+ *
+ * @param {object} context Hexo helper context (`this`)
+ * @param {object|null|undefined} page
+ * @param {string} [siteUrl] config.url
+ * @returns {string}
+ */
+function resolveAbsolutePageUrl(context, page, siteUrl) {
+    if (page && page.permalink && isAbsoluteHttpUrl(page.permalink)) {
+        return String(page.permalink);
+    }
+
+    if (context && typeof context.full_url_for === 'function' && page && page.path) {
+        const full = context.full_url_for(page.path);
+        if (isAbsoluteHttpUrl(full)) return full;
+    }
+
+    if (context && typeof context.url === 'string' && isAbsoluteHttpUrl(context.url)) {
+        return context.url;
+    }
+
+    if (page && page.path) {
+        const resolved = absoluteUrlForLocalPath(page.path, context);
+        if (isAbsoluteHttpUrl(resolved)) return resolved;
+    }
+
+    if (page && page.permalink) {
+        const permalink = String(page.permalink);
+        if (isAbsoluteHttpUrl(permalink)) return permalink;
+        const resolved = absoluteUrlForLocalPath(permalink, context);
+        if (isAbsoluteHttpUrl(resolved)) return resolved;
+    }
+
+    const base = String(siteUrl || (context && context.config && context.config.url) || '').replace(/\/$/, '');
+    return base;
+}
+
 module.exports = {
     hasUrlControlChars,
     normalizedUrlText,
@@ -136,5 +179,6 @@ module.exports = {
     resourceOrigin,
     absoluteUrlForLocalPath,
     pageRelativeImageUrl,
-    normalizeOpenGraphImageUrl
+    normalizeOpenGraphImageUrl,
+    resolveAbsolutePageUrl
 };

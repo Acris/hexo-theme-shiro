@@ -339,6 +339,8 @@ mathjax: true
 
 **定界符。** 默认与 MathJax v4 一致：行内 `\(...\)`、独立 `$$...$$` / `\[...\]`。单美元 `$...$` **默认关闭**。需要时设 `inline_dollars: true`。
 
+**主题 / 暗色模式。** 公式继承正文颜色。Shiro 用 `html[data-theme]` 控制外观，因此 MathJax 配置了 `ui/no-dark-mode`（MathJax v4.1+），避免 Explorer/对话框跟随系统深浅色而与站点强制亮/暗冲突；对话框表面由主题 paper/body token 的 CSS 处理。
+
 **货币。** 默认 `inline_dollars: false` 时，普通 `$5` 就是正文。若开启单美元，请写 `\$2.50`（配合 `process_escapes: true`）或 `<span>$</span>2.50`；成对的裸 `$…$` 仍可能被当成公式。
 
 **与其他数学方案配合。**

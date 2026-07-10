@@ -344,6 +344,8 @@ For a site-wide math blog, set `enabled: true` and `every_page: true`; use `math
 
 **Delimiters.** Defaults follow MathJax v4: `\(...\)` (inline) and `$$...$$` / `\[...\]` (display). Single-dollar `$...$` is **off** by default. Set `inline_dollars: true` to enable it.
 
+**Theme / dark mode.** Formulas inherit prose colors. Shiro drives appearance with `html[data-theme]`, so MathJax is configured with `ui/no-dark-mode` (MathJax v4.1+) to avoid Explorer/dialog chrome following the OS while the page is forced light or dark. Dialog surfaces use Shiro paper/body tokens in CSS.
+
 **Currency.** With default `inline_dollars: false`, ordinary `$5` stays plain text. If you enable single dollars, write `\$2.50` (with `process_escapes: true`) or `<span>$</span>2.50`; ambiguous `$…$` pairs can still be treated as math.
 
 **Using other math tools.**

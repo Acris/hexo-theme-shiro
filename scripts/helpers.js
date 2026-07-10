@@ -12,7 +12,8 @@ const {
     safeResourceUrl,
     safeScriptJson,
     resourceOrigin,
-    normalizedLinkTarget
+    normalizedLinkTarget,
+    resolveAbsolutePageUrl
 } = require('./lib/urls');
 const {
     pageAnalysis,
@@ -183,10 +184,11 @@ hexo.extend.helper.register('og_locale', function (page, config) {
 // Build schema.org JSON-LD nodes for the current page: BlogPosting for posts,
 // WebSite for the home page. Returns an array so the template can emit a single
 // <script type="application/ld+json"> only when there is something to describe.
+// pageUrl is absolutized the same way as OG image URLs (full_url_for / permalink).
 hexo.extend.helper.register('structured_data', function (page, config) {
     const cfg = config || this.config || {};
     return structuredData(page, cfg, {
-        pageUrl: this.url || (page && page.permalink) || '',
+        pageUrl: resolveAbsolutePageUrl(this, page, cfg.url || ''),
         description: typeof this.clean_description === 'function'
             ? this.clean_description(page, cfg)
             : '',

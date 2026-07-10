@@ -344,9 +344,15 @@
        help box) centers itself via the browser's default `margin: auto`, but
        Tailwind Preflight's `*{margin:0}` overrides that and pins the dialog to
        the top-left corner. Restore the auto margins for this dialog only so it
-       centers again; MathJax's intended `top: -4%` vertical offset is kept. */
+       centers again; MathJax's intended `top: -4%` vertical offset is kept.
+       Theme uses html[data-theme], not prefers-color-scheme — MathJax is loaded
+       with ui/no-dark-mode so OS dark chrome cannot fight a forced light theme;
+       site dark skin is applied below via @variant dark. */
     dialog.mjx-dialog {
         margin: auto;
+        color: var(--color-text-body);
+        background-color: var(--color-paper);
+        border: 1px solid var(--color-border-strong, var(--color-soft-border));
     }
 
     .btn-ink {
@@ -571,7 +577,12 @@
     }
 
     .prose-shiro {
-        @apply mx-auto font-serif leading-relaxed prose prose-slate;
+        /* Intentional ~65ch reading measure (Typography default). Optimal line
+           length for long-form prose — do not replace with max-w-none / full paper
+           width. Code blocks may expand past this measure via --shiro-code-bleed
+           (see source/css/_src/code.css); keep both in sync. */
+        @apply mx-auto max-w-[65ch] font-serif leading-relaxed prose prose-slate;
+        --shiro-code-bleed: 3.5rem;
         --tw-prose-body: var(--color-slate-800);
         --tw-prose-headings: var(--color-ink);
         --tw-prose-lead: var(--color-slate-600);
@@ -602,6 +613,11 @@
             &::after {
                 content: "";
             }
+        }
+
+        /* MathJax CHTML: inherit prose ink/body (no separate math palette). */
+        & mjx-container {
+            color: inherit;
         }
 
         :where(body[data-shiro-lightgallery="true"]) & :where(img, a[data-lg-item], a[data-lg-item] img) {

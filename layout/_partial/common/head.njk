@@ -80,13 +80,20 @@
     </script>
     {% if needs_mathjax %}
     {# MathJax v4 defaults already include \(...\) and $$ / \[ \]. Optionally
-       append $...$ via the official '[+]' API when inline_dollars is enabled. #}
+       append $...$ via the official '[+]' API when inline_dollars is enabled.
+       ui/no-dark-mode: MathJax UI follows prefers-color-scheme, but Shiro theme
+       is driven by html[data-theme] (can force light/dark against the OS). Disable
+       OS dark chrome so explorer/dialogs do not fight a forced theme; site dark
+       skin is applied in CSS (dialog.mjx-dialog + prose color inherit). #}
     {% set mathjax_tags_raw = mathjax_config.tags | default('none', true) %}
     {% set mathjax_tags = mathjax_tags_raw if mathjax_tags_raw == 'ams' or mathjax_tags_raw == 'all' else 'none' %}
     <!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
          theme/font hints, while still before blocking stylesheets can delay discovery. -->
     <script data-cfasync="false">
         window.MathJax = {
+            loader: {
+                load: ['ui/no-dark-mode']
+            },
             tex: {
                 {% if mathjax_inline_dollars %}
                 inlineMath: { '[+]': {{ js_value([['$', '$']]) | safe }} },

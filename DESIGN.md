@@ -473,8 +473,10 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 ### Content
 
 - **`.prose-shiro`:** Ink/slate prose; code + link hover seal; dark quote border may use seal on purpose.
+- **Reading measure (intentional):** body copy is locked to **~65ch** (`max-w-[65ch]`, Typography’s optimal line length). Do **not** switch to `max-w-none` / full paper width for “wider content” — that is the long-form contract. The paper card may be wider than the column; empty side 余白 is expected.
+- **Code full-bleed:** on large viewports, highlight blocks expand past the 65ch measure by `--shiro-code-bleed` (default `3.5rem` each side), defined on `.prose-shiro` and consumed in `source/css/_src/code.css`. Adjust the token, not magic `7rem` margins, when retuning the layout.
 - **Code:** `code-bg`; gutters use `code-line-number` / `chrome-idle-dark`. Gate CSS when unused.
-- **MathJax:** Formulas sit inside prose; inherit reading colors. No separate MathJax brand palette or loud UI chrome.
+- **MathJax:** Formulas sit inside prose and **inherit** reading colors (`mjx-container { color: inherit }`). No separate MathJax brand palette. Theme chrome uses `html[data-theme]` (not OS preference); MathJax is loaded with `ui/no-dark-mode` so Explorer/dialogs do not follow `prefers-color-scheme` against a forced theme — dialog surfaces use paper/body tokens instead.
 - **Search:** Pagefind modal reuses Shiro colors; same header-pill trigger. No third-party default rainbow skin.
 - **Comments / lightbox:** Tint to Shiro neutrals and seal; do not ship vendor neon defaults as brand.
 

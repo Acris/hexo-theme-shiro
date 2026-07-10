@@ -9,7 +9,8 @@ const {
     safeScriptJson,
     resourceOrigin,
     hasUrlControlChars,
-    normalizedLinkTarget
+    normalizedLinkTarget,
+    resolveAbsolutePageUrl
 } = require('../scripts/lib/urls');
 
 function ctx(map) {
@@ -94,6 +95,55 @@ describe('scripts/lib/urls', () => {
         it('trims and rejects control characters', () => {
             assert.equal(normalizedLinkTarget(' _blank '), '_blank');
             assert.equal(normalizedLinkTarget('x\u0000'), '');
+        });
+    });
+
+    describe('resolveAbsolutePageUrl', () => {
+        it('prefers an absolute permalink', () => {
+            assert.equal(
+                resolveAbsolutePageUrl({}, { permalink: 'https://example.com/p/' }, 'https://other.com'),
+                'https://example.com/p/'
+            );
+        });
+
+        it('uses full_url_for(page.path) when permalink is relative or missing', () => {
+            const context = {
+                full_url_for: (path) => 'https://example.com/' + String(path).replace(/^\//, ''),
+                config: { url: 'https://example.com' }
+            };
+            assert.equal(
+                resolveAbsolutePageUrl(context, { path: 'posts/hi/' }, 'https://example.com'),
+                'https://example.com/posts/hi/'
+            );
+        });
+
+        it('uses absolute context.url when available', () => {
+            assert.equal(
+                resolveAbsolutePageUrl(
+                    { url: 'https://example.com/now/' },
+                    { path: '' },
+                    'https://example.com'
+                ),
+                'https://example.com/now/'
+            );
+        });
+
+        it('falls back to site base via absoluteUrlForLocalPath', () => {
+            const context = {
+                url_for: (v) => '/' + String(v).replace(/^\//, ''),
+                config: { url: 'https://example.com' }
+            };
+            assert.equal(
+                resolveAbsolutePageUrl(context, { path: 'about/index.html' }, 'https://example.com'),
+                'https://example.com/about/index.html'
+            );
+        });
+
+        it('returns site base when page is empty', () => {
+            assert.equal(
+                resolveAbsolutePageUrl({}, null, 'https://example.com/'),
+                'https://example.com'
+            );
         });
     });
 });
