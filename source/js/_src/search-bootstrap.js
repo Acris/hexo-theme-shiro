@@ -14,56 +14,125 @@
     // (duplicate ids). Stable dialog id matches header aria-controls.
     const MODAL_SELECTOR = '.shiro-search-components > pagefind-modal';
     const DIALOG_ID = 'shiroSearchDialog';
+    // Slow safety net only: MutationObserver + dialog close cover normal paths.
+    const CHROME_POLL_MS = 250;
     const toggle = document.getElementById('searchToggle');
     const modal = document.querySelector(MODAL_SELECTOR);
 
     let loading = null;
     let loaded = false;
-    let chromeWatchTimer = 0;
+    let chromePollTimer = 0;
+    let chromeObserver = null;
+    let chromeWatching = false;
+    let boundDialog = null;
 
     function logError(error) {
         const message = error && error.message ? error.message : error;
         console.error('[shiro-search]', message);
     }
 
+    function isModalOpen() {
+        return !!(modal && modal.isOpen);
+    }
+
     // Keep aria-controls target stable after Pagefind creates/replaces the dialog.
     function ensureDialogId() {
-        if (!modal) return;
+        if (!modal) return null;
         const dialog = modal.querySelector('dialog');
         if (dialog && dialog.id !== DIALOG_ID) dialog.id = DIALOG_ID;
+        return dialog;
+    }
+
+    function onDialogClose() {
+        // Native <dialog> close (Esc / form method=dialog / backdrop depending on UA).
+        applyModalChrome(false);
+    }
+
+    function bindDialogClose(dialog) {
+        if (!dialog || dialog === boundDialog) return;
+        if (boundDialog) {
+            boundDialog.removeEventListener('close', onDialogClose);
+        }
+        boundDialog = dialog;
+        dialog.addEventListener('close', onDialogClose);
     }
 
     function stopChromeWatch() {
-        if (chromeWatchTimer) {
-            clearTimeout(chromeWatchTimer);
-            chromeWatchTimer = 0;
+        chromeWatching = false;
+        if (chromePollTimer) {
+            clearTimeout(chromePollTimer);
+            chromePollTimer = 0;
+        }
+        if (chromeObserver) {
+            chromeObserver.disconnect();
+            chromeObserver = null;
         }
     }
 
-    function setModalChrome(open) {
+    function applyModalChrome(open) {
         const html = document.documentElement;
-        if (open) html.setAttribute('data-modal-open', 'true');
-        else html.removeAttribute('data-modal-open');
-        if (toggle) toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        if (open) startChromeWatch();
-        else stopChromeWatch();
+        if (open) {
+            html.setAttribute('data-modal-open', 'true');
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
+            startChromeWatch();
+        } else {
+            html.removeAttribute('data-modal-open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            stopChromeWatch();
+        }
     }
 
-    // Sole chrome path: while open, poll pagefind-modal.isOpen (public API).
-    // Esc / backdrop / close control and Pagefind re-renders that replace the
-    // internal dialog are all reflected here; host has no bubbling close event.
-    // First tick ASAP, then every 50ms.
+    function syncModalChrome() {
+        const dialog = ensureDialogId();
+        if (dialog) bindDialogClose(dialog);
+
+        const open = isModalOpen();
+        if (open) {
+            const html = document.documentElement;
+            if (html.getAttribute('data-modal-open') !== 'true') {
+                html.setAttribute('data-modal-open', 'true');
+            }
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
+            if (!chromeWatching) startChromeWatch();
+        } else {
+            applyModalChrome(false);
+        }
+    }
+
+    // Prefer DOM observation over a tight poll. Pagefind has no host close event;
+    // watch subtree for dialog open/replace, bind dialog "close", and keep a slow
+    // isOpen poll only as a safety net while the modal is open.
     function startChromeWatch() {
-        stopChromeWatch();
+        if (!modal || chromeWatching) return;
+        chromeWatching = true;
+
+        if (typeof MutationObserver === 'function') {
+            chromeObserver = new MutationObserver(() => {
+                syncModalChrome();
+            });
+            chromeObserver.observe(modal, {
+                attributes: true,
+                childList: true,
+                subtree: true,
+                attributeFilter: ['open', 'class', 'style', 'aria-hidden', 'hidden']
+            });
+        }
+
+        const dialog = ensureDialogId();
+        if (dialog) bindDialogClose(dialog);
+
         const tick = () => {
-            if (!modal || !modal.isOpen) {
-                setModalChrome(false);
+            if (!chromeWatching) return;
+            if (!isModalOpen()) {
+                applyModalChrome(false);
                 return;
             }
             ensureDialogId();
-            chromeWatchTimer = setTimeout(tick, 50);
+            const nextDialog = modal.querySelector('dialog');
+            if (nextDialog) bindDialogClose(nextDialog);
+            chromePollTimer = setTimeout(tick, CHROME_POLL_MS);
         };
-        chromeWatchTimer = setTimeout(tick, 0);
+        chromePollTimer = setTimeout(tick, CHROME_POLL_MS);
     }
 
     function ensureAssets() {
@@ -117,7 +186,7 @@
                 if (modal.isOpen) return;
                 modal.open();
                 ensureDialogId();
-                if (modal.isOpen) setModalChrome(true);
+                if (modal.isOpen) applyModalChrome(true);
             })
             .catch(logError);
     }
@@ -147,6 +216,12 @@
     }
 
     function handleKeydown(event) {
+        if (event.key === 'Escape' && isModalOpen()) {
+            // Pagefind closes the dialog; resync chrome after its handlers run.
+            queueMicrotask(syncModalChrome);
+            setTimeout(syncModalChrome, 0);
+            return;
+        }
         if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
         const active = document.activeElement;
         if (active && (active.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName))) return;

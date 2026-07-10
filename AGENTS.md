@@ -24,7 +24,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 
 | Path                       | Role                                                                                                                                                                                                             |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category`                                                |
+| `layout/`                  | Nunjucks: `_layout.njk` shell (feature gates + foot scripts; include scope does not leak `{% set %}`); `_macro/`; `_partial/common/` (`head`, `header`, …), components, comments, analytics; pages |
 | `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js` |
 | `scripts/lib/`             | Pure modules required by `helpers.js` / `mathjax.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                   |
 | `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                          |
@@ -45,7 +45,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Font family changes: update the family list in `google_font_urls` (shared preload / preloader token).
 - Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Indexing runs on `hexo generate` / `hexo deploy` `before_exit`, **not** `hexo server`. No `npx` fallback.
 - Word count: theme `word_count.enabled` only controls display; counting needs host [hexo-word-counter](https://github.com/next-theme/hexo-word-counter). Missing plugin omits meta — does **not** fail generate.
-- Keep default LightGallery CDN versions in sync across `_config.yml`, `_layout.njk`, and `source/js/_src/lightgallery.js`.
+- Keep default LightGallery CDN versions in sync across `_config.yml`, `layout/_layout.njk`, and `source/js/_src/lightgallery.js`.
 - Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
 - MathJax: set `protect: false` when using pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
 - Optional `security.csp_nonce` is emitted on theme `<script>` tags via `csp_nonce_attr`; optional CDN SRI via `sri_attrs` / `lightGallery.*_integrity` / `mathjax.integrity` (empty = no attributes).
@@ -66,7 +66,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - JS: plain browser-compatible code — `'use strict'`, 4-space indent, single quotes; CommonJS in `scripts/`; DOMContentLoaded-guarded IIFEs in `source/js/_src/`. No ESM/TypeScript/bundlers for client scripts.
 - Assets: use `versioned_url` for static theme assets.
 - CSS: match existing tokens and minimalist style; do not reformat unrelated code or rewrite large files without need.
-- Gate scripts in `_layout.njk` by page type, feature flags, and DOM needs so unused pages stay JS-free.
+- Gate scripts in `_layout.njk` by page type, feature flags, and DOM needs so unused pages stay JS-free. Keep feature `{% set %}` in the layout parent — Nunjucks include scope does not leak sets to the parent.
 
 ## Testing and validation
 

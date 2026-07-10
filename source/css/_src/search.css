@@ -1,7 +1,7 @@
 /* Pagefind Component UI accents (modal only).
    Lazy-loaded with the Component UI bundle when search is opened or warmed.
    The header control is a native .header-pill-btn + icon_search (full hit area);
-   scroll-lock chrome is owned by search-bootstrap.js (isOpen poll + data-modal-open);
+   scroll-lock chrome is owned by search-bootstrap.js (MutationObserver + dialog close + slow isOpen safety poll; data-modal-open);
    theming here is for the modal shell, results, and marks. */
 
 /* Participates in the same cascade layers as style.min.css (see _tailwind.css).

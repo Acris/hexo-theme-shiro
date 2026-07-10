@@ -1,5 +1,8 @@
 <!doctype html>
 {% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n with context %}
+{# Feature gates must be {% set %} in this parent template — Nunjucks include
+   scope does not leak child sets to the parent (v2.4+). Keep gates and foot
+   scripts here so head.njk / body share one flag scope. #}
 {% set site_config = theme.site or {} %}
 {% set lightgallery_config = theme.lightGallery or {} %}
 {% set toc_config = theme.toc or {} %}
@@ -46,6 +49,11 @@
 {% set lightgallery_css_integrity = lightgallery_config.css_integrity if needs_lightgallery else '' %}
 {% set lightgallery_preconnect_fallback = resource_origin_for(lightgallery_js_url) if needs_lightgallery else '' %}
 {% set lightgallery_preconnect_url = lightgallery_preconnect_fallback if needs_lightgallery else '' %}
+{% set needs_progress_bar = progress_bar_config.enabled != false and is_post() %}
+{% set needs_back_to_top = back_to_top_config.enabled != false and (is_home() or (is_post() and page_looks_long(page))) %}
+{% set needs_mobile_menu = menu_items.length %}
+{# Shared client helpers (loadAsset, warm, image safety). Bootstraps expect this first. #}
+{% set needs_runtime = search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
 <html lang="{{ page_lang }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
@@ -60,9 +68,6 @@
     {% if site_seal_enabled %}
     {{ svg_filters() }}
     {% endif %}
-
-    {% set needs_progress_bar = progress_bar_config.enabled != false and is_post() %}
-    {% set needs_back_to_top = back_to_top_config.enabled != false and (is_home() or (is_post() and page_looks_long(page))) %}
 
     {% if needs_progress_bar %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
@@ -125,9 +130,6 @@
     {% endif %}
 
     <!-- Scripts -->
-    {% set needs_mobile_menu = menu_items.length %}
-    {# Shared client helpers (loadAsset, warm, image safety). Bootstraps expect this first. #}
-    {% set needs_runtime = search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     {% if search_enabled or needs_lightgallery or needs_code or needs_mobile_menu %}
     <script{{ csp_nonce_attr() }}>
         {% if needs_lightgallery or needs_code %}

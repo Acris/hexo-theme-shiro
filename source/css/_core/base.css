@@ -60,7 +60,7 @@
 
     /* Lock background scroll while the search modal (or any future modal using
        the same flag) is open. search-bootstrap.js sets this on open and clears
-       it when pagefind-modal.isOpen becomes false (polled while open). */
+       it when pagefind-modal closes (observer / dialog close / isOpen safety). */
     html[data-modal-open="true"] {
         overflow: hidden;
     }
