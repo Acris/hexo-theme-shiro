@@ -33,6 +33,18 @@ const snippetMarkers = {
         end: '    // </shiro-script-loader>',
         file: 'script-loader.js',
         requires: /\bloadBootstrapScript\s*\(/
+    },
+    imageSafety: {
+        start: '    // <shiro-image-safety>',
+        end: '    // </shiro-image-safety>',
+        file: 'image-safety.js',
+        requires: /\bisSafeImageUrl\s*\(|\bisDecorativeImg\s*\(|\bimageSource\s*\(/
+    },
+    connectionWarm: {
+        start: '    // <shiro-connection-warm>',
+        end: '    // </shiro-connection-warm>',
+        file: 'connection-warm.js',
+        requires: /\bconnectionAllowsWarm\s*\(|\bscheduleIdleWarm\s*\(/
     }
 };
 

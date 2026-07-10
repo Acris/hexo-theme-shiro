@@ -128,6 +128,34 @@ function isAbsoluteHttpUrl(value) {
     return /^https?:\/\//i.test(String(value || ''));
 }
 
+// Accept only standard SRI digests (sha256|384|512-base64). Empty / invalid → no attrs.
+function normalizeSriIntegrity(value) {
+    const text = String(value || '').trim();
+    if (!text) return '';
+    return /^sha(256|384|512)-[A-Za-z0-9+/]+=*$/.test(text) ? text : '';
+}
+
+/**
+ * HTML attribute string for Subresource Integrity, or empty when unused/invalid.
+ * Always pairs integrity with crossorigin=anonymous (required for SRI on CDN).
+ */
+function sriAttrsHtml(integrity) {
+    const hash = normalizeSriIntegrity(integrity);
+    if (!hash) return '';
+    return ' integrity="' + hash + '" crossorigin="anonymous"';
+}
+
+/**
+ * HTML nonce="…" attribute when a host CSP nonce is configured.
+ * Rejects values with whitespace or quote characters (cannot be attribute-safe).
+ */
+function cspNonceAttrHtml(nonce) {
+    const text = String(nonce == null ? '' : nonce).trim();
+    if (!text || /[\s"'<>`]/.test(text)) return '';
+    return ' nonce="' + text + '"';
+}
+
+
 /**
  * Absolute page URL for JSON-LD / SEO (same absoluteization path as OG images).
  * Prefer permalink → full_url_for(path) → absolute context.url → site base + path.
@@ -180,5 +208,8 @@ module.exports = {
     absoluteUrlForLocalPath,
     pageRelativeImageUrl,
     normalizeOpenGraphImageUrl,
-    resolveAbsolutePageUrl
+    resolveAbsolutePageUrl,
+    normalizeSriIntegrity,
+    sriAttrsHtml,
+    cspNonceAttrHtml
 };

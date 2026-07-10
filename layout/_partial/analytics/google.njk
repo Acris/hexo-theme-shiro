@@ -2,9 +2,10 @@
 {% set google_analytics = analytics_config.google or {} %}
 {% if google_analytics.enabled and google_analytics.id %}
   <!-- Google tag (gtag.js) — SRI omitted because Google updates this script frequently,
-       which would break integrity checks. Use CSP script-src instead for protection. -->
-  <script async src="{{ 'https://www.googletagmanager.com/gtag/js?id=' + url_query(google_analytics.id) }}"></script>
-  <script>
+       which would break integrity checks. Use CSP script-src (and optional security.csp_nonce)
+       instead for protection. -->
+  <script async{{ csp_nonce_attr() }} src="{{ 'https://www.googletagmanager.com/gtag/js?id=' + url_query(google_analytics.id) }}"></script>
+  <script{{ csp_nonce_attr() }}>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());

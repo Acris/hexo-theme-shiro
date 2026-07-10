@@ -153,11 +153,18 @@ toc:
   # 显示目录的最少标题数
   min_headings: 3
 
+# 可选：站点 CSP nonce（会加到主题注入的 <script>）与下方 CDN SRI 钩子。
+security:
+  csp_nonce: ""
+
 # 图片灯箱（配置键为 lightGallery，G 大写）。可按需替换 CDN URL。
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
+  # 可选：上方 CDN 的 Subresource Integrity（sha256-/sha384-/sha512-…）。
+  css_integrity: ""
+  js_integrity: ""
 
 # MathJax TeX 公式渲染（仅 MathJax，无 KaTeX）。
 # 默认定界符：\(...\) / $$...$$ / \[...\]；$...$ 需 inline_dollars: true。
@@ -170,6 +177,8 @@ mathjax:
   every_page: false
   # MathJax 脚本 URL；建议像 lightGallery 一样固定版本以保证可复现。
   src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
+  # 可选：mathjax.src 的 SRI。
+  integrity: ""
   # 公式编号：none、ams 或 all。
   tags: none
   # 启用 $...$ 行内公式（默认关闭，与 MathJax v4 一致）。

@@ -1,0 +1,271 @@
+/* ══════════════════════════════════════════════════════════════
+   Dark Mode — 「夜の白」
+   Cool neutral gray tones for comfortable night reading.
+   Three-layer depth: deep bg → card surface → inset elements.
+   Clean neutral grays with vermilion accent color preserved.
+   Applied via Tailwind's custom dark variant, driven by
+   html[data-theme=dark].
+
+   Two sections, slotted into Tailwind v4 built-in layers:
+     1. Root token swaps through @variant dark → @layer base.
+     2. Component overrides through @variant dark / dark:* utilities.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Dark mode: root token swap ── */
+@layer base {
+    html {
+        color-scheme: light;
+
+        @variant dark {
+            color-scheme: dark;
+
+            /* Core palette — slightly warm neutral gray tones (1-2% warm tint) */
+            --color-paper: #1f1e1d;
+            --color-ink: #d4d0cc;
+            --color-seal: #d4453a;
+            --color-soft-border: rgba(200, 195, 190, 0.03);
+            --color-focus-ring: rgba(200, 195, 190, 0.18);
+
+            /* Semantic text hierarchy — 4 clear levels */
+            --color-text-heading: #e8e5e1;
+            --color-text-body: #b0ada9;
+            --color-text-muted: #807d7a;
+            --color-text-subtle: #615e5b;
+            --color-text-faint: #33312f;
+
+            /* Semantic UI colors */
+            --color-border-strong: #33312f;
+            --color-border-decorative: rgba(51, 51, 51, 0.6);
+            --color-bg-panel: rgba(30, 30, 30, 0.92);
+            --color-bg-inset: rgba(51, 51, 51, 0.4);
+            --color-bg-overlay: rgba(30, 30, 30, 0.8);
+            --color-code-bg: #1b1a19;
+            --color-code-gutter: #181817;
+
+            /* Override Tailwind slate palette → slightly warm neutral gray tones
+               so all text-slate-*, bg-slate-*, border-slate-* utilities
+               automatically harmonize with the dark theme.
+               Each step has clear visual separation (Δ ~10-15 lightness). */
+            --color-slate-50: #272625;
+            --color-slate-100: #2f2e2c;
+            --color-slate-200: #373634;
+            --color-slate-300: #4a4846;
+            --color-slate-400: #615e5b;
+            --color-slate-500: #807d7a;
+            --color-slate-600: #918e8a;
+            --color-slate-700: #b0ada9;
+            --color-slate-800: #d4d0cc;
+            --color-slate-900: #e8e5e1;
+            --color-slate-950: #f0ede9;
+
+            /* Scrollbar */
+            --color-scrollbar-track: #1c1b1a;
+            --color-scrollbar-thumb: rgba(200, 200, 200, 0.22);
+            --color-scrollbar-thumb-hover: rgba(200, 200, 200, 0.38);
+            --color-scrollbar-border: rgba(200, 200, 200, 0.08);
+
+            /* Scrollbar gradient endpoints */
+            --color-scrollbar-track-start: #1a1918;
+            --color-scrollbar-track-end: #1a1918;
+            --color-scrollbar-thumb-start: rgba(200, 200, 200, 0.26);
+            --color-scrollbar-thumb-hover-start: rgba(200, 200, 200, 0.4);
+            --color-scrollbar-shadow: rgba(0, 0, 0, 0.2);
+            --color-scrollbar-shadow-inset: rgba(200, 200, 200, 0.08);
+            --color-scrollbar-shadow-inset-hover: rgba(200, 200, 200, 0.15);
+            --color-scrollbar-shadow-hover: rgba(0, 0, 0, 0.3);
+
+            /* Shadows — use subtle dark shadows, no visible outline ring */
+            --shadow-paper: 0 1px 2px rgba(0, 0, 0, 0.2),
+                0 8px 24px rgba(0, 0, 0, 0.15);
+            --shadow-ink: 0 4px 12px rgba(0, 0, 0, 0.5);
+            --shadow-ink-pressed: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        @variant dark {
+            &::-webkit-scrollbar-track,
+            & ::-webkit-scrollbar-track {
+                background: linear-gradient(180deg, var(--color-scrollbar-track-start) 0%, var(--color-scrollbar-track) 60%, var(--color-scrollbar-track-end) 100%);
+                border-color: var(--color-soft-border);
+            }
+
+            &::-webkit-scrollbar-thumb,
+            & ::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, var(--color-scrollbar-thumb-start) 0%, var(--color-scrollbar-thumb) 100%);
+                border-color: var(--color-scrollbar-track);
+                box-shadow: inset 0 0 0 1px var(--color-scrollbar-shadow-inset), 0 1px 2px var(--color-scrollbar-shadow);
+            }
+
+            &::-webkit-scrollbar-thumb:hover,
+            & ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, var(--color-scrollbar-thumb-hover-start) 0%, var(--color-scrollbar-thumb-hover) 100%);
+                box-shadow: inset 0 0 0 1px var(--color-scrollbar-shadow-inset-hover), 0 2px 4px var(--color-scrollbar-shadow-hover);
+            }
+        }
+    }
+}
+
+/* ── Dark mode: component overrides ── */
+@layer components {
+    /* Dark: fog background — deeper than card, subtle texture */
+    .fog-bg {
+        @variant dark {
+            background: linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+
+            &::before {
+                background:
+                    /* [1-2] Very subtle light patches — large and diffuse */
+                    radial-gradient(ellipse 700px 500px at 30% 40%, rgba(200, 200, 200, 0.008), transparent 70%),
+                    radial-gradient(ellipse 550px 400px at 70% 50%, rgba(200, 200, 200, 0.006), transparent 65%),
+                    /* [3] Soft vignette */
+                    radial-gradient(1200px 500px at 50% -100px, rgba(20, 20, 20, 0.3), transparent 65%);
+                background-size: 100% 100%, 100% 100%, 100% 100%;
+            }
+        }
+    }
+
+    /* Dark: opaque fog-toned veil hides the font swap in dark mode too */
+    .shiro-preloader {
+        @variant dark {
+            background: linear-gradient(180deg, #181817 0%, #191918 55%, #181817 100%);
+        }
+    }
+
+    /* Dark: paper card — elevated above fog-bg with subtle glow */
+    .paper {
+        @variant dark {
+            @apply bg-paper;
+            border-color: transparent;
+            box-shadow: var(--shadow-paper);
+
+            &::before {
+                opacity: 0.045;
+                background-image:
+                    radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.07) 0 1px, transparent 2px),
+                    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.06) 0 1px, transparent 2px),
+                    radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.05) 0 1px, transparent 2px);
+                background-size: 200px 220px, 280px 260px, 340px 310px;
+                background-position: 0 0, 60px 40px, 120px 80px;
+            }
+        }
+    }
+
+    @media (max-width: 767px) {
+        .fog-bg::before {
+            content: none;
+        }
+
+        .paper::before {
+            opacity: 0.12;
+            background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 32%, rgba(0, 0, 0, 0.025));
+            background-size: auto;
+            background-position: 0 0;
+        }
+
+        .paper {
+            @variant dark {
+                &::before {
+                    opacity: 0.05;
+                    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%, rgba(255, 255, 255, 0.05));
+                    background-size: auto;
+                    background-position: 0 0;
+                }
+            }
+        }
+    }
+
+    /* Dark: mobile menu */
+    #menuBtn {
+        @variant dark {
+            border-color: var(--color-border-strong);
+            background-color: var(--color-bg-overlay);
+            color: var(--color-text-body);
+        }
+    }
+
+    .menu-panel ul {
+        @variant dark {
+            border-color: var(--color-border-strong);
+            background-color: var(--color-bg-panel);
+        }
+    }
+
+    .menu-panel a {
+        @variant dark {
+            color: var(--color-text-body);
+
+            &:hover {
+                @apply text-seal;
+                background-color: color-mix(in srgb, var(--color-seal) 8%, transparent);
+            }
+        }
+    }
+
+    .menu-panel li[aria-hidden="true"] {
+        @variant dark {
+            background-color: var(--color-bg-inset);
+        }
+    }
+
+    /* Dark: desktop menu divider */
+    nav ul.flex li[aria-hidden="true"] {
+        @variant dark {
+            color: var(--color-border-strong);
+        }
+    }
+
+    /* Dark: prose (article content) */
+    .prose-shiro {
+        @variant dark {
+            --tw-prose-body: var(--color-text-body);
+            --tw-prose-headings: var(--color-text-heading);
+            --tw-prose-lead: var(--color-text-muted);
+            --tw-prose-links: var(--color-ink);
+            --tw-prose-bold: var(--color-text-heading);
+            --tw-prose-counters: var(--color-text-muted);
+            --tw-prose-bullets: var(--color-text-subtle);
+            --tw-prose-hr: var(--color-border-strong);
+            --tw-prose-quotes: var(--color-text-muted);
+            /* Intentional design choice: vermilion border adds personality in dark mode,
+               contrasting with the neutral slate border used in light mode */
+            --tw-prose-quote-borders: var(--color-seal);
+            --tw-prose-captions: var(--color-text-muted);
+            --tw-prose-code: var(--color-seal);
+            --tw-prose-pre-code: var(--color-text-body);
+            --tw-prose-pre-bg: var(--color-code-bg);
+            --tw-prose-th-borders: var(--color-border-strong);
+            --tw-prose-td-borders: var(--color-border-decorative);
+
+            & a:hover { @apply text-seal; }
+        }
+    }
+
+    /* Dark: footer */
+    footer .text-sm {
+        @variant dark {
+            color: var(--color-text-muted);
+        }
+    }
+
+    /* Dark: note text below card */
+    .site-note {
+        @variant dark {
+            color: color-mix(in srgb, var(--color-text-subtle) 40%, transparent);
+        }
+    }
+
+    /* Dark: body text */
+    body {
+        @variant dark {
+            color: var(--color-text-body);
+        }
+    }
+
+    /* Dark: desktop nav */
+    nav ul.flex > li > a {
+        @variant dark {
+            color: var(--color-text-muted);
+
+            &:hover { @apply text-seal; }
+        }
+    }
+}

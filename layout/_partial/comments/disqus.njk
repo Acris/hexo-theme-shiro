@@ -4,7 +4,7 @@
 {% set disqus_page_identifier = page.path or path or disqus_page_url %}
 {% set disqus_shortname = disqus_config.shortname or '' %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
-<script>
+<script{{ csp_nonce_attr() }}>
     /* Disqus expects this on the global scope.
        `colorScheme` is read fresh on every (re)load so the iframe always
        matches the live `<html data-theme>` state instead of Disqus's flaky

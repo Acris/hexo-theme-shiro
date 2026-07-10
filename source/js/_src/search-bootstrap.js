@@ -141,17 +141,14 @@
             .catch(logError);
     }
 
-    function connectionAllowsWarm() {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (!connection) return true;
-        if (connection.saveData) return false;
-        return !/(^|-)2g$/.test(connection.effectiveType || '');
-    }
+    /* global connectionAllowsWarm, scheduleIdleWarm */
+    // <shiro-connection-warm>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-connection-warm>
 
     function proactiveWarm() {
         if (loaded || !connectionAllowsWarm()) return;
-        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 1200));
-        idle(() => warm(), { timeout: 2000 });
+        scheduleIdleWarm(() => warm());
     }
 
     function handleKeydown(event) {

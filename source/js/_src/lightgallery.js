@@ -7,6 +7,8 @@
     const cssHref = configValue('__lightgalleryCss', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css');
     const jsSrc = configValue('__lightgalleryJs', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js');
     const themeCssHref = window.__lightgalleryThemeCss || '';
+    const cssIntegrity = String(window.__lightgalleryCssIntegrity || '').trim();
+    const jsIntegrity = String(window.__lightgalleryJsIntegrity || '').trim();
 
     let assetsLoading = null;
     const instances = new Map();
@@ -17,12 +19,19 @@
     // Source requires build injection; do not serve this file directly.
     // </shiro-asset-loader>
 
+    function withSri(attrs, integrity) {
+        if (!integrity) return attrs;
+        attrs.integrity = integrity;
+        attrs.crossorigin = 'anonymous';
+        return attrs;
+    }
+
     function ensureStylesheet() {
-        return loadAsset('link', {
+        return loadAsset('link', withSri({
             rel: 'stylesheet',
             href: cssHref,
             'data-shiro-lightgallery-css': 'true'
-        }, 'link[data-shiro-lightgallery-css]');
+        }, cssIntegrity), 'link[data-shiro-lightgallery-css]');
     }
 
     function ensureThemeStylesheet() {
@@ -38,11 +47,11 @@
         if (typeof window.lightGallery === 'function') {
             return Promise.resolve();
         }
-        return loadAsset('script', {
+        return loadAsset('script', withSri({
             src: jsSrc,
             async: true,
             'data-shiro-lightgallery-js': 'true'
-        }, 'script[data-shiro-lightgallery-js]');
+        }, jsIntegrity), 'script[data-shiro-lightgallery-js]');
     }
 
     function ensureLightGalleryAssets() {
@@ -84,37 +93,14 @@
         return !/[\u0000-\u001F\u007F]/.test(value) && /^https?:\/\//i.test(value) ? value : null;
     };
 
-    const isSafeImageUrl = (url) => {
-        const value = String(url || '').trim();
-        if (!value || value[0] === '#') return false;
-        if (/[\u0000-\u001F\u007F]/.test(value)) return false;
-        if (/^https?:\/\//i.test(value) || /^\/\//.test(value) || /^blob:/i.test(value)) return true;
-        if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(value)) return true;
-        return !/^[a-z][a-z0-9+.-]*:/i.test(value);
-    };
-
-    // Skip tiny or decorative images (tracking pixels, icons, etc.)
-    const isDecorativeImg = (img) => {
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        if (w && h && w <= 3 && h <= 3) return true;
-        if (img.getAttribute('role') === 'presentation') return true;
-        if (img.classList.contains('emoji')) return true;
-        return false;
-    };
+    /* global isSafeImageUrl, isDecorativeImg, imageSource */
+    // <shiro-image-safety>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-image-safety>
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
     const i18nGallery = () => (window.__i18n && window.__i18n.gallery) || {};
-
-    const imageSource = (img) => {
-        const attrSrc = (img.getAttribute('src') || '').trim();
-        const attrSrcset = (img.getAttribute('srcset') || '').trim();
-        const dataSrc = (img.getAttribute('data-src') || '').trim();
-        const selectedSrc = (img.currentSrc || '').trim();
-        if (selectedSrc && (attrSrc || attrSrcset)) return selectedSrc;
-        return attrSrc || dataSrc;
-    };
 
     // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {

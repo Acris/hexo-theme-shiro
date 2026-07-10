@@ -156,11 +156,18 @@ toc:
   # Minimum number of headings to show TOC
   min_headings: 3
 
+# Optional host CSP nonce (added to theme <script> tags) and empty SRI hooks below.
+security:
+  csp_nonce: ""
+
 # Image lightbox (config key is lightGallery with capital G). Swap CDN URLs if needed.
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css
   js: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js
+  # Optional Subresource Integrity for the CDN URLs (sha256-/sha384-/sha512-…).
+  css_integrity: ""
+  js_integrity: ""
 
 # MathJax TeX rendering (MathJax only; no KaTeX).
 # Default delimiters: \(...\) / $$...$$ / \[...\]; enable $...$ with inline_dollars.
@@ -173,6 +180,8 @@ mathjax:
   every_page: false
   # MathJax script URL; pin a version for reproducibility (like lightGallery).
   src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
+  # Optional SRI for mathjax.src.
+  integrity: ""
   # Equation numbering: none, ams, or all.
   tags: none
   # Enable $...$ as inline math (off by default, matching MathJax v4).

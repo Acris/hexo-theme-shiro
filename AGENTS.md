@@ -22,19 +22,20 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 
 ## Repository map
 
-| Path                       | Role                                                                                                                                                              |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category` |
+| Path                       | Role                                                                                                                                                                                                             |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout/`                  | Nunjucks: `_layout.njk` shell; `_macro/`; `_partial/common/`, `_partial/components/`, comments, analytics; pages `index`/`post`/`page`/`archive`/`tag`/`category`                                                |
 | `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js` |
-| `scripts/lib/`             | Pure modules required by `helpers.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                    |
-| `source/css/_tailwind.css` | Theme tokens + core components → `style.min.css`                                                                                                                  |
-| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus)                                                                          |
-| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix)                                                                                 |
-| `tools/`                   | `build-assets.js`, `snippets/` (injected at build)                                                                                                                |
-| `test/`                    | Unit tests (`npm test`)                                                                                                                                           |
-| `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                      |
-| `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                          |
-| `DESIGN.md`                | Design system; sync with CSS when changing colors, type, spacing, elevation, or component look                                                                    |
+| `scripts/lib/`             | Pure modules required by `helpers.js` (and unit tests). Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                                    |
+| `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                          |
+| `source/css/_core/`        | Core theme CSS parts: tokens, base, components, dark, theme-toggle (imported by `_tailwind.css`)                                                                                                                 |
+| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus)                                                                                                                         |
+| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix)                                                                                                                                |
+| `tools/`                   | `build-assets.js`, `snippets/` (asset-loader, script-loader, image-safety, connection-warm)                                                                                                                      |
+| `test/`                    | Unit tests (`npm test`)                                                                                                                                                                                          |
+| `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                                                                     |
+| `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                                                                         |
+| `DESIGN.md`                | Design system; sync with CSS when changing colors, type, spacing, elevation, or component look                                                                                                                   |
 
 **Do not invent helpers** — check `scripts/helpers.js` first. Implementation details live in source and tests.
 
@@ -47,6 +48,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Keep default LightGallery CDN versions in sync across `_config.yml`, `_layout.njk`, and `source/js/_src/lightgallery.js`.
 - Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
 - MathJax: set `protect: false` when using pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
+- Optional `security.csp_nonce` is emitted on theme `<script>` tags via `csp_nonce_attr`; optional CDN SRI via `sri_attrs` / `lightGallery.*_integrity` / `mathjax.integrity` (empty = no attributes).
 
 ## Workflow rules
 
@@ -89,7 +91,7 @@ Also:
 - Breaking: renaming/removing top-level keys in `_config.yml` (see that file for the current set).
 - Release-coupled: default giscus theme URL embeds `hexo-theme-shiro@<version>` — bump with package version in `_config.yml`, `README.md`, and `README_CN.md`.
 - Do not commit secrets, analytics IDs, Disqus shortnames, giscus IDs, or private values.
-- Treat config-rendered attributes/URLs as untrusted; be careful with external integrations (giscus, GA, LightGallery, Pagefind, CDN versions / future SRI).
+- Treat config-rendered attributes/URLs as untrusted; be careful with external integrations (giscus, GA, LightGallery, Pagefind, CDN versions). Optional SRI hashes must be valid `sha256|384|512-…` digests; invalid values are ignored.
 
 ## PR, commits, and release
 

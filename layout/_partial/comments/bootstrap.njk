@@ -1,7 +1,7 @@
 {# Load shared comments bootstrap (asset-loader snippet + near-viewport helper).
    Sync script so __shiroLoadCommentsCss / __shiroOnNearViewport exist before
    the following provider partials run their inline setup. #}
-<script>
+<script{{ csp_nonce_attr() }}>
     window.__commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
 </script>
-<script src="{{ versioned_url('js/comments-bootstrap.min.js') }}"></script>
+<script{{ csp_nonce_attr() }} src="{{ versioned_url('js/comments-bootstrap.min.js') }}"></script>

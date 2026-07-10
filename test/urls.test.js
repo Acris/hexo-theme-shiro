@@ -10,7 +10,10 @@ const {
     resourceOrigin,
     hasUrlControlChars,
     normalizedLinkTarget,
-    resolveAbsolutePageUrl
+    resolveAbsolutePageUrl,
+    sriAttrsHtml,
+    cspNonceAttrHtml,
+    normalizeSriIntegrity
 } = require('../scripts/lib/urls');
 
 function ctx(map) {
@@ -144,6 +147,28 @@ describe('scripts/lib/urls', () => {
                 resolveAbsolutePageUrl({}, null, 'https://example.com/'),
                 'https://example.com'
             );
+        });
+    });
+
+    describe('sriAttrsHtml / cspNonceAttrHtml', () => {
+        it('emits integrity+crossorigin only for valid SRI digests', () => {
+            const ok = 'sha384-oqVuAfXRKap7fdgcCY5uykM6+R9GqQ8K/uxy9rx7HNQlGYl1kPzQho1wx4JwY8wC';
+            assert.equal(normalizeSriIntegrity(ok), ok);
+            assert.equal(
+                sriAttrsHtml(ok),
+                ' integrity="' + ok + '" crossorigin="anonymous"'
+            );
+            assert.equal(sriAttrsHtml(''), '');
+            assert.equal(sriAttrsHtml('md5-notvalid'), '');
+            assert.equal(sriAttrsHtml('sha256-abc def'), '');
+        });
+
+        it('emits nonce only for safe non-empty values', () => {
+            assert.equal(cspNonceAttrHtml('abc123XYZ'), ' nonce="abc123XYZ"');
+            assert.equal(cspNonceAttrHtml('  token  '), ' nonce="token"');
+            assert.equal(cspNonceAttrHtml(''), '');
+            assert.equal(cspNonceAttrHtml('bad quote"'), '');
+            assert.equal(cspNonceAttrHtml('has space'), '');
         });
     });
 });

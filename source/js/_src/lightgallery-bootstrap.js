@@ -12,32 +12,15 @@
     let loading = false;
     let warmed = false;
 
-    const isSafeImageUrl = (url) => {
-        const value = String(url || '').trim();
-        if (!value || value[0] === '#') return false;
-        if (/[\u0000-\u001F\u007F]/.test(value)) return false;
-        if (/^https?:\/\//i.test(value) || /^\/\//.test(value) || /^blob:/i.test(value)) return true;
-        if (/^data:image\/(?:avif|bmp|gif|jpe?g|png|webp);/i.test(value)) return true;
-        return !/^[a-z][a-z0-9+.-]*:/i.test(value);
-    };
+    /* global isSafeImageUrl, isDecorativeImg, imageSource */
+    // <shiro-image-safety>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-image-safety>
 
-    const isDecorativeImg = (img) => {
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        if (w && h && w <= 3 && h <= 3) return true;
-        if (img.getAttribute('role') === 'presentation') return true;
-        if (img.classList.contains('emoji')) return true;
-        return false;
-    };
-
-    const imageSource = (img) => {
-        const attrSrc = (img.getAttribute('src') || '').trim();
-        const attrSrcset = (img.getAttribute('srcset') || '').trim();
-        const dataSrc = (img.getAttribute('data-src') || '').trim();
-        const selectedSrc = (img.currentSrc || '').trim();
-        if (selectedSrc && (attrSrc || attrSrcset)) return selectedSrc;
-        return attrSrc || dataSrc;
-    };
+    /* global connectionAllowsWarm, scheduleIdleWarm */
+    // <shiro-connection-warm>
+    // Source requires build injection; do not serve this file directly.
+    // </shiro-connection-warm>
 
     function shouldHandleImage(img) {
         const src = imageSource(img);
@@ -141,17 +124,9 @@
     // Touch devices have no hover, so per-image intent fires too late (pointerdown is
     // almost simultaneous with click). Proactively warm when the first image nears the
     // viewport (or on idle), gated on connection quality to avoid wasting metered data.
-    function connectionAllowsWarm() {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        if (!connection) return true;
-        if (connection.saveData) return false;
-        return !/(^|-)2g$/.test(connection.effectiveType || '');
-    }
-
     function proactiveWarm() {
         if (warmed || !connectionAllowsWarm()) return;
-        const idle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 1200));
-        idle(() => warm(), { timeout: 2000 });
+        scheduleIdleWarm(() => warm());
     }
 
     function firstGalleryImage() {

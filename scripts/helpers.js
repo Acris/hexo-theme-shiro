@@ -13,7 +13,9 @@ const {
     safeScriptJson,
     resourceOrigin,
     normalizedLinkTarget,
-    resolveAbsolutePageUrl
+    resolveAbsolutePageUrl,
+    sriAttrsHtml,
+    cspNonceAttrHtml
 } = require('./lib/urls');
 const {
     pageAnalysis,
@@ -59,6 +61,17 @@ hexo.extend.helper.register('page_looks_long', function (page) {
 
 hexo.extend.helper.register('js_value', function (value) {
     return safeScriptJson(value);
+});
+
+// Optional SRI attribute string for CDN tags (integrity + crossorigin), or "".
+hexo.extend.helper.register('sri_attrs', function (integrity) {
+    return sriAttrsHtml(integrity);
+});
+
+// Optional CSP nonce attribute for theme-injected scripts when security.csp_nonce is set.
+hexo.extend.helper.register('csp_nonce_attr', function () {
+    const security = (this.theme && this.theme.security) || {};
+    return cspNonceAttrHtml(security.csp_nonce);
 });
 
 hexo.extend.helper.register('url_query', function (value) {

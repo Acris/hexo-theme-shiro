@@ -14,7 +14,7 @@
 {% set giscus_theme = giscus_config.theme or 'preferred_color_scheme' %}
 {% set giscus_lang = giscus_config.lang or 'en' %}
 <div id="giscus-container" class="giscus" data-pagefind-ignore></div>
-<script>
+<script{{ csp_nonce_attr() }}>
 ;(() => {
     const d = document, w = window;
     const container = d.getElementById('giscus-container');

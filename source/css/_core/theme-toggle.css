@@ -1,0 +1,67 @@
+/* ── Theme toggle ──────────────────────────────────────────────────────
+ *
+ * Two pieces grouped in this `@layer components` block:
+ *   1. Icon visibility per current theme state (data-theme-state on <html>).
+ *   2. Cross-theme animation: native View Transitions API + class-based
+ *      fallback for browsers without it.
+ */
+
+@layer components {
+    /* ── Icon visibility ──
+       Driven by data-theme-state on <html>, set by the FOUC inline script
+       in <head> before any rendering occurs. Eliminates icon flash on
+       navigation without extra inline <script> tags. */
+    #themeToggle [data-icon] { @apply hidden; }
+    html[data-theme-state="system"] #themeToggle [data-icon="system"],
+    html[data-theme-state="light"] #themeToggle [data-icon="light"],
+    html[data-theme-state="dark"] #themeToggle [data-icon="dark"] { @apply block; }
+
+    /* ── Cross-theme animation ──
+       Browsers that support startViewTransition get a smooth opacity fade;
+       others fall back to the .theme-transition class-based color fade below.
+       Duration must stay in sync with setTimeout in theme-toggle.js (~450ms). */
+
+    /* View Transitions: cross-fade animation for theme switching */
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        mix-blend-mode: normal;
+    }
+    ::view-transition-old(root) {
+        animation: vt-fade-out 0.35s ease-in-out forwards;
+    }
+    ::view-transition-new(root) {
+        animation: vt-fade-in 0.35s ease-in-out forwards;
+    }
+    @keyframes vt-fade-out {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    @keyframes vt-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Respect prefers-reduced-motion for View Transitions */
+    @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation: none !important;
+        }
+    }
+
+    /* Fallback: class-based transition for browsers without View Transitions API */
+    html.theme-transition { --tt: background-color 0.4s ease, color 0.15s ease, border-color 0.35s ease, box-shadow 0.4s ease; }
+    @media (prefers-reduced-motion: reduce) { html.theme-transition { --tt: none; } }
+
+    html.theme-transition .fog-bg,
+    html.theme-transition .paper,
+    html.theme-transition .toc-sidebar,
+    html.theme-transition .toc-inline,
+    html.theme-transition .menu-panel,
+    html.theme-transition .back-to-top,
+    html.theme-transition .progress-bar,
+    html.theme-transition .site-note {
+        transition: var(--tt) !important;
+        transition-delay: 0s !important;
+    }
+}
