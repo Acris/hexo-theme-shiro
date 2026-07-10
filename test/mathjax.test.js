@@ -52,6 +52,8 @@ let scanMathAt;
 let scanEscapedDollar;
 let pageWantsMathjax;
 let resolveMathjaxConfig;
+let storeSegments;
+let takeSegments;
 
 before(() => {
     ({
@@ -60,7 +62,9 @@ before(() => {
         scanMathAt,
         scanEscapedDollar,
         pageWantsMathjax,
-        resolveMathjaxConfig
+        resolveMathjaxConfig,
+        storeSegments,
+        takeSegments
     } = require('../scripts/mathjax.js'));
 });
 
@@ -74,6 +78,19 @@ describe('scripts/mathjax.js', () => {
             assert.equal(cfg.inlineDollars, false);
             assert.equal(cfg.processEnvironments, true);
             assert.equal(cfg.processEscapes, true);
+            assert.equal(cfg.tags, 'none');
+            assert.match(cfg.src, /mathjax@4/);
+            assert.equal(cfg.integrity, '');
+        });
+
+        it('normalizes tags and keeps custom src', () => {
+            const cfg = resolveMathjaxConfig({
+                mathjax: { tags: 'ams', src: 'https://example.com/mj.js', integrity: 'sha256-abc' }
+            });
+            assert.equal(cfg.tags, 'ams');
+            assert.equal(cfg.src, 'https://example.com/mj.js');
+            assert.equal(cfg.integrity, 'sha256-abc');
+            assert.equal(resolveMathjaxConfig({ mathjax: { tags: 'bogus' } }).tags, 'none');
         });
 
         it('uses empty mathjax defaults when the mathjax key is missing on theme config', () => {
@@ -187,9 +204,19 @@ describe('scripts/mathjax.js', () => {
             assert.match(restored, /\\\(a\\\)/);
         });
 
-        it('does not protect \\$ when inlineDollars is off', () => {
+        it('still protects \\$ when processEscapes is on and inlineDollars is off', () => {
             const protectedMath = protectMarkdownMath('Price \\$5 and $x$ and \\(y\\)', {
-                inlineDollars: false
+                inlineDollars: false,
+                processEscapes: true
+            });
+            assert.ok(protectedMath.segments);
+            assert.deepEqual(protectedMath.segments, ['\\$', '\\(y\\)']);
+        });
+
+        it('does not protect \\$ when both inlineDollars and processEscapes are off', () => {
+            const protectedMath = protectMarkdownMath('Price \\$5 and $x$ and \\(y\\)', {
+                inlineDollars: false,
+                processEscapes: false
             });
             assert.ok(protectedMath.segments);
             assert.deepEqual(protectedMath.segments, ['\\(y\\)']);
@@ -210,41 +237,62 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.content, source);
         });
 
-        it('warns about unclosed delimiters only during hexo generate', () => {
+        it('warns about unclosed delimiters via injected warn callback', () => {
             const source = '\\[ unclosed and more prose with *emphasis*';
+            const calls = [];
+            const warn = (msg) => calls.push(msg);
 
-            warnCalls.length = 0;
-            hexo.env.cmd = 'server';
+            // No warn option → silent (pure module has no Hexo binding).
             let protectedMath = protectMarkdownMath(source, { inlineDollars: false });
             assert.equal(protectedMath.segments, null);
+            assert.equal(calls.length, 0);
+
+            protectedMath = protectMarkdownMath(source, {
+                inlineDollars: false,
+                sourcePath: 'source/_posts/math.md',
+                warn
+            });
+            assert.equal(protectedMath.segments, null);
             assert.equal(protectedMath.content, source);
+            assert.equal(calls.length, 1);
+            assert.match(calls[0], /\[mathjax\] unclosed \\\[ delimiter/);
+            assert.match(calls[0], /in source\/_posts\/math\.md/);
+
+            calls.length = 0;
+            protectMarkdownMath('$$ also unclosed', { inlineDollars: false, warn });
+            assert.equal(calls.length, 1);
+            assert.match(calls[0], /\[mathjax\] unclosed \$\$ delimiter/);
+
+            calls.length = 0;
+            protectMarkdownMath('\\begin{align} missing end', {
+                inlineDollars: false,
+                sourcePath: 'source/_posts/env.md',
+                warn
+            });
+            assert.equal(calls.length, 1);
+            assert.match(calls[0], /\[mathjax\] unclosed \\begin\{align\} delimiter/);
+            assert.match(calls[0], /in source\/_posts\/env\.md/);
+        });
+
+        it('filter warn path only logs during hexo generate', () => {
+            const before = registeredFilters.before_post_render[0].fn;
+            warnCalls.length = 0;
+            hexo.env.cmd = 'server';
+            before({
+                content: '\\[ unclosed',
+                mathjax: true,
+                source: 'source/_posts/x.md'
+            });
             assert.equal(warnCalls.length, 0);
 
             hexo.env.cmd = 'generate';
-            protectedMath = protectMarkdownMath(source, {
-                inlineDollars: false,
-                sourcePath: 'source/_posts/math.md'
-            });
-            assert.equal(protectedMath.segments, null);
-            assert.equal(protectedMath.content, source);
-            assert.equal(warnCalls.length, 1);
-            assert.match(warnCalls[0], /\[mathjax\] unclosed \\\[ delimiter/);
-            assert.match(warnCalls[0], /in source\/_posts\/math\.md/);
-
-            warnCalls.length = 0;
-            hexo.env.cmd = 'g';
-            protectMarkdownMath('$$ also unclosed', { inlineDollars: false });
-            assert.equal(warnCalls.length, 1);
-            assert.match(warnCalls[0], /\[mathjax\] unclosed \$\$ delimiter/);
-
-            warnCalls.length = 0;
-            protectMarkdownMath('\\begin{align} missing end', {
-                inlineDollars: false,
-                sourcePath: 'source/_posts/env.md'
+            before({
+                content: '\\[ unclosed',
+                mathjax: true,
+                source: 'source/_posts/x.md'
             });
             assert.equal(warnCalls.length, 1);
-            assert.match(warnCalls[0], /\[mathjax\] unclosed \\begin\{align\} delimiter/);
-            assert.match(warnCalls[0], /in source\/_posts\/env\.md/);
+            assert.match(warnCalls[0], /unclosed \\\[/);
 
             hexo.env.cmd = 'test';
             warnCalls.length = 0;
@@ -282,41 +330,52 @@ describe('scripts/mathjax.js', () => {
                 content: 'see \\(a<b\\) here',
                 mathjax: true,
                 source: 'source/_posts/eq.md',
-                excerpt: 'see @@SHIRO_MATH_0@@ here',
-                more: 'more @@SHIRO_MATH_0@@'
+                excerpt: 'preview \\(a<b\\) only',
+                more: 'more \\(a<b\\)'
             };
 
             before(data);
             assert.match(data.content, /@@SHIRO_MATH_0@@/);
-            const desc = Object.getOwnPropertyDescriptor(data, PLACEHOLDER_PROP);
-            assert.ok(desc);
-            assert.equal(desc.enumerable, false);
-            assert.deepEqual(data[PLACEHOLDER_PROP], ['\\(a<b\\)']);
-            assert.equal(Object.keys(data).includes(PLACEHOLDER_PROP), false);
+            assert.match(data.excerpt, /@@SHIRO_MATH_1@@/);
+            assert.match(data.more, /@@SHIRO_MATH_2@@/);
+            // Segments live only in the module WeakMap (not on the post object).
+            assert.equal(Object.prototype.hasOwnProperty.call(data, PLACEHOLDER_PROP), false);
             assert.equal(JSON.stringify(data).includes(PLACEHOLDER_PROP), false);
 
             after(data);
             assert.equal(data.content, 'see \\(a&lt;b\\) here');
-            assert.equal(data.excerpt, 'see \\(a&lt;b\\) here');
+            assert.equal(data.excerpt, 'preview \\(a&lt;b\\) only');
             assert.equal(data.more, 'more \\(a&lt;b\\)');
-            assert.equal(Object.prototype.hasOwnProperty.call(data, PLACEHOLDER_PROP), false);
         });
 
-        it('after_post_render restores from segments without requiring pageWantsMathjax', () => {
+        it('protects excerpt-only math when content has no formulas', () => {
+            const before = registeredFilters.before_post_render[0].fn;
+            const after = registeredFilters.after_post_render[0].fn;
+            const data = {
+                content: 'plain body with no math',
+                excerpt: 'summary with \\(E=mc^2\\)',
+                mathjax: true,
+                source: 'source/_posts/excerpt-math.md'
+            };
+
+            before(data);
+            assert.equal(data.content, 'plain body with no math');
+            assert.match(data.excerpt, /@@SHIRO_MATH_0@@/);
+
+            after(data);
+            assert.equal(data.excerpt, 'summary with \\(E=mc^2\\)');
+        });
+
+        it('after_post_render restores from WeakMap without requiring pageWantsMathjax', () => {
             const after = registeredFilters.after_post_render[0].fn;
             const data = {
                 content: 'x @@SHIRO_MATH_0@@ y',
                 mathjax: false
             };
-            Object.defineProperty(data, PLACEHOLDER_PROP, {
-                configurable: true,
-                enumerable: false,
-                writable: true,
-                value: ['\\(z\\)']
-            });
+            storeSegments(data, ['\\(z\\)']);
             after(data);
             assert.equal(data.content, 'x \\(z\\) y');
-            assert.equal(Object.prototype.hasOwnProperty.call(data, PLACEHOLDER_PROP), false);
+            assert.equal(takeSegments(data), undefined);
         });
 
         it('registers mathjax_options helper with the same defaults as resolveMathjaxConfig', () => {

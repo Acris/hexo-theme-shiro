@@ -148,37 +148,20 @@ function findUnescapedClose(source, from, close) {
     return -1;
 }
 
-// Warn only during `hexo generate` / `hexo g` so authors notice unclosed TeX
-// without noise during `hexo server` or unit tests. Does not change protect.
-// warnContext is threaded from protectMarkdownMath → scanMathAt → scanners
-// (no module-level mutable state) so messages can include the post path.
-//
-// Never use a bare `hexo` free variable here: this pure module is require()'d
-// and does not share Hexo's script-entry binding. Prefer globalThis.hexo
-// (Hexo / unit tests set it) when present.
-function hexoGlobal() {
-    return (typeof globalThis !== 'undefined' && globalThis.hexo) || null;
-}
-
-function isGenerateCommand() {
-    const hx = hexoGlobal();
-    const cmd = (hx && hx.env && hx.env.cmd) || '';
-    return cmd === 'generate' || cmd === 'g';
-}
-
+// Unclosed-delimiter warnings are injected by the caller (scripts/mathjax.js)
+// via options.warn — this pure module has no Hexo binding. warnContext is
+// threaded from protectMarkdownMath → scanMathAt → scanners (no module state).
 function warnUnclosedDelimiter(open, start, source, warnContext) {
-    if (!isGenerateCommand()) return;
-    const hx = hexoGlobal();
-    if (!hx || !hx.log || typeof hx.log.warn !== 'function') return;
+    if (!warnContext || typeof warnContext.warn !== 'function') return;
 
     const snippet = String(source || '')
         .slice(start, start + 48)
         .replace(/\s+/g, ' ')
         .trim();
-    const where = warnContext && warnContext.sourcePath
+    const where = warnContext.sourcePath
         ? ' in ' + warnContext.sourcePath
         : '';
-    hx.log.warn(
+    warnContext.warn(
         '[mathjax] unclosed ' + open + ' delimiter (not protected)' + where
         + (snippet ? ': ' + snippet + (source.length > start + 48 ? '…' : '') : '')
     );
@@ -299,6 +282,9 @@ function protectMarkdownMath(content, options) {
 
     const opts = options || {};
     const inlineDollars = opts.inlineDollars === true;
+    // Shield \$ when single-dollar math is on, or when processEscapes is on so
+    // Markdown does not strip the backslash before MathJax processEscapes.
+    const protectEscapedDollar = inlineDollars || opts.processEscapes !== false;
     const segments = [];
     let result = '';
     let cursor = 0;
@@ -314,7 +300,8 @@ function protectMarkdownMath(content, options) {
     }
 
     const warnContext = {
-        sourcePath: opts.sourcePath ? String(opts.sourcePath) : ''
+        sourcePath: opts.sourcePath ? String(opts.sourcePath) : '',
+        warn: typeof opts.warn === 'function' ? opts.warn : null
     };
     const scanOptions = { inlineDollars, warnContext };
 
@@ -363,10 +350,7 @@ function protectMarkdownMath(content, options) {
                 continue;
             }
 
-            // Only when $ is an inline delimiter: keep \$ so Markdown does not
-            // strip the backslash before MathJax processEscapes.
-            // Independent of process_escapes (client-only MathJax option).
-            if (inlineDollars && ch === '\\') {
+            if (protectEscapedDollar && ch === '\\') {
                 const escaped = scanEscapedDollar(source, cursor);
                 if (escaped) {
                     result += placeholder(escaped);
@@ -400,6 +384,13 @@ function restoreProtectedMath(content, segments) {
 // Theme mathjax config (defaults match _config.yml).
 // enabled: false → never; true → every_page / front-matter.
 // every_page: false → only mathjax: true; true → all posts/pages except mathjax: false.
+const DEFAULT_MATHJAX_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js';
+
+function resolveMathjaxTags(value) {
+    const text = String(value == null ? 'none' : value).trim().toLowerCase();
+    return text === 'ams' || text === 'all' ? text : 'none';
+}
+
 function resolveMathjaxConfig(themeConfig) {
     // Prefer themeConfig.mathjax; never fall back to the whole theme object
     // (avoids reading unrelated root keys if mathjax is missing).
@@ -407,6 +398,7 @@ function resolveMathjaxConfig(themeConfig) {
     const cfg = (root.mathjax != null && typeof root.mathjax === 'object')
         ? root.mathjax
         : {};
+    const src = String(cfg.src == null ? '' : cfg.src).trim();
     return {
         // Default off: must set enabled: true, then every_page and/or front-matter.
         enabled: cfg.enabled === true,
@@ -419,7 +411,13 @@ function resolveMathjaxConfig(themeConfig) {
         // MathJax tex.processEnvironments (client). Default true matches v4.
         processEnvironments: cfg.process_environments !== false,
         // MathJax tex.processEscapes (client). Default true matches v3+/v4.
-        processEscapes: cfg.process_escapes !== false
+        processEscapes: cfg.process_escapes !== false,
+        // Client equation numbering: none | ams | all.
+        tags: resolveMathjaxTags(cfg.tags),
+        // CDN / self-hosted script URL (layout still runs safe_resource_url_for).
+        src: src || DEFAULT_MATHJAX_SRC,
+        // Optional SRI digest for mathjax.src (empty = omit integrity).
+        integrity: String(cfg.integrity == null ? '' : cfg.integrity).trim()
     };
 }
 
