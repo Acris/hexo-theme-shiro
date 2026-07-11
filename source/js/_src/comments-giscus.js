@@ -18,7 +18,8 @@
             return;
         }
 
-        const get = shiro.get || (w.__shiroRuntime && w.__shiroRuntime.get) || (() => undefined);
+        const rt = shiro.runtime || w.__shiroRuntime;
+        const get = rt && typeof rt.get === 'function' ? rt.get : (() => undefined);
         const cfgRoot = get('commentsConfig') || {};
         const g = cfgRoot.giscus || {};
         const loadCommentsCss = shiro.loadCommentsCss || (() => Promise.resolve());
@@ -57,7 +58,10 @@
             s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = (get('cspNonce') || shiro.cspNonce || '');
+            const nonce = (rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
+                || get('cspNonce')
+                || shiro.cspNonce
+                || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
                 'data-repo': g.repo || '',
@@ -95,10 +99,12 @@
             paintFrame();
         }).observe(d.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-        if (typeof shiro.onNearViewport !== 'function') {
-            console.warn('[shiro-comments] near-viewport helper missing');
-            return;
+        // Degraded path: load immediately if near-viewport helper never installed.
+        if (typeof shiro.onNearViewport === 'function') {
+            shiro.onNearViewport(container, loadGiscus);
+        } else {
+            console.warn('[shiro-comments] near-viewport helper missing; loading giscus immediately');
+            loadGiscus();
         }
-        shiro.onNearViewport(container, loadGiscus);
     });
 })();

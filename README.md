@@ -162,10 +162,14 @@ toc:
   min_headings: 3
 
 # Optional host CSP nonce (static theme scripts + runtime-injected loaders) and SRI hooks below.
+# Static config value only — not a per-request CSP nonce. Meaningful when the host/edge
+# injects the same value into Content-Security-Policy; prefer host-level per-request nonces.
 security:
   csp_nonce: ""
 
 # Image lightbox (config key is lightGallery with capital G). Swap CDN URLs if needed.
+# When enabled, a primary click on post/page body images opens the lightbox
+# (modifier-clicks / middle-click keep browser defaults).
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css

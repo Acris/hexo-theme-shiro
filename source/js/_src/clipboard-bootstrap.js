@@ -3,10 +3,9 @@
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt) return;
-    const get = rt.get || shiro.get || (() => undefined);
+    if (!rt || typeof rt.get !== 'function') return;
 
-    const script = get('clipboardScript') || '';
+    const script = rt.get('clipboardScript') || '';
     if (!script) return;
 
     const { scheduleIdle, createFeatureLoader } = rt;
@@ -44,7 +43,9 @@
     const feature = createFeatureLoader({
         id: 'clipboard',
         src: script,
-        onError: () => {}
+        onError: (error) => {
+            console.warn('[shiro-clipboard] feature failed', error);
+        }
     });
 
     function queueTargets(targets) {
@@ -89,11 +90,7 @@
     }
 
     function schedule(task) {
-        if (scheduleIdle) {
-            scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
-            return;
-        }
-        window.setTimeout(() => task(), 64);
+        scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
     }
 
     const observer = 'IntersectionObserver' in window

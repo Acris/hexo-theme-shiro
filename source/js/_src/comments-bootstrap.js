@@ -7,13 +7,12 @@
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt || typeof rt.loadAsset !== 'function') {
+    if (!rt || typeof rt.loadAsset !== 'function' || typeof rt.get !== 'function') {
         console.error('[shiro-comments] runtime missing; comments bootstrap aborted');
         return;
     }
 
-    const get = rt.get || shiro.get || (() => undefined);
-    const commentsCss = get('commentsCss') || '';
+    const commentsCss = rt.get('commentsCss') || '';
     let commentsCssLoading = null;
 
     shiro.loadCommentsCss = shiro.loadCommentsCss || (() => {

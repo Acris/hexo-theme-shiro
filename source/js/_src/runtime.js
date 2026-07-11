@@ -5,10 +5,16 @@
     // image safety, connection-aware warm). Loaded once as runtime.min.js before
     // any dependent deferred/sync feature script.
     // Namespace: window.__shiro.runtime (flat window.__shiroRuntime kept as alias).
+    // Config lives on window.__shiro bare keys only; read via runtime.get (not bag.get).
     const root = (window.__shiro = window.__shiro || {});
     if (window.__shiroRuntime || root.runtime) return;
 
     const assetTimeout = 12000;
+    const featureReadyTimeout = 8000;
+    // In-flight loadAsset promises keyed by selector (or tag:src/href).
+    const assetInflight = new Map();
+    // Feature readiness channels: script onload ≠ usable; wait for featureReady/Abort.
+    const featureChannels = new Map();
 
     /**
      * Read config/handoff from window.__shiro bare keys only.
@@ -23,8 +29,6 @@
         }
         return undefined;
     }
-
-    root.get = get;
 
     // Prefer bag cspNonce (head-theme). Fall back to this script's nonce attribute.
     function cspNonce() {
@@ -89,7 +93,17 @@
         });
     }
 
+    function assetKey(tag, attrs, selector) {
+        if (selector) return selector;
+        const src = attrs && (attrs.src || attrs.href);
+        return tag + ':' + String(src || '');
+    }
+
     function loadAsset(tag, attrs, selector) {
+        const key = assetKey(tag, attrs, selector);
+        const pending = assetInflight.get(key);
+        if (pending) return pending;
+
         const existing = selector ? document.querySelector(selector) : null;
         if (existing && existing.dataset.shiroError === 'true') {
             existing.remove();
@@ -97,14 +111,14 @@
             return assetReady(existing, tag);
         }
 
-        return new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             const el = document.createElement(tag);
             const { settle, fail } = watchAssetLoad(el, reject);
-            Object.keys(attrs).forEach((key) => {
-                if (attrs[key] === true) {
-                    el.setAttribute(key, '');
-                } else if (attrs[key] != null && attrs[key] !== false) {
-                    el.setAttribute(key, attrs[key]);
+            Object.keys(attrs || {}).forEach((name) => {
+                if (attrs[name] === true) {
+                    el.setAttribute(name, '');
+                } else if (attrs[name] != null && attrs[name] !== false) {
+                    el.setAttribute(name, attrs[name]);
                 }
             });
             applyCspNonce(el);
@@ -119,41 +133,124 @@
                 fail(event);
             };
             document.head.appendChild(el);
+        }).finally(() => {
+            assetInflight.delete(key);
         });
+
+        assetInflight.set(key, promise);
+        return promise;
     }
 
-    // Canonical lazy-feature loader for *-bootstrap.js scripts.
-    // Protocol: window URL -> loadBootstrapScript(url, {onload,onerror}, shortId)
-    // -> optional scheduleIdleWarm. Do not invent a parallel loader path.
-    // `id` is a short stable token for dedupe (not the full URL - URLs break CSS selectors).
-    // Dynamically inserted classic scripts are effectively async; we do not set
-    // defer (it is a no-op on createElement('script') and documents the wrong model).
-    function loadBootstrapScript(src, callbacks, id) {
-        const opts = callbacks || {};
+    // Canonical lazy-feature script fetch. `id` is a short stable dedupe token
+    // (not a full URL — URLs break CSS selectors). Classic dynamic scripts are
+    // async; do not set defer. Prefer createFeatureLoader for ready/abort protocol.
+    function loadBootstrapScript(src, id) {
         const token = String(id || src || 'bootstrap')
             .replace(/[^a-zA-Z0-9_-]+/g, '-')
             .slice(0, 64) || 'bootstrap';
         if (!src) {
-            const err = new Error('Missing bootstrap script URL for ' + token);
-            if (typeof opts.onerror === 'function') opts.onerror(err);
-            return Promise.reject(err);
+            return Promise.reject(new Error('Missing bootstrap script URL for ' + token));
         }
         const selector = 'script[data-shiro-bootstrap="' + token + '"]';
         return loadAsset('script', {
             src: src,
             'data-shiro-bootstrap': token
-        }, selector).then(() => {
-            if (typeof opts.onload === 'function') opts.onload();
-        }).catch((error) => {
-            if (typeof opts.onerror === 'function') opts.onerror(error);
-            return Promise.reject(error);
+        }, selector);
+    }
+
+    function getFeatureChannel(id) {
+        const key = String(id || 'feature');
+        let channel = featureChannels.get(key);
+        if (!channel) {
+            channel = { status: 'pending', error: null, waiters: [] };
+            featureChannels.set(key, channel);
+        }
+        return channel;
+    }
+
+    function settleFeatureWaiters(channel, ok, error) {
+        const waiters = channel.waiters.slice();
+        channel.waiters = [];
+        waiters.forEach((waiter) => {
+            if (ok) waiter.resolve();
+            else waiter.reject(error);
         });
     }
 
     /**
-     * Load a feature bootstrap script once; concurrent load() share one promise.
-     * onReady runs after success (including late subscribers). Failures call
-     * onError and clear pending so a later load() can retry.
+     * Feature script signals it is usable (API installed). Call once per load.
+     * createFeatureLoader waits on this — script onload alone is not enough.
+     */
+    function featureReady(id) {
+        const channel = getFeatureChannel(id);
+        if (channel.status === 'ready') return;
+        channel.status = 'ready';
+        channel.error = null;
+        settleFeatureWaiters(channel, true);
+    }
+
+    /**
+     * Feature script signals hard failure (missing config, etc.).
+     * Treated as permanent for that feature id (no silent 8s retry hang).
+     */
+    function featureAbort(id, error) {
+        const channel = getFeatureChannel(id);
+        if (channel.status === 'ready') return;
+        const err = error instanceof Error
+            ? error
+            : new Error(error ? String(error) : 'Feature aborted: ' + id);
+        channel.status = 'aborted';
+        channel.error = err;
+        settleFeatureWaiters(channel, false, err);
+    }
+
+    function waitForFeature(id, options) {
+        const opts = options || {};
+        const channel = getFeatureChannel(id);
+        if (channel.status === 'ready') return Promise.resolve();
+        if (channel.status === 'aborted') {
+            return Promise.reject(channel.error || new Error('Feature aborted: ' + id));
+        }
+
+        const timeoutMs = opts.timeout != null ? opts.timeout : featureReadyTimeout;
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            const timer = setTimeout(() => {
+                if (settled) return;
+                settled = true;
+                const err = new Error('Feature ready timeout: ' + id);
+                if (channel.status === 'pending') {
+                    channel.status = 'aborted';
+                    channel.error = err;
+                }
+                channel.waiters = channel.waiters.filter((w) => w.resolve !== onResolve);
+                reject(err);
+            }, timeoutMs);
+
+            function onResolve() {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                resolve();
+            }
+
+            function onReject(error) {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                reject(error);
+            }
+
+            channel.waiters.push({ resolve: onResolve, reject: onReject });
+        });
+    }
+
+    /**
+     * Load a feature script once; concurrent load() share one promise.
+     * load() always settles fulfilled after onError (call sites need no .catch).
+     * Success runs onReady; detect failure only via options.onError side effects.
+     * - featureAbort / ready-timeout → permanent (immediate onError on later load)
+     * - network/script fetch failure → retryable (node removed by loadAsset)
      * @param {{ id: string, src: string, onReady?: function, onError?: function }} options
      * @returns {{ load: function, isLoading: function }}
      */
@@ -161,49 +258,118 @@
         const opts = options || {};
         const id = opts.id || 'feature';
         const src = opts.src || '';
-        // inflight: in-progress load. ready: resolved after first success (reuse).
         let inflight = null;
         let ready = null;
+        // Permanent terminal error after featureAbort or ready-timeout (not network).
+        let terminalError = null;
+
+        function failPermanent(error) {
+            const err = error instanceof Error
+                ? error
+                : new Error(error ? String(error) : 'Feature failed: ' + id);
+            terminalError = err;
+            return err;
+        }
+
+        function reportError(error) {
+            if (typeof opts.onError === 'function') opts.onError(error);
+        }
+
+        // Always fulfill so callers can omit .catch; onError already reported failures.
+        function settleLoad(promise, onReady) {
+            return promise.then(() => {
+                if (typeof onReady === 'function') onReady();
+            }).catch(() => {});
+        }
 
         return {
             isLoading: () => !!inflight,
             load: (onReady) => {
                 if (!src) {
                     const err = new Error('Missing feature script URL for ' + id);
-                    if (typeof opts.onError === 'function') opts.onError(err);
-                    return Promise.reject(err);
+                    reportError(err);
+                    return settleLoad(Promise.reject(err), onReady);
                 }
 
                 if (ready) {
-                    return ready.then(() => {
-                        if (typeof onReady === 'function') onReady();
-                    });
+                    return settleLoad(ready, onReady);
+                }
+
+                if (terminalError) {
+                    reportError(terminalError);
+                    return settleLoad(Promise.reject(terminalError), onReady);
                 }
 
                 if (!inflight) {
-                    inflight = loadBootstrapScript(src, {
-                        onload: () => {
+                    // featureAbort/timeout → terminalError (permanent).
+                    // Network fetch fail leaves channel pending so a later load() can retry.
+                    inflight = loadBootstrapScript(src, id)
+                        .then(() => waitForFeature(id))
+                        .then(() => {
+                            ready = Promise.resolve();
+                            inflight = null;
                             if (typeof opts.onReady === 'function') opts.onReady();
-                        },
-                        onerror: (error) => {
-                            if (typeof opts.onError === 'function') opts.onError(error);
-                        }
-                    }, id).then(() => {
-                        ready = Promise.resolve();
-                        inflight = null;
-                    }, () => {
-                        inflight = null;
-                        return Promise.reject(new Error('Feature script failed: ' + id));
-                    });
+                        }, (error) => {
+                            inflight = null;
+                            const err = error instanceof Error
+                                ? error
+                                : new Error('Feature script failed: ' + id);
+                            const channel = getFeatureChannel(id);
+                            // Abort/timeout: permanent. Network fetch fail: channel still pending.
+                            if (channel.status === 'aborted') {
+                                failPermanent(err);
+                            }
+                            reportError(err);
+                            return Promise.reject(err);
+                        });
                 }
 
-                return inflight.then(() => {
-                    if (typeof onReady === 'function') onReady();
-                }).catch(() => {
-                    // onError already ran; call sites need no .catch.
-                });
+                return settleLoad(inflight, onReady);
             }
         };
+    }
+
+    /**
+     * Prefer a live API if already installed; otherwise stash + load.
+     * Shared by LightGallery (and similar) bootstraps — single source for tests.
+     * If live returns exactly false (open refused), navigate — same as stash drain.
+     * @param {{ failed?: boolean, live?: function, target?: *, stash?: function, load?: function, navigate?: function }} options
+     * @returns {'navigate'|'live'|'stash'}
+     */
+    function dispatchLiveOrStash(options) {
+        const opts = options || {};
+        if (opts.failed) {
+            if (typeof opts.navigate === 'function') opts.navigate(opts.target);
+            return 'navigate';
+        }
+        if (typeof opts.live === 'function') {
+            // false = refused (e.g. openFromElement); undefined/true = opened or async.
+            if (opts.live(opts.target) === false) {
+                if (typeof opts.navigate === 'function') opts.navigate(opts.target);
+                return 'navigate';
+            }
+            return 'live';
+        }
+        if (typeof opts.stash === 'function') opts.stash(opts.target);
+        if (typeof opts.load === 'function') opts.load();
+        return 'stash';
+    }
+
+    /**
+     * Prefer live warm if installed; otherwise mark pending + load.
+     * @param {{ failed?: boolean, done?: boolean, live?: function, markPending?: function, load?: function }} options
+     * @returns {'skip'|'live'|'stash'}
+     */
+    function dispatchLiveOrWarm(options) {
+        const opts = options || {};
+        if (opts.failed || opts.done) return 'skip';
+        if (typeof opts.live === 'function') {
+            opts.live();
+            return 'live';
+        }
+        if (typeof opts.markPending === 'function') opts.markPending();
+        if (typeof opts.load === 'function') opts.load();
+        return 'stash';
     }
 
     /**
@@ -213,7 +379,7 @@
      */
     function bindIntentWarm(warmFn, options) {
         const opts = options || {};
-        const root = opts.root || document;
+        const target = opts.root || document;
         const events = opts.events || ['pointerover', 'pointerdown', 'focusin'];
         const capture = opts.capture !== false;
         let done = false;
@@ -222,15 +388,15 @@
             if (done) return;
             if (typeof opts.shouldWarm === 'function' && !opts.shouldWarm(event)) return;
             done = true;
-            events.forEach((name) => root.removeEventListener(name, handler, capture));
+            events.forEach((name) => target.removeEventListener(name, handler, capture));
             warmFn(event);
         };
 
-        events.forEach((name) => root.addEventListener(name, handler, capture));
+        events.forEach((name) => target.addEventListener(name, handler, capture));
         return () => {
             if (done) return;
             done = true;
-            events.forEach((name) => root.removeEventListener(name, handler, capture));
+            events.forEach((name) => target.removeEventListener(name, handler, capture));
         };
     }
 
@@ -261,6 +427,49 @@
         return attrSrc || dataSrc;
     }
 
+    function isModifiedClick(event) {
+        return !!(
+            !event
+            || event.button !== 0
+            || event.metaKey
+            || event.ctrlKey
+            || event.shiftKey
+            || event.altKey
+        );
+    }
+
+    /**
+     * Navigate to a same-site path or open absolute http(s) in a new tab.
+     * Blocks javascript:/data:/control chars.
+     */
+    function safeNavigate(href) {
+        const value = String(href || '').trim();
+        if (!value) return;
+        if (/^(?:javascript|vbscript|data):/i.test(value) || /[\u0000-\u001F\u007F]/.test(value)) {
+            return;
+        }
+        if (/^https?:\/\//i.test(value) || value.indexOf('//') === 0) {
+            window.open(value, '_blank', 'noopener,noreferrer');
+            return;
+        }
+        window.location.href = value;
+    }
+
+    // Prefer original page href (pre-gallery), then image src — shared by LG bootstrap/feature.
+    function imageNavigationHref(img) {
+        if (!img || !img.closest) return '';
+        const link = img.closest('a');
+        const original = link
+            ? (link.getAttribute('data-shiro-original-href') || link.getAttribute('href') || '').trim()
+            : '';
+        const src = (imageSource(img) || '').trim();
+        return original || src;
+    }
+
+    function navigateFromImage(img) {
+        safeNavigate(imageNavigationHref(img));
+    }
+
     function connectionAllowsWarm() {
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         if (!connection) return true;
@@ -287,10 +496,18 @@
         loadAsset,
         loadBootstrapScript,
         createFeatureLoader,
+        featureReady,
+        featureAbort,
         bindIntentWarm,
         isSafeImageUrl,
         isDecorativeImg,
         imageSource,
+        isModifiedClick,
+        safeNavigate,
+        imageNavigationHref,
+        navigateFromImage,
+        dispatchLiveOrStash,
+        dispatchLiveOrWarm,
         connectionAllowsWarm,
         scheduleIdle,
         scheduleIdleWarm,

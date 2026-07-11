@@ -1,35 +1,52 @@
 ;(() => {
     'use strict';
 
-    // URLs come only from layout injection (gates / feature_var). No hardcoded CDN
+    // URLs from bag lightgallery config only (gates / feature_var). No hardcoded CDN
     // fallback — keeps version pin in _config.yml + feature-gates only.
+    // Signals featureReady/Abort so createFeatureLoader waits for true usability.
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    const signalAbort = () => {
-        if (typeof shiro.lightGalleryOnAbort === 'function') shiro.lightGalleryOnAbort();
+    const FEATURE_ID = 'lightgallery';
+
+    const signalAbort = (error) => {
+        if (rt && typeof rt.featureAbort === 'function') {
+            rt.featureAbort(FEATURE_ID, error);
+        }
     };
     const signalReady = () => {
-        if (typeof shiro.lightGalleryOnReady === 'function') shiro.lightGalleryOnReady();
+        if (rt && typeof rt.featureReady === 'function') {
+            rt.featureReady(FEATURE_ID);
+        }
     };
 
-    if (!rt) {
+    if (!rt || typeof rt.get !== 'function') {
         console.error('[shiro-lightgallery] runtime missing; aborting');
-        signalAbort();
-        return;
-    }
-    const get = rt.get || shiro.get || (() => undefined);
-    const cssHref = String(get('lightgalleryCss') || '').trim();
-    const jsSrc = String(get('lightgalleryJs') || '').trim();
-    const themeCssHref = String(get('lightgalleryThemeCss') || '').trim();
-    const cssIntegrity = String(get('lightgalleryCssIntegrity') || '').trim();
-    const jsIntegrity = String(get('lightgalleryJsIntegrity') || '').trim();
-    if (!cssHref || !jsSrc) {
-        console.error('[shiro-lightgallery] missing lightgalleryCss/lightgalleryJs; aborting');
-        signalAbort();
+        signalAbort(new Error('runtime missing'));
         return;
     }
 
-    const { loadAsset, isSafeImageUrl, isDecorativeImg, imageSource } = rt;
+    const lg = rt.get('lightgallery') || {};
+    const cssHref = String(lg.css || '').trim();
+    const jsSrc = String(lg.js || '').trim();
+    const themeCssHref = String(lg.themeCss || '').trim();
+    const cssIntegrity = String(lg.cssIntegrity || '').trim();
+    const jsIntegrity = String(lg.jsIntegrity || '').trim();
+    if (!cssHref || !jsSrc) {
+        console.error('[shiro-lightgallery] missing lightgallery css/js; aborting');
+        signalAbort(new Error('missing lightgallery css/js'));
+        return;
+    }
+
+    // Bootstrap owns all document click capture; this file only installs open/warm.
+    const {
+        loadAsset,
+        isSafeImageUrl,
+        isDecorativeImg,
+        imageSource,
+        safeNavigate,
+        navigateFromImage,
+        scheduleIdle
+    } = rt;
 
     let assetsLoading = null;
     const instances = new Map();
@@ -89,7 +106,6 @@
         return assetsLoading;
     }
 
-    // Escape special characters for safe use inside HTML text content
     const escapeHtml = (value) => {
         if (!value) return '';
         return value
@@ -98,7 +114,6 @@
             .replace(/>/g, '&gt;');
     };
 
-    // Escape special characters for safe use inside HTML attributes
     const escapeAttr = (value) => {
         if (!value) return '';
         return escapeHtml(value).replace(/"/g, '&quot;');
@@ -137,7 +152,6 @@
         return (i18n && i18n.gallery) || {};
     };
 
-    // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {
         let html = '';
         if (caption) html += `<p>${escapeHtml(caption)}</p>`;
@@ -187,8 +201,6 @@
             if (link.getAttribute(name) !== value) link.setAttribute(name, value);
         };
 
-        // Use data-src so lightgallery reads the image URL from it,
-        // preserving the original href for SEO and right-click behavior.
         setIfChanged('data-src', imgSrc);
         setIfChanged('data-lg-item', 'true');
         if (originalHref && originalHref !== imgSrc) {
@@ -206,14 +218,11 @@
     };
 
     const ensureLink = (container, img) => {
-        // Prefer currentSrc once available, but only when the image has an
-        // explicit source attribute so empty src cannot resolve to page URL.
         const src = imageSource(img);
         if (!isSafeImageUrl(src)) return null;
 
         if (isDecorativeImg(img)) return null;
 
-        // Walk up from img but stop at container to avoid matching outer <a> tags
         let existing = img.parentElement;
         while (existing && existing !== container && existing.tagName !== 'A') {
             existing = existing.parentElement;
@@ -224,7 +233,6 @@
         if (existing) {
             const href = (existing.getAttribute('href') || '').trim();
             const linkedUrl = normalizedSourceUrl(href);
-            // Remember pre-gallery destination for asset-failure fallback.
             const originalHref = href && href !== src ? href : '';
 
             setLgAttributes(existing, src, caption, linkedUrl, originalHref);
@@ -236,7 +244,6 @@
             return existing;
         }
 
-        // No wrapping <a> - create one (href is the image itself).
         const link = document.createElement('a');
         link.setAttribute('href', src);
         img.parentNode.insertBefore(link, img);
@@ -273,14 +280,7 @@
     }
 
     function followFallbackLink(link) {
-        // Prefer the original page/source href when present; else open the image.
-        const href = fallbackNavigationUrl(link);
-        if (!href) return;
-        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
-            window.open(href, '_blank', 'noopener,noreferrer');
-            return;
-        }
-        window.location.href = href;
+        safeNavigate(fallbackNavigationUrl(link));
     }
 
     function refreshGallery(container) {
@@ -306,24 +306,9 @@
         });
     }
 
-    function clickedImage(event) {
-        const target = event.target;
-        if (!target || !target.closest) return null;
-
-        const container = target.closest('.prose-shiro');
-        if (!container) return null;
-
-        const img = target.closest('img');
-        if (img && container.contains(img)) return img;
-
-        const link = target.closest('a');
-        if (!link || !container.contains(link)) return null;
-        return link.querySelector('img');
-    }
-
     function schedule(task) {
-        if (rt.scheduleIdle) {
-            rt.scheduleIdle(task, { timeout: 1000, fallbackMs: 48 });
+        if (scheduleIdle) {
+            scheduleIdle(task, { timeout: 1000, fallbackMs: 48 });
             return;
         }
         if ('requestIdleCallback' in window) {
@@ -357,7 +342,9 @@
                 current = node;
                 continue;
             }
-            const img = current.matches && current.matches('img') ? current : current.querySelector && current.querySelector('img');
+            const img = current.matches && current.matches('img')
+                ? current
+                : current.querySelector && current.querySelector('img');
             if (img && container.contains(img) && !img.closest('a[data-lg-item]')) return img;
         }
         return null;
@@ -400,56 +387,15 @@
         return true;
     }
 
-    function isModifiedClick(event) {
-        return !event
-            || event.button !== 0
-            || event.metaKey
-            || event.ctrlKey
-            || event.shiftKey
-            || event.altKey;
-    }
-
-    function navigateFromImage(img) {
-        if (!img || !img.closest) return;
-        const link = img.closest('a');
-        const original = link
-            ? (link.getAttribute('data-shiro-original-href') || link.getAttribute('href') || '').trim()
-            : '';
-        const src = (imageSource(img) || '').trim();
-        const href = original || src;
-        if (!href) return;
-        if (/^(?:javascript|vbscript|data):/i.test(href) || /[\u0000-\u001F\u007F]/.test(href)) {
-            return;
-        }
-        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
-            window.open(href, '_blank', 'noopener,noreferrer');
-            return;
-        }
-        window.location.href = href;
-    }
-
     shiro.lightGalleryOpen = openFromElement;
 
-    // Prefetch the LightGallery library + styles ahead of the first click so a
-    // warmed gallery opens instantly. Failures are swallowed; the click path retries.
+    // Prefetch the LightGallery library + styles ahead of the first click.
     shiro.lightGalleryWarm = () => {
         ensureLightGalleryAssets().catch(() => {});
     };
 
-    // Feature is usable — bootstrap may drop its capture handlers now.
+    // Usable for bootstrap live path + autoOpen drain. Bootstrap keeps capture.
     signalReady();
-
-    document.addEventListener('click', (event) => {
-        if (isModifiedClick(event)) return;
-
-        const img = clickedImage(event);
-        if (!img) return;
-
-        if (openFromElement(img)) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-        }
-    });
 
     const autoOpen = shiro.lightGalleryAutoOpen;
     if (autoOpen) {
@@ -459,5 +405,4 @@
         shiro.lightGalleryWarmRequested = false;
         shiro.lightGalleryWarm();
     }
-
 })();

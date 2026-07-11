@@ -18,7 +18,7 @@ const {
 } = require('./mathjax-protect');
 
 // LightGallery CDN defaults — keep in sync with _config.yml lightGallery.* only.
-// Client scripts read bag keys via runtime.get (lightgalleryCss / lightgalleryJs / …).
+// Client scripts read one bag object via runtime.get('lightgallery').
 const DEFAULT_LIGHTGALLERY_JS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
 const DEFAULT_LIGHTGALLERY_CSS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
 

@@ -27,5 +27,15 @@ describe('scripts/lib/code-blocks', () => {
             assert.match(out, /class="not-prose highlight plain"/);
             assert.equal((out.match(/not-prose/g) || []).length, 1);
         });
+
+        it('handles single-quoted and unquoted class attributes', () => {
+            const html = "<div class='highlight js'>a</div>"
+                + '<div class=highlight>b</div>'
+                + '<div class=gist>c</div>';
+            const out = markCodeBlocksNotProse(html);
+            assert.match(out, /class='not-prose highlight js'/);
+            assert.match(out, /class="not-prose highlight"/);
+            assert.match(out, /class="not-prose gist"/);
+        });
     });
 });

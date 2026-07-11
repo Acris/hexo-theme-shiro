@@ -3,10 +3,9 @@
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt) return;
-    const get = rt.get || shiro.get || (() => undefined);
+    if (!rt || typeof rt.get !== 'function') return;
 
-    const script = get('mobileMenuScript') || '';
+    const script = rt.get('mobileMenuScript') || '';
     if (!script) return;
 
     const { createFeatureLoader } = rt;
@@ -24,7 +23,10 @@
         id: 'mobile-menu',
         src: script,
         onReady: removeViewportListener,
-        onError: () => {}
+        onError: (error) => {
+            console.warn('[shiro-mobile-menu] feature failed', error);
+            removeViewportListener();
+        }
     });
 
     function loadMobileMenu() {

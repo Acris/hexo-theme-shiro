@@ -3,11 +3,10 @@
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt) return;
-    const get = rt.get || shiro.get || (() => undefined);
+    if (!rt || typeof rt.get !== 'function') return;
 
-    const pagefindBase = String(get('pagefindBase') || '').replace(/\/?$/, '/');
-    const searchCss = get('searchCss') || '';
+    const pagefindBase = String(rt.get('pagefindBase') || '').replace(/\/?$/, '/');
+    const searchCss = rt.get('searchCss') || '';
     if (!pagefindBase || pagefindBase === '/') return;
 
     const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;
@@ -16,8 +15,8 @@
     // (duplicate ids). Stable dialog id matches header aria-controls.
     const MODAL_SELECTOR = '.shiro-search-components > pagefind-modal';
     const DIALOG_ID = 'shiroSearchDialog';
-    // Slow safety net only: MutationObserver + dialog close cover normal paths.
-    const CHROME_POLL_MS = 250;
+    // Slow safety net only: dialog close + open attribute cover normal paths.
+    const CHROME_POLL_MS = 1000;
     const toggle = document.getElementById('searchToggle');
     const modal = document.querySelector(MODAL_SELECTOR);
 
@@ -46,7 +45,6 @@
     }
 
     function onDialogClose() {
-        // Native <dialog> close (Esc / form method=dialog / backdrop depending on UA).
         applyModalChrome(false);
     }
 
@@ -84,9 +82,20 @@
         }
     }
 
+    function observeDialogOpen(dialog) {
+        if (!dialog || !chromeObserver) return;
+        chromeObserver.observe(dialog, {
+            attributes: true,
+            attributeFilter: ['open']
+        });
+    }
+
     function syncModalChrome() {
         const dialog = ensureDialogId();
-        if (dialog) bindDialogClose(dialog);
+        if (dialog) {
+            bindDialogClose(dialog);
+            if (chromeWatching) observeDialogOpen(dialog);
+        }
 
         const open = isModalOpen();
         if (open) {
@@ -101,9 +110,8 @@
         }
     }
 
-    // Prefer DOM observation over a tight poll. Pagefind has no host close event;
-    // watch subtree for dialog open/replace, bind dialog "close", and keep a slow
-    // isOpen poll only as a safety net while the modal is open.
+    // Host childList (dialog replace) + dialog open attribute + close event.
+    // Slow isOpen poll only as last-resort safety while open.
     function startChromeWatch() {
         if (!modal || chromeWatching) return;
         chromeWatching = true;
@@ -112,17 +120,18 @@
             chromeObserver = new MutationObserver(() => {
                 syncModalChrome();
             });
-            // Prefer dialog open/replace over deep attribute spam during result updates.
+            // Dialog node replace only — not deep result subtree / class churn.
             chromeObserver.observe(modal, {
-                attributes: true,
                 childList: true,
-                subtree: true,
-                attributeFilter: ['open']
+                subtree: false
             });
         }
 
         const dialog = ensureDialogId();
-        if (dialog) bindDialogClose(dialog);
+        if (dialog) {
+            bindDialogClose(dialog);
+            observeDialogOpen(dialog);
+        }
 
         const tick = () => {
             if (!chromeWatching) return;
@@ -130,8 +139,7 @@
                 applyModalChrome(false);
                 return;
             }
-            ensureDialogId();
-            const nextDialog = modal.querySelector('dialog');
+            const nextDialog = ensureDialogId();
             if (nextDialog) bindDialogClose(nextDialog);
             chromePollTimer = setTimeout(tick, CHROME_POLL_MS);
         };
@@ -220,7 +228,6 @@
 
     function handleKeydown(event) {
         if (event.key === 'Escape' && isModalOpen()) {
-            // Pagefind closes the dialog; resync chrome after its handlers run.
             queueMicrotask(syncModalChrome);
             setTimeout(syncModalChrome, 0);
             return;

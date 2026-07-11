@@ -159,10 +159,13 @@ toc:
   min_headings: 3
 
 # 可选：站点 CSP nonce（静态主题脚本 + runtime 动态注入的脚本）与下方 CDN SRI 钩子。
+# 仅为静态配置值，不是按请求轮换的 CSP nonce。仅当主机/边缘在 CSP 头中注入同一值时有意义；
+# 真正的 nonce 安全应在主机侧按请求生成。
 security:
   csp_nonce: ""
 
 # 图片灯箱（配置键为 lightGallery，G 大写）。可按需替换 CDN URL。
+# 启用后，文章/页面正文中图片的主键单击会打开灯箱（修饰键/中键仍走浏览器默认行为）。
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css

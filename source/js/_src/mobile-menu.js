@@ -34,10 +34,10 @@
             setOpen(false);
             btn.focus();
         }
-        // Focus trap: cycle Tab across toggle + open menu panel.
+        // Focus trap: toggle + real menu controls (links/buttons only).
         if (e.key === 'Tab' && panel.dataset.open === 'true') {
             const panelFocusable = Array.from(
-                panel.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])')
+                panel.querySelectorAll('a[href], button:not([disabled])')
             );
             const focusable = [btn].concat(panelFocusable);
             if (focusable.length === 0) return;
@@ -69,4 +69,10 @@
     };
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
+
+    const rtReady = window.__shiro && window.__shiro.runtime
+        || window.__shiroRuntime;
+    if (rtReady && typeof rtReady.featureReady === 'function') {
+        rtReady.featureReady('mobile-menu');
+    }
 })();

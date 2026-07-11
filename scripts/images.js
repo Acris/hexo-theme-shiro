@@ -60,11 +60,20 @@ function getAttr(attrs, lookup, name) {
     return index === undefined ? '' : attrs[index].value;
 }
 
-function setMissingAttr(attrs, lookup, name, value) {
-    const key = name.toLowerCase();
-    if (lookup.has(key)) return;
-    lookup.set(key, attrs.length);
-    attrs.push({ name, value, quote: '"', boolean: false });
+// Escape only values we inject (surgical attr append; do not re-serialize the tag).
+function escapeAttrValue(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;');
+}
+
+function hasAttrName(rawAttrs, name) {
+    return new RegExp('(?:^|\\s)' + name + '(?:\\s*=|\\s|/|$)', 'i').test(String(rawAttrs || ''));
+}
+
+function appendAttr(rawAttrs, name, value) {
+    return String(rawAttrs || '') + ' ' + name + '="' + escapeAttrValue(value) + '"';
 }
 
 function cleanUrl(src) {
@@ -259,6 +268,7 @@ function optimizeImages(html, options) {
     return String(html || '').replace(OPTIMIZABLE_IMAGE_RE, (match, skippedTag, rawAttrs) => {
         if (rawAttrs === undefined) return match;
 
+        // Read with parseAttrs; write only missing attrs (preserve original quoting).
         const attrs = parseAttrs(rawAttrs);
         const lookup = attrLookup(attrs);
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
@@ -267,31 +277,37 @@ function optimizeImages(html, options) {
         const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
         imageIndex += 1;
 
-        setMissingAttr(attrs, lookup, 'decoding', 'async');
+        let out = rawAttrs;
+        const ensure = (name, value) => {
+            if (hasAttrName(out, name)) return;
+            out = appendAttr(out, name, value);
+        };
+
+        ensure('decoding', 'async');
         if (isFirstContentImage) {
-            setMissingAttr(attrs, lookup, 'loading', 'eager');
-            setMissingAttr(attrs, lookup, 'fetchpriority', 'high');
+            ensure('loading', 'eager');
+            ensure('fetchpriority', 'high');
         } else {
-            setMissingAttr(attrs, lookup, 'loading', 'lazy');
-            setMissingAttr(attrs, lookup, 'fetchpriority', 'auto');
+            ensure('loading', 'lazy');
+            ensure('fetchpriority', 'auto');
         }
         // `sizes` only influences resource selection when a `srcset` is present, so
         // skip it for plain Markdown images (no srcset) to avoid emitting dead markup.
         if (getAttr(attrs, lookup, 'srcset')) {
-            setMissingAttr(attrs, lookup, 'sizes', DEFAULT_IMAGE_SIZES);
+            ensure('sizes', DEFAULT_IMAGE_SIZES);
         }
 
-        const hasWidth = !!getAttr(attrs, lookup, 'width');
-        const hasHeight = !!getAttr(attrs, lookup, 'height');
+        const hasWidth = hasAttrName(out, 'width') || !!getAttr(attrs, lookup, 'width');
+        const hasHeight = hasAttrName(out, 'height') || !!getAttr(attrs, lookup, 'height');
         if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = localImageSize(src, opts.post);
             if (size) {
-                if (!hasWidth) setMissingAttr(attrs, lookup, 'width', String(size.width));
-                if (!hasHeight) setMissingAttr(attrs, lookup, 'height', String(size.height));
+                if (!hasWidth) ensure('width', String(size.width));
+                if (!hasHeight) ensure('height', String(size.height));
             }
         }
 
-        return '<img ' + renderAttrs(attrs) + '>';
+        return '<img' + out + '>';
     });
 }
 
@@ -316,7 +332,9 @@ module.exports = {
     renderAttrs,
     isRemoteUrl,
     cleanUrl,
-    setMissingAttr,
+    escapeAttrValue,
+    hasAttrName,
+    appendAttr,
     getAttr,
     attrLookup
 };

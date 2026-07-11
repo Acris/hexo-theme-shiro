@@ -1,12 +1,14 @@
 ;(() => {
     'use strict';
 
+    // Bootstrap owns document capture clicks for the page lifetime (hardFail only
+    // unbinds). Feature installs lightGalleryOpen/Warm + CDN — no second click path.
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt) return;
-    const get = rt.get || shiro.get || (() => undefined);
+    if (!rt || typeof rt.get !== 'function') return;
 
-    const script = get('lightgalleryScript') || '';
+    const lg = rt.get('lightgallery') || {};
+    const script = String(lg.script || '').trim();
     if (!script) return;
 
     const {
@@ -15,6 +17,10 @@
         isSafeImageUrl,
         isDecorativeImg,
         imageSource,
+        isModifiedClick,
+        navigateFromImage,
+        dispatchLiveOrStash,
+        dispatchLiveOrWarm,
         connectionAllowsWarm,
         scheduleIdleWarm
     } = rt;
@@ -23,64 +29,34 @@
     let failed = false;
     let unbindWarm = null;
 
-    function isModifiedClick(event) {
-        return !event
-            || event.button !== 0
-            || event.metaKey
-            || event.ctrlKey
-            || event.shiftKey
-            || event.altKey;
+    function unbindIntentWarm() {
+        if (typeof unbindWarm === 'function') {
+            unbindWarm();
+            unbindWarm = null;
+        }
     }
 
-    function navigateFromImage(img) {
-        if (!img || !img.closest) return;
-        const link = img.closest('a');
-        const original = link
-            ? (link.getAttribute('data-shiro-original-href') || link.getAttribute('href') || '').trim()
-            : '';
-        const src = (imageSource(img) || '').trim();
-        const href = original || src;
-        if (!href) return;
-
-        if (/^(?:javascript|vbscript|data):/i.test(href) || /[\u0000-\u001F\u007F]/.test(href)) {
-            return;
-        }
-        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
-            window.open(href, '_blank', 'noopener,noreferrer');
-            return;
-        }
-        window.location.href = href;
+    function cleanupAllListeners() {
+        document.removeEventListener('click', handleClick, true);
+        unbindIntentWarm();
     }
 
     function hardFail() {
         if (failed) return;
         failed = true;
         warmed = false;
-        cleanupBootstrapListeners();
-        clearReadyHooks();
+        cleanupAllListeners();
         const pending = shiro.lightGalleryAutoOpen;
         shiro.lightGalleryAutoOpen = null;
         shiro.lightGalleryWarmRequested = false;
         if (pending) navigateFromImage(pending);
     }
 
-    function clearReadyHooks() {
-        shiro.lightGalleryOnReady = null;
-        shiro.lightGalleryOnAbort = null;
-    }
-
-    // Feature script signals true readiness (open/warm installed) or abort.
-    // createFeatureLoader onReady only means the script URL loaded — not enough.
-    shiro.lightGalleryOnReady = () => {
-        if (failed) return;
-        cleanupBootstrapListeners();
-        clearReadyHooks();
-    };
-    shiro.lightGalleryOnAbort = hardFail;
-
+    // onReady: feature open/warm installed — drop intent warm only (keep click capture).
     const feature = createFeatureLoader({
         id: 'lightgallery',
         src: script,
+        onReady: unbindIntentWarm,
         onError: hardFail
     });
 
@@ -101,54 +77,37 @@
         return img;
     }
 
-    function cleanupBootstrapListeners() {
-        document.removeEventListener('click', handleClick, true);
-        if (typeof unbindWarm === 'function') {
-            unbindWarm();
-            unbindWarm = null;
-        }
-    }
-
     function loadGallery() {
         if (failed) return;
         feature.load();
     }
 
     function warm() {
-        if (failed || warmed) return;
+        const path = dispatchLiveOrWarm({
+            failed: failed,
+            done: warmed,
+            live: shiro.lightGalleryWarm,
+            markPending: () => {
+                shiro.lightGalleryWarmRequested = true;
+            },
+            load: loadGallery
+        });
+        if (path === 'skip') return;
         warmed = true;
-        if (typeof unbindWarm === 'function') {
-            unbindWarm();
-            unbindWarm = null;
-        }
-
-        const openFn = shiro.lightGalleryOpen;
-        if (openFn) {
-            const warmFn = shiro.lightGalleryWarm;
-            if (typeof warmFn === 'function') warmFn();
-            return;
-        }
-
-        shiro.lightGalleryWarmRequested = true;
-        loadGallery();
+        unbindIntentWarm();
     }
 
     function open(target) {
-        if (failed) {
-            navigateFromImage(target);
-            return;
-        }
-
-        const openFn = shiro.lightGalleryOpen;
-        if (openFn) {
-            openFn(target);
-            cleanupBootstrapListeners();
-            clearReadyHooks();
-            return;
-        }
-
-        shiro.lightGalleryAutoOpen = target;
-        loadGallery();
+        dispatchLiveOrStash({
+            failed: failed,
+            live: shiro.lightGalleryOpen,
+            target: target,
+            stash: (img) => {
+                shiro.lightGalleryAutoOpen = img;
+            },
+            load: loadGallery,
+            navigate: navigateFromImage
+        });
     }
 
     function handleClick(event) {

@@ -3,7 +3,8 @@
 
     // Disqus provider boot (deferred). Config: __shiro.commentsConfig.
     const shiro = window.__shiro || {};
-    const get = shiro.get || (window.__shiroRuntime && window.__shiroRuntime.get) || (() => undefined);
+    const rt = shiro.runtime || window.__shiroRuntime;
+    const get = rt && typeof rt.get === 'function' ? rt.get : (() => undefined);
 
     window.disqus_config = function () {
         const cfg = ((get('commentsConfig') || {}).disqus) || {};
@@ -39,7 +40,10 @@
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
-            const nonce = get('cspNonce') || shiro.cspNonce || '';
+            const nonce = (rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
+                || get('cspNonce')
+                || shiro.cspNonce
+                || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => {
                 (d.head || d.body).appendChild(s);
@@ -47,11 +51,12 @@
             loadCommentsCss().then(appendScript).catch(appendScript);
         };
 
-        if (typeof shiro.onNearViewport !== 'function') {
-            console.warn('[shiro-comments] near-viewport helper missing');
-            return;
+        if (typeof shiro.onNearViewport === 'function') {
+            shiro.onNearViewport(disqus_thread, loadDisqus);
+        } else {
+            console.warn('[shiro-comments] near-viewport helper missing; loading Disqus immediately');
+            loadDisqus();
         }
-        shiro.onNearViewport(disqus_thread, loadDisqus);
 
         const root = d.documentElement;
         let prevDark = root.dataset.theme === 'dark';

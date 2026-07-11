@@ -135,4 +135,9 @@
         : [];
     shiro.clipboardTargets = [];
     shiro.enhanceClipboard(initialTargets);
+
+    const rtReady = shiro.runtime || window.__shiroRuntime;
+    if (rtReady && typeof rtReady.featureReady === 'function') {
+        rtReady.featureReady('clipboard');
+    }
 })();

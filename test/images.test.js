@@ -63,6 +63,15 @@ describe('scripts/images.js', () => {
             assert.match(out, /fetchpriority="high"/);
         });
 
+        it('preserves original attribute quoting when injecting', () => {
+            const out = optimizeImages("<img src='https://cdn.example/a.png' alt='x'>", {
+                firstImageEager: true
+            });
+            assert.match(out, /src='https:\/\/cdn\.example\/a\.png'/);
+            assert.match(out, /alt='x'/);
+            assert.match(out, /decoding="async"/);
+        });
+
         it('lazy-loads subsequent images', () => {
             const html = '<img src="https://cdn.example/1.png"><img src="https://cdn.example/2.png">';
             const out = optimizeImages(html, { firstImageEager: true });

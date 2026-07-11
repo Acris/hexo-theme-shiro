@@ -149,7 +149,8 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% set meta_icon = "size-3.5 text-text-subtle shrink-0 sm:size-4" if meta_dense else "size-4 text-text-subtle shrink-0" %}
 {# ~3 clusters when word count is on (date • category • count/time). Sibling
    bullets + gap-x keep separators visually centered between chips. #}
-<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-text-muted {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
+{# text-chrome: AA-safe idle on dark paper for small meta chips (see DESIGN.md). #}
+<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-text-chrome {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow(class=meta_icon) }}
         <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-muted"><time datetime="{{ escape_attr(post_date_attr) }}">{{ post_date_text }}</time></a>
