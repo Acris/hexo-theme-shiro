@@ -4,13 +4,13 @@
     // URLs come only from layout injection (gates / feature_var). No hardcoded CDN
     // fallback — keeps version pin in _config.yml + feature-gates only.
     const shiro = window.__shiro || {};
-    const cssHref = String(shiro.__lightgalleryCss || window.__lightgalleryCss || '').trim();
-    const jsSrc = String(shiro.__lightgalleryJs || window.__lightgalleryJs || '').trim();
-    const themeCssHref = String(shiro.__lightgalleryThemeCss || window.__lightgalleryThemeCss || '').trim();
-    const cssIntegrity = String(shiro.__lightgalleryCssIntegrity || window.__lightgalleryCssIntegrity || '').trim();
-    const jsIntegrity = String(shiro.__lightgalleryJsIntegrity || window.__lightgalleryJsIntegrity || '').trim();
-
     const rt = shiro.runtime || window.__shiroRuntime;
+    const get = (rt && rt.get) || shiro.get || ((k) => window['__' + k] || window[k]);
+    const cssHref = String(get('lightgalleryCss') || '').trim();
+    const jsSrc = String(get('lightgalleryJs') || '').trim();
+    const themeCssHref = String(get('lightgalleryThemeCss') || '').trim();
+    const cssIntegrity = String(get('lightgalleryCssIntegrity') || '').trim();
+    const jsIntegrity = String(get('lightgalleryJsIntegrity') || '').trim();
     if (!rt) return;
     if (!cssHref || !jsSrc) {
         console.error('[shiro-lightgallery] missing __lightgalleryCss/__lightgalleryJs; aborting');
@@ -390,6 +390,7 @@
 
     window.__shiroLightGalleryOpen = openFromElement;
     shiro.lightGalleryOpen = openFromElement;
+    shiro.openLightGallery = openFromElement;
 
     // Prefetch the LightGallery library + styles ahead of the first click so a
     // warmed gallery opens instantly. Failures are swallowed; the click path retries.

@@ -80,6 +80,12 @@ hexo.extend.helper.register('js_value', function (value) {
     return safeScriptJson(value);
 });
 
+// Bare bag key for window.__shiro dual-write (__clipboardScript → clipboardScript).
+hexo.extend.helper.register('shiro_bag_key', function (key) {
+    const text = String(key == null ? '' : key);
+    return text.indexOf('__') === 0 ? text.slice(2) : text;
+});
+
 // HTML text / attribute escaping (hexo-renderer-nunjucks sets autoescape: false).
 hexo.extend.helper.register('escape_html', function (value) {
     return escapeHtml(value);
@@ -400,5 +406,7 @@ module.exports = {
     comments: require('./lib/comments'),
     categories: require('./lib/categories'),
     featureGates: require('./lib/feature-gates'),
-    archive: require('./lib/archive')
+    archive: require('./lib/archive'),
+    codeBlocks: require('./lib/code-blocks'),
+    imageMeta: require('./lib/image-meta')
 };

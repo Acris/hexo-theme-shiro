@@ -10,10 +10,35 @@
 
     const assetTimeout = 12000;
 
+    /**
+     * Read a config/handoff value from the __shiro bag, then flat window globals.
+     * Accepts bare names (`clipboardScript`) or legacy keys (`__clipboardScript`).
+     */
+    function get(name) {
+        if (name == null || name === '') return undefined;
+        const key = String(name);
+        const bare = key.indexOf('__') === 0 ? key.slice(2) : key;
+        const prefixed = key.indexOf('__') === 0 ? key : '__' + key;
+        if (Object.prototype.hasOwnProperty.call(root, bare) && root[bare] != null) {
+            return root[bare];
+        }
+        if (Object.prototype.hasOwnProperty.call(root, prefixed) && root[prefixed] != null) {
+            return root[prefixed];
+        }
+        if (Object.prototype.hasOwnProperty.call(root, key) && root[key] != null) {
+            return root[key];
+        }
+        if (window[prefixed] != null) return window[prefixed];
+        if (window[key] != null) return window[key];
+        return undefined;
+    }
+
+    root.get = get;
+
     // Prefer the template-injected global (set from a nonced inline script). Fall
     // back to this classic script's own nonce when the global is not yet set.
     function cspNonce() {
-        const bagNonce = root.__shiroCspNonce || window.__shiroCspNonce;
+        const bagNonce = get('cspNonce') || get('__shiroCspNonce') || root.__shiroCspNonce;
         if (typeof bagNonce === 'string' && bagNonce) {
             return bagNonce;
         }
@@ -279,7 +304,8 @@
         connectionAllowsWarm,
         scheduleIdle,
         scheduleIdleWarm,
-        cspNonce
+        cspNonce,
+        get
     };
     root.runtime = api;
     // Flat alias for existing bootstraps (clipboard / search / comments / …).

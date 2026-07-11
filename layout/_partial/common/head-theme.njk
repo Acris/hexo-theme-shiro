@@ -11,6 +11,7 @@
     {% if gates.shiroCspNonce %}
     window.__shiroCspNonce = {{ js_value(gates.shiroCspNonce) | safe }};
     shiro.__shiroCspNonce = window.__shiroCspNonce;
+    shiro.cspNonce = window.__shiroCspNonce;
     {% endif %}
     const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
     let saved;

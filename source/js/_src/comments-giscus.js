@@ -19,7 +19,8 @@
             return;
         }
 
-        const cfgRoot = shiro.__shiroCommentsConfig || w.__shiroCommentsConfig;
+        const get = shiro.get || ((k) => w['__' + k] || w[k]);
+        const cfgRoot = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || w.__shiroCommentsConfig;
         const g = (cfgRoot && cfgRoot.giscus) || {};
         const loadCommentsCss = shiro.loadCommentsCss || w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;
@@ -59,7 +60,7 @@
             s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = shiro.__shiroCspNonce || w.__shiroCspNonce || '';
+            const nonce = (shiro.get && shiro.get('cspNonce')) || shiro.__shiroCspNonce || w.__shiroCspNonce || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
                 'data-repo': g.repo || '',

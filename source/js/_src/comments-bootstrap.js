@@ -12,7 +12,8 @@
         return;
     }
 
-    const commentsCss = shiro.__commentsCss || window.__commentsCss || '';
+    const get = rt.get || shiro.get || ((k) => window['__' + k] || window[k]);
+    const commentsCss = get('commentsCss') || '';
     let commentsCssLoading = null;
 
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {

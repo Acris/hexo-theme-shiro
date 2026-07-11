@@ -4,8 +4,9 @@
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
+    const get = rt.get || shiro.get || ((k) => window[k.indexOf('__') === 0 ? k : '__' + k]);
 
-    const script = shiro.__clipboardScript || window.__clipboardScript || '';
+    const script = get('clipboardScript') || '';
     if (!script) return;
 
     const { scheduleIdle, createFeatureLoader } = rt;
@@ -55,18 +56,19 @@
         });
         const targetsList = pendingTargets.slice();
         window.__shiroClipboardTargets = targetsList;
+        shiro.clipboardTargets = targetsList;
         shiro.__shiroClipboardTargets = targetsList;
     }
 
     function enhanceTargets(targets) {
-        const enhance = shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard;
+        const enhance = shiro.enhanceClipboard || shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard;
         if (typeof enhance === 'function') {
             enhance(targets);
         }
     }
 
     function loadClipboard(targets, onLoaded) {
-        if (typeof (shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard) === 'function') {
+        if (typeof (shiro.enhanceClipboard || shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard) === 'function') {
             enhanceTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
             return;
@@ -79,6 +81,7 @@
             pendingTargets.length = 0;
             pendingTargetSet.clear();
             window.__shiroClipboardTargets = [];
+            shiro.clipboardTargets = [];
             shiro.__shiroClipboardTargets = [];
             if (typeof onLoaded === 'function') onLoaded();
         });

@@ -4,9 +4,11 @@
     window.__shiro = window.__shiro || {};
     window.__commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
     window.__shiro.__commentsCss = window.__commentsCss;
+    window.__shiro.commentsCss = window.__commentsCss;
     {% if gates.shiroCspNonce %}
     window.__shiroCspNonce = window.__shiroCspNonce || {{ js_value(gates.shiroCspNonce) | safe }};
     window.__shiro.__shiroCspNonce = window.__shiroCspNonce;
+    window.__shiro.cspNonce = window.__shiroCspNonce;
     {% endif %}
     {# Queue stub: provider scripts may parse before deferred comments-bootstrap. #}
     window.__shiroCommentsReadyQueue = window.__shiroCommentsReadyQueue || [];

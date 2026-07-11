@@ -138,12 +138,14 @@
             .filter(block => block && block.isConnected);
         if (targets.length) scheduleEnhance(targets);
     };
+    shiro.enhanceClipboard = window.__shiroEnhanceClipboard;
     shiro.__shiroEnhanceClipboard = window.__shiroEnhanceClipboard;
 
-    const initialTargets = Array.isArray(shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
-        ? (shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
+    const initialTargets = Array.isArray(shiro.clipboardTargets || shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
+        ? (shiro.clipboardTargets || shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
         : [];
     window.__shiroClipboardTargets = [];
+    shiro.clipboardTargets = [];
     shiro.__shiroClipboardTargets = [];
     window.__shiroEnhanceClipboard(initialTargets);
 })();

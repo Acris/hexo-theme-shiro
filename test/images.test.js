@@ -24,6 +24,7 @@ const {
     getAttr,
     attrLookup
 } = require('../scripts/images.js');
+// markCodeBlocksNotProse is re-exported from scripts/lib/code-blocks for filter tests.
 
 describe('scripts/images.js', () => {
     describe('parseAttrs / renderAttrs', () => {

@@ -34,8 +34,8 @@
         min-width: 2.5rem;
         user-select: none;
         border-right: 1px solid var(--color-border-strong);
-        background-color: var(--color-border-decorative);
-        /* text-chrome / muted — line-number chrome must stay AA on gutter */
+        background-color: var(--color-code-gutter);
+        /* text-chrome — line-number chrome must stay AA on gutter */
         color: var(--color-text-chrome);
         text-align: right;
     }

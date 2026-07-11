@@ -5,7 +5,8 @@
     // disqus_config must live on the global scope for the embed script.
     const shiro = window.__shiro || {};
     window.disqus_config = function () {
-        const root = shiro.__shiroCommentsConfig || window.__shiroCommentsConfig;
+        const get = shiro.get || ((k) => window['__' + k] || window[k]);
+        const root = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || window.__shiroCommentsConfig;
         const cfg = (root && root.disqus) || {};
         this.page.url = cfg.pageUrl || location.href;
         this.page.identifier = String(cfg.pageIdentifier || location.pathname).replace(/\/$/, '');
@@ -27,7 +28,8 @@
             return;
         }
 
-        const rootCfg = shiro.__shiroCommentsConfig || w.__shiroCommentsConfig;
+        const get = shiro.get || ((k) => w['__' + k] || w[k]);
+        const rootCfg = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || w.__shiroCommentsConfig;
         const cfg = (rootCfg && rootCfg.disqus) || {};
         const SHORTNAME = String(cfg.shortname || '').trim();
         if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
@@ -40,7 +42,7 @@
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
-            const nonce = shiro.__shiroCspNonce || w.__shiroCspNonce || '';
+            const nonce = (shiro.get && shiro.get('cspNonce')) || shiro.__shiroCspNonce || w.__shiroCspNonce || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => {
                 (d.head || d.body).appendChild(s);

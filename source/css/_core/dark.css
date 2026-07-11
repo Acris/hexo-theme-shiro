@@ -85,9 +85,8 @@
                 0 8px 24px rgba(0, 0, 0, 0.15);
             --shadow-ink: 0 4px 12px rgba(0, 0, 0, 0.5);
             --shadow-ink-pressed: 0 2px 8px rgba(0, 0, 0, 0.4);
-        }
 
-        @variant dark {
+            /* Scrollbars (same dark gate as token swaps above). */
             &::-webkit-scrollbar-track,
             & ::-webkit-scrollbar-track {
                 background: linear-gradient(180deg, var(--color-scrollbar-track-start) 0%, var(--color-scrollbar-track) 60%, var(--color-scrollbar-track-end) 100%);

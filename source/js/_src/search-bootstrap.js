@@ -4,9 +4,10 @@
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
+    const get = rt.get || shiro.get || ((k) => window['__' + k] || window[k]);
 
-    const pagefindBase = shiro.__pagefindBase || window.__pagefindBase || '';
-    const searchCss = shiro.__searchCss || window.__searchCss || '';
+    const pagefindBase = get('pagefindBase') || '';
+    const searchCss = get('searchCss') || '';
     if (!pagefindBase) return;
 
     const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;
