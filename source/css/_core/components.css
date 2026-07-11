@@ -270,6 +270,11 @@
         @apply mb-6 flex items-center gap-2 border-b border-border-decorative pb-2 text-xl font-bold text-text-heading;
     }
 
+    /* Archive year group → yearly archive URL (hover like category names). */
+    .section-heading-link {
+        @apply underline-offset-4 decoration-transparent transition-colors hover:text-seal hover:underline hover:decoration-seal/40;
+    }
+
     /* Category index (scheme 2): compact branch nav; counts + preview only on leaves. */
     .category-tree {
         @apply relative;

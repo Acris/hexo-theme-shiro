@@ -20,7 +20,11 @@
         <div class="relative">
             <h2 class="section-heading">
                 {{ icon_nav_arrow() }}
-                {{ escape_html(group.year) }}
+                {% if group.year %}
+                {# Yearly archive page (same helper as post meta date links). #}
+                <a href="{{ attr_url(archive_url(group.year)) }}"
+                    class="section-heading-link oldstyle-nums">{{ escape_html(group.year) }}</a>
+                {% endif %}
             </h2>
             <div class="space-y-4">
                 {% for post in group.posts %}
