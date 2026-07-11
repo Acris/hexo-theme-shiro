@@ -23,6 +23,15 @@
     let failed = false;
     let unbindWarm = null;
 
+    function isModifiedClick(event) {
+        return !event
+            || event.button !== 0
+            || event.metaKey
+            || event.ctrlKey
+            || event.shiftKey
+            || event.altKey;
+    }
+
     function navigateFromImage(img) {
         if (!img || !img.closest) return;
         const link = img.closest('a');
@@ -48,18 +57,30 @@
         failed = true;
         warmed = false;
         cleanupBootstrapListeners();
+        clearReadyHooks();
         const pending = shiro.lightGalleryAutoOpen;
         shiro.lightGalleryAutoOpen = null;
         shiro.lightGalleryWarmRequested = false;
         if (pending) navigateFromImage(pending);
     }
 
+    function clearReadyHooks() {
+        shiro.lightGalleryOnReady = null;
+        shiro.lightGalleryOnAbort = null;
+    }
+
+    // Feature script signals true readiness (open/warm installed) or abort.
+    // createFeatureLoader onReady only means the script URL loaded — not enough.
+    shiro.lightGalleryOnReady = () => {
+        if (failed) return;
+        cleanupBootstrapListeners();
+        clearReadyHooks();
+    };
+    shiro.lightGalleryOnAbort = hardFail;
+
     const feature = createFeatureLoader({
         id: 'lightgallery',
         src: script,
-        onReady: () => {
-            cleanupBootstrapListeners();
-        },
         onError: hardFail
     });
 
@@ -122,6 +143,7 @@
         if (openFn) {
             openFn(target);
             cleanupBootstrapListeners();
+            clearReadyHooks();
             return;
         }
 
@@ -130,7 +152,7 @@
     }
 
     function handleClick(event) {
-        if (failed) return;
+        if (failed || isModifiedClick(event)) return;
 
         const img = qualifyingImage(event.target);
         if (!img) return;

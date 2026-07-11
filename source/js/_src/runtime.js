@@ -10,39 +10,23 @@
 
     const assetTimeout = 12000;
 
-    // Legacy key aliases → canonical bag keys (one release of flat fallbacks).
-    const KEY_ALIASES = {
-        shiroCspNonce: 'cspNonce',
-        shiroCommentsConfig: 'commentsConfig'
-    };
-
     /**
-     * Read config/handoff from window.__shiro only (bare keys).
-     * Accepts bare names (`clipboardScript`) or legacy `__clipboardScript`.
-     * Temporary flat-window fallback for one migration window.
+     * Read config/handoff from window.__shiro bare keys only.
+     * Accepts bare names (`clipboardScript`) or legacy `__clipboardScript` (strips once).
      */
     function get(name) {
         if (name == null || name === '') return undefined;
         const key = String(name);
-        let bare = key.indexOf('__') === 0 ? key.slice(2) : key;
-        if (KEY_ALIASES[bare]) bare = KEY_ALIASES[bare];
-
+        const bare = key.indexOf('__') === 0 ? key.slice(2) : key;
         if (Object.prototype.hasOwnProperty.call(root, bare) && root[bare] != null) {
             return root[bare];
-        }
-        // Temporary flat fallback (legacy dual-write); prefer bag-only going forward.
-        const flat = window['__' + bare];
-        if (flat != null) return flat;
-        if (bare === 'cspNonce' && window.__shiroCspNonce != null) return window.__shiroCspNonce;
-        if (bare === 'commentsConfig' && window.__shiroCommentsConfig != null) {
-            return window.__shiroCommentsConfig;
         }
         return undefined;
     }
 
     root.get = get;
 
-    // Prefer bag cspNonce (feature_var / head). Fall back to this script's nonce.
+    // Prefer bag cspNonce (head-theme). Fall back to this script's nonce attribute.
     function cspNonce() {
         const bagNonce = get('cspNonce');
         if (typeof bagNonce === 'string' && bagNonce) {

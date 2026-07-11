@@ -5,7 +5,18 @@
     // fallback — keeps version pin in _config.yml + feature-gates only.
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt) return;
+    const signalAbort = () => {
+        if (typeof shiro.lightGalleryOnAbort === 'function') shiro.lightGalleryOnAbort();
+    };
+    const signalReady = () => {
+        if (typeof shiro.lightGalleryOnReady === 'function') shiro.lightGalleryOnReady();
+    };
+
+    if (!rt) {
+        console.error('[shiro-lightgallery] runtime missing; aborting');
+        signalAbort();
+        return;
+    }
     const get = rt.get || shiro.get || (() => undefined);
     const cssHref = String(get('lightgalleryCss') || '').trim();
     const jsSrc = String(get('lightgalleryJs') || '').trim();
@@ -14,6 +25,7 @@
     const jsIntegrity = String(get('lightgalleryJsIntegrity') || '').trim();
     if (!cssHref || !jsSrc) {
         console.error('[shiro-lightgallery] missing lightgalleryCss/lightgalleryJs; aborting');
+        signalAbort();
         return;
     }
 
@@ -388,6 +400,34 @@
         return true;
     }
 
+    function isModifiedClick(event) {
+        return !event
+            || event.button !== 0
+            || event.metaKey
+            || event.ctrlKey
+            || event.shiftKey
+            || event.altKey;
+    }
+
+    function navigateFromImage(img) {
+        if (!img || !img.closest) return;
+        const link = img.closest('a');
+        const original = link
+            ? (link.getAttribute('data-shiro-original-href') || link.getAttribute('href') || '').trim()
+            : '';
+        const src = (imageSource(img) || '').trim();
+        const href = original || src;
+        if (!href) return;
+        if (/^(?:javascript|vbscript|data):/i.test(href) || /[\u0000-\u001F\u007F]/.test(href)) {
+            return;
+        }
+        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+            return;
+        }
+        window.location.href = href;
+    }
+
     shiro.lightGalleryOpen = openFromElement;
 
     // Prefetch the LightGallery library + styles ahead of the first click so a
@@ -396,7 +436,12 @@
         ensureLightGalleryAssets().catch(() => {});
     };
 
+    // Feature is usable — bootstrap may drop its capture handlers now.
+    signalReady();
+
     document.addEventListener('click', (event) => {
+        if (isModifiedClick(event)) return;
+
         const img = clickedImage(event);
         if (!img) return;
 
@@ -409,7 +454,7 @@
     const autoOpen = shiro.lightGalleryAutoOpen;
     if (autoOpen) {
         shiro.lightGalleryAutoOpen = null;
-        openFromElement(autoOpen);
+        if (!openFromElement(autoOpen)) navigateFromImage(autoOpen);
     } else if (shiro.lightGalleryWarmRequested) {
         shiro.lightGalleryWarmRequested = false;
         shiro.lightGalleryWarm();

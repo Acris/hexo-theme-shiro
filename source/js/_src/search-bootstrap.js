@@ -6,9 +6,9 @@
     if (!rt) return;
     const get = rt.get || shiro.get || (() => undefined);
 
-    const pagefindBase = get('pagefindBase') || '';
+    const pagefindBase = String(get('pagefindBase') || '').replace(/\/?$/, '/');
     const searchCss = get('searchCss') || '';
-    if (!pagefindBase) return;
+    if (!pagefindBase || pagefindBase === '/') return;
 
     const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;
 

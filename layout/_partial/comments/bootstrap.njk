@@ -3,10 +3,7 @@
 <script{{ csp_nonce_attr() }}>
     window.__shiro = window.__shiro || {};
     window.__shiro.commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
-    {% if gates.shiroCspNonce %}
-    window.__shiro.cspNonce = window.__shiro.cspNonce || {{ js_value(gates.shiroCspNonce) | safe }};
-    {% endif %}
-    {# Queue stub: provider scripts may parse before deferred comments-bootstrap. #}
+    {# cspNonce is set only in head-theme. Queue stub before deferred comments-bootstrap. #}
     window.__shiro.commentsReadyQueue = window.__shiro.commentsReadyQueue || [];
     window.__shiro.whenCommentsReady = window.__shiro.whenCommentsReady || function (fn) {
         if (typeof fn === 'function') window.__shiro.commentsReadyQueue.push(fn);

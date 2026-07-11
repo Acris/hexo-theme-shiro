@@ -82,11 +82,9 @@
     {% endif %}
 
     <!-- Scripts -->
-    {% if gates.needsFeatureRuntime or gates.shiroCspNonce %}
+    {# cspNonce is set only in head-theme (single source). #}
+    {% if gates.needsFeatureRuntime %}
     <script{{ csp_nonce_attr() }}>
-        {% if gates.shiroCspNonce %}
-        {{ feature_var('cspNonce', gates.shiroCspNonce) }}
-        {% endif %}
         {% if gates.needsLightgallery or gates.needsCode %}
         (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
         {% endif %}
