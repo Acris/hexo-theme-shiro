@@ -45,6 +45,14 @@ const {
     resolveFeatureGates,
     buildCommentsClientConfig
 } = require('./lib/feature-gates');
+const {
+    DEFAULT_PREVIEW_LIMIT,
+    buildCategoryIndexCards,
+    categoryPathLabel,
+    primaryPostCategory,
+    postMetaCategorySummary,
+    resolveCategoryForPage
+} = require('./lib/categories');
 
 const assetHashCache = new Map();
 
@@ -196,6 +204,40 @@ hexo.extend.helper.register('lang_attr', function (value) {
     return normalizeLangAttr(value);
 });
 
+// Full path label for tooltips / detail titles (e.g. "A / B / C").
+hexo.extend.helper.register('category_path_label', function (category) {
+    return categoryPathLabel(category, this.site && this.site.categories);
+});
+
+// Deepest post category for compact meta (home cards).
+hexo.extend.helper.register('post_primary_category', function (post) {
+    const cats = post && post.categories;
+    const list = cats && typeof cats.toArray === 'function' ? cats.toArray() : cats;
+    return primaryPostCategory(list, this.site && this.site.categories);
+});
+
+// Home meta: deepest primary + parallel moreCount + hover title of all topic paths.
+hexo.extend.helper.register('post_meta_category', function (post) {
+    const cats = post && post.categories;
+    const list = cats && typeof cats.toArray === 'function' ? cats.toArray() : cats;
+    return postMetaCategorySummary(list, this.site && this.site.categories);
+});
+
+// Categories index: one view-model per node (exclusive count/preview).
+// Count tooltip copy is assembled in the template via categories.count_hint (i18n).
+hexo.extend.helper.register('category_index_cards', function () {
+    const cfg = (this.theme && this.theme.category_index) || {};
+    let limit = Number(cfg.preview_limit);
+    if (!Number.isFinite(limit) || limit < 0) limit = DEFAULT_PREVIEW_LIMIT;
+    return buildCategoryIndexCards(this.site && this.site.categories, {
+        previewLimit: limit
+    });
+});
+
+hexo.extend.helper.register('category_for_page', function (page) {
+    return resolveCategoryForPage(page || this.page, this.site && this.site.categories);
+});
+
 // Yearly archive URL helper: honours Hexo's archive_dir instead of a hard-coded
 // 'archives/' segment, so custom archive_dir sites link to the right page.
 hexo.extend.helper.register('archive_url', function (year) {
@@ -333,5 +375,6 @@ module.exports = {
     seal: require('./lib/seal'),
     util: require('./lib/util'),
     comments: require('./lib/comments'),
+    categories: require('./lib/categories'),
     featureGates: require('./lib/feature-gates')
 };

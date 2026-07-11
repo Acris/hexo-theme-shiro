@@ -134,6 +134,11 @@ menu:
 #    # 在新标签页打开
 #    target: _blank
 
+# 分类总览（/categories）：树形名称；预览仅含「本层独占」文章（不含更深子类）。
+# 分类详情页仍列出 Hexo 关联的全部文章（可能多于总览数字）。
+category_index:
+  preview_limit: 5
+
 # 摘要设置
 # 优先级：<!-- more --> 标签 > 自动截断（当 fallback.enabled 为 true 时）> 全文显示。
 # 为了更好的阅读性，推荐在文章中手动添加 <!-- more -->。

@@ -158,13 +158,20 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         <div class="flex items-center gap-1.5">
             {{ icon_folder(class=meta_icon) }}
             {% if show_all_cats %}
+                {# Article header: full hierarchy / all assigned categories. #}
                 {% for cat in post_categories %}
-                    <a class="link-muted" href="{{ href_for(cat.path) }}">{{ escape_html(cat.name) }}</a>
+                    <a class="link-muted" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
                     {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
                 {% endfor %}
             {% else %}
-                {% set first_cat = post_categories[0] %}
-                <a class="link-muted" href="{{ href_for(first_cat.path) }}">{{ escape_html(first_cat.name) }}</a>
+                {# List cards: deepest primary + parallel overflow (+N); title lists all topic paths. #}
+                {% set cat_meta = post_meta_category(post) %}
+                {% if cat_meta and cat_meta.primary %}
+                <a class="link-muted" href="{{ href_for(cat_meta.primary.path) }}" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(cat_meta.primary.name) }}</a>
+                {% if cat_meta.moreCount > 0 %}
+                <span class="meta-cat-more oldstyle-nums" title="{{ escape_attr(cat_meta.title) }}">{{ __('categories.meta_more', cat_meta.moreCount) }}</span>
+                {% endif %}
+                {% endif %}
             {% endif %}
         </div>
     {% endif %}

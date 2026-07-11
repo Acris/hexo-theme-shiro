@@ -28,6 +28,13 @@ menu:
 #    # Open in new tab
 #    target: _blank
 
+# Categories index page (/categories): tree + exclusive-post previews.
+# Index count/preview = posts owned at that node (not deeper children).
+# Category detail pages still list all Hexo-assigned posts (may be a superset).
+category_index:
+  # Max posts shown under a node before “view all” (0 = show all exclusive posts).
+  preview_limit: 5
+
 # Excerpt settings
 excerpt:
   # If post has <!-- more -->, use it.

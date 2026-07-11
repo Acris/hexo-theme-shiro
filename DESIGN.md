@@ -455,7 +455,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 
 ### Buttons & chrome
 
-- **`.btn-ink`:** Idle = paper-like surface + visible border + ink text (not a filled primary). Hover = seal fill + on-seal + ink shadow. Active = slight press.
+- **`.btn-ink`:** Idle = paper-like surface + visible border + ink text (not a filled primary). Hover = seal fill + on-seal + ink shadow. Active = slight press. Shared by home “read more” and category “view all”; optional `.btn-ink-meta` is quieter count text that tracks idle/hover ink.
 - **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `muted` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `chrome-idle-dark`. Hover seal.
 - **`.tag-pill`:** Soft chip; hover seal border/text.
 - **`.menu-panel`:** Collapsible sheet, `2xl`, paper surface; mobile nav list.

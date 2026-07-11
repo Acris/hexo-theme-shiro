@@ -41,10 +41,15 @@
     </div>
 {% endmacro %}
 
-{# limit > 0: only the first N posts (category cloud / previews). #}
+{# limit > 0: only the first N posts (category cloud / previews).
+   Accepts a Hexo Query (toArray) or a plain array (already sliced). #}
 {% macro render_simple_list(posts, limit=0) %}
     <div class="space-y-4">
-        {% set items = posts.toArray() if posts else [] %}
+        {% if posts and posts.toArray %}
+        {% set items = posts.toArray() %}
+        {% else %}
+        {% set items = posts if posts else [] %}
+        {% endif %}
         {% for post in items %}
             {% if limit <= 0 or loop.index <= limit %}
             {{ archive_item(post) }}

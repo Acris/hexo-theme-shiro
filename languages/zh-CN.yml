@@ -1,3 +1,9 @@
+categories:
+  count_hint: "%s · 本层 %s / 分类页 %s"
+  meta_more: +%s
+  more: 查看全部
+  more_count: +%s 篇
+
 clipboard:
   copied: 已复制
   copy: 复制代码

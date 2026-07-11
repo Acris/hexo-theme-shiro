@@ -4,10 +4,11 @@
 
 {% block content %}
 <section class="mx-auto max-w-3xl">
-    {{ section_title(__('nav.categories'), page.category) }}
-
     {% if is_category() %}
-        {# Use Hexo paginated page.posts (honours per_page), not the full category collection. #}
+        {# Prefer full hierarchical label (A / B) over ambiguous leaf name. #}
+        {% set page_cat = category_for_page(page) %}
+        {{ section_title(__('nav.categories'), category_path_label(page_cat) if page_cat else page.category) }}
+        {# Full Hexo assignment list (may be a superset of index exclusive previews). #}
         {% set posts = page.posts.sort('date', -1) if page.posts else null %}
         {% if posts and posts.length > 0 %}
             {{ render_list(posts) }}
@@ -16,22 +17,46 @@
             {% include "_partial/common/empty.njk" %}
         {% endif %}
     {% else %}
-        {% if site.categories.length > 0 %}
-            {# Category cloud: preview only — avoid dumping every post site-wide. #}
-            {% set category_preview_limit = 5 %}
-            <div class="space-y-16 max-w-2xl mx-auto">
-                {% for cat in site.categories.toArray() | sort(false, false, "name") %}
-                <div id="{{ escape_attr('cat-' + cat.slug) }}" class="scroll-mt-24">
-                    <h2 class="section-heading">
-                        {{ icon_folder() }}
-                        <a class="link-muted hover:text-seal" href="{{ href_for(cat.path) }}">{{ escape_html(cat.name) }}</a>
-                        <span class="ml-auto text-sm font-normal text-slate-400 oldstyle-nums">{{ cat.length }}</span>
-                    </h2>
-                    {{ render_simple_list(cat.posts.sort('date', -1), category_preview_limit) }}
-                    {% if cat.length > category_preview_limit %}
-                    <p class="mt-4 text-center text-sm">
-                        <a class="link-muted" href="{{ href_for(cat.path) }}">{{ __('index.read_more') }}</a>
-                    </p>
+        {{ section_title(__('nav.categories')) }}
+        {% set cards = category_index_cards() %}
+        {% if cards.length > 0 %}
+            {# One view-model per node: exclusive posts for count/preview; detail page is full set. #}
+            <div class="category-tree max-w-2xl mx-auto">
+                {% for card in cards %}
+                <div id="{{ escape_attr('cat-' + card.id) }}"
+                    class="category-block scroll-mt-24{% if card.showPosts %} category-block--has-posts{% else %} category-block--branch{% endif %}"
+                    style="--category-depth: {{ card.depth }}">
+                    <div class="category-block-head">
+                        {% if card.showPosts %}
+                        {{ icon_folder(class="category-node-icon size-4 shrink-0") }}
+                        {% elif card.depth == 0 %}
+                        {{ icon_folder(class="category-node-icon category-node-icon--branch size-4 shrink-0") }}
+                        {% else %}
+                        <span class="category-tree-dot" aria-hidden="true"></span>
+                        {% endif %}
+                        <a class="category-node-name"
+                            href="{{ href_for(card.path) }}"
+                            title="{{ escape_attr(card.fullLabel) }}">{{ escape_html(card.name) }}</a>
+                        {% if card.showPosts %}
+                        {# Exclusive total; title notes full detail size when larger (i18n). #}
+                        <span class="category-node-count oldstyle-nums"
+                            title="{% if card.detailFullTotal > card.total %}{{ escape_attr(__('categories.count_hint', card.fullLabel, card.total, card.detailFullTotal)) }}{% else %}{{ escape_attr(card.fullLabel) }}{% endif %}">{{ card.total }}</span>
+                        {% endif %}
+                    </div>
+                    {% if card.showPosts %}
+                    <div class="category-block-body">
+                        {{ render_simple_list(card.posts, 0) }}
+                        {% if card.remaining > 0 %}
+                        <div class="category-more-row">
+                            <a class="focus-elegant btn-ink"
+                                href="{{ href_for(card.path) }}"
+                                aria-label="{{ escape_attr(__('categories.more') + ' ' + __('categories.more_count', card.remaining)) }}">
+                                <span>{{ __('categories.more') }}</span>
+                                <span class="btn-ink-meta oldstyle-nums">{{ __('categories.more_count', card.remaining) }}</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
                     {% endif %}
                 </div>
                 {% endfor %}

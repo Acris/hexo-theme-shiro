@@ -1,3 +1,9 @@
+categories:
+  count_hint: "%s · この階層 %s / 一覧 %s"
+  meta_more: +%s
+  more: すべて見る
+  more_count: +%s
+
 clipboard:
   copied: コピーしました
   copy: コードをコピー

@@ -1,3 +1,9 @@
+categories:
+  count_hint: "%s · %s ici / %s sur la page"
+  meta_more: +%s
+  more: Tout voir
+  more_count: +%s
+
 clipboard:
   copied: Copié
   copy: Copier le code

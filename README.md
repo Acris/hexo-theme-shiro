@@ -137,6 +137,11 @@ menu:
 #    # Open in new tab
 #    target: _blank
 
+# Categories index (/categories): tree of names; previews list posts owned at that
+# node only (not deeper children). Category detail pages list all assigned posts.
+category_index:
+  preview_limit: 5
+
 # Excerpt settings
 # Priority: <!-- more --> tag > auto-truncation (when fallback.enabled: true) > full content.
 # For better readability, prefer adding <!-- more --> manually in posts.
