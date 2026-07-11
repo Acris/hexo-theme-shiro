@@ -1,7 +1,6 @@
 {% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark, menu_link with context %}
 {% set site_config = gates.siteConfig %}
 {% set menu_items = gates.menuItems %}
-{% set rss_config = site_config.rss or {} %}
 <header class="relative" data-pagefind-ignore>
 
     <div class="relative flex items-start justify-center">
@@ -29,12 +28,12 @@
                 {{ escape_html(config.subtitle) }}
             </p>
             {% endif %}
-            {% set has_header_actions = rss_config.enabled or gates.darkModeToggle or gates.searchEnabled %}
+            {% set has_header_actions = gates.needsRss or gates.darkModeToggle or gates.searchEnabled %}
             {% if has_header_actions %}
             <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
-                {% if rss_config.enabled %}
+                {% if gates.needsRss %}
                 <a class="focus-elegant header-pill-btn"
-                    href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ escape_attr(__('common.rss')) }}">
+                    href="{{ attr_url(safe_resource_url_for(gates.rssPath, '/atom.xml')) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ escape_attr(__('common.rss')) }}">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}

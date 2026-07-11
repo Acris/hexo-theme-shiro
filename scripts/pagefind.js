@@ -3,6 +3,7 @@
 const path = require('path');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
+const { isFeatureEnabled } = require('./lib/features');
 
 // Component UI assets require Pagefind 1.5.0+.
 const MIN_PAGEFIND_VERSION = '1.5.0';
@@ -91,9 +92,10 @@ hexo.extend.filter.register('before_exit', function () {
     const hexoCmd = (hexo.env && hexo.env.cmd) || '';
     if (!/^(generate|g|deploy|d)$/.test(hexoCmd)) return;
 
+    // Theme search only (same gate as layout page_feature_gates / UI).
     const themeCfg = (hexo.theme && hexo.theme.config) || {};
-    const cfg = themeCfg.search || hexo.config.search || {};
-    if (cfg.enabled !== true) return;
+    const cfg = themeCfg.search || {};
+    if (!isFeatureEnabled(cfg.enabled, false)) return;
 
     const publicDir = path.resolve(hexo.base_dir, hexo.config.public_dir || 'public');
     if (!fs.existsSync(publicDir)) {

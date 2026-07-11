@@ -2,9 +2,12 @@
     'use strict';
 
     // Disqus provider boot (deferred). Config: __shiro.commentsConfig.
+    // Requires runtime.comments.whenReady from comments-bootstrap.
     const shiro = window.__shiro || {};
-    const rt = shiro.runtime || window.__shiroRuntime;
+    const rt = shiro.runtime;
     const get = rt && typeof rt.get === 'function' ? rt.get : (() => undefined);
+    const commentsApi = rt && rt.comments;
+    const whenReady = commentsApi && commentsApi.whenReady;
 
     window.disqus_config = function () {
         const cfg = ((get('commentsConfig') || {}).disqus) || {};
@@ -13,9 +16,8 @@
         this.colorScheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
     };
 
-    const whenReady = shiro.whenCommentsReady;
     if (typeof whenReady !== 'function') {
-        console.error('[shiro-comments] Disqus boot skipped: whenReady missing');
+        console.error('[shiro-comments] Disqus boot skipped: runtime.comments.whenReady missing');
         return;
     }
 
@@ -28,10 +30,12 @@
             return;
         }
 
+        const api = (rt && rt.comments) || {};
         const cfg = ((get('commentsConfig') || {}).disqus) || {};
         const SHORTNAME = String(cfg.shortname || '').trim();
         if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
-        const loadCommentsCss = shiro.loadCommentsCss || (() => Promise.resolve());
+        const loadCommentsCss = api.loadCss || (() => Promise.resolve());
+        const nearViewport = api.onNearViewport;
         let loaded = false;
 
         const loadDisqus = () => {
@@ -42,7 +46,6 @@
             s.setAttribute('data-timestamp', Date.now());
             const nonce = (rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
                 || get('cspNonce')
-                || shiro.cspNonce
                 || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => {
@@ -51,8 +54,8 @@
             loadCommentsCss().then(appendScript).catch(appendScript);
         };
 
-        if (typeof shiro.onNearViewport === 'function') {
-            shiro.onNearViewport(disqus_thread, loadDisqus);
+        if (typeof nearViewport === 'function') {
+            nearViewport(disqus_thread, loadDisqus);
         } else {
             console.warn('[shiro-comments] near-viewport helper missing; loading Disqus immediately');
             loadDisqus();

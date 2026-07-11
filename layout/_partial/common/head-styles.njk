@@ -9,4 +9,4 @@
 {% if gates.needsToc %}
 <link rel="stylesheet" href="{{ attr_url(versioned_url('css/toc.min.css')) }}">
 {% endif %}
-<script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ attr_url(versioned_url('js/preloader.min.js')) }}"></script>
+<script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} data-cfasync="false" src="{{ attr_url(versioned_url('js/preloader.min.js')) }}"></script>

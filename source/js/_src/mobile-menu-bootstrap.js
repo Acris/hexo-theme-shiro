@@ -2,7 +2,7 @@
     'use strict';
 
     const shiro = window.__shiro || {};
-    const rt = shiro.runtime || window.__shiroRuntime;
+    const rt = shiro.runtime;
     if (!rt || typeof rt.get !== 'function') return;
 
     const script = rt.get('mobileMenuScript') || '';

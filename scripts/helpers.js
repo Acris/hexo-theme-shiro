@@ -12,17 +12,18 @@ const {
     safeResourceUrl,
     safeScriptJson,
     normalizedLinkTarget,
-    isFeatureEnabled,
     normalizeLangAttr,
     resolveAbsolutePageUrl,
     sriAttrsHtml,
     cspNonceAttrHtml
 } = require('./lib/urls');
+const { isFeatureEnabled } = require('./lib/features');
 const {
     pageAnalysis,
     pageHasCode,
     pageLooksLong,
-    excerptFor
+    excerptFor,
+    excerptForCard
 } = require('./lib/html-analysis');
 const { cachedToc } = require('./lib/toc');
 const {
@@ -112,8 +113,12 @@ hexo.extend.helper.register('sri_attrs', function (integrity) {
     });
 });
 
-// Optional CSP nonce attribute for theme-injected scripts when security.csp_nonce is set.
-hexo.extend.helper.register('csp_nonce_attr', function () {
+// Optional CSP nonce attribute. Prefer gates.shiroCspNonce (single normalize per page).
+// With no arg: falls back to theme.security.csp_nonce (child themes / head before gates).
+hexo.extend.helper.register('csp_nonce_attr', function (nonce) {
+    if (arguments.length >= 1) {
+        return cspNonceAttrHtml(nonce);
+    }
     const security = (this.theme && this.theme.security) || {};
     return cspNonceAttrHtml(security.csp_nonce);
 });
@@ -166,7 +171,7 @@ hexo.extend.helper.register('page_feature_gates', function () {
     const tocConfig = theme.toc || {};
     const menu = theme.menu || [];
 
-    return resolveFeatureGates({
+    const gates = resolveFeatureGates({
         theme,
         page,
         config: this.config || {},
@@ -185,9 +190,20 @@ hexo.extend.helper.register('page_feature_gates', function () {
         resolveResourceUrl: (value, fallback) => safeResourceUrl(value, this, fallback),
         cspNonce: security.csp_nonce
     });
+
+    // Single comments resolve: client bag reuses gates.shiroComments.
+    gates.commentsClientConfig = buildCommentsClientConfig(theme, page, {
+        isPost,
+        isPage,
+        pageUrl: page.permalink || this.url || '',
+        pageIdentifier: page.path || this.path || page.permalink || this.url || '',
+        state: gates.shiroComments
+    });
+
+    return gates;
 });
 
-// Client config for giscus/disqus scripts (one feature_var payload).
+// Thin alias for child themes / tests. Layout prefers gates.commentsClientConfig.
 hexo.extend.helper.register('comments_client_config', function (page) {
     const p = page || this.page || {};
     return buildCommentsClientConfig(this.theme, p, {
@@ -304,6 +320,11 @@ hexo.extend.helper.register('has_images', function (page) {
 
 hexo.extend.helper.register('excerpt_for', function (post, length) {
     return excerptFor(post, length);
+});
+
+// Home/list cards: applies theme.excerpt.fallback (enabled/length) server-side.
+hexo.extend.helper.register('excerpt_for_card', function (post) {
+    return excerptForCard(post, this.theme || {});
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {

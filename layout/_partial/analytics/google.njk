@@ -1,15 +1,13 @@
-{% set analytics_config = theme.analytics or {} %}
-{% set google_analytics = analytics_config.google or {} %}
-{% if google_analytics.enabled and google_analytics.id %}
+{% if gates.needsGoogleAnalytics and gates.googleAnalyticsId %}
   <!-- Google tag (gtag.js) — SRI omitted because Google updates this script frequently,
        which would break integrity checks. Use CSP script-src (and optional security.csp_nonce)
        instead for protection. -->
-  <script async{{ csp_nonce_attr() }} src="{{ attr_url('https://www.googletagmanager.com/gtag/js?id=' + url_query(google_analytics.id)) }}"></script>
-  <script{{ csp_nonce_attr() }}>
+  <script async{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url('https://www.googletagmanager.com/gtag/js?id=' + url_query(gates.googleAnalyticsId)) }}"></script>
+  <script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', {{ js_value(google_analytics.id) | safe }});
+    gtag('config', {{ js_value(gates.googleAnalyticsId) | safe }});
   </script>
 {% endif %}

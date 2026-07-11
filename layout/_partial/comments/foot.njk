@@ -3,14 +3,14 @@
 {% set state = gates.shiroComments %}
 {% if state.shouldRender %}
 {% include "_partial/comments/bootstrap.njk" %}
-<script{{ csp_nonce_attr() }}>
-    {{ feature_var('commentsConfig', comments_client_config(page)) }}
+<script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
+    {{ feature_var('commentsConfig', gates.commentsClientConfig) }}
 </script>
 {% if state.disqusReady %}
 {% include "_partial/comments/disqus.njk" %}
-<script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-disqus.min.js')) }}"></script>
+<script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url(versioned_url('js/comments-disqus.min.js')) }}"></script>
 {% elif state.giscusReady %}
 {% include "_partial/comments/giscus.njk" %}
-<script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-giscus.min.js')) }}"></script>
+<script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url(versioned_url('js/comments-giscus.min.js')) }}"></script>
 {% endif %}
 {% endif %}

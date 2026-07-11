@@ -9,6 +9,8 @@
 // Sub-toggles (count vs time) belong to the site plugin's symbols_count_time
 // (symbols / time). When the plugin is missing, wordCountMeta returns null.
 
+const { isFeatureEnabled } = require('./lib/features');
+
 /**
  * @param {object} ctx Hexo helper context (`this` inside a helper).
  * @param {object|null|undefined} post Post or page object.
@@ -23,7 +25,7 @@ function wordCountMeta(ctx, post, options) {
 
     // Hexo helpers expose theme config as this.theme (not a Theme instance).
     const wc = (ctx.theme && ctx.theme.word_count) || {};
-    if (wc.enabled !== true) return null;
+    if (!isFeatureEnabled(wc.enabled, false)) return null;
 
     const opts = options || {};
     const out = {};

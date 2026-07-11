@@ -23,7 +23,7 @@
   "author": "Acris Liu",
   "license": "MIT",
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",

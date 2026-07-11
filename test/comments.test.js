@@ -61,6 +61,14 @@ describe('scripts/lib/comments', () => {
                 ).disqusReady,
                 false
             );
+            assert.equal(
+                resolveCommentsState(
+                    { comments: { enabled: true, provider: 'disqus', disqus: { shortname: 'bad short!' } } },
+                    {},
+                    { isPost: true }
+                ).disqusReady,
+                false
+            );
         });
 
         it('gates pages to comments: true and honors comments: false on posts', () => {

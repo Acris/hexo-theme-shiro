@@ -6,17 +6,9 @@
         </h2>
         {{ meta(post) }}
     </header>
-    {# When fallback is disabled, pass length 0 so excerpt_for only honors manual <!-- more --> excerpts.
-       MathJax is not loaded on list pages — formulas in excerpts stay as TeX source. #}
-    {% set excerpt_config = theme.excerpt or {} %}
-    {% set fallback_config = excerpt_config.fallback or {} %}
-    {% set fallback_enabled = fallback_config.enabled != false %}
-    {% if fallback_enabled %}
-    {% set fallback_length = fallback_config.length | default(200) %}
-    {% else %}
-    {% set fallback_length = 0 %}
-    {% endif %}
-    {% set excerpt = excerpt_for(post, fallback_length) %}
+    {# Policy in excerpt_for_card (theme.excerpt.fallback). MathJax is not loaded
+       on list pages — formulas in excerpts stay as TeX source. #}
+    {% set excerpt = excerpt_for_card(post) %}
     <div class="prose-shiro">
         {{ excerpt.content | safe }}
     </div>

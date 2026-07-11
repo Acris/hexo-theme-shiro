@@ -3,8 +3,8 @@
      - article_show_meta: whether to show date/category meta (default: true)
      - article_extra: extra HTML to insert after tags (e.g. post navigation) #}
 {% from "_macro/ui.njk" import meta, render_tag with context %}
-{% set article_toc_config = toc_config if toc_config is defined else (theme.toc or {}) %}
-{% set article_toc = build_toc(page, article_toc_config) %}
+{# Single TOC policy: theme.toc only (same as gates.needsToc / should_render_toc). #}
+{% set article_toc = build_toc(page, theme.toc or {}) %}
 {% set show_article_meta = article_show_meta if article_show_meta is defined else true %}
 {% set article_extra_html = article_extra if article_extra is defined else "" %}
 
@@ -19,6 +19,7 @@
         {% endif %}
     </header>
 
+    {# shouldRender already encodes theme.toc + min_headings (same as gates.needsToc). #}
     {% if article_toc.shouldRender %}
     {% include "_partial/components/toc.njk" %}
     {% endif %}

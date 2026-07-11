@@ -63,7 +63,7 @@ function assertRuntimeSource(source, partPaths) {
             + ' close=' + closeCount + ')'
         );
     }
-    ['featureReady', 'createFeatureLoader', 'loadAsset', 'dispatchLiveOrStash'].forEach((token) => {
+    ['featureReady', 'createFeatureLoader', 'loadAsset', 'dispatchLiveOrStash', 'escapeHtml'].forEach((token) => {
         if (source.indexOf(token) === -1) {
             throw new Error('Runtime concat missing required symbol: ' + token);
         }

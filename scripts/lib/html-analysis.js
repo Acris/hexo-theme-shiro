@@ -8,6 +8,7 @@ const {
     truncateText
 } = require('./util');
 const { hasUrlControlChars } = require('./urls');
+const { isFeatureEnabled } = require('./features');
 
 const DEFAULT_EXCERPT_LENGTH = 200;
 // WeakMap so hexo server / watch can drop analysis when page objects are GC'd.
@@ -274,7 +275,9 @@ function pageAnalysis(page) {
 
 function excerptFallbackEnabled(themeConfig) {
     const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
-    return !fallback || fallback.enabled !== false;
+    // Default-on: missing fallback key or enabled !== false (same as isFeatureEnabled(*, true)).
+    if (!fallback) return true;
+    return isFeatureEnabled(fallback.enabled, true);
 }
 
 function excerptFallbackLength(fallbackConfig) {
@@ -396,6 +399,21 @@ function isLightboxImageSrcCandidate(value) {
     return !/^[a-z][a-z0-9+.-]*:/i.test(decoded);
 }
 
+/**
+ * Home / list card excerpt using theme.excerpt.fallback policy.
+ * Manual <!-- more --> excerpts always win. When fallback is off and there is no
+ * manual excerpt, return empty + truncated (read-more) — never dump full post HTML.
+ */
+function excerptForCard(post, themeConfig) {
+    if (!post) return { content: '', truncated: false };
+    if (post.excerpt) return excerptFor(post, 0);
+    if (!excerptFallbackEnabled(themeConfig)) {
+        return { content: '', truncated: true };
+    }
+    const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
+    return excerptFor(post, excerptFallbackLength(fallback));
+}
+
 function excerptFor(post, length) {
     if (!post) return { content: '', truncated: false };
 
@@ -448,6 +466,7 @@ module.exports = {
     isUsableImageSrcCandidate,
     isLightboxImageSrcCandidate,
     excerptFor,
+    excerptForCard,
     excerptFallbackEnabled,
     excerptFallbackLength
 };

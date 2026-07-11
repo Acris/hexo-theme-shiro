@@ -1,6 +1,7 @@
 'use strict';
 
 const { escapeHtml, decodeHtmlEntities, plainHeadingText } = require('./util');
+const { isFeatureEnabled } = require('./features');
 const { pageAnalysis, tocHeadingLevels, HTML_ID_RE, TOC_HEADING_RE } = require('./html-analysis');
 
 function slugifyHeading(text) {
@@ -19,7 +20,7 @@ function headingId(attrs) {
 }
 
 function tocCacheKey(tocConfig) {
-    if (!tocConfig || tocConfig.enabled === false) return 'disabled';
+    if (!tocConfig || !isFeatureEnabled(tocConfig.enabled, true)) return 'disabled';
     return [
         'depth=' + (Math.min(6, Math.max(2, Number(tocConfig.depth) || 3))),
         'min=' + (Math.max(1, Number(tocConfig.min_headings) || 3))
@@ -91,7 +92,7 @@ function renderTocList(headings, minLevel) {
 
 function buildToc(content, tocConfig) {
     const source = String(content || '');
-    if (!tocConfig || tocConfig.enabled === false || !source) {
+    if (!tocConfig || !isFeatureEnabled(tocConfig.enabled, true) || !source) {
         return { shouldRender: false, content: source, html: '' };
     }
 

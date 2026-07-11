@@ -3,8 +3,8 @@
 // Pure page feature gates + CDN resource resolution (no Hexo registration).
 // Layout consumes page_feature_gates() so Nunjucks only binds names, not policy.
 
+const { isFeatureEnabled } = require('./features');
 const {
-    isFeatureEnabled,
     normalizeLangAttr,
     normalizeSriIntegrity,
     normalizeCspNonce,
@@ -81,6 +81,9 @@ function resolveFeatureGates(input) {
     const darkMode = theme.dark_mode || {};
     const progressBar = theme.progress_bar || {};
     const backToTop = theme.back_to_top || {};
+    const analytics = theme.analytics || {};
+    const googleAnalytics = analytics.google || {};
+    const rssConfig = site.rss || {};
 
     const darkModeDefault = resolveDarkModeDefault(darkMode.default);
     const darkModeToggle = isFeatureEnabled(darkMode.toggle, true);
@@ -89,6 +92,13 @@ function resolveFeatureGates(input) {
     const siteFavicon = site.favicon != null && site.favicon !== ''
         ? site.favicon
         : '/favicon.svg';
+    const googleAnalyticsId = String(googleAnalytics.id || '').trim();
+    const needsGoogleAnalytics = isFeatureEnabled(googleAnalytics.enabled, false)
+        && !!googleAnalyticsId;
+    const needsRss = isFeatureEnabled(rssConfig.enabled, false);
+    const rssPath = rssConfig.path != null && rssConfig.path !== ''
+        ? rssConfig.path
+        : '/atom.xml';
 
     const configLang = Array.isArray(config.language) ? config.language[0] : config.language;
     const pageLangRaw = page.lang || page.language || configLang;
@@ -203,7 +213,12 @@ function resolveFeatureGates(input) {
         needsFeatureRuntime,
         needsRuntimeFoot,
         footScripts,
-        shiroCspNonce
+        shiroCspNonce,
+
+        needsGoogleAnalytics,
+        googleAnalyticsId,
+        needsRss,
+        rssPath
     };
 }
 
@@ -215,7 +230,8 @@ function resolveFeatureGates(input) {
  */
 function buildCommentsClientConfig(theme, page, options) {
     const opts = options || {};
-    const state = resolveCommentsState(theme, page, {
+    // Prefer pre-resolved state from gates (single resolve per request).
+    const state = opts.state || resolveCommentsState(theme, page, {
         isPost: opts.isPost,
         isPage: opts.isPage
     });

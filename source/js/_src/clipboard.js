@@ -39,8 +39,8 @@
 
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
         if (!codeEl || !codeEl.textContent.trim()) return;
-
-        block.dataset.clipboardEnhanced = 'true';
+        // Only mark enhanced after a successful wrap (detached blocks stay eligible).
+        if (!block.parentNode) return;
 
         const lines = codeEl.querySelectorAll('.line');
         const copyValue = lines.length
@@ -88,13 +88,12 @@
             });
         });
 
-        if (!block.parentNode) return;
-
         const wrapper = document.createElement('div');
         wrapper.className = 'highlight-wrapper';
         block.parentNode.insertBefore(wrapper, block);
         wrapper.appendChild(block);
         wrapper.appendChild(btn);
+        block.dataset.clipboardEnhanced = 'true';
 
         if (lang) {
             const label = document.createElement('span');
@@ -106,7 +105,7 @@
 
     function scheduleEnhance(blocks) {
         const queue = Array.from(blocks);
-        const rt = shiro.runtime || window.__shiroRuntime;
+        const rt = shiro.runtime;
         const schedule = (rt && rt.scheduleIdle)
             || ((task, options) => {
                 const opts = options || {};
@@ -138,8 +137,7 @@
     shiro.clipboardTargets = [];
     shiro.enhanceClipboard(initialTargets);
 
-    const rtReady = shiro.runtime || window.__shiroRuntime;
-    if (rtReady && typeof rtReady.featureReady === 'function') {
-        rtReady.featureReady('clipboard');
+    if (shiro.runtime && typeof shiro.runtime.featureReady === 'function') {
+        shiro.runtime.featureReady('clipboard');
     }
 })();

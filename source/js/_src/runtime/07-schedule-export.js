@@ -39,10 +39,10 @@
         connectionAllowsWarm,
         scheduleIdle,
         scheduleIdleWarm,
+        escapeHtml,
+        escapeAttr,
         cspNonce,
         get
     };
     root.runtime = api;
-    // Flat alias for existing bootstraps (clipboard / search / comments / …).
-    window.__shiroRuntime = api;
 })();

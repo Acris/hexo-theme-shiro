@@ -79,14 +79,13 @@
 
 {% set structured_data_nodes = structured_data(page, config) %}
 {% if structured_data_nodes.length %}
-<script{{ csp_nonce_attr() }} type="application/ld+json">{{ js_value(structured_data_nodes) | safe }}</script>
+<script{{ csp_nonce_attr(gates.shiroCspNonce) }} type="application/ld+json">{{ js_value(structured_data_nodes) | safe }}</script>
 {% endif %}
 
 {% if gates.siteFavicon %}
 <link rel="icon" href="{{ attr_url(safe_resource_url_for(gates.siteFavicon, '/favicon.svg', true)) }}" />
 {% endif %}
 
-{% set rss_config = gates.siteConfig.rss or {} %}
-{% if rss_config.enabled %}
-<link rel="alternate" type="application/atom+xml" title="{{ escape_attr(config.title) }}" href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" />
+{% if gates.needsRss %}
+<link rel="alternate" type="application/atom+xml" title="{{ escape_attr(config.title) }}" href="{{ attr_url(safe_resource_url_for(gates.rssPath, '/atom.xml')) }}" />
 {% endif %}

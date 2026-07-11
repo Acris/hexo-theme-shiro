@@ -1,11 +1,17 @@
 ;(() => {
     'use strict';
 
+    const rtReady = (window.__shiro && window.__shiro.runtime);
     const btn = document.getElementById('menuBtn');
     const panel = document.getElementById('mobileMenu');
     const chevron = document.getElementById('menuChevron');
 
-    if (!btn || !panel || !chevron) return;
+    if (!btn || !panel || !chevron) {
+        if (rtReady && typeof rtReady.featureAbort === 'function') {
+            rtReady.featureAbort('mobile-menu', new Error('mobile menu DOM missing'));
+        }
+        return;
+    }
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -70,8 +76,6 @@
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 
-    const rtReady = window.__shiro && window.__shiro.runtime
-        || window.__shiroRuntime;
     if (rtReady && typeof rtReady.featureReady === 'function') {
         rtReady.featureReady('mobile-menu');
     }

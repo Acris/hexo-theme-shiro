@@ -1,15 +1,32 @@
 ;(() => {
     'use strict';
 
+    // Search loads Pagefind component UI (CSS + module script), not a classic
+    // featureReady body script — so it does not use createFeatureLoader.
+    // Asset fetch still goes through runtime.loadAsset; intent warm uses bindIntentWarm.
+
     const shiro = window.__shiro || {};
-    const rt = shiro.runtime || window.__shiroRuntime;
-    if (!rt || typeof rt.get !== 'function') return;
+    const rt = shiro.runtime;
+    if (!rt || typeof rt.get !== 'function') {
+        console.error('[shiro-search] runtime missing; search bootstrap aborted');
+        return;
+    }
 
     const pagefindBase = String(rt.get('pagefindBase') || '').replace(/\/?$/, '/');
     const searchCss = rt.get('searchCss') || '';
-    if (!pagefindBase || pagefindBase === '/') return;
+    if (!pagefindBase || pagefindBase === '/') {
+        console.error('[shiro-search] pagefind base URL missing; search bootstrap aborted');
+        return;
+    }
 
-    const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;
+    const WHEN_DEFINED_TIMEOUT = 12000;
+
+    const {
+        loadAsset,
+        connectionAllowsWarm,
+        scheduleIdleWarm,
+        bindIntentWarm
+    } = rt;
 
     // Host has no id so Pagefind does not copy a host id onto the internal dialog
     // (duplicate ids). Stable dialog id matches header aria-controls.
@@ -24,6 +41,7 @@
     let chromeObserver = null;
     let chromeWatching = false;
     let boundDialog = null;
+    let unbindWarm = null;
 
     function logError(error) {
         const message = error && error.message ? error.message : error;
@@ -153,9 +171,18 @@
                 'data-shiro-pagefind-js': 'true'
             }, 'script[data-shiro-pagefind-js]'))
             .then(() => {
-                if (window.customElements && customElements.whenDefined) {
-                    return customElements.whenDefined('pagefind-modal');
+                if (!window.customElements || !customElements.whenDefined) {
+                    return;
                 }
+                // whenDefined has no built-in timeout — race so open/warm can retry.
+                return Promise.race([
+                    customElements.whenDefined('pagefind-modal'),
+                    new Promise((_, reject) => {
+                        setTimeout(() => {
+                            reject(new Error('pagefind-modal whenDefined timed out'));
+                        }, WHEN_DEFINED_TIMEOUT);
+                    })
+                ]);
             })
             .then(() => {
                 loaded = true;
@@ -183,21 +210,20 @@
             .catch(logError);
     }
 
-    function removeWarmListeners() {
-        if (!toggle) return;
-        toggle.removeEventListener('pointerover', warm);
-        toggle.removeEventListener('pointerdown', warm);
-        toggle.removeEventListener('focusin', warm);
-    }
-
     function warm() {
         if (loaded) {
-            removeWarmListeners();
+            if (typeof unbindWarm === 'function') {
+                unbindWarm();
+                unbindWarm = null;
+            }
             return;
         }
         ensureAssets()
             .then(() => {
-                removeWarmListeners();
+                if (typeof unbindWarm === 'function') {
+                    unbindWarm();
+                    unbindWarm = null;
+                }
             })
             .catch(logError);
     }
@@ -225,9 +251,21 @@
 
     if (toggle) {
         toggle.addEventListener('click', openModal);
-        toggle.addEventListener('pointerover', warm);
-        toggle.addEventListener('pointerdown', warm);
-        toggle.addEventListener('focusin', warm);
+        if (typeof bindIntentWarm === 'function') {
+            unbindWarm = bindIntentWarm(warm, {
+                root: toggle,
+                capture: false
+            });
+        } else {
+            toggle.addEventListener('pointerover', warm);
+            toggle.addEventListener('pointerdown', warm);
+            toggle.addEventListener('focusin', warm);
+            unbindWarm = () => {
+                toggle.removeEventListener('pointerover', warm);
+                toggle.removeEventListener('pointerdown', warm);
+                toggle.removeEventListener('focusin', warm);
+            };
+        }
     }
     proactiveWarm();
 })();

@@ -3,10 +3,10 @@
 
     // Shared client helpers for feature bootstraps. Built by concatenating
     // source/js/_src/runtime/*.js → source/js/runtime.min.js (see tools/build-assets.js).
-    // Namespace: window.__shiro.runtime (flat window.__shiroRuntime kept as alias).
+    // Namespace: window.__shiro.runtime only (no flat global init gate).
     // Config lives on window.__shiro bare keys only; read via runtime.get (not bag.get).
     const root = (window.__shiro = window.__shiro || {});
-    if (window.__shiroRuntime || root.runtime) return;
+    if (root.runtime) return;
 
     const assetTimeout = 12000;
     const featureReadyTimeout = 8000;

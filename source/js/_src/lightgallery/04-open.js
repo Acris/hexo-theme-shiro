@@ -136,7 +136,8 @@
         ensureLightGalleryAssets().catch(() => {});
     };
 
-    // Usable for bootstrap live path + autoOpen drain. Bootstrap keeps capture.
+    // API-ready (open/warm installed), not CDN asset-ready — open() loads CDN
+    // and falls back to navigate on failure. Bootstrap keeps capture.
     signalReady();
 
     const autoOpen = shiro.lightGalleryAutoOpen;

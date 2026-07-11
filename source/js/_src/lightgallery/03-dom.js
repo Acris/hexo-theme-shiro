@@ -1,14 +1,17 @@
+    // Prefer runtime escapes (aligned with server util.escapeHtml).
     const escapeHtml = (value) => {
-        if (!value) return '';
-        return value
+        if (rt && typeof rt.escapeHtml === 'function') return rt.escapeHtml(value);
+        return String(value == null ? '' : value)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     };
 
     const escapeAttr = (value) => {
-        if (!value) return '';
-        return escapeHtml(value).replace(/"/g, '&quot;');
+        if (rt && typeof rt.escapeAttr === 'function') return rt.escapeAttr(value);
+        return escapeHtml(value);
     };
 
     // Meaningful navigable page link for the "view source" caption button.

@@ -1,6 +1,6 @@
 {# FOUC prevention + progressive-enhancement marker (must stay early + sync).
    Expects google_fonts from head.njk (font preload token). #}
-<script{{ csp_nonce_attr() }} data-cfasync="false">
+<script{{ csp_nonce_attr(gates.shiroCspNonce) }} data-cfasync="false">
 ;(() => {
     // Progressive enhancement marker (mobile nav CSS uses html.js).
     document.documentElement.classList.add('js');

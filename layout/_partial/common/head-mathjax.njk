@@ -8,7 +8,7 @@
    Script loads only on post/page views (not home/archive lists). #}
 <!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
      theme/font hints, while still before blocking stylesheets can delay discovery. -->
-<script{{ csp_nonce_attr() }} data-cfasync="false">
+<script{{ csp_nonce_attr(gates.shiroCspNonce) }} data-cfasync="false">
     window.MathJax = {
         loader: {
             load: ['ui/no-dark-mode']
@@ -23,5 +23,5 @@
         }
     };
 </script>
-<script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ attr_url(gates.mathjaxSrc) }}"{{ sri_attrs(gates.mathjaxIntegrity) }}></script>
+<script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} data-cfasync="false" src="{{ attr_url(gates.mathjaxSrc) }}"{{ sri_attrs(gates.mathjaxIntegrity) }}></script>
 {% endif %}

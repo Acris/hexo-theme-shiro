@@ -1,6 +1,7 @@
 'use strict';
 
 const { decodeHtmlEntities } = require('./util');
+const { isFeatureEnabled } = require('./features');
 
 function hasUrlControlChars(value) {
     return /[\u0000-\u001F\u007F]/.test(value);
@@ -53,12 +54,6 @@ function normalizedLinkTarget(value) {
     const text = normalizedUrlText(value);
     if (!text) return '';
     return /^(?:_self|_blank|_parent|_top)$/i.test(text) ? text : '';
-}
-
-// Default-off features require explicit true; default-on treat only false as off.
-function isFeatureEnabled(value, defaultOn) {
-    if (defaultOn) return value !== false;
-    return value === true;
 }
 
 // BCP 47-ish language tag for lang= attributes (page / force_language).

@@ -20,10 +20,11 @@
     /**
      * Feature script signals it is usable (API installed). Call once per load.
      * createFeatureLoader waits on this — script onload alone is not enough.
+     * No-op if already ready or aborted (abort/timeout is permanent).
      */
     function featureReady(id) {
         const channel = getFeatureChannel(id);
-        if (channel.status === 'ready') return;
+        if (channel.status === 'ready' || channel.status === 'aborted') return;
         channel.status = 'ready';
         channel.error = null;
         settleFeatureWaiters(channel, true);
@@ -32,10 +33,11 @@
     /**
      * Feature script signals hard failure (missing config, etc.).
      * Treated as permanent for that feature id (no silent 8s retry hang).
+     * No-op if already ready or aborted.
      */
     function featureAbort(id, error) {
         const channel = getFeatureChannel(id);
-        if (channel.status === 'ready') return;
+        if (channel.status === 'ready' || channel.status === 'aborted') return;
         const err = error instanceof Error
             ? error
             : new Error(error ? String(error) : 'Feature aborted: ' + id);
@@ -57,14 +59,13 @@
             let settled = false;
             const timer = setTimeout(() => {
                 if (settled) return;
-                settled = true;
                 const err = new Error('Feature ready timeout: ' + id);
                 if (channel.status === 'pending') {
                     channel.status = 'aborted';
                     channel.error = err;
                 }
-                channel.waiters = channel.waiters.filter((w) => w.resolve !== onResolve);
-                reject(err);
+                // Drain all waiters (including this one) so co-waiters do not hang.
+                settleFeatureWaiters(channel, false, err);
             }, timeoutMs);
 
             function onResolve() {
@@ -111,8 +112,9 @@
             return err;
         }
 
-        function reportError(error) {
-            if (typeof opts.onError === 'function') opts.onError(error);
+        // meta.permanent: abort/timeout (or missing src). Network fail is retryable.
+        function reportError(error, meta) {
+            if (typeof opts.onError === 'function') opts.onError(error, meta || {});
         }
 
         // Always fulfill so callers can omit .catch; onError already reported failures.
@@ -127,7 +129,7 @@
             load: (onReady) => {
                 if (!src) {
                     const err = new Error('Missing feature script URL for ' + id);
-                    reportError(err);
+                    reportError(err, { permanent: true });
                     return settleLoad(Promise.reject(err), onReady);
                 }
 
@@ -136,7 +138,7 @@
                 }
 
                 if (terminalError) {
-                    reportError(terminalError);
+                    reportError(terminalError, { permanent: true });
                     return settleLoad(Promise.reject(terminalError), onReady);
                 }
 
@@ -156,10 +158,11 @@
                                 : new Error('Feature script failed: ' + id);
                             const channel = getFeatureChannel(id);
                             // Abort/timeout: permanent. Network fetch fail: channel still pending.
-                            if (channel.status === 'aborted') {
+                            const permanent = channel.status === 'aborted';
+                            if (permanent) {
                                 failPermanent(err);
                             }
-                            reportError(err);
+                            reportError(err, { permanent: permanent });
                             return Promise.reject(err);
                         });
                 }

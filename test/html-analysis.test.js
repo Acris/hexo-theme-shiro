@@ -8,6 +8,7 @@ const {
     pageHasCode,
     pageLooksLong,
     excerptFor,
+    excerptForCard,
     pageAnalysis,
     firstImageInfo
 } = require('../scripts/lib/html-analysis');
@@ -72,6 +73,36 @@ describe('scripts/lib/html-analysis', () => {
             const result = excerptFor({ content }, 200);
             assert.equal(result.truncated, false);
             assert.equal(result.content, content);
+        });
+    });
+
+    describe('excerptForCard', () => {
+        it('applies theme fallback length when enabled', () => {
+            const content = '<p>' + 'word '.repeat(80) + '</p>';
+            const result = excerptForCard(
+                { content },
+                { excerpt: { fallback: { enabled: true, length: 40 } } }
+            );
+            assert.equal(result.truncated, true);
+        });
+
+        it('returns empty + truncated when fallback disabled and no manual excerpt', () => {
+            const content = '<p>' + 'word '.repeat(80) + '</p>';
+            const result = excerptForCard(
+                { content },
+                { excerpt: { fallback: { enabled: false } } }
+            );
+            assert.equal(result.truncated, true);
+            assert.equal(result.content, '');
+        });
+
+        it('still uses manual excerpt when fallback is disabled', () => {
+            const result = excerptForCard(
+                { excerpt: '<p>manual</p>', content: '<p>full</p>' },
+                { excerpt: { fallback: { enabled: false } } }
+            );
+            assert.equal(result.content, '<p>manual</p>');
+            assert.equal(result.truncated, true);
         });
     });
 

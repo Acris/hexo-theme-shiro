@@ -3,7 +3,7 @@
 // Pure comments provider readiness (no Hexo registration).
 // Used by helpers + templates so container / scripts / runtime gates stay aligned.
 
-const { isFeatureEnabled } = require('./urls');
+const { isFeatureEnabled } = require('./features');
 
 /**
  * Resolve which comment provider (if any) is fully configured for rendering.
@@ -41,8 +41,11 @@ function resolveCommentsState(themeConfig, page, options) {
 
     const disqus = comments.disqus || {};
     const giscus = comments.giscus || {};
+    // Match client embed validation (Disqus shortname charset).
     const shortname = String(disqus.shortname || '').trim();
-    const disqusReady = enabled && provider === 'disqus' && !!shortname;
+    const disqusReady = enabled
+        && provider === 'disqus'
+        && /^[a-z0-9-]+$/i.test(shortname);
 
     const mapping = giscus.mapping || 'pathname';
     const mappingReady = (mapping === 'specific' || mapping === 'number')

@@ -84,7 +84,7 @@
     <!-- Scripts -->
     {# cspNonce is set only in head-theme (single source). #}
     {% if gates.needsFeatureRuntime %}
-    <script{{ csp_nonce_attr() }}>
+    <script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
         {% if gates.needsLightgallery or gates.needsCode %}
         (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
         {% endif %}
@@ -120,7 +120,7 @@
     </script>
     {% endif %}
     {% for script_path in gates.footScripts %}
-    <script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url(script_path)) }}"></script>
+    <script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url(versioned_url(script_path)) }}"></script>
     {% endfor %}
     {% if gates.needsComments %}
     {% include "_partial/comments/foot.njk" %}

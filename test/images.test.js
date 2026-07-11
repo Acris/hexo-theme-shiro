@@ -1,6 +1,6 @@
 'use strict';
 
-const { describe, it, before } = require('node:test');
+const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
 // images.js registers a Hexo filter on load — stub the global first.
@@ -17,16 +17,20 @@ global.hexo = {
 const {
     optimizeImages,
     markCodeBlocksNotProse,
+    localImageCandidates
+} = require('../scripts/images.js');
+const {
+    optimizeImages: pureOptimize,
     parseAttrs,
     renderAttrs,
     isRemoteUrl,
     cleanUrl,
     getAttr,
-    attrLookup
-} = require('../scripts/images.js');
-// markCodeBlocksNotProse is re-exported from scripts/lib/code-blocks for filter tests.
+    attrLookup,
+    localImageCandidates: pureCandidates
+} = require('../scripts/lib/image-optimize');
 
-describe('scripts/images.js', () => {
+describe('scripts/lib/image-optimize', () => {
     describe('parseAttrs / renderAttrs', () => {
         it('round-trips quoted and boolean attributes', () => {
             const attrs = parseAttrs('src="a.png" alt=\'x\' loading disabled');
@@ -55,7 +59,7 @@ describe('scripts/images.js', () => {
 
     describe('optimizeImages', () => {
         it('adds decoding/loading/fetchpriority defaults', () => {
-            const out = optimizeImages('<p><img src="https://cdn.example/a.png" alt="a"></p>', {
+            const out = pureOptimize('<p><img src="https://cdn.example/a.png" alt="a"></p>', {
                 firstImageEager: true
             });
             assert.match(out, /decoding="async"/);
@@ -64,7 +68,7 @@ describe('scripts/images.js', () => {
         });
 
         it('preserves original attribute quoting when injecting', () => {
-            const out = optimizeImages("<img src='https://cdn.example/a.png' alt='x'>", {
+            const out = pureOptimize("<img src='https://cdn.example/a.png' alt='x'>", {
                 firstImageEager: true
             });
             assert.match(out, /src='https:\/\/cdn\.example\/a\.png'/);
@@ -74,19 +78,19 @@ describe('scripts/images.js', () => {
 
         it('lazy-loads subsequent images', () => {
             const html = '<img src="https://cdn.example/1.png"><img src="https://cdn.example/2.png">';
-            const out = optimizeImages(html, { firstImageEager: true });
+            const out = pureOptimize(html, { firstImageEager: true });
             assert.match(out, /loading="eager"/);
             assert.match(out, /loading="lazy"/);
             assert.match(out, /fetchpriority="auto"/);
         });
 
         it('does not invent sizes without srcset', () => {
-            const out = optimizeImages('<img src="https://cdn.example/a.png">', {});
+            const out = pureOptimize('<img src="https://cdn.example/a.png">', {});
             assert.equal(out.includes('sizes='), false);
         });
 
         it('adds sizes when srcset is present', () => {
-            const out = optimizeImages(
+            const out = pureOptimize(
                 '<img src="https://cdn.example/a.png" srcset="https://cdn.example/a.png 1x">',
                 {}
             );
@@ -94,7 +98,7 @@ describe('scripts/images.js', () => {
         });
 
         it('does not override existing loading attributes', () => {
-            const out = optimizeImages('<img src="https://cdn.example/a.png" loading="lazy">', {
+            const out = pureOptimize('<img src="https://cdn.example/a.png" loading="lazy">', {
                 firstImageEager: true
             });
             assert.match(out, /loading="lazy"/);
@@ -103,16 +107,68 @@ describe('scripts/images.js', () => {
 
         it('skips script/style/pre blocks', () => {
             const html = '<pre><img src="https://cdn.example/x.png"></pre><img src="https://cdn.example/y.png">';
-            const out = optimizeImages(html, { firstImageEager: true });
-            // Only the outside image should be optimized (pre contents preserved).
+            const out = pureOptimize(html, { firstImageEager: true });
             assert.match(out, /<pre><img src="https:\/\/cdn\.example\/x\.png"><\/pre>/);
             assert.match(out, /cdn\.example\/y\.png"[^>]*decoding="async"/);
         });
 
         it('leaves tags without src untouched', () => {
             const html = '<img alt="no-src">';
-            assert.equal(optimizeImages(html, {}), html);
+            assert.equal(pureOptimize(html, {}), html);
         });
+
+        it('accepts injected getLocalSize dimensions', () => {
+            const out = pureOptimize('<img src="/a.png">', {
+                firstImageEager: true,
+                getLocalSize: () => ({ width: 12, height: 8 })
+            });
+            assert.match(out, /width="12"/);
+            assert.match(out, /height="8"/);
+        });
+    });
+
+    describe('localImageCandidates (pure path resolution)', () => {
+        it('resolves site-root and post-relative paths under sourceDir', () => {
+            const sourceDir = '/site/source';
+            const post = { full_source: '/site/source/_posts/hello.md' };
+            const abs = pureCandidates('/images/a.png', post, { sourceDir, root: '/' });
+            assert.ok(abs.some((p) => p.includes('source/images/a.png')));
+
+            const rel = pureCandidates('pic.png', post, { sourceDir, root: '/' });
+            assert.ok(rel.some((p) => p.includes('_posts') && p.endsWith('pic.png')));
+        });
+
+        it('strips configured root prefix', () => {
+            const sourceDir = '/site/source';
+            const list = pureCandidates('/blog/img/x.png', null, {
+                sourceDir,
+                root: '/blog/'
+            });
+            assert.ok(list.some((p) => p.includes('source/img/x.png')));
+        });
+
+        it('ignores remote urls', () => {
+            assert.deepEqual(
+                pureCandidates('https://cdn.example/a.png', null, {
+                    sourceDir: '/site/source',
+                    root: '/'
+                }),
+                []
+            );
+        });
+    });
+});
+
+describe('scripts/images.js (orchestrator)', () => {
+    it('optimizeImages delegates to pure path with getLocalSize', () => {
+        const out = optimizeImages('<img src="https://cdn.example/a.png">', {
+            firstImageEager: true
+        });
+        assert.match(out, /decoding="async"/);
+    });
+
+    it('exposes localImageCandidates for path resolution', () => {
+        assert.equal(typeof localImageCandidates, 'function');
     });
 
     describe('markCodeBlocksNotProse', () => {

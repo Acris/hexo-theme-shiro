@@ -4,6 +4,8 @@
 // enabled: false → never; true → every_page / front-matter.
 // every_page: false → only mathjax: true; true → all posts/pages except mathjax: false.
 // CDN default: keep in sync with _config.yml mathjax.src (single export for feature-gates).
+const { isFeatureEnabled } = require('../features');
+
 const DEFAULT_MATHJAX_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js';
 
 function resolveMathjaxTags(value) {
@@ -21,17 +23,17 @@ function resolveMathjaxConfig(themeConfig) {
     const src = String(cfg.src == null ? '' : cfg.src).trim();
     return {
         // Default off: must set enabled: true, then every_page and/or front-matter.
-        enabled: cfg.enabled === true,
-        everyPage: cfg.every_page === true,
+        enabled: isFeatureEnabled(cfg.enabled, false),
+        everyPage: isFeatureEnabled(cfg.every_page, false),
         // Default on: shield marked from eating TeX. Set false when using
         // pandoc --mathjax or a server-side math plugin that already handles this.
-        protect: cfg.protect !== false,
+        protect: isFeatureEnabled(cfg.protect, true),
         // Default off: same as MathJax v4 (only \(...\) unless opted in).
-        inlineDollars: cfg.inline_dollars === true,
+        inlineDollars: isFeatureEnabled(cfg.inline_dollars, false),
         // MathJax tex.processEnvironments (client). Default true matches v4.
-        processEnvironments: cfg.process_environments !== false,
+        processEnvironments: isFeatureEnabled(cfg.process_environments, true),
         // MathJax tex.processEscapes (client). Default true matches v3+/v4.
-        processEscapes: cfg.process_escapes !== false,
+        processEscapes: isFeatureEnabled(cfg.process_escapes, true),
         // Client equation numbering: none | ams | all.
         tags: resolveMathjaxTags(cfg.tags),
         // CDN / self-hosted script URL (layout still runs safe_resource_url_for).

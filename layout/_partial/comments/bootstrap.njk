@@ -1,6 +1,6 @@
 {# After deferred runtime. Sync stub queues provider boots; deferred comments-bootstrap
    installs helpers and drains the queue (honest load order — no silent fallback). #}
-<script{{ csp_nonce_attr() }}>
+<script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
     window.__shiro = window.__shiro || {};
     window.__shiro.commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
     {# cspNonce is set only in head-theme. Queue stub before deferred comments-bootstrap. #}
@@ -9,4 +9,4 @@
         if (typeof fn === 'function') window.__shiro.commentsReadyQueue.push(fn);
     };
 </script>
-<script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-bootstrap.min.js')) }}"></script>
+<script defer{{ csp_nonce_attr(gates.shiroCspNonce) }} src="{{ attr_url(versioned_url('js/comments-bootstrap.min.js')) }}"></script>

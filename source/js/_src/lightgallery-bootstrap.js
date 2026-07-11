@@ -4,7 +4,7 @@
     // Bootstrap owns document capture clicks for the page lifetime (hardFail only
     // unbinds). Feature installs lightGalleryOpen/Warm + CDN — no second click path.
     const shiro = window.__shiro || {};
-    const rt = shiro.runtime || window.__shiroRuntime;
+    const rt = shiro.runtime;
     if (!rt || typeof rt.get !== 'function') return;
 
     const lg = rt.get('lightgallery') || {};
@@ -53,11 +53,18 @@
     }
 
     // onReady: feature open/warm installed — drop intent warm only (keep click capture).
+    // Permanent errors (abort/timeout) hardFail; network fetch remains retryable.
     const feature = createFeatureLoader({
         id: 'lightgallery',
         src: script,
         onReady: unbindIntentWarm,
-        onError: hardFail
+        onError: (error, meta) => {
+            if (meta && meta.permanent) {
+                hardFail();
+                return;
+            }
+            console.warn('[shiro-lightgallery] load failed (retryable)', error);
+        }
     });
 
     function shouldHandleImage(img) {

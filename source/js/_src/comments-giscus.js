@@ -2,27 +2,35 @@
     'use strict';
 
     // Giscus provider boot (deferred). Config: __shiro.commentsConfig.
+    // Requires runtime.comments.whenReady from comments-bootstrap.
     const shiro = window.__shiro || {};
-    const whenReady = shiro.whenCommentsReady;
+    const rt = shiro.runtime;
+    const commentsApi = rt && rt.comments;
+    const whenReady = commentsApi && commentsApi.whenReady;
     if (typeof whenReady !== 'function') {
-        console.error('[shiro-comments] giscus boot skipped: whenReady missing');
+        console.error('[shiro-comments] giscus boot skipped: runtime.comments.whenReady missing');
         return;
     }
 
     whenReady(function () {
         const d = document;
-        const w = window;
         const container = d.getElementById('giscus-container');
         if (!container) {
             console.warn('[shiro-comments] #giscus-container missing');
             return;
         }
 
-        const rt = shiro.runtime || w.__shiroRuntime;
-        const get = rt && typeof rt.get === 'function' ? rt.get : (() => undefined);
+        if (!rt || typeof rt.get !== 'function') {
+            console.error('[shiro-comments] runtime missing during giscus boot');
+            return;
+        }
+
+        const api = rt.comments || {};
+        const get = rt.get;
         const cfgRoot = get('commentsConfig') || {};
         const g = cfgRoot.giscus || {};
-        const loadCommentsCss = shiro.loadCommentsCss || (() => Promise.resolve());
+        const loadCommentsCss = api.loadCss || (() => Promise.resolve());
+        const nearViewport = api.onNearViewport;
         let loaded = false;
 
         const paintFrame = () => {
@@ -58,9 +66,8 @@
             s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = (rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
+            const nonce = (typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
                 || get('cspNonce')
-                || shiro.cspNonce
                 || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
@@ -99,9 +106,8 @@
             paintFrame();
         }).observe(d.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-        // Degraded path: load immediately if near-viewport helper never installed.
-        if (typeof shiro.onNearViewport === 'function') {
-            shiro.onNearViewport(container, loadGiscus);
+        if (typeof nearViewport === 'function') {
+            nearViewport(container, loadGiscus);
         } else {
             console.warn('[shiro-comments] near-viewport helper missing; loading giscus immediately');
             loadGiscus();

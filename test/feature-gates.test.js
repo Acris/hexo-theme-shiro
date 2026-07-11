@@ -107,6 +107,37 @@ describe('scripts/lib/feature-gates', () => {
             assert.equal(g.needsLightgallery, false);
             assert.equal(g.lightgalleryJsUrl, '');
         });
+
+        it('gates analytics and RSS only when explicitly enabled', () => {
+            const off = resolveFeatureGates(base);
+            assert.equal(off.needsGoogleAnalytics, false);
+            assert.equal(off.needsRss, false);
+
+            const on = resolveFeatureGates({
+                ...base,
+                theme: {
+                    ...base.theme,
+                    site: {
+                        ...base.theme.site,
+                        rss: { enabled: true, path: '/feed.xml' }
+                    },
+                    analytics: {
+                        google: { enabled: true, id: 'G-TEST123' }
+                    }
+                }
+            });
+            assert.equal(on.needsGoogleAnalytics, true);
+            assert.equal(on.googleAnalyticsId, 'G-TEST123');
+            assert.equal(on.needsRss, true);
+            assert.equal(on.rssPath, '/feed.xml');
+        });
+
+        it('needsToc follows shouldRenderToc input (single policy with build_toc)', () => {
+            const noToc = resolveFeatureGates({ ...base, shouldRenderToc: false });
+            assert.equal(noToc.needsToc, false);
+            const yesToc = resolveFeatureGates({ ...base, shouldRenderToc: true });
+            assert.equal(yesToc.needsToc, true);
+        });
     });
 
     describe('buildCommentsClientConfig', () => {

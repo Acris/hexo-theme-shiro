@@ -95,7 +95,7 @@ function createHarness() {
         queueMicrotask
     });
 
-    return { window, document, elements, rt: window.__shiroRuntime };
+    return { window, document, elements, rt: window.__shiro.runtime };
 }
 
 describe('runtime build contract', () => {
@@ -216,6 +216,54 @@ describe('client runtime protocol', () => {
 
         assert.ok(errorSeen);
         assert.match(String(errorSeen.message || errorSeen), /missing config/);
+    });
+
+    it('featureReady cannot resurrect an aborted channel', async () => {
+        const { rt, window, elements } = harness;
+        let errorSeen = null;
+
+        window.document.head.appendChild = (el) => {
+            elements.push(el);
+            queueMicrotask(() => {
+                rt.featureAbort('zombie', new Error('gone'));
+                if (typeof el.onload === 'function') {
+                    el.dataset.shiroLoaded = 'true';
+                    el.onload();
+                }
+            });
+        };
+
+        const feature = rt.createFeatureLoader({
+            id: 'zombie',
+            src: '/zombie.js',
+            onError: (err) => {
+                errorSeen = err;
+            }
+        });
+
+        await new Promise((resolve) => {
+            feature.load();
+            setTimeout(resolve, 40);
+        });
+        assert.ok(errorSeen);
+
+        // Late ready must not clear permanent abort.
+        rt.featureReady('zombie');
+
+        let secondOk = false;
+        await new Promise((resolve) => {
+            feature.load(() => {
+                secondOk = true;
+            });
+            setTimeout(resolve, 30);
+        });
+        assert.equal(secondOk, false);
+    });
+
+    it('exports escapeHtml / escapeAttr aligned with server semantics', () => {
+        const { rt } = harness;
+        assert.equal(rt.escapeHtml('<a "b" \'c\'>'), '&lt;a &quot;b&quot; &#39;c&#39;&gt;');
+        assert.equal(rt.escapeAttr('x&y'), 'x&amp;y');
     });
 
     it('featureAbort is permanent — second load reports immediately', async () => {
@@ -516,5 +564,105 @@ describe('comments ready queue contract', () => {
         shiro.whenCommentsReady(() => calls.push('c'));
 
         assert.deepEqual(calls, ['a', 'b', 'c']);
+    });
+
+    it('abort path drops queue and installs permanent no-op whenReady', () => {
+        const calls = [];
+        const shiro = {
+            commentsReadyQueue: [
+                () => calls.push('should-not-run')
+            ],
+            whenCommentsReady: (fn) => {
+                shiro.commentsReadyQueue.push(fn);
+            }
+        };
+        const rt = {};
+
+        function abortComments() {
+            const fail = function () { /* permanent no-op */ };
+            shiro.commentsReadyQueue = [];
+            shiro.whenCommentsReady = fail;
+            rt.comments = {
+                failed: true,
+                whenReady: fail,
+                loadCss: function () { return Promise.resolve(); },
+                onNearViewport: function (_el, callback) {
+                    if (typeof callback === 'function') callback();
+                }
+            };
+        }
+
+        abortComments();
+        shiro.whenCommentsReady(() => calls.push('late'));
+        if (rt.comments && typeof rt.comments.whenReady === 'function') {
+            rt.comments.whenReady(() => calls.push('rt-late'));
+        }
+
+        assert.deepEqual(shiro.commentsReadyQueue, []);
+        assert.equal(rt.comments.failed, true);
+        assert.deepEqual(calls, []);
+    });
+});
+
+describe('createFeatureLoader permanent vs retryable errors', () => {
+    let harness;
+
+    beforeEach(() => {
+        harness = createHarness();
+    });
+
+    it('reports permanent:true for featureAbort and permanent:false for network-style failure', async () => {
+        const { rt, window, elements } = harness;
+        const metas = [];
+
+        window.document.head.appendChild = (el) => {
+            elements.push(el);
+            queueMicrotask(() => {
+                // Simulate network failure: error without featureReady/Abort.
+                if (typeof el.onerror === 'function') {
+                    el.dataset.shiroError = 'true';
+                    el.onerror(new Error('network'));
+                }
+            });
+        };
+
+        const feature = rt.createFeatureLoader({
+            id: 'net',
+            src: '/net.js',
+            onError: (err, meta) => {
+                metas.push(meta || {});
+            }
+        });
+
+        await new Promise((resolve) => {
+            feature.load();
+            setTimeout(resolve, 40);
+        });
+        assert.equal(metas.length, 1);
+        assert.equal(metas[0].permanent, false);
+
+        // Permanent abort path
+        window.document.head.appendChild = (el) => {
+            elements.push(el);
+            queueMicrotask(() => {
+                rt.featureAbort('perm2', new Error('nope'));
+                if (typeof el.onload === 'function') {
+                    el.dataset.shiroLoaded = 'true';
+                    el.onload();
+                }
+            });
+        };
+        const feature2 = rt.createFeatureLoader({
+            id: 'perm2',
+            src: '/perm2.js',
+            onError: (err, meta) => {
+                metas.push(meta || {});
+            }
+        });
+        await new Promise((resolve) => {
+            feature2.load();
+            setTimeout(resolve, 40);
+        });
+        assert.equal(metas[metas.length - 1].permanent, true);
     });
 });

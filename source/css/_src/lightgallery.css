@@ -2,7 +2,9 @@
    Loaded when the lightbox opens after the first image click. */
 
 /* Participates in the same cascade layers as style.min.css (see _tailwind.css).
-   Keeps feature rules from beating Tailwind utilities as unlayered CSS. */
+   Keeps feature rules from beating Tailwind utilities as unlayered CSS.
+   Overlay chrome uses fixed light-on-dark hex (not paper tokens): the LG stage
+   is a full-viewport dark shell independent of site data-theme paper colors. */
 @layer components {
     .lg-outer {
         font-family: var(--font-serif);

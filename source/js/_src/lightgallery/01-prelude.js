@@ -5,7 +5,7 @@
     // fallback — keeps version pin in _config.yml + feature-gates only.
     // Signals featureReady/Abort so createFeatureLoader waits for true usability.
     const shiro = window.__shiro || {};
-    const rt = shiro.runtime || window.__shiroRuntime;
+    const rt = shiro.runtime;
     const FEATURE_ID = 'lightgallery';
 
     const signalAbort = (error) => {
