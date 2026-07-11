@@ -50,13 +50,13 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 
 {% macro divider(class="my-4") %}
 <div class="{{ class }} flex items-center justify-center gap-3" aria-hidden="true">
-    <div class="h-px flex-1 bg-linear-to-r from-transparent to-slate-300 max-w-divider"></div>
-    <svg class="h-4 w-10 shrink-0 text-slate-300" viewBox="0 0 40 10">
+    <div class="h-px flex-1 bg-linear-to-r from-transparent to-text-faint max-w-divider"></div>
+    <svg class="h-4 w-10 shrink-0 text-text-faint" viewBox="0 0 40 10">
         <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
         <circle cx="4" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
         <circle cx="36" cy="5" r="1.5" fill="currentColor" opacity="0.6" />
     </svg>
-    <div class="h-px flex-1 bg-linear-to-l from-transparent to-slate-300 max-w-divider"></div>
+    <div class="h-px flex-1 bg-linear-to-l from-transparent to-text-faint max-w-divider"></div>
 </div>
 {% endmacro %}
 
@@ -72,7 +72,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% endmacro %}
 
 {% macro icon_chevron_down(class="size-4", id="") %}
-<svg class="{{ class }} text-slate-500 transition-transform duration-200"{% if id %} id="{{ id }}"{% endif %}
+<svg class="{{ class }} text-text-muted transition-transform duration-200"{% if id %} id="{{ id }}"{% endif %}
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path fill-rule="evenodd"
         d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
@@ -80,19 +80,19 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 </svg>
 {% endmacro %}
 
-{% macro icon_folder(class="size-4 text-slate-400 shrink-0", id="") %}
+{% macro icon_folder(class="size-4 text-text-subtle shrink-0", id="") %}
 <svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
 </svg>
 {% endmacro %}
 
-{% macro icon_nav_arrow(class="size-4 text-slate-400 shrink-0", id="") %}
+{% macro icon_nav_arrow(class="size-4 text-text-subtle shrink-0", id="") %}
 <svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 </svg>
 {% endmacro %}
 
-{% macro icon_book(class="size-4 text-slate-400 shrink-0", id="") %}
+{% macro icon_book(class="size-4 text-text-subtle shrink-0", id="") %}
 <svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
 </svg>
@@ -149,24 +149,24 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
     timeLabel: __('word_count.time')
 }) %}
 {% set meta_dense = wc and (wc.count != null or wc.time != null) %}
-{% set meta_icon = "size-3.5 text-slate-400 shrink-0 sm:size-4" if meta_dense else "size-4 text-slate-400 shrink-0" %}
+{% set meta_icon = "size-3.5 text-text-subtle shrink-0 sm:size-4" if meta_dense else "size-4 text-text-subtle shrink-0" %}
 {# ~3 clusters when word count is on (date • category • count/time). Sibling
    bullets + gap-x keep separators visually centered between chips. #}
-<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-slate-500 {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
+<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-text-muted {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow(class=meta_icon) }}
         <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-muted"><time datetime="{{ escape_attr(post_date_attr) }}">{{ post_date_text }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         {% set post_categories = post.categories.toArray() %}
-        <span class="select-none text-slate-300" aria-hidden="true">•</span>
+        <span class="select-none text-text-faint" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
             {{ icon_folder(class=meta_icon) }}
             {% if show_all_cats %}
                 {# Article header: full hierarchy / all assigned categories. #}
                 {% for cat in post_categories %}
                     <a class="link-muted" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
-                    {% if not loop.last %}<span class="text-slate-300">/</span>{% endif %}
+                    {% if not loop.last %}<span class="text-text-faint">/</span>{% endif %}
                 {% endfor %}
             {% else %}
                 {# List cards: deepest primary + parallel overflow (+N); title lists all topic paths. #}
@@ -181,7 +181,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         </div>
     {% endif %}
     {% if meta_dense %}
-        <span class="select-none text-slate-300" aria-hidden="true">•</span>
+        <span class="select-none text-text-faint" aria-hidden="true">•</span>
         {# One chip: "1.2k / 5 mins" — slash for sub-fields; bullet for clusters. #}
         <div class="flex items-center gap-1.5 oldstyle-nums"{% if wc.title %} title="{{ escape_attr(wc.title) }}"{% endif %}>
             {{ icon_book(class=meta_icon) }}
@@ -189,7 +189,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
             <span aria-label="{{ escape_attr(__('word_count.count') + ': ' + wc.count) }}">{{ escape_html(wc.count) }}</span>
             {% endif %}
             {% if wc.count != null and wc.time != null %}
-            <span class="select-none text-slate-300" aria-hidden="true">/</span>
+            <span class="select-none text-text-faint" aria-hidden="true">/</span>
             {% endif %}
             {% if wc.time != null %}
             <span aria-label="{{ escape_attr(__('word_count.time') + ': ' + wc.time) }}">{{ escape_html(wc.time) }}</span>
@@ -201,13 +201,13 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 
 {% macro render_tag(tag, show_count=false) %}
 <a href="{{ href_for(tag.path) }}" class="tag-pill">
-    <svg class="size-3 text-slate-400 mr-2 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <svg class="size-3 text-text-subtle mr-2 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
         <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
     </svg>
     {{ escape_html(tag.name) }}
     {% if show_count %}
-        <span class="text-slate-400 ml-1 text-xs">{{ tag.length }}</span>
+        <span class="text-text-subtle ml-1 text-xs">{{ tag.length }}</span>
     {% endif %}
 </a>
 {% endmacro %}

@@ -1,10 +1,11 @@
 ;(() => {
     'use strict';
 
-    const rt = window.__shiroRuntime;
+    const shiro = window.__shiro || {};
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
 
-    const script = window.__clipboardScript || '';
+    const script = shiro.__clipboardScript || window.__clipboardScript || '';
     if (!script) return;
 
     const { scheduleIdle, createFeatureLoader } = rt;
@@ -52,17 +53,20 @@
                 pendingTargets.push(target);
             }
         });
-        window.__shiroClipboardTargets = pendingTargets.slice();
+        const targetsList = pendingTargets.slice();
+        window.__shiroClipboardTargets = targetsList;
+        shiro.__shiroClipboardTargets = targetsList;
     }
 
     function enhanceTargets(targets) {
-        if (typeof window.__shiroEnhanceClipboard === 'function') {
-            window.__shiroEnhanceClipboard(targets);
+        const enhance = shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard;
+        if (typeof enhance === 'function') {
+            enhance(targets);
         }
     }
 
     function loadClipboard(targets, onLoaded) {
-        if (typeof window.__shiroEnhanceClipboard === 'function') {
+        if (typeof (shiro.__shiroEnhanceClipboard || window.__shiroEnhanceClipboard) === 'function') {
             enhanceTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
             return;
@@ -75,6 +79,7 @@
             pendingTargets.length = 0;
             pendingTargetSet.clear();
             window.__shiroClipboardTargets = [];
+            shiro.__shiroClipboardTargets = [];
             if (typeof onLoaded === 'function') onLoaded();
         });
     }

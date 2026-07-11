@@ -43,7 +43,7 @@
         flex-shrink: 0;
         margin: 0;
         padding: 1rem 1rem 0.75rem;
-        color: var(--color-slate-400);
+        color: var(--color-text-subtle);
         font-family: var(--font-title);
         font-size: 0.75rem;
         line-height: 1rem;
@@ -53,12 +53,12 @@
 
     .toc-sidebar-title::before {
         content: "—\00a0";
-        color: var(--color-slate-300);
+        color: var(--color-text-faint);
     }
 
     .toc-sidebar-title::after {
         content: "\00a0—";
-        color: var(--color-slate-300);
+        color: var(--color-text-faint);
     }
 
     .toc-sidebar-inner .toc-body {
@@ -85,7 +85,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 1rem;
-        color: var(--color-slate-500);
+        color: var(--color-text-muted);
         cursor: pointer;
         font-size: 0.875rem;
         line-height: 1.25rem;
@@ -106,12 +106,12 @@
 
     .toc-toggle-title::before {
         content: "—\00a0";
-        color: var(--color-slate-300);
+        color: var(--color-text-faint);
     }
 
     .toc-toggle-title::after {
         content: "\00a0—";
-        color: var(--color-slate-300);
+        color: var(--color-text-faint);
     }
 
     .toc-inline .toc-body {
@@ -157,7 +157,7 @@
         position: relative;
         display: block;
         padding: 0.25rem 0;
-        color: var(--color-slate-500);
+        color: var(--color-text-muted);
         font-family: var(--font-serif);
         font-size: 0.8rem;
         line-height: 1.6;
@@ -226,7 +226,7 @@
         color: var(--color-border-strong);
     }
 
-    /* Body (not muted): dark muted/slate-500 on panel is ~4.1:1; body stays AA for links. */
+    /* Body (not muted): muted on panel can fall short of AA; body stays AA for links. */
     html[data-theme="dark"] .toc-link {
         color: var(--color-text-body);
     }

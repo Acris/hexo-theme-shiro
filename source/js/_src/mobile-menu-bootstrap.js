@@ -1,10 +1,11 @@
 ;(() => {
     'use strict';
 
-    const rt = window.__shiroRuntime;
+    const shiro = window.__shiro || {};
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
 
-    const script = window.__mobileMenuScript || '';
+    const script = shiro.__mobileMenuScript || window.__mobileMenuScript || '';
     if (!script) return;
 
     const { createFeatureLoader } = rt;

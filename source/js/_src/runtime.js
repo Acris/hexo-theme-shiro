@@ -13,8 +13,9 @@
     // Prefer the template-injected global (set from a nonced inline script). Fall
     // back to this classic script's own nonce when the global is not yet set.
     function cspNonce() {
-        if (typeof window.__shiroCspNonce === 'string' && window.__shiroCspNonce) {
-            return window.__shiroCspNonce;
+        const bagNonce = root.__shiroCspNonce || window.__shiroCspNonce;
+        if (typeof bagNonce === 'string' && bagNonce) {
+            return bagNonce;
         }
         try {
             const current = document.currentScript;

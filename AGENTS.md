@@ -63,6 +63,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Archive year groups: helper `posts_by_year` / `scripts/lib/archive.js` (do not re-open/close year `<div>`s in Nunjucks loops).
 - Tag/category detail post lists: shared `_partial/common/paginated-posts.njk` (caller imports `render_list`).
 - Syntax highlight colors: tokens `--color-code-*` in `tokens.css` / dark swaps in `dark.css`; feature `code.css` consumes tokens only (no parallel dark hex palette).
+- Dark mode does **not** invert the Tailwind slate scale. Chrome and prose use semantic tokens (`text-heading` / `text-body` / `text-muted` / `text-chrome` / `border-*` / `bg-*`). Prefer those over `text-slate-*` in layouts and components.
 - Comments boot: stub enqueue in `comments/bootstrap.njk` during parse; `comments-bootstrap.js` (after `runtime.min.js`) installs helpers and drains `__shiroCommentsReadyQueue`. Missing runtime aborts hard — do not silent-run providers.
 
 ## Workflow rules

@@ -185,18 +185,10 @@
     }
 
     .btn-ink {
-        @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-800 shadow-xs duration-200 ease-soft transition-interactive;
-
-        @variant dark {
-            @apply border-border-strong text-text-body;
-        }
+        @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-border-strong px-4 py-2.5 text-sm text-text-body shadow-xs duration-200 ease-soft transition-interactive;
 
         &:hover {
-            @apply border-seal bg-seal text-white/95 saturate-105 shadow-ink;
-
-            @variant dark {
-                @apply text-slate-950;
-            }
+            @apply border-seal bg-seal text-on-seal saturate-105 shadow-ink;
         }
 
         &:active {
@@ -206,37 +198,19 @@
 
     /* Optional meta inside button-ink (e.g. remaining post count on category index). */
     .btn-ink-meta {
-        @apply text-xs font-medium tracking-wide text-slate-500;
-
-        @variant dark {
-            @apply text-text-muted;
-        }
+        @apply text-xs font-medium tracking-wide text-text-muted;
     }
 
     .btn-ink:hover .btn-ink-meta {
-        @apply text-white/85;
-
-        @variant dark {
-            @apply text-slate-950/80;
-        }
+        @apply text-on-seal/85;
     }
 
     .header-pill-btn {
-        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-slate-200/80 bg-slate-50/50 text-xs tracking-wide text-slate-500 duration-300 transition-interactive;
-
-        @variant dark {
-            /* Idle chrome: slate-600 dark (#918e8a) meets WCAG AA on paper (~5.1:1);
-               subtle/muted-dark fall short of 4.5:1 on paper-dark. */
-            @apply border-border-strong bg-bg-inset text-slate-600;
-        }
+        @apply inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 rounded-full border border-border-decorative bg-bg-inset text-xs tracking-wide text-text-chrome duration-300 transition-interactive;
 
         &:hover {
             @apply bg-paper text-seal shadow-xs;
             border-color: color-mix(in srgb, var(--color-seal) 30%, transparent);
-
-            @variant dark {
-                @apply bg-bg-overlay text-seal;
-            }
         }
     }
 
@@ -272,16 +246,16 @@
     }
 
     .site-title {
-        @apply font-title tracking-wide text-slate-900 text-[2.2rem] leading-[1.18] sm:text-[2.55rem] md:text-[3.1rem];
+        @apply font-title tracking-wide text-text-heading text-[2.2rem] leading-[1.18] sm:text-[2.55rem] md:text-[3.1rem];
     }
 
     .site-subtitle {
-        @apply mt-3 text-sm leading-relaxed text-slate-500 sm:text-[0.95rem];
+        @apply mt-3 text-sm leading-relaxed text-text-muted sm:text-[0.95rem];
     }
 
     .page-title,
     .section-title {
-        @apply font-bold leading-snug text-slate-900 text-[1.8rem] sm:text-[2rem];
+        @apply font-bold leading-snug text-text-heading text-[1.8rem] sm:text-[2rem];
     }
 
     .page-title {
@@ -293,11 +267,7 @@
     }
 
     .section-heading {
-        @apply mb-6 flex items-center gap-2 border-b border-slate-100 pb-2 text-xl font-bold text-slate-800;
-
-        @variant dark {
-            @apply border-border-strong;
-        }
+        @apply mb-6 flex items-center gap-2 border-b border-border-decorative pb-2 text-xl font-bold text-text-heading;
     }
 
     /* Category index (scheme 2): compact branch nav; counts + preview only on leaves. */
@@ -329,31 +299,19 @@
     }
 
     .category-block--has-posts .category-block-head {
-        @apply mb-3 border-b border-slate-100 py-2 pb-2;
-
-        @variant dark {
-            @apply border-border-strong;
-        }
+        @apply mb-3 border-b border-border-decorative py-2 pb-2;
     }
 
     .category-tree-dot {
-        @apply size-1.5 shrink-0 rounded-full bg-slate-300;
-
-        @variant dark {
-            @apply bg-border-strong;
-        }
+        @apply size-1.5 shrink-0 rounded-full bg-text-faint;
     }
 
     .category-node-icon {
-        @apply text-slate-400;
+        @apply text-text-subtle;
     }
 
     .category-node-icon--branch {
-        @apply text-slate-300 opacity-80;
-
-        @variant dark {
-            @apply text-border-strong;
-        }
+        @apply text-text-faint opacity-80;
     }
 
     .category-node-name {
@@ -361,28 +319,16 @@
     }
 
     .category-block--branch .category-node-name {
-        @apply text-sm font-medium text-slate-500;
-
-        @variant dark {
-            @apply text-text-muted;
-        }
+        @apply text-sm font-medium text-text-muted;
     }
 
     .category-block--has-posts .category-node-name {
-        @apply text-lg font-bold text-slate-800;
-
-        @variant dark {
-            @apply text-text-heading;
-        }
+        @apply text-lg font-bold text-text-heading;
     }
 
     /* Count only on leaves — avoids triple “7” on A / B / C chains. */
     .category-node-count {
-        @apply ml-auto shrink-0 text-sm font-medium tabular-nums text-slate-500;
-
-        @variant dark {
-            @apply text-text-muted;
-        }
+        @apply ml-auto shrink-0 text-sm font-medium tabular-nums text-text-muted;
     }
 
     /* Align post list with leaf title (no extra indent stack). */
@@ -397,77 +343,39 @@
 
     /* Home meta: parallel category overflow next to primary name. */
     .meta-cat-more {
-        @apply text-slate-400;
-
-        @variant dark {
-            @apply text-text-subtle;
-        }
+        @apply text-text-subtle;
     }
 
     .post-nav-link {
-        @apply flex items-center gap-2 text-slate-600 transition-colors hover:text-seal max-w-[45%];
-
-        @variant dark {
-            @apply text-text-muted hover:text-seal;
-        }
+        @apply flex items-center gap-2 text-text-muted transition-colors hover:text-seal max-w-[45%];
     }
 
     .link-muted {
-        @apply text-slate-600 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
-
-        @variant dark {
-            @apply text-text-muted decoration-border-strong hover:text-seal;
-        }
+        @apply text-text-muted underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
     }
 
     .link-underline {
-        @apply underline-offset-4 decoration-slate-300 transition-colors hover:underline hover:text-seal hover:decoration-seal/40;
-
-        @variant dark {
-            @apply decoration-border-strong hover:text-seal hover:decoration-seal/40;
-        }
+        @apply underline-offset-4 decoration-border-decorative transition-colors hover:underline hover:text-seal hover:decoration-seal/40;
     }
 
     .tag-pill {
-        @apply inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-600 duration-200 hover:border-seal/50 hover:text-seal;
+        @apply inline-flex items-center rounded-md border border-border-strong bg-bg-inset px-3 py-1.5 text-sm text-text-muted duration-200 hover:border-seal/50 hover:text-seal;
         transition-property: color, border-color;
-
-        @variant dark {
-            @apply border-border-strong bg-bg-inset text-text-muted;
-        }
-
-        &:hover {
-            @variant dark {
-                @apply border-seal text-seal;
-            }
-        }
     }
 
     /* Shared page chrome divider: used by main content, footer, and post navigation only. */
     .section-divider {
-        @apply mt-8 border-t border-slate-200/70 pt-8 md:mt-10 md:pt-10;
-
-        @variant dark {
-            @apply border-border-decorative;
-        }
+        @apply mt-8 border-t border-border-decorative pt-8 md:mt-10 md:pt-10;
     }
 
     .post-nav-title {
-        @apply line-clamp-1 underline-offset-4 decoration-slate-300 group-hover:underline group-hover:decoration-seal/40;
-
-        @variant dark {
-            @apply decoration-border-strong group-hover:decoration-seal/40;
-        }
+        @apply line-clamp-1 underline-offset-4 decoration-border-decorative group-hover:underline group-hover:decoration-seal/40;
     }
 
     .pagination {
         & .page-number,
         & .extend {
-            @apply text-slate-500 underline-offset-4 decoration-slate-300 transition-colors hover:text-seal hover:underline;
-
-            @variant dark {
-                @apply text-text-muted decoration-border-strong hover:text-seal;
-            }
+            @apply text-text-muted underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
         }
 
         & .page-number {
@@ -475,19 +383,11 @@
 
             &.current {
                 @apply cursor-default underline underline-offset-4 text-seal decoration-seal;
-
-                @variant dark {
-                    @apply text-seal decoration-seal;
-                }
             }
         }
 
         & .space {
-            @apply select-none text-slate-300;
-
-            @variant dark {
-                @apply text-border-strong;
-            }
+            @apply select-none text-text-faint;
         }
     }
 
@@ -508,20 +408,12 @@
 
     /* ── Back to Top ── */
     .back-to-top {
-        /* Idle icon uses muted/body (not subtle) so the control stays AA on paper. */
-        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-paper/92 text-slate-500 shadow-sm ease-soft;
+        /* Idle icon uses chrome/body so the control stays AA on paper. */
+        @apply fixed z-40 bottom-8 right-8 size-9 flex cursor-pointer items-center justify-center rounded-full border border-border-strong bg-paper/92 text-text-chrome shadow-sm ease-soft;
         transition: opacity 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-
-        @variant dark {
-            @apply border-border-strong bg-bg-panel text-text-body;
-        }
 
         &:hover {
             @apply border-seal/30 text-seal shadow-md;
-
-            @variant dark {
-                @apply border-seal text-seal;
-            }
         }
 
         &[data-visible="false"] {
@@ -542,23 +434,23 @@
         /* Measure owned here (prose default is also ~65ch; keep a single explicit cap). */
         @apply mx-auto max-w-[65ch] font-serif leading-relaxed prose;
         --shiro-code-bleed: 3.5rem;
-        --tw-prose-body: var(--color-slate-800);
-        --tw-prose-headings: var(--color-ink);
-        --tw-prose-lead: var(--color-slate-600);
-        --tw-prose-links: var(--color-slate-800);
-        --tw-prose-bold: var(--color-ink);
-        --tw-prose-counters: var(--color-slate-500);
-        --tw-prose-bullets: var(--color-slate-300);
-        --tw-prose-hr: var(--color-slate-200);
-        --tw-prose-quotes: var(--color-slate-600);
-        --tw-prose-quote-borders: var(--color-slate-300);
-        --tw-prose-captions: var(--color-slate-500);
+        --tw-prose-body: var(--color-text-body);
+        --tw-prose-headings: var(--color-text-heading);
+        --tw-prose-lead: var(--color-text-muted);
+        --tw-prose-links: var(--color-text-body);
+        --tw-prose-bold: var(--color-text-heading);
+        --tw-prose-counters: var(--color-text-muted);
+        --tw-prose-bullets: var(--color-text-faint);
+        --tw-prose-hr: var(--color-border-decorative);
+        --tw-prose-quotes: var(--color-text-muted);
+        --tw-prose-quote-borders: var(--color-text-faint);
+        --tw-prose-captions: var(--color-text-muted);
         --tw-prose-code: var(--color-seal);
         /* Align bare <pre> with highlight/code surfaces (not terminal black). */
         --tw-prose-pre-code: var(--color-text-body);
         --tw-prose-pre-bg: var(--color-code-bg);
-        --tw-prose-th-borders: var(--color-slate-300);
-        --tw-prose-td-borders: var(--color-slate-200);
+        --tw-prose-th-borders: var(--color-border-strong);
+        --tw-prose-td-borders: var(--color-border-decorative);
 
         & a:hover {
             @apply text-seal;
@@ -627,7 +519,7 @@
 
 @layer utilities {
     .focus-elegant:focus-visible {
-        @apply border-slate-800/20 outline-none ring-2 ring-white/85 ring-offset-2 ring-offset-focus-ring;
+        @apply border-border-strong outline-none ring-2 ring-white/85 ring-offset-2 ring-offset-focus-ring;
 
         /* Kept in @layer utilities so it shares the same cascade layer as the
            base focus rule and can override its `--tw-ring-*` tokens. */

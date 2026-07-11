@@ -1,11 +1,12 @@
 ;(() => {
     'use strict';
 
-    const rt = window.__shiroRuntime;
+    const shiro = window.__shiro || {};
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
 
-    const pagefindBase = window.__pagefindBase || '';
-    const searchCss = window.__searchCss || '';
+    const pagefindBase = shiro.__pagefindBase || window.__pagefindBase || '';
+    const searchCss = shiro.__searchCss || window.__searchCss || '';
     if (!pagefindBase) return;
 
     const { loadAsset, connectionAllowsWarm, scheduleIdleWarm } = rt;

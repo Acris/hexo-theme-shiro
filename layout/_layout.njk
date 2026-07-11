@@ -8,7 +8,7 @@
 <html lang="{{ escape_attr(gates.pageLang) }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
-<body class="h-full fog-bg text-slate-800"{% if gates.needsLightgallery %} data-shiro-lightgallery="true"{% endif %}>
+<body class="h-full fog-bg text-text-body"{% if gates.needsLightgallery %} data-shiro-lightgallery="true"{% endif %}>
     <!-- Preloader: font CSS load + fonts.ready, or preloader.min.js deadline. -->
     <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true">
         <div class="shiro-preloader-ripple" aria-hidden="true">
@@ -46,7 +46,7 @@
 
         <!-- Note Text — decorative aside, not part of main content or footer -->
         <aside class="mt-4 text-center" aria-hidden="true" role="presentation">
-            <p class="site-note font-title text-xs sm:text-sm text-slate-400/70 tracking-note font-light select-none" lang="ja">
+            <p class="site-note font-title text-xs sm:text-sm text-text-subtle/70 tracking-note font-light select-none" lang="ja">
                 白は、余白の名。
             </p>
         </aside>

@@ -29,8 +29,11 @@ colors:
   heading-dark: "#e8e5e1"
   body-dark: "#b0ada9"
   seal-dark: "#d4453a"
-  # Dark idle chrome (remapped slate-600); use when muted-dark would fail AA on paper
+  # Dark idle chrome (text-chrome token); use when muted-dark would fail AA on paper
   chrome-idle-dark: "#918e8a"
+  # Semantic type/chrome (CSS: --color-text-*); not via inverted slate utilities
+  text-chrome: "#6b7280"
+  text-chrome-dark: "#918e8a"
   code-bg-dark: "#1b1a19"
   code-gutter-dark: "#181817"
 typography:

@@ -1,7 +1,11 @@
 ;(() => {
     'use strict';
 
-    const i18nClipboard = () => (window.__i18n && window.__i18n.clipboard) || {};
+    const shiro = window.__shiro || {};
+    const i18nClipboard = () => {
+        const i18n = shiro.i18n || window.__i18n;
+        return (i18n && i18n.clipboard) || {};
+    };
     const i18nCopy = () => i18nClipboard().copy || 'Copy code';
     const i18nCopied = () => i18nClipboard().copied || 'Copied';
     const i18nFailed = () => i18nClipboard().failed || 'Copy failed';
@@ -109,7 +113,7 @@
 
     function scheduleEnhance(blocks) {
         const queue = Array.from(blocks);
-        const rt = window.__shiroRuntime;
+        const rt = shiro.runtime || window.__shiroRuntime;
         const schedule = (rt && rt.scheduleIdle)
             || ((task, options) => {
                 const opts = options || {};
@@ -134,10 +138,12 @@
             .filter(block => block && block.isConnected);
         if (targets.length) scheduleEnhance(targets);
     };
+    shiro.__shiroEnhanceClipboard = window.__shiroEnhanceClipboard;
 
-    const initialTargets = Array.isArray(window.__shiroClipboardTargets)
-        ? window.__shiroClipboardTargets
+    const initialTargets = Array.isArray(shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
+        ? (shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
         : [];
     window.__shiroClipboardTargets = [];
+    shiro.__shiroClipboardTargets = [];
     window.__shiroEnhanceClipboard(initialTargets);
 })();

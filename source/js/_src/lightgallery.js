@@ -3,13 +3,14 @@
 
     // URLs come only from layout injection (gates / feature_var). No hardcoded CDN
     // fallback — keeps version pin in _config.yml + feature-gates only.
-    const cssHref = String(window.__lightgalleryCss || '').trim();
-    const jsSrc = String(window.__lightgalleryJs || '').trim();
-    const themeCssHref = String(window.__lightgalleryThemeCss || '').trim();
-    const cssIntegrity = String(window.__lightgalleryCssIntegrity || '').trim();
-    const jsIntegrity = String(window.__lightgalleryJsIntegrity || '').trim();
+    const shiro = window.__shiro || {};
+    const cssHref = String(shiro.__lightgalleryCss || window.__lightgalleryCss || '').trim();
+    const jsSrc = String(shiro.__lightgalleryJs || window.__lightgalleryJs || '').trim();
+    const themeCssHref = String(shiro.__lightgalleryThemeCss || window.__lightgalleryThemeCss || '').trim();
+    const cssIntegrity = String(shiro.__lightgalleryCssIntegrity || window.__lightgalleryCssIntegrity || '').trim();
+    const jsIntegrity = String(shiro.__lightgalleryJsIntegrity || window.__lightgalleryJsIntegrity || '').trim();
 
-    const rt = window.__shiroRuntime;
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
     if (!cssHref || !jsSrc) {
         console.error('[shiro-lightgallery] missing __lightgalleryCss/__lightgalleryJs; aborting');
@@ -119,7 +120,10 @@
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
-    const i18nGallery = () => (window.__i18n && window.__i18n.gallery) || {};
+    const i18nGallery = () => {
+        const i18n = shiro.i18n || window.__i18n;
+        return (i18n && i18n.gallery) || {};
+    };
 
     // Build data-sub-html with optional linked source button
     const buildSubHtml = (caption, linkedUrl) => {
@@ -385,12 +389,14 @@
     }
 
     window.__shiroLightGalleryOpen = openFromElement;
+    shiro.lightGalleryOpen = openFromElement;
 
     // Prefetch the LightGallery library + styles ahead of the first click so a
     // warmed gallery opens instantly. Failures are swallowed; the click path retries.
     window.__shiroLightGalleryWarm = () => {
         ensureLightGalleryAssets().catch(() => {});
     };
+    shiro.lightGalleryWarm = window.__shiroLightGalleryWarm;
 
     document.addEventListener('click', (event) => {
         const img = clickedImage(event);
@@ -402,13 +408,15 @@
         }
     });
 
-    if (window.__shiroLightGalleryAutoOpen) {
-        const target = window.__shiroLightGalleryAutoOpen;
+    const autoOpen = shiro.lightGalleryAutoOpen || window.__shiroLightGalleryAutoOpen;
+    if (autoOpen) {
         window.__shiroLightGalleryAutoOpen = null;
-        openFromElement(target);
-    } else if (window.__shiroLightGalleryWarmRequested) {
+        shiro.lightGalleryAutoOpen = null;
+        openFromElement(autoOpen);
+    } else if (shiro.lightGalleryWarmRequested || window.__shiroLightGalleryWarmRequested) {
         window.__shiroLightGalleryWarmRequested = false;
-        window.__shiroLightGalleryWarm();
+        shiro.lightGalleryWarmRequested = false;
+        (shiro.lightGalleryWarm || window.__shiroLightGalleryWarm)();
     }
 
 })();

@@ -10,10 +10,10 @@
         margin: 1.5rem 0;
         padding: 0;
         overflow-x: auto;
-        border: 1px solid var(--color-slate-100);
+        border: 1px solid var(--color-border-decorative);
         border-radius: 0.5rem;
-        background-color: var(--color-slate-50);
-        color: var(--color-slate-700);
+        background-color: var(--color-code-bg);
+        color: var(--color-text-body);
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
     }
 
@@ -33,10 +33,10 @@
         width: 2.5rem;
         min-width: 2.5rem;
         user-select: none;
-        border-right: 1px solid var(--color-slate-200);
-        background-color: var(--color-slate-100);
-        /* slate-600 (~6.9:1 on gutter) — slate-400 failed WCAG AA as line-number chrome */
-        color: var(--color-slate-600);
+        border-right: 1px solid var(--color-border-strong);
+        background-color: var(--color-border-decorative);
+        /* text-chrome / muted — line-number chrome must stay AA on gutter */
+        color: var(--color-text-chrome);
         text-align: right;
     }
 
@@ -127,15 +127,15 @@
         justify-content: space-between;
         margin: 0;
         padding: 0.375rem 0.75rem;
-        border-bottom: 1px solid var(--color-slate-200);
-        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-        color: var(--color-slate-500);
+        border-bottom: 1px solid var(--color-border-strong);
+        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-border-decorative));
+        color: var(--color-text-muted);
         font-size: 0.75rem;
         line-height: 1rem;
     }
 
     .prose-shiro .highlight figcaption a {
-        color: var(--color-slate-500);
+        color: var(--color-text-muted);
         text-decoration: none;
     }
 
@@ -164,9 +164,9 @@
     .prose-shiro .gist {
         margin: 1.5rem 0;
         overflow-x: auto;
-        border: 1px solid var(--color-slate-100);
+        border: 1px solid var(--color-border-decorative);
         border-radius: 0.5rem;
-        background-color: var(--color-slate-50);
+        background-color: var(--color-code-bg);
         font-size: 0.875rem;
         line-height: 1.25rem;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -178,20 +178,20 @@
     }
 
     .prose-shiro .gist .gist-data {
-        border-bottom: 1px solid var(--color-slate-200);
+        border-bottom: 1px solid var(--color-border-strong);
         background: transparent;
     }
 
     .prose-shiro .gist .gist-meta {
         padding: 0.5rem 0.75rem;
-        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-slate-100));
-        color: var(--color-slate-500);
+        background-color: color-mix(in srgb, var(--color-paper) 60%, var(--color-border-decorative));
+        color: var(--color-text-muted);
         font-size: 0.75rem;
         line-height: 1rem;
     }
 
     .prose-shiro .gist .gist-meta a {
-        color: var(--color-slate-600);
+        color: var(--color-text-chrome);
         text-decoration: none;
     }
 
@@ -200,7 +200,7 @@
     }
 
     .prose-shiro .gist .line-numbers {
-        color: var(--color-slate-600);
+        color: var(--color-text-chrome);
     }
 
     .highlight-wrapper {
@@ -237,10 +237,10 @@
         align-items: center;
         justify-content: center;
         padding: 0.375rem;
-        border: 1px solid color-mix(in srgb, var(--color-slate-200) 60%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
         border-radius: 2px;
         background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
-        color: var(--color-slate-300);
+        color: var(--color-text-faint);
         cursor: pointer;
         /* Hidden until hover/focus on pointer devices; always discoverable on touch. */
         opacity: 0;
@@ -314,8 +314,8 @@
     html[data-theme="dark"] .prose-shiro .highlight td.gutter {
         border-color: var(--color-border-strong);
         background-color: var(--color-code-gutter);
-        /* Remapped slate-600 (#918e8a) clears AA on code-gutter; subtle/muted-dark do not. */
-        color: var(--color-slate-600);
+        /* text-chrome is AA on code-gutter in both themes. */
+        color: var(--color-text-chrome);
     }
 
     /* Syntax token colors inherit from dark.css root swaps — no per-token dark rules. */
@@ -361,7 +361,7 @@
     }
 
     html[data-theme="dark"] .prose-shiro .gist .line-numbers {
-        color: var(--color-slate-600);
+        color: var(--color-text-chrome);
     }
 
     html[data-theme="dark"] .highlight-wrapper > .copy-btn {

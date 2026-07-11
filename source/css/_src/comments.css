@@ -24,7 +24,7 @@
 
     @supports (color: color-mix(in oklab, red, red)) {
         .giscus {
-            border-top-color: color-mix(in oklab, var(--color-slate-200) 70%, transparent);
+            border-top-color: color-mix(in oklab, var(--color-border-strong) 70%, transparent);
         }
     }
 

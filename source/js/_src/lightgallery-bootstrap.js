@@ -1,10 +1,11 @@
 ;(() => {
     'use strict';
 
-    const rt = window.__shiroRuntime;
+    const shiro = window.__shiro || {};
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
 
-    const script = window.__lightgalleryScript || '';
+    const script = shiro.__lightgalleryScript || window.__lightgalleryScript || '';
     if (!script) return;
 
     const {
@@ -30,6 +31,8 @@
             warmed = false;
             window.__shiroLightGalleryAutoOpen = null;
             window.__shiroLightGalleryWarmRequested = false;
+            shiro.lightGalleryAutoOpen = null;
+            shiro.lightGalleryWarmRequested = false;
         }
     });
 
@@ -71,23 +74,28 @@
             unbindWarm = null;
         }
 
-        if (window.__shiroLightGalleryOpen) {
-            if (typeof window.__shiroLightGalleryWarm === 'function') window.__shiroLightGalleryWarm();
+        const openFn = shiro.lightGalleryOpen || window.__shiroLightGalleryOpen;
+        if (openFn) {
+            const warmFn = shiro.lightGalleryWarm || window.__shiroLightGalleryWarm;
+            if (typeof warmFn === 'function') warmFn();
             return;
         }
 
         window.__shiroLightGalleryWarmRequested = true;
+        shiro.lightGalleryWarmRequested = true;
         loadGallery();
     }
 
     function open(target) {
-        if (window.__shiroLightGalleryOpen) {
-            window.__shiroLightGalleryOpen(target);
+        const openFn2 = shiro.lightGalleryOpen || window.__shiroLightGalleryOpen;
+        if (openFn2) {
+            openFn2(target);
             cleanupBootstrapListeners();
             return;
         }
 
         window.__shiroLightGalleryAutoOpen = target;
+        shiro.lightGalleryAutoOpen = target;
         loadGallery();
     }
 

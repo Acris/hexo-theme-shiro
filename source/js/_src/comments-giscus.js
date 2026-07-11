@@ -3,7 +3,8 @@
 
     // Giscus provider boot (deferred). Config: window.__shiroCommentsConfig.
     // Runs after comments-bootstrap installs whenReady / near-viewport helpers.
-    const whenReady = window.__shiroWhenCommentsReady;
+    const shiro = window.__shiro || {};
+    const whenReady = shiro.whenCommentsReady || window.__shiroWhenCommentsReady;
     if (typeof whenReady !== 'function') {
         console.error('[shiro-comments] giscus boot skipped: whenReady missing');
         return;
@@ -18,8 +19,9 @@
             return;
         }
 
-        const g = (w.__shiroCommentsConfig && w.__shiroCommentsConfig.giscus) || {};
-        const loadCommentsCss = w.__shiroLoadCommentsCss || (() => Promise.resolve());
+        const cfgRoot = shiro.__shiroCommentsConfig || w.__shiroCommentsConfig;
+        const g = (cfgRoot && cfgRoot.giscus) || {};
+        const loadCommentsCss = shiro.loadCommentsCss || w.__shiroLoadCommentsCss || (() => Promise.resolve());
         let loaded = false;
 
         // Keep iframe color-scheme aligned with html[data-theme]
@@ -57,7 +59,7 @@
             s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = w.__shiroCspNonce || '';
+            const nonce = shiro.__shiroCspNonce || w.__shiroCspNonce || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
                 'data-repo': g.repo || '',
@@ -95,10 +97,11 @@
             paintFrame();
         }).observe(d.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-        if (typeof w.__shiroOnNearViewport !== 'function') {
+        const onNear = shiro.onNearViewport || w.__shiroOnNearViewport;
+        if (typeof onNear !== 'function') {
             console.warn('[shiro-comments] near-viewport helper missing');
             return;
         }
-        w.__shiroOnNearViewport(container, loadGiscus);
+        onNear(container, loadGiscus);
     });
 })();

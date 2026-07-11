@@ -7,8 +7,10 @@
     if (!overlay) return;
 
     const storageKey = 'shiro:fonts-ready';
-    const fontsReadyToken =
-        typeof window.__shiroFontsReadyToken === 'string' ? window.__shiroFontsReadyToken : '';
+    const shiro = window.__shiro || {};
+    const fontsReadyToken = typeof (shiro.fontsReadyToken || window.__shiroFontsReadyToken) === 'string'
+        ? (shiro.fontsReadyToken || window.__shiroFontsReadyToken)
+        : '';
 
     const markReady = () => {
         document.documentElement.classList.add('shiro-preloader-done');

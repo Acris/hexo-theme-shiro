@@ -5,13 +5,14 @@
     // Stub in comments/bootstrap.njk pushes onto __shiroCommentsReadyQueue; this
     // deferred file (after runtime.min.js) installs helpers and runs the queue.
 
-    const rt = window.__shiroRuntime;
+    const shiro = window.__shiro || {};
+    const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt || typeof rt.loadAsset !== 'function') {
         console.error('[shiro-comments] runtime missing; comments bootstrap aborted');
         return;
     }
 
-    const commentsCss = window.__commentsCss || '';
+    const commentsCss = shiro.__commentsCss || window.__commentsCss || '';
     let commentsCssLoading = null;
 
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
@@ -55,6 +56,9 @@
     window.__shiroWhenCommentsReady = (callback) => {
         runCommentBoot(callback);
     };
+    shiro.whenCommentsReady = window.__shiroWhenCommentsReady;
+    shiro.loadCommentsCss = window.__shiroLoadCommentsCss;
+    shiro.onNearViewport = window.__shiroOnNearViewport;
 
     const queued = Array.isArray(window.__shiroCommentsReadyQueue)
         ? window.__shiroCommentsReadyQueue.slice()

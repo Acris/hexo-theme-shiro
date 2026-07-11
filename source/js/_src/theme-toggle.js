@@ -15,7 +15,8 @@
     if (!btn) return;
 
     const html = document.documentElement;
-    const defaultTheme = window.__themeDefault || 'system';
+    const shiro = window.__shiro || {};
+    const defaultTheme = shiro.themeDefault || window.__themeDefault || 'system';
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const states = defaultTheme === 'system'
         ? ['system', 'light', 'dark']
@@ -23,11 +24,11 @@
 
     // Prefer the FOUC-installed helper so theme + Pagefind contracts stay single-source.
     // Fallback mirrors head.njk only if the inline script was stripped.
-    const applyResolvedTheme = typeof window.__shiroApplyResolvedTheme === 'function'
-        ? window.__shiroApplyResolvedTheme
+    const applyResolvedTheme = typeof (shiro.applyResolvedTheme || window.__shiroApplyResolvedTheme) === 'function'
+        ? (shiro.applyResolvedTheme || window.__shiroApplyResolvedTheme)
         : (dark) => {
             html.setAttribute('data-theme', dark ? 'dark' : 'light');
-            if (window.__shiroSearchEnabled === true) {
+            if ((shiro.searchEnabled || window.__shiroSearchEnabled) === true) {
                 if (dark) html.setAttribute('data-pf-theme', 'dark');
                 else html.removeAttribute('data-pf-theme');
             }

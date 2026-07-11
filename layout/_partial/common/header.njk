@@ -63,7 +63,7 @@
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
         <button id="menuBtn" type="button"
-            class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-slate-200 bg-paper/95 px-4 py-2 text-sm text-slate-700 shadow-xs"
+            class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-paper/95 px-4 py-2 text-sm text-text-body shadow-xs"
             aria-expanded="false" aria-controls="mobileMenu">
             <span class="text-base leading-none tracking-widest">{{ escape_html(__('nav.menu')) }}</span>
             {{ icon_chevron_down(id="menuChevron") }}
@@ -72,11 +72,11 @@
 
     <!-- Desktop Menu -->
     <div class="hidden md:block">
-        <ul class="nav-desktop flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
+        <ul class="nav-desktop flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-text-body px-4">
             {% for item in menu_items %}
             <li>{{ menu_link(item, "nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors") }}</li>
             {% if not loop.last %}
-            <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
+            <li class="text-text-subtle select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}
             {% endfor %}
         </ul>
@@ -85,11 +85,11 @@
     <!-- Mobile Menu Panel: open without JS (progressive enhancement); html.js collapses until toggled. -->
     <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
-            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-slate-200 bg-paper/95 shadow-xs">
+            class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-border-strong bg-paper/95 shadow-xs">
             {% for item in menu_items %}
-            <li>{{ menu_link(item, "focus-elegant block px-6 py-3 text-center text-slate-800 hover:text-seal hover:bg-seal/5 transition-colors") }}</li>
+            <li>{{ menu_link(item, "focus-elegant block px-6 py-3 text-center text-text-body hover:text-seal hover:bg-seal/5 transition-colors") }}</li>
             {% if not loop.last %}
-            <li class="h-px bg-slate-200/70" role="separator" aria-hidden="true"></li>
+            <li class="h-px bg-border-decorative" role="separator" aria-hidden="true"></li>
             {% endif %}
             {% endfor %}
         </ul>

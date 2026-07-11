@@ -149,7 +149,7 @@ main .gsc-loading-image {
     --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
     --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
 
-    /* Buttons — warm neutral matching Shiro slate-50/100 */
+    /* Buttons — warm neutral matching Shiro paper/inset surfaces */
     --color-btn-text: #d4d0cc;
     --color-btn-bg: #2f2e2c;
     --color-btn-border: rgb(200 195 190 / 10%);

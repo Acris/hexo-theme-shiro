@@ -27,6 +27,9 @@
     --color-text-muted: #6b7280;
     --color-text-subtle: #9ca3af;
     --color-text-faint: #d1d5db;
+    /* Idle chrome (pills, icons) — dark uses AA-safe tone on paper (see DESIGN.md). */
+    --color-text-chrome: #6b7280;
+    --color-on-seal: rgba(255, 255, 255, 0.95);
 
     /* Semantic UI colors */
     --color-border-strong: rgba(17, 24, 39, 0.12);
