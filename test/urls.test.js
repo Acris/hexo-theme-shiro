@@ -10,8 +10,8 @@ const {
     resourceOrigin,
     hasUrlControlChars,
     normalizedLinkTarget,
-    isFeatureEnabled,
     normalizeLangAttr,
+    normalizeAbsoluteResourceUrl,
     resolveAbsolutePageUrl,
     sriAttrsHtml,
     cspNonceAttrHtml,
@@ -160,19 +160,29 @@ describe('scripts/lib/urls', () => {
         });
     });
 
-    describe('isFeatureEnabled / normalizeLangAttr', () => {
-        it('uses strict true for default-off and not-false for default-on', () => {
-            assert.equal(isFeatureEnabled(true, false), true);
-            assert.equal(isFeatureEnabled(1, false), false);
-            assert.equal(isFeatureEnabled(undefined, true), true);
-            assert.equal(isFeatureEnabled(false, true), false);
-        });
-
+    describe('normalizeLangAttr', () => {
         it('accepts BCP47-like language tags only', () => {
             assert.equal(normalizeLangAttr('zh-CN'), 'zh-CN');
             assert.equal(normalizeLangAttr('en'), 'en');
             assert.equal(normalizeLangAttr('bad tag'), '');
             assert.equal(normalizeLangAttr('en"onmouseover=x'), '');
+        });
+    });
+
+    describe('normalizeAbsoluteResourceUrl', () => {
+        it('allows http(s) and protocol-relative; blocks javascript:', () => {
+            assert.equal(
+                normalizeAbsoluteResourceUrl('https://giscus.app/client.js', 'https://fallback'),
+                'https://giscus.app/client.js'
+            );
+            assert.equal(
+                normalizeAbsoluteResourceUrl('javascript:alert(1)', 'https://fallback'),
+                'https://fallback'
+            );
+            assert.equal(
+                normalizeAbsoluteResourceUrl('', 'https://fallback'),
+                'https://fallback'
+            );
         });
     });
 

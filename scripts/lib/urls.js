@@ -49,6 +49,19 @@ function safeResourceUrl(value, context, fallback, options) {
     return resolveResourceUrl(normalizedUrlText(value), context, options) || safeFallback;
 }
 
+/**
+ * Scheme-safe resource URL without Hexo url_for (CDN / absolute / site-relative).
+ * Blocks control chars and non-http schemes (except protocol-relative //).
+ */
+function normalizeAbsoluteResourceUrl(value, fallback) {
+    const text = normalizedUrlText(value);
+    const safeFallback = normalizedUrlText(fallback);
+    if (!text) return safeFallback;
+    if (/^(?:https?:)?\/\//i.test(text)) return text;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return safeFallback;
+    return text;
+}
+
 // HTML target attribute allowlist only. Empty / unknown → "" (omit the attribute).
 function normalizedLinkTarget(value) {
     const text = normalizedUrlText(value);
@@ -228,6 +241,7 @@ module.exports = {
     isSafeDataImageUrl,
     safeNavigationUrl,
     safeResourceUrl,
+    normalizeAbsoluteResourceUrl,
     normalizedLinkTarget,
     isFeatureEnabled,
     normalizeLangAttr,

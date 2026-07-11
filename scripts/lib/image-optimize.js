@@ -51,15 +51,14 @@ function getAttr(attrs, lookup, name) {
 }
 
 // Escape only values we inject (surgical attr append; do not re-serialize the tag).
+// Align with util.escapeHtml for quotes/angle brackets (injected values are theme-controlled).
 function escapeAttrValue(value) {
     return String(value)
         .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;');
-}
-
-function hasAttrName(rawAttrs, name) {
-    return new RegExp('(?:^|\\s)' + name + '(?:\\s*=|\\s|/|$)', 'i').test(String(rawAttrs || ''));
+        .replace(/'/g, '&#39;');
 }
 
 function appendAttr(rawAttrs, name, value) {
@@ -162,7 +161,8 @@ function optimizeImages(html, options) {
     return String(html || '').replace(OPTIMIZABLE_IMAGE_RE, (match, skippedTag, rawAttrs) => {
         if (rawAttrs === undefined) return match;
 
-        // Read with parseAttrs; write only missing attrs (preserve original quoting).
+        // Presence only via parseAttrs map — never raw-string regex (class tokens
+        // like "loading" must not suppress real loading/width attributes).
         const attrs = parseAttrs(rawAttrs);
         const lookup = attrLookup(attrs);
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
@@ -172,8 +172,11 @@ function optimizeImages(html, options) {
         imageIndex += 1;
 
         let out = rawAttrs;
+        const present = new Set(lookup.keys());
         const ensure = (name, value) => {
-            if (hasAttrName(out, name)) return;
+            const key = name.toLowerCase();
+            if (present.has(key)) return;
+            present.add(key);
             out = appendAttr(out, name, value);
         };
 
@@ -191,8 +194,8 @@ function optimizeImages(html, options) {
             ensure('sizes', DEFAULT_IMAGE_SIZES);
         }
 
-        const hasWidth = hasAttrName(out, 'width') || !!getAttr(attrs, lookup, 'width');
-        const hasHeight = hasAttrName(out, 'height') || !!getAttr(attrs, lookup, 'height');
+        const hasWidth = present.has('width');
+        const hasHeight = present.has('height');
         if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = getLocalSize(src, opts.post);
             if (size) {
@@ -212,7 +215,6 @@ module.exports = {
     attrLookup,
     getAttr,
     escapeAttrValue,
-    hasAttrName,
     appendAttr,
     cleanUrl,
     isRemoteUrl,

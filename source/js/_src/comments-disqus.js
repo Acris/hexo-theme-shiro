@@ -44,9 +44,7 @@
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
-            const nonce = (rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
-                || get('cspNonce')
-                || '';
+            const nonce = rt && typeof rt.cspNonce === 'function' ? rt.cspNonce() : '';
             if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => {
                 (d.head || d.body).appendChild(s);

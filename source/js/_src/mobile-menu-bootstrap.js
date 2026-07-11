@@ -10,6 +10,7 @@
 
     const { createFeatureLoader } = rt;
     const query = window.matchMedia('(max-width: 767px)');
+    let permanent = false;
 
     function removeViewportListener() {
         if (query.removeEventListener) {
@@ -19,17 +20,24 @@
         }
     }
 
+    // Permanent errors stop retry; network failures keep the viewport listener.
     const feature = createFeatureLoader({
         id: 'mobile-menu',
         src: script,
         onReady: removeViewportListener,
-        onError: (error) => {
-            console.warn('[shiro-mobile-menu] feature failed', error);
-            removeViewportListener();
+        onError: (error, meta) => {
+            if (meta && meta.permanent) {
+                permanent = true;
+                removeViewportListener();
+                console.warn('[shiro-mobile-menu] feature aborted', error);
+                return;
+            }
+            console.warn('[shiro-mobile-menu] load failed (retryable)', error);
         }
     });
 
     function loadMobileMenu() {
+        if (permanent) return;
         feature.load();
     }
 

@@ -8,7 +8,8 @@ const {
     normalizeLangAttr,
     normalizeSriIntegrity,
     normalizeCspNonce,
-    resourceOrigin
+    resourceOrigin,
+    normalizeAbsoluteResourceUrl
 } = require('./urls');
 const { resolveCommentsState } = require('./comments');
 const {
@@ -17,10 +18,11 @@ const {
     DEFAULT_MATHJAX_SRC
 } = require('./mathjax-protect');
 
-// LightGallery CDN defaults — keep in sync with _config.yml lightGallery.* only.
-// Client scripts read one bag object via runtime.get('lightgallery').
+// CDN defaults — keep in sync with _config.yml (asserted by test/defaults-sync.test.js).
+// Client scripts read bag objects via runtime.get(...).
 const DEFAULT_LIGHTGALLERY_JS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
 const DEFAULT_LIGHTGALLERY_CSS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
+const DEFAULT_GISCUS_SRC = 'https://giscus.app/client.js';
 
 function resolveDarkModeDefault(raw) {
     const text = String(raw == null ? 'light' : raw).trim();
@@ -238,6 +240,9 @@ function buildCommentsClientConfig(theme, page, options) {
     const comments = (theme && theme.comments) || {};
     const disqus = comments.disqus || {};
     const giscus = comments.giscus || {};
+    // Same scheme policy as MathJax/LG CDN resolution (server-side, once).
+    const giscusSrc = normalizeAbsoluteResourceUrl(giscus.src, DEFAULT_GISCUS_SRC)
+        || DEFAULT_GISCUS_SRC;
 
     return {
         provider: state.provider,
@@ -249,7 +254,7 @@ function buildCommentsClientConfig(theme, page, options) {
             pageIdentifier: opts.pageIdentifier || ''
         },
         giscus: {
-            src: giscus.src || '',
+            src: giscusSrc,
             repo: giscus.repo || '',
             repo_id: giscus.repo_id || '',
             category: giscus.category || '',
@@ -270,6 +275,7 @@ function buildCommentsClientConfig(theme, page, options) {
 module.exports = {
     DEFAULT_LIGHTGALLERY_JS,
     DEFAULT_LIGHTGALLERY_CSS,
+    DEFAULT_GISCUS_SRC,
     DEFAULT_MATHJAX_SRC,
     resolveDarkModeDefault,
     resolveFeatureGates,

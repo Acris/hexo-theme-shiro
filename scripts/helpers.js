@@ -171,6 +171,11 @@ hexo.extend.helper.register('page_feature_gates', function () {
     const tocConfig = theme.toc || {};
     const menu = theme.menu || [];
 
+    // One TOC build per page (cachedToc); gates + article share this result.
+    const toc = typeof this.build_toc === 'function'
+        ? this.build_toc(page, tocConfig)
+        : { shouldRender: false, content: (page && page.content) || '', html: '' };
+
     const gates = resolveFeatureGates({
         theme,
         page,
@@ -183,13 +188,14 @@ hexo.extend.helper.register('page_feature_gates', function () {
             : false,
         hasImages: typeof this.has_images === 'function' ? this.has_images(page) : false,
         looksLong: typeof this.page_looks_long === 'function' ? this.page_looks_long(page) : false,
-        shouldRenderToc: typeof this.should_render_toc === 'function'
-            ? this.should_render_toc(page, tocConfig)
-            : false,
+        shouldRenderToc: !!toc.shouldRender,
         menuLength: menu.length,
         resolveResourceUrl: (value, fallback) => safeResourceUrl(value, this, fallback),
         cspNonce: security.csp_nonce
     });
+
+    gates.toc = toc;
+    gates.tocConfig = tocConfig;
 
     // Single comments resolve: client bag reuses gates.shiroComments.
     gates.commentsClientConfig = buildCommentsClientConfig(theme, page, {

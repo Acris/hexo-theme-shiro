@@ -125,6 +125,16 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /width="12"/);
             assert.match(out, /height="8"/);
         });
+
+        it('does not treat class tokens as existing loading/width attrs', () => {
+            const out = pureOptimize(
+                '<img class="loading decoding" src="https://cdn.example/a.png">',
+                { firstImageEager: true }
+            );
+            assert.match(out, /class="loading decoding"/);
+            assert.match(out, /loading="eager"/);
+            assert.match(out, /decoding="async"/);
+        });
     });
 
     describe('localImageCandidates (pure path resolution)', () => {

@@ -175,10 +175,14 @@
                     return;
                 }
                 // whenDefined has no built-in timeout — race so open/warm can retry.
+                let timer = 0;
                 return Promise.race([
-                    customElements.whenDefined('pagefind-modal'),
+                    customElements.whenDefined('pagefind-modal').then((value) => {
+                        if (timer) clearTimeout(timer);
+                        return value;
+                    }),
                     new Promise((_, reject) => {
-                        setTimeout(() => {
+                        timer = setTimeout(() => {
                             reject(new Error('pagefind-modal whenDefined timed out'));
                         }, WHEN_DEFINED_TIMEOUT);
                     })

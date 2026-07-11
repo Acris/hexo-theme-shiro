@@ -8,7 +8,8 @@ const {
     resolveFeatureGates,
     buildCommentsClientConfig,
     DEFAULT_MATHJAX_SRC,
-    DEFAULT_LIGHTGALLERY_JS
+    DEFAULT_LIGHTGALLERY_JS,
+    DEFAULT_GISCUS_SRC
 } = require('../scripts/lib/feature-gates');
 
 describe('scripts/lib/feature-gates', () => {
@@ -161,6 +162,61 @@ describe('scripts/lib/feature-gates', () => {
             assert.equal(cfg.disqus.shortname, 'my-blog');
             assert.equal(cfg.disqus.pageUrl, 'https://example.com/p/');
             assert.equal(cfg.disqus.pageIdentifier, 'p/index.html');
+        });
+
+        it('normalizes giscus src and rejects dangerous schemes', () => {
+            const ok = buildCommentsClientConfig(
+                {
+                    comments: {
+                        enabled: true,
+                        provider: 'giscus',
+                        giscus: {
+                            src: '',
+                            repo: 'a/b',
+                            repo_id: '1',
+                            category: 'c',
+                            category_id: '2'
+                        }
+                    }
+                },
+                {},
+                { isPost: true }
+            );
+            assert.equal(ok.giscus.src, DEFAULT_GISCUS_SRC);
+
+            const bad = buildCommentsClientConfig(
+                {
+                    comments: {
+                        enabled: true,
+                        provider: 'giscus',
+                        giscus: {
+                            src: 'javascript:alert(1)',
+                            repo: 'a/b',
+                            repo_id: '1',
+                            category: 'c',
+                            category_id: '2'
+                        }
+                    }
+                },
+                {},
+                { isPost: true }
+            );
+            assert.equal(bad.giscus.src, DEFAULT_GISCUS_SRC);
+        });
+
+        it('reuses pre-resolved state when provided', () => {
+            const state = {
+                provider: 'disqus',
+                disqusReady: true,
+                giscusReady: false
+            };
+            const cfg = buildCommentsClientConfig(
+                { comments: { enabled: true, provider: 'giscus' } },
+                {},
+                { isPost: true, state }
+            );
+            assert.equal(cfg.provider, 'disqus');
+            assert.equal(cfg.disqusReady, true);
         });
     });
 });

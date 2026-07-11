@@ -54,21 +54,12 @@
                 if (text === 'false') return '0';
                 return text || fallback;
             };
-            const safeScriptSrc = (value, fallback) => {
-                const text = String(value || '').trim();
-                if (!text) return fallback;
-                if (/[\u0000-\u001F\u007F]/.test(text)) return fallback;
-                if (/^https?:\/\//i.test(text) || /^\/\//.test(text)) return text;
-                return /^[a-z][a-z0-9+.-]*:/i.test(text) ? fallback : text;
-            };
-
+            // g.src is scheme-normalized in buildCommentsClientConfig (server).
             const s = d.createElement('script');
-            s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
+            s.src = String(g.src || '').trim() || 'https://giscus.app/client.js';
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = (typeof rt.cspNonce === 'function' ? rt.cspNonce() : '')
-                || get('cspNonce')
-                || '';
+            const nonce = typeof rt.cspNonce === 'function' ? rt.cspNonce() : '';
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
                 'data-repo': g.repo || '',

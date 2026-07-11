@@ -40,11 +40,38 @@
 
     const pendingTargets = [];
     const pendingTargetSet = new Set();
+    let permanent = false;
+    let observer = null;
+
+    function clearPending() {
+        pendingTargets.length = 0;
+        pendingTargetSet.clear();
+        shiro.clipboardTargets = [];
+    }
+
+    function stopObserving() {
+        if (observer) {
+            observer.disconnect();
+            observer = null;
+        }
+    }
+
+    function hardStop(error) {
+        permanent = true;
+        clearPending();
+        stopObserving();
+        console.warn('[shiro-clipboard] feature aborted', error);
+    }
+
     const feature = createFeatureLoader({
         id: 'clipboard',
         src: script,
-        onError: (error) => {
-            console.warn('[shiro-clipboard] feature failed', error);
+        onError: (error, meta) => {
+            if (meta && meta.permanent) {
+                hardStop(error);
+                return;
+            }
+            console.warn('[shiro-clipboard] load failed (retryable)', error);
         }
     });
 
@@ -65,6 +92,7 @@
     }
 
     function loadClipboard(targets, onLoaded) {
+        if (permanent) return;
         if (typeof shiro.enhanceClipboard === 'function') {
             enhanceTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
@@ -73,15 +101,15 @@
 
         queueTargets(targets);
         feature.load(() => {
+            if (permanent) return;
             enhanceTargets(pendingTargets);
-            pendingTargets.length = 0;
-            pendingTargetSet.clear();
-            shiro.clipboardTargets = [];
+            clearPending();
             if (typeof onLoaded === 'function') onLoaded();
         });
     }
 
     function enhanceRemaining() {
+        if (permanent) return;
         let blocks = cursor.next(12);
         while (blocks.length) {
             enhanceTargets(blocks);
@@ -93,8 +121,12 @@
         scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
     }
 
-    const observer = 'IntersectionObserver' in window
+    observer = 'IntersectionObserver' in window
         ? new IntersectionObserver((entries) => {
+            if (permanent) {
+                stopObserving();
+                return;
+            }
             const targets = entries.filter(entry => entry.isIntersecting).map(entry => entry.target);
             if (!targets.length) return;
             targets.forEach(target => observer.unobserve(target));
@@ -103,11 +135,12 @@
         : null;
 
     function observeBatch(blocks) {
-        if (!observer || !blocks.length) return;
+        if (permanent || !observer || !blocks.length) return;
         blocks.forEach(block => observer.observe(block));
     }
 
     function observeNextBatch() {
+        if (permanent) return;
         const blocks = cursor.next(8);
         observeBatch(blocks);
         if (blocks.length) schedule(observeNextBatch);
