@@ -85,27 +85,26 @@
     {% if gates.needsFeatureRuntime or gates.shiroCspNonce %}
     <script{{ csp_nonce_attr() }}>
         {% if gates.shiroCspNonce %}
-        {{ feature_var('__shiroCspNonce', gates.shiroCspNonce) }}
+        {{ feature_var('cspNonce', gates.shiroCspNonce) }}
         {% endif %}
         {% if gates.needsLightgallery or gates.needsCode %}
-        window.__i18n = window.__i18n || {};
-        (window.__shiro = window.__shiro || {}).i18n = window.__i18n;
+        (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
         {% endif %}
         {% if gates.searchEnabled %}
-        {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}
-        {{ feature_var('__searchCss', versioned_url('css/search.min.css')) }}
+        {{ feature_var('pagefindBase', url_for('/pagefind/')) }}
+        {{ feature_var('searchCss', versioned_url('css/search.min.css')) }}
         {% endif %}
         {% if gates.needsLightgallery %}
         {{ feature_i18n('gallery', {
             view_image: __('gallery.view_image'),
             visit_source: __('gallery.visit_source')
         }) }}
-        {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
-        {{ feature_var('__lightgalleryCss', gates.lightgalleryCssUrl) }}
-        {{ feature_var('__lightgalleryJs', gates.lightgalleryJsUrl) }}
-        {{ feature_var('__lightgalleryCssIntegrity', gates.lightgalleryCssIntegrity or '') }}
-        {{ feature_var('__lightgalleryJsIntegrity', gates.lightgalleryJsIntegrity or '') }}
-        {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
+        {{ feature_var('lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
+        {{ feature_var('lightgalleryCss', gates.lightgalleryCssUrl) }}
+        {{ feature_var('lightgalleryJs', gates.lightgalleryJsUrl) }}
+        {{ feature_var('lightgalleryCssIntegrity', gates.lightgalleryCssIntegrity or '') }}
+        {{ feature_var('lightgalleryJsIntegrity', gates.lightgalleryJsIntegrity or '') }}
+        {{ feature_var('lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
         {% if gates.needsCode %}
         {{ feature_i18n('clipboard', {
@@ -113,10 +112,10 @@
             copy: __('clipboard.copy'),
             failed: __('clipboard.failed')
         }) }}
-        {{ feature_var('__clipboardScript', versioned_url('js/clipboard.min.js')) }}
+        {{ feature_var('clipboardScript', versioned_url('js/clipboard.min.js')) }}
         {% endif %}
         {% if gates.needsMobileMenu %}
-        {{ feature_var('__mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
+        {{ feature_var('mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
         {% endif %}
     </script>
     {% endif %}

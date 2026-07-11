@@ -6,12 +6,10 @@
     document.documentElement.classList.add('js');
     const shiro = (window.__shiro = window.__shiro || {});
     const defaultTheme = {{ js_value(gates.darkModeDefault) | safe }};
-    window.__themeDefault = defaultTheme;
     shiro.themeDefault = defaultTheme;
     {% if gates.shiroCspNonce %}
-    window.__shiroCspNonce = {{ js_value(gates.shiroCspNonce) | safe }};
-    shiro.__shiroCspNonce = window.__shiroCspNonce;
-    shiro.cspNonce = window.__shiroCspNonce;
+    // Single bag key for CSP nonce (runtime.cspNonce / get('cspNonce')).
+    shiro.cspNonce = {{ js_value(gates.shiroCspNonce) | safe }};
     {% endif %}
     const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
     let saved;
@@ -22,7 +20,6 @@
     const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     // Pagefind dark contract only when search is enabled.
     const syncPagefindTheme = {{ 'true' if gates.searchEnabled else 'false' }};
-    window.__shiroSearchEnabled = syncPagefindTheme;
     shiro.searchEnabled = syncPagefindTheme;
     // Single source for theme-toggle.js and system-follow listener.
     const applyResolvedTheme = (dark) => {
@@ -33,7 +30,6 @@
         }
         html.style.colorScheme = dark ? 'dark' : 'light';
     };
-    window.__shiroApplyResolvedTheme = applyResolvedTheme;
     shiro.applyResolvedTheme = applyResolvedTheme;
     applyResolvedTheme(state === 'dark' || (state !== 'light' && darkQuery.matches));
     if (defaultTheme === 'system') {
@@ -47,7 +43,6 @@
     }
     // Preloader skip: session value must match this page's font-bundle URL.
     const fontsReadyToken = {{ js_value(google_fonts[0] if google_fonts.length else '') | safe }};
-    window.__shiroFontsReadyToken = fontsReadyToken;
     shiro.fontsReadyToken = fontsReadyToken;
     try {
         if (fontsReadyToken && sessionStorage.getItem('shiro:fonts-ready') === fontsReadyToken) {

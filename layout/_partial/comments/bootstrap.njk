@@ -2,19 +2,14 @@
    installs helpers and drains the queue (honest load order — no silent fallback). #}
 <script{{ csp_nonce_attr() }}>
     window.__shiro = window.__shiro || {};
-    window.__commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
-    window.__shiro.__commentsCss = window.__commentsCss;
-    window.__shiro.commentsCss = window.__commentsCss;
+    window.__shiro.commentsCss = {{ js_value(versioned_url('css/comments.min.css')) | safe }};
     {% if gates.shiroCspNonce %}
-    window.__shiroCspNonce = window.__shiroCspNonce || {{ js_value(gates.shiroCspNonce) | safe }};
-    window.__shiro.__shiroCspNonce = window.__shiroCspNonce;
-    window.__shiro.cspNonce = window.__shiroCspNonce;
+    window.__shiro.cspNonce = window.__shiro.cspNonce || {{ js_value(gates.shiroCspNonce) | safe }};
     {% endif %}
     {# Queue stub: provider scripts may parse before deferred comments-bootstrap. #}
-    window.__shiroCommentsReadyQueue = window.__shiroCommentsReadyQueue || [];
-    window.__shiroWhenCommentsReady = window.__shiroWhenCommentsReady || function (fn) {
-        if (typeof fn === 'function') window.__shiroCommentsReadyQueue.push(fn);
+    window.__shiro.commentsReadyQueue = window.__shiro.commentsReadyQueue || [];
+    window.__shiro.whenCommentsReady = window.__shiro.whenCommentsReady || function (fn) {
+        if (typeof fn === 'function') window.__shiro.commentsReadyQueue.push(fn);
     };
-    window.__shiro.whenCommentsReady = window.__shiroWhenCommentsReady;
 </script>
 <script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-bootstrap.min.js')) }}"></script>

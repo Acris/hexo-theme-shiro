@@ -1,19 +1,18 @@
 ;(() => {
     'use strict';
 
-    // Disqus provider boot (deferred). Config: window.__shiroCommentsConfig.
-    // disqus_config must live on the global scope for the embed script.
+    // Disqus provider boot (deferred). Config: __shiro.commentsConfig.
     const shiro = window.__shiro || {};
+    const get = shiro.get || (window.__shiroRuntime && window.__shiroRuntime.get) || (() => undefined);
+
     window.disqus_config = function () {
-        const get = shiro.get || ((k) => window['__' + k] || window[k]);
-        const root = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || window.__shiroCommentsConfig;
-        const cfg = (root && root.disqus) || {};
+        const cfg = ((get('commentsConfig') || {}).disqus) || {};
         this.page.url = cfg.pageUrl || location.href;
         this.page.identifier = String(cfg.pageIdentifier || location.pathname).replace(/\/$/, '');
         this.colorScheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
     };
 
-    const whenReady = shiro.whenCommentsReady || window.__shiroWhenCommentsReady;
+    const whenReady = shiro.whenCommentsReady;
     if (typeof whenReady !== 'function') {
         console.error('[shiro-comments] Disqus boot skipped: whenReady missing');
         return;
@@ -28,12 +27,10 @@
             return;
         }
 
-        const get = shiro.get || ((k) => w['__' + k] || w[k]);
-        const rootCfg = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || w.__shiroCommentsConfig;
-        const cfg = (rootCfg && rootCfg.disqus) || {};
+        const cfg = ((get('commentsConfig') || {}).disqus) || {};
         const SHORTNAME = String(cfg.shortname || '').trim();
         if (!/^[a-z0-9-]+$/i.test(SHORTNAME)) return;
-        const loadCommentsCss = shiro.loadCommentsCss || w.__shiroLoadCommentsCss || (() => Promise.resolve());
+        const loadCommentsCss = shiro.loadCommentsCss || (() => Promise.resolve());
         let loaded = false;
 
         const loadDisqus = () => {
@@ -42,7 +39,7 @@
             const s = d.createElement('script');
             s.src = 'https://' + SHORTNAME + '.disqus.com/embed.js';
             s.setAttribute('data-timestamp', Date.now());
-            const nonce = (shiro.get && shiro.get('cspNonce')) || shiro.__shiroCspNonce || w.__shiroCspNonce || '';
+            const nonce = get('cspNonce') || shiro.cspNonce || '';
             if (nonce) s.setAttribute('nonce', nonce);
             const appendScript = () => {
                 (d.head || d.body).appendChild(s);
@@ -50,14 +47,12 @@
             loadCommentsCss().then(appendScript).catch(appendScript);
         };
 
-        const onNear = shiro.onNearViewport || w.__shiroOnNearViewport;
-        if (typeof onNear !== 'function') {
+        if (typeof shiro.onNearViewport !== 'function') {
             console.warn('[shiro-comments] near-viewport helper missing');
             return;
         }
-        onNear(disqus_thread, loadDisqus);
+        shiro.onNearViewport(disqus_thread, loadDisqus);
 
-        // Theme toggle after load: reset when comments near viewport.
         const root = d.documentElement;
         let prevDark = root.dataset.theme === 'dark';
         let resetTimer;

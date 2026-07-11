@@ -4,7 +4,7 @@
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
-    const get = rt.get || shiro.get || ((k) => window['__' + k] || window[k]);
+    const get = rt.get || shiro.get || (() => undefined);
 
     const script = get('lightgalleryScript') || '';
     if (!script) return;
@@ -20,7 +20,39 @@
     } = rt;
 
     let warmed = false;
+    let failed = false;
     let unbindWarm = null;
+
+    function navigateFromImage(img) {
+        if (!img || !img.closest) return;
+        const link = img.closest('a');
+        const original = link
+            ? (link.getAttribute('data-shiro-original-href') || link.getAttribute('href') || '').trim()
+            : '';
+        const src = (imageSource(img) || '').trim();
+        const href = original || src;
+        if (!href) return;
+
+        if (/^(?:javascript|vbscript|data):/i.test(href) || /[\u0000-\u001F\u007F]/.test(href)) {
+            return;
+        }
+        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+            return;
+        }
+        window.location.href = href;
+    }
+
+    function hardFail() {
+        if (failed) return;
+        failed = true;
+        warmed = false;
+        cleanupBootstrapListeners();
+        const pending = shiro.lightGalleryAutoOpen;
+        shiro.lightGalleryAutoOpen = null;
+        shiro.lightGalleryWarmRequested = false;
+        if (pending) navigateFromImage(pending);
+    }
 
     const feature = createFeatureLoader({
         id: 'lightgallery',
@@ -28,13 +60,7 @@
         onReady: () => {
             cleanupBootstrapListeners();
         },
-        onError: () => {
-            warmed = false;
-            window.__shiroLightGalleryAutoOpen = null;
-            window.__shiroLightGalleryWarmRequested = false;
-            shiro.lightGalleryAutoOpen = null;
-            shiro.lightGalleryWarmRequested = false;
-        }
+        onError: hardFail
     });
 
     function shouldHandleImage(img) {
@@ -63,44 +89,49 @@
     }
 
     function loadGallery() {
-        // Concurrent load() shares one promise (createFeatureLoader).
+        if (failed) return;
         feature.load();
     }
 
     function warm() {
-        if (warmed) return;
+        if (failed || warmed) return;
         warmed = true;
         if (typeof unbindWarm === 'function') {
             unbindWarm();
             unbindWarm = null;
         }
 
-        const openFn = shiro.lightGalleryOpen || window.__shiroLightGalleryOpen;
+        const openFn = shiro.lightGalleryOpen;
         if (openFn) {
-            const warmFn = shiro.lightGalleryWarm || window.__shiroLightGalleryWarm;
+            const warmFn = shiro.lightGalleryWarm;
             if (typeof warmFn === 'function') warmFn();
             return;
         }
 
-        window.__shiroLightGalleryWarmRequested = true;
         shiro.lightGalleryWarmRequested = true;
         loadGallery();
     }
 
     function open(target) {
-        const openFn2 = shiro.lightGalleryOpen || window.__shiroLightGalleryOpen;
-        if (openFn2) {
-            openFn2(target);
+        if (failed) {
+            navigateFromImage(target);
+            return;
+        }
+
+        const openFn = shiro.lightGalleryOpen;
+        if (openFn) {
+            openFn(target);
             cleanupBootstrapListeners();
             return;
         }
 
-        window.__shiroLightGalleryAutoOpen = target;
         shiro.lightGalleryAutoOpen = target;
         loadGallery();
     }
 
     function handleClick(event) {
+        if (failed) return;
+
         const img = qualifyingImage(event.target);
         if (!img) return;
 
@@ -110,6 +141,7 @@
     }
 
     function intentShouldWarm(event) {
+        if (failed) return false;
         const target = event.target;
         if (!target || !target.closest) return false;
 
@@ -124,7 +156,7 @@
     }
 
     function proactiveWarm() {
-        if (warmed || !connectionAllowsWarm()) return;
+        if (failed || warmed || !connectionAllowsWarm()) return;
         scheduleIdleWarm(() => warm());
     }
 

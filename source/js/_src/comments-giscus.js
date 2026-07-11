@@ -1,10 +1,9 @@
 ;(() => {
     'use strict';
 
-    // Giscus provider boot (deferred). Config: window.__shiroCommentsConfig.
-    // Runs after comments-bootstrap installs whenReady / near-viewport helpers.
+    // Giscus provider boot (deferred). Config: __shiro.commentsConfig.
     const shiro = window.__shiro || {};
-    const whenReady = shiro.whenCommentsReady || window.__shiroWhenCommentsReady;
+    const whenReady = shiro.whenCommentsReady;
     if (typeof whenReady !== 'function') {
         console.error('[shiro-comments] giscus boot skipped: whenReady missing');
         return;
@@ -19,14 +18,12 @@
             return;
         }
 
-        const get = shiro.get || ((k) => w['__' + k] || w[k]);
-        const cfgRoot = get('shiroCommentsConfig') || get('__shiroCommentsConfig') || w.__shiroCommentsConfig;
-        const g = (cfgRoot && cfgRoot.giscus) || {};
-        const loadCommentsCss = shiro.loadCommentsCss || w.__shiroLoadCommentsCss || (() => Promise.resolve());
+        const get = shiro.get || (w.__shiroRuntime && w.__shiroRuntime.get) || (() => undefined);
+        const cfgRoot = get('commentsConfig') || {};
+        const g = cfgRoot.giscus || {};
+        const loadCommentsCss = shiro.loadCommentsCss || (() => Promise.resolve());
         let loaded = false;
 
-        // Keep iframe color-scheme aligned with html[data-theme]
-        // (giscus CSS uses prefers-color-scheme).
         const paintFrame = () => {
             const iframe = container.querySelector('iframe.giscus-frame');
             if (!iframe) return false;
@@ -60,7 +57,7 @@
             s.src = safeScriptSrc(g.src, 'https://giscus.app/client.js');
             s.async = true;
             s.crossOrigin = 'anonymous';
-            const nonce = (shiro.get && shiro.get('cspNonce')) || shiro.__shiroCspNonce || w.__shiroCspNonce || '';
+            const nonce = (get('cspNonce') || shiro.cspNonce || '');
             if (nonce) s.setAttribute('nonce', nonce);
             const attrs = {
                 'data-repo': g.repo || '',
@@ -98,11 +95,10 @@
             paintFrame();
         }).observe(d.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-        const onNear = shiro.onNearViewport || w.__shiroOnNearViewport;
-        if (typeof onNear !== 'function') {
+        if (typeof shiro.onNearViewport !== 'function') {
             console.warn('[shiro-comments] near-viewport helper missing');
             return;
         }
-        onNear(container, loadGiscus);
+        shiro.onNearViewport(container, loadGiscus);
     });
 })();

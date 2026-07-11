@@ -4,7 +4,7 @@
 {% if state.shouldRender %}
 {% include "_partial/comments/bootstrap.njk" %}
 <script{{ csp_nonce_attr() }}>
-    {{ feature_var('__shiroCommentsConfig', comments_client_config(page)) }}
+    {{ feature_var('commentsConfig', comments_client_config(page)) }}
 </script>
 {% if state.disqusReady %}
 {% include "_partial/comments/disqus.njk" %}

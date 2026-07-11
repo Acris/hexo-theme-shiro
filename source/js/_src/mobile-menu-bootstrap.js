@@ -4,7 +4,7 @@
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
     if (!rt) return;
-    const get = rt.get || shiro.get || ((k) => window['__' + k] || window[k]);
+    const get = rt.get || shiro.get || (() => undefined);
 
     const script = get('mobileMenuScript') || '';
     if (!script) return;
@@ -28,7 +28,6 @@
     });
 
     function loadMobileMenu() {
-        // Concurrent load() shares one promise (createFeatureLoader).
         feature.load();
     }
 

@@ -15,9 +15,7 @@ const {
     isFeatureEnabled,
     normalizeLangAttr,
     resolveAbsolutePageUrl,
-    normalizeSriIntegrity,
     sriAttrsHtml,
-    normalizeCspNonce,
     cspNonceAttrHtml
 } = require('./lib/urls');
 const {
@@ -80,10 +78,13 @@ hexo.extend.helper.register('js_value', function (value) {
     return safeScriptJson(value);
 });
 
-// Bare bag key for window.__shiro dual-write (__clipboardScript → clipboardScript).
+// Canonical bag key for window.__shiro (strips __ and normalizes known aliases).
 hexo.extend.helper.register('shiro_bag_key', function (key) {
-    const text = String(key == null ? '' : key);
-    return text.indexOf('__') === 0 ? text.slice(2) : text;
+    let text = String(key == null ? '' : key);
+    if (text.indexOf('__') === 0) text = text.slice(2);
+    if (text === 'shiroCspNonce') return 'cspNonce';
+    if (text === 'shiroCommentsConfig') return 'commentsConfig';
+    return text;
 });
 
 // HTML text / attribute escaping (hexo-renderer-nunjucks sets autoescape: false).
@@ -114,26 +115,10 @@ hexo.extend.helper.register('sri_attrs', function (integrity) {
     });
 });
 
-// Normalized SRI digest or "" (for client-side integrity globals).
-hexo.extend.helper.register('sri_integrity', function (integrity) {
-    const raw = String(integrity == null ? '' : integrity).trim();
-    const hash = normalizeSriIntegrity(raw);
-    if (raw && !hash && hexo.log && typeof hexo.log.warn === 'function') {
-        hexo.log.warn('[shiro] invalid SRI integrity ignored (expected sha256|384|512-… base64)');
-    }
-    return hash;
-});
-
 // Optional CSP nonce attribute for theme-injected scripts when security.csp_nonce is set.
 hexo.extend.helper.register('csp_nonce_attr', function () {
     const security = (this.theme && this.theme.security) || {};
     return cspNonceAttrHtml(security.csp_nonce);
-});
-
-// Raw CSP nonce value (safe chars only) for window.__shiroCspNonce / dynamic scripts.
-hexo.extend.helper.register('csp_nonce_value', function () {
-    const security = (this.theme && this.theme.security) || {};
-    return normalizeCspNonce(security.csp_nonce);
 });
 
 hexo.extend.helper.register('url_query', function (value) {

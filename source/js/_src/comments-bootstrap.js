@@ -2,7 +2,7 @@
     'use strict';
 
     // Comments CSS + near-viewport helpers, then drain the parse-time boot queue.
-    // Stub in comments/bootstrap.njk pushes onto __shiroCommentsReadyQueue; this
+    // Stub in comments/bootstrap.njk pushes onto __shiro.commentsReadyQueue; this
     // deferred file (after runtime.min.js) installs helpers and runs the queue.
 
     const shiro = window.__shiro || {};
@@ -12,11 +12,11 @@
         return;
     }
 
-    const get = rt.get || shiro.get || ((k) => window['__' + k] || window[k]);
+    const get = rt.get || shiro.get || (() => undefined);
     const commentsCss = get('commentsCss') || '';
     let commentsCssLoading = null;
 
-    window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
+    shiro.loadCommentsCss = shiro.loadCommentsCss || (() => {
         if (!commentsCss) return Promise.resolve();
         if (commentsCssLoading) return commentsCssLoading;
         commentsCssLoading = rt.loadAsset('link', {
@@ -30,7 +30,7 @@
         return commentsCssLoading;
     });
 
-    window.__shiroOnNearViewport = window.__shiroOnNearViewport || ((element, callback, options) => {
+    shiro.onNearViewport = shiro.onNearViewport || ((element, callback, options) => {
         if (!element || typeof callback !== 'function') return;
         if (!('IntersectionObserver' in window)) {
             callback();
@@ -54,16 +54,13 @@
     }
 
     // Activate: later callers run immediately; drain parse-time queue.
-    window.__shiroWhenCommentsReady = (callback) => {
+    shiro.whenCommentsReady = (callback) => {
         runCommentBoot(callback);
     };
-    shiro.whenCommentsReady = window.__shiroWhenCommentsReady;
-    shiro.loadCommentsCss = window.__shiroLoadCommentsCss;
-    shiro.onNearViewport = window.__shiroOnNearViewport;
 
-    const queued = Array.isArray(window.__shiroCommentsReadyQueue)
-        ? window.__shiroCommentsReadyQueue.slice()
+    const queued = Array.isArray(shiro.commentsReadyQueue)
+        ? shiro.commentsReadyQueue.slice()
         : [];
-    window.__shiroCommentsReadyQueue = [];
+    shiro.commentsReadyQueue = [];
     queued.forEach(runCommentBoot);
 })();

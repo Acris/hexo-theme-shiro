@@ -5,15 +5,15 @@
     // fallback — keeps version pin in _config.yml + feature-gates only.
     const shiro = window.__shiro || {};
     const rt = shiro.runtime || window.__shiroRuntime;
-    const get = (rt && rt.get) || shiro.get || ((k) => window['__' + k] || window[k]);
+    if (!rt) return;
+    const get = rt.get || shiro.get || (() => undefined);
     const cssHref = String(get('lightgalleryCss') || '').trim();
     const jsSrc = String(get('lightgalleryJs') || '').trim();
     const themeCssHref = String(get('lightgalleryThemeCss') || '').trim();
     const cssIntegrity = String(get('lightgalleryCssIntegrity') || '').trim();
     const jsIntegrity = String(get('lightgalleryJsIntegrity') || '').trim();
-    if (!rt) return;
     if (!cssHref || !jsSrc) {
-        console.error('[shiro-lightgallery] missing __lightgalleryCss/__lightgalleryJs; aborting');
+        console.error('[shiro-lightgallery] missing lightgalleryCss/lightgalleryJs; aborting');
         return;
     }
 
@@ -121,7 +121,7 @@
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
 
     const i18nGallery = () => {
-        const i18n = shiro.i18n || window.__i18n;
+        const i18n = shiro.i18n;
         return (i18n && i18n.gallery) || {};
     };
 
@@ -388,16 +388,13 @@
         return true;
     }
 
-    window.__shiroLightGalleryOpen = openFromElement;
     shiro.lightGalleryOpen = openFromElement;
-    shiro.openLightGallery = openFromElement;
 
     // Prefetch the LightGallery library + styles ahead of the first click so a
     // warmed gallery opens instantly. Failures are swallowed; the click path retries.
-    window.__shiroLightGalleryWarm = () => {
+    shiro.lightGalleryWarm = () => {
         ensureLightGalleryAssets().catch(() => {});
     };
-    shiro.lightGalleryWarm = window.__shiroLightGalleryWarm;
 
     document.addEventListener('click', (event) => {
         const img = clickedImage(event);
@@ -409,15 +406,13 @@
         }
     });
 
-    const autoOpen = shiro.lightGalleryAutoOpen || window.__shiroLightGalleryAutoOpen;
+    const autoOpen = shiro.lightGalleryAutoOpen;
     if (autoOpen) {
-        window.__shiroLightGalleryAutoOpen = null;
         shiro.lightGalleryAutoOpen = null;
         openFromElement(autoOpen);
-    } else if (shiro.lightGalleryWarmRequested || window.__shiroLightGalleryWarmRequested) {
-        window.__shiroLightGalleryWarmRequested = false;
+    } else if (shiro.lightGalleryWarmRequested) {
         shiro.lightGalleryWarmRequested = false;
-        (shiro.lightGalleryWarm || window.__shiroLightGalleryWarm)();
+        shiro.lightGalleryWarm();
     }
 
 })();

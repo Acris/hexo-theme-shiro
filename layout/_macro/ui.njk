@@ -1,15 +1,11 @@
-{# Dual-write flat globals + window.__shiro bag.
-   Bag stores legacy key (__foo) and bare name (foo) for runtime.get(). #}
+{# Write config into window.__shiro only (bare keys). Clients use runtime.get(). #}
 {% macro feature_var(key, value) -%}
-window[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
-(window.__shiro = window.__shiro || {})[{{ js_value(key) | safe }}] = window[{{ js_value(key) | safe }}];
-(window.__shiro = window.__shiro || {})[{{ js_value(shiro_bag_key(key)) | safe }}] = window[{{ js_value(key) | safe }}];
+(window.__shiro = window.__shiro || {})[{{ js_value(shiro_bag_key(key)) | safe }}] = {{ js_value(value) | safe }};
 {%- endmacro %}
 
 {% macro feature_i18n(key, value) -%}
-window.__i18n = window.__i18n || {};
-window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
-(window.__shiro = window.__shiro || {}).i18n = window.__i18n;
+(window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
+window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {%- endmacro %}
 
 {# Shared nav link: safe URL + allowlisted target + escaped label. #}

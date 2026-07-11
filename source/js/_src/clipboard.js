@@ -3,22 +3,17 @@
 
     const shiro = window.__shiro || {};
     const i18nClipboard = () => {
-        const i18n = shiro.i18n || window.__i18n;
+        const i18n = shiro.i18n;
         return (i18n && i18n.clipboard) || {};
     };
     const i18nCopy = () => i18nClipboard().copy || 'Copy code';
     const i18nCopied = () => i18nClipboard().copied || 'Copied';
     const i18nFailed = () => i18nClipboard().failed || 'Copy failed';
 
-    // Clipboard write with fallback for insecure contexts (HTTP)
     function copyText(text) {
-        // Clipboard API requires secure context (HTTPS) or localhost
         if (navigator.clipboard && navigator.clipboard.writeText) {
             return navigator.clipboard.writeText(text);
         }
-        // Fallback: create a temporary element and use Selection API + execCommand.
-        // execCommand is deprecated but remains the only synchronous clipboard
-        // mechanism for insecure contexts; no modern replacement exists.
         return new Promise((resolve, reject) => {
             const ta = document.createElement('textarea');
             ta.value = text;
@@ -42,20 +37,16 @@
     function enhanceBlock(block) {
         if (!block || block.dataset.clipboardEnhanced === 'true') return;
 
-        // Skip empty code blocks (do not mark enhanced so a later fill can retry).
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
         if (!codeEl || !codeEl.textContent.trim()) return;
 
         block.dataset.clipboardEnhanced = 'true';
 
-        // Hexo highlight wraps each line in <span class="line">;
-        // plain textContent concatenates them without newlines.
         const lines = codeEl.querySelectorAll('.line');
         const copyValue = lines.length
             ? Array.from(lines, line => line.textContent).join('\n')
             : codeEl.textContent;
 
-        // Detect code language from Hexo's class names (e.g., "highlight javascript")
         const langMatch = block.className.match(/\bhighlight\s+(\S+)/);
         const lang = langMatch ? langMatch[1] : '';
 
@@ -133,19 +124,15 @@
         schedule(run, { timeout: 800, fallbackMs: 32 });
     }
 
-    window.__shiroEnhanceClipboard = (blocks) => {
+    shiro.enhanceClipboard = (blocks) => {
         const targets = (Array.isArray(blocks) ? blocks : [blocks])
             .filter(block => block && block.isConnected);
         if (targets.length) scheduleEnhance(targets);
     };
-    shiro.enhanceClipboard = window.__shiroEnhanceClipboard;
-    shiro.__shiroEnhanceClipboard = window.__shiroEnhanceClipboard;
 
-    const initialTargets = Array.isArray(shiro.clipboardTargets || shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
-        ? (shiro.clipboardTargets || shiro.__shiroClipboardTargets || window.__shiroClipboardTargets)
+    const initialTargets = Array.isArray(shiro.clipboardTargets)
+        ? shiro.clipboardTargets
         : [];
-    window.__shiroClipboardTargets = [];
     shiro.clipboardTargets = [];
-    shiro.__shiroClipboardTargets = [];
-    window.__shiroEnhanceClipboard(initialTargets);
+    shiro.enhanceClipboard(initialTargets);
 })();

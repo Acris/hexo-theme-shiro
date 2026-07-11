@@ -19,13 +19,7 @@
     .giscus {
         margin-top: 2.5rem;
         padding-top: 2rem;
-        border-top: 1px solid rgba(226, 232, 240, 0.7);
-    }
-
-    @supports (color: color-mix(in oklab, red, red)) {
-        .giscus {
-            border-top-color: color-mix(in oklab, var(--color-border-strong) 70%, transparent);
-        }
+        border-top: 1px solid color-mix(in srgb, var(--color-border-strong) 70%, transparent);
     }
 
     @media (min-width: 48rem) {

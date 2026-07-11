@@ -2,11 +2,9 @@
  * Theme Toggle — smart cycling based on default theme config.
  * When default is "system": 3-state cycle (system → light → dark).
  * When default is "light" or "dark": 2-state toggle (light ↔ dark).
- * Applies data-theme and colorScheme on <html> via the shared FOUC helper
- * window.__shiroApplyResolvedTheme (set in head.njk). When search is enabled
- * that helper also syncs data-pf-theme for Pagefind. Preference is persisted
- * in localStorage. The head FOUC script still owns initial paint and live OS
- * following in "system" mode when this toggle is off.
+ * Applies data-theme and colorScheme on <html> via __shiro.applyResolvedTheme
+ * (set in head-theme). When search is enabled that helper also syncs
+ * data-pf-theme for Pagefind. Preference is persisted in localStorage.
  */
 ;(() => {
     'use strict';
@@ -16,19 +14,19 @@
 
     const html = document.documentElement;
     const shiro = window.__shiro || {};
-    const defaultTheme = shiro.themeDefault || window.__themeDefault || 'system';
+    const defaultTheme = shiro.themeDefault || 'system';
     const prefersDarkQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const states = defaultTheme === 'system'
         ? ['system', 'light', 'dark']
         : ['light', 'dark'];
 
     // Prefer the FOUC-installed helper so theme + Pagefind contracts stay single-source.
-    // Fallback mirrors head.njk only if the inline script was stripped.
-    const applyResolvedTheme = typeof (shiro.applyResolvedTheme || window.__shiroApplyResolvedTheme) === 'function'
-        ? (shiro.applyResolvedTheme || window.__shiroApplyResolvedTheme)
+    // Fallback mirrors head-theme only if the inline script was stripped.
+    const applyResolvedTheme = typeof shiro.applyResolvedTheme === 'function'
+        ? shiro.applyResolvedTheme
         : (dark) => {
             html.setAttribute('data-theme', dark ? 'dark' : 'light');
-            if ((shiro.searchEnabled || window.__shiroSearchEnabled) === true) {
+            if (shiro.searchEnabled === true) {
                 if (dark) html.setAttribute('data-pf-theme', 'dark');
                 else html.removeAttribute('data-pf-theme');
             }

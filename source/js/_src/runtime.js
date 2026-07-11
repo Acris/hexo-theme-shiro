@@ -10,35 +10,41 @@
 
     const assetTimeout = 12000;
 
+    // Legacy key aliases → canonical bag keys (one release of flat fallbacks).
+    const KEY_ALIASES = {
+        shiroCspNonce: 'cspNonce',
+        shiroCommentsConfig: 'commentsConfig'
+    };
+
     /**
-     * Read a config/handoff value from the __shiro bag, then flat window globals.
-     * Accepts bare names (`clipboardScript`) or legacy keys (`__clipboardScript`).
+     * Read config/handoff from window.__shiro only (bare keys).
+     * Accepts bare names (`clipboardScript`) or legacy `__clipboardScript`.
+     * Temporary flat-window fallback for one migration window.
      */
     function get(name) {
         if (name == null || name === '') return undefined;
         const key = String(name);
-        const bare = key.indexOf('__') === 0 ? key.slice(2) : key;
-        const prefixed = key.indexOf('__') === 0 ? key : '__' + key;
+        let bare = key.indexOf('__') === 0 ? key.slice(2) : key;
+        if (KEY_ALIASES[bare]) bare = KEY_ALIASES[bare];
+
         if (Object.prototype.hasOwnProperty.call(root, bare) && root[bare] != null) {
             return root[bare];
         }
-        if (Object.prototype.hasOwnProperty.call(root, prefixed) && root[prefixed] != null) {
-            return root[prefixed];
+        // Temporary flat fallback (legacy dual-write); prefer bag-only going forward.
+        const flat = window['__' + bare];
+        if (flat != null) return flat;
+        if (bare === 'cspNonce' && window.__shiroCspNonce != null) return window.__shiroCspNonce;
+        if (bare === 'commentsConfig' && window.__shiroCommentsConfig != null) {
+            return window.__shiroCommentsConfig;
         }
-        if (Object.prototype.hasOwnProperty.call(root, key) && root[key] != null) {
-            return root[key];
-        }
-        if (window[prefixed] != null) return window[prefixed];
-        if (window[key] != null) return window[key];
         return undefined;
     }
 
     root.get = get;
 
-    // Prefer the template-injected global (set from a nonced inline script). Fall
-    // back to this classic script's own nonce when the global is not yet set.
+    // Prefer bag cspNonce (feature_var / head). Fall back to this script's nonce.
     function cspNonce() {
-        const bagNonce = get('cspNonce') || get('__shiroCspNonce') || root.__shiroCspNonce;
+        const bagNonce = get('cspNonce');
         if (typeof bagNonce === 'string' && bagNonce) {
             return bagNonce;
         }

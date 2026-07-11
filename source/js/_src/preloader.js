@@ -8,9 +8,7 @@
 
     const storageKey = 'shiro:fonts-ready';
     const shiro = window.__shiro || {};
-    const fontsReadyToken = typeof (shiro.fontsReadyToken || window.__shiroFontsReadyToken) === 'string'
-        ? (shiro.fontsReadyToken || window.__shiroFontsReadyToken)
-        : '';
+    const fontsReadyToken = typeof shiro.fontsReadyToken === 'string' ? shiro.fontsReadyToken : '';
 
     const markReady = () => {
         document.documentElement.classList.add('shiro-preloader-done');
