@@ -1,8 +1,8 @@
 categories:
   count_hint: "%s · %s/%s"
-  meta_more: +%s
+  meta_more: "+%s"
   more: View all
-  more_count: +%s
+  more_count: "+%s"
 
 clipboard:
   copied: Copied
@@ -15,6 +15,13 @@ comments:
 common:
   back_to_top: Back to Top
   empty: Nothing here yet.
+  rss: RSS
+  skip_to_content: Skip to content
+
+footer:
+  credit_by: Made by
+  credit_prefix: Elegant theme by
+  love: love
 
 gallery:
   view_image: View image
@@ -31,9 +38,14 @@ nav:
 
 page:
   next: Next
-  number: Page %s
+  number: "Page %s"
   pagination: Pagination
   prev: Previous
+
+post:
+  navigation: Post navigation
+  next: Older post
+  prev: Newer post
 
 search:
   placeholder: Search posts...

@@ -136,8 +136,9 @@ function resolveFeatureGates(input) {
         : '';
 
     const needsProgressBar = isFeatureEnabled(progressBar.enabled, true) && isPost;
+    // Home always; long reading pages (post or page) when content looks long.
     const needsBackToTop = isFeatureEnabled(backToTop.enabled, true)
-        && (isHome || (isPost && !!input.looksLong));
+        && (isHome || (reading && !!input.looksLong));
     const needsMobileMenu = Number(input.menuLength) > 0;
 
     const comments = resolveCommentsState(theme, page, { isPost, isPage });

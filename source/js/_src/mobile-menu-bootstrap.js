@@ -7,10 +7,8 @@
     const script = window.__mobileMenuScript || '';
     if (!script) return;
 
-    const { loadBootstrapScript } = rt;
-
+    const { createFeatureLoader } = rt;
     const query = window.matchMedia('(max-width: 767px)');
-    let loading = false;
 
     function removeViewportListener() {
         if (query.removeEventListener) {
@@ -20,17 +18,16 @@
         }
     }
 
-    function loadMobileMenu() {
-        if (loading) return;
-        loading = true;
+    const feature = createFeatureLoader({
+        id: 'mobile-menu',
+        src: script,
+        onReady: removeViewportListener,
+        onError: () => {}
+    });
 
-        loadBootstrapScript(script, {
-            onload: () => {
-                loading = false;
-                removeViewportListener();
-            },
-            onerror: () => { loading = false; }
-        }, 'mobile-menu');
+    function loadMobileMenu() {
+        // Concurrent load() shares one promise (createFeatureLoader).
+        feature.load();
     }
 
     function handleViewportChange(event) {

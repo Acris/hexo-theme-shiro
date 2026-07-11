@@ -1,17 +1,17 @@
 {% from "_macro/ui.njk" import icon_chevron_down with context %}
 <!-- Inline TOC (viewports below the `toc` breakpoint, where the fixed sidebar cannot fit beside the paper card) -->
-<nav id="tocInline" class="toc-inline toc:hidden mb-8" aria-label="{{ __('toc.title') }}" data-pagefind-ignore>
+<nav id="tocInline" class="toc-inline toc:hidden mb-8" aria-label="{{ escape_attr(__('toc.title')) }}" data-pagefind-ignore>
     <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="tocInlineBody">
-        <span class="toc-toggle-title">{{ __('toc.title') }}</span>
+        <span class="toc-toggle-title">{{ escape_html(__('toc.title')) }}</span>
         {{ icon_chevron_down("toc-chevron size-4") }}
     </button>
     <div class="toc-body" id="tocInlineBody" data-open="false">{{ article_toc.html | safe }}</div>
 </nav>
 
-<!-- Sidebar TOC (`toc` breakpoint and up; see --breakpoint-toc in source/css/_tailwind.css) -->
-<nav id="tocSidebar" class="toc-sidebar hidden toc:block" aria-label="{{ __('toc.title') }}" data-pagefind-ignore>
+<!-- Sidebar TOC (`toc` breakpoint and up; see --breakpoint-toc in source/css/_core/tokens.css) -->
+<nav id="tocSidebar" class="toc-sidebar hidden toc:block" aria-label="{{ escape_attr(__('toc.title')) }}" data-pagefind-ignore>
     <div class="toc-sidebar-inner">
-        <p class="toc-sidebar-title">{{ __('toc.title') }}</p>
+        <p class="toc-sidebar-title">{{ escape_html(__('toc.title')) }}</p>
         <div class="toc-body">{{ article_toc.html | safe }}</div>
     </div>
 </nav>

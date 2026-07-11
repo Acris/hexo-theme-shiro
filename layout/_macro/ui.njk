@@ -1,9 +1,14 @@
+{# Dual-write flat globals + window.__shiro bag (same key). Flat names stay for
+   existing client scripts; prefer __shiro[key] for new code. #}
 {% macro feature_var(key, value) -%}
 window[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
+(window.__shiro = window.__shiro || {})[{{ js_value(key) | safe }}] = window[{{ js_value(key) | safe }}];
 {%- endmacro %}
 
 {% macro feature_i18n(key, value) -%}
+window.__i18n = window.__i18n || {};
 window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
+(window.__shiro = window.__shiro || {}).i18n = window.__i18n;
 {%- endmacro %}
 
 {# Shared nav link: safe URL + allowlisted target + escaped label. #}
@@ -169,7 +174,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
                 {% if cat_meta and cat_meta.primary %}
                 <a class="link-muted" href="{{ href_for(cat_meta.primary.path) }}" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(cat_meta.primary.name) }}</a>
                 {% if cat_meta.moreCount > 0 %}
-                <span class="meta-cat-more oldstyle-nums" title="{{ escape_attr(cat_meta.title) }}">{{ __('categories.meta_more', cat_meta.moreCount) }}</span>
+                <span class="meta-cat-more oldstyle-nums" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(__('categories.meta_more', cat_meta.moreCount)) }}</span>
                 {% endif %}
                 {% endif %}
             {% endif %}
@@ -181,7 +186,7 @@ window.__i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         <div class="flex items-center gap-1.5 oldstyle-nums"{% if wc.title %} title="{{ escape_attr(wc.title) }}"{% endif %}>
             {{ icon_book(class=meta_icon) }}
             {% if wc.count != null %}
-            <span aria-label="{{ escape_attr(__('word_count.count') + ': ' + wc.count) }}">{{ wc.count }}</span>
+            <span aria-label="{{ escape_attr(__('word_count.count') + ': ' + wc.count) }}">{{ escape_html(wc.count) }}</span>
             {% endif %}
             {% if wc.count != null and wc.time != null %}
             <span class="select-none text-slate-300" aria-hidden="true">/</span>

@@ -74,7 +74,6 @@
 
     let activeId = '';
     let updateQueued = false;
-    let activeIndex = -1;
     const headingIndex = new Map();
     const passedHeadings = new Set();
     headingArr.forEach((heading, index) => headingIndex.set(heading.id, index));
@@ -102,7 +101,6 @@
         if (id === activeId) return;
         if (activeId) setLinksActive(activeId, false);
         activeId = id;
-        activeIndex = id && headingIndex.has(id) ? headingIndex.get(id) : -1;
         if (activeId) {
             setLinksActive(activeId, true);
             scrollSidebarActiveLink(activeId);
@@ -118,24 +116,19 @@
         return index >= 0 ? headingArr[index].id : '';
     }
 
-    function updateActiveHeadingFromObserver() {
+    // Single scroll-spy model: geometry-based "passed" set + last passed id.
+    // Used for both IntersectionObserver updates and resize/load rebuilds so
+    // the two paths never disagree.
+    const OFFSET = 100;
+
+    function rebuildPassedFromGeometry() {
+        passedHeadings.clear();
+        headingArr.forEach((heading) => {
+            if (heading.getBoundingClientRect().top - OFFSET <= 0) {
+                passedHeadings.add(heading.id);
+            }
+        });
         setActiveHeading(currentPassedHeadingId());
-    }
-
-    function updateActiveHeadingByPosition() {
-        const offset = 100;
-        let currentIndex = activeIndex;
-        if (currentIndex < 0) currentIndex = 0;
-
-        while (currentIndex + 1 < headingArr.length
-            && headingArr[currentIndex + 1].getBoundingClientRect().top - offset <= 0) {
-            currentIndex += 1;
-        }
-        while (currentIndex >= 0 && headingArr[currentIndex].getBoundingClientRect().top - offset > 0) {
-            currentIndex -= 1;
-        }
-
-        setActiveHeading(currentIndex >= 0 ? headingArr[currentIndex].id : '');
     }
 
     function scheduleActiveUpdate(update) {
@@ -147,37 +140,37 @@
         });
     }
 
-    const schedulePositionUpdate = () => scheduleActiveUpdate(updateActiveHeadingByPosition);
+    const scheduleGeometryUpdate = () => scheduleActiveUpdate(rebuildPassedFromGeometry);
 
     if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 const id = entry.target.id;
                 if (!id) return;
-                if (entry.boundingClientRect.top <= 100 && !entry.isIntersecting) {
+                if (entry.boundingClientRect.top <= OFFSET && !entry.isIntersecting) {
                     passedHeadings.add(id);
                 } else {
                     passedHeadings.delete(id);
                 }
             });
-            scheduleActiveUpdate(updateActiveHeadingFromObserver);
+            scheduleActiveUpdate(() => setActiveHeading(currentPassedHeadingId()));
         }, {
-            rootMargin: '-100px 0px 0px 0px',
+            rootMargin: '-' + OFFSET + 'px 0px 0px 0px',
             threshold: 0
         });
         headingArr.forEach(heading => observer.observe(heading));
-        schedulePositionUpdate();
+        scheduleGeometryUpdate();
     } else {
-        window.addEventListener('scroll', schedulePositionUpdate, { passive: true });
-        schedulePositionUpdate();
+        window.addEventListener('scroll', scheduleGeometryUpdate, { passive: true });
+        scheduleGeometryUpdate();
     }
 
-    window.addEventListener('resize', schedulePositionUpdate, { passive: true });
+    window.addEventListener('resize', scheduleGeometryUpdate, { passive: true });
     if (document.readyState !== 'complete') {
-        window.addEventListener('load', schedulePositionUpdate, { once: true });
+        window.addEventListener('load', scheduleGeometryUpdate, { once: true });
     }
     if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(schedulePositionUpdate);
+        document.fonts.ready.then(scheduleGeometryUpdate);
     }
 
     function decodedHashTarget() {
@@ -194,7 +187,7 @@
     if (hashTarget) {
         setTimeout(() => {
             hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
-            schedulePositionUpdate();
+            scheduleGeometryUpdate();
         }, 100);
     }
 

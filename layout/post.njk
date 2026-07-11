@@ -3,25 +3,25 @@
 {% block content %}
 {% set article_extra %}
     <!-- Post Navigation: Hexo's page.prev = newer post, page.next = older post -->
-    <div class="section-divider flex justify-between items-center text-sm md:text-base">
+    <nav class="section-divider flex justify-between items-center text-sm md:text-base" aria-label="{{ escape_attr(__('post.navigation')) }}">
         {% if page.prev %}
-        <a href="{{ href_for(page.prev.path) }}" class="post-nav-link group text-left" title="{{ escape_attr(page.prev.title) }}">
+        <a href="{{ href_for(page.prev.path) }}" class="post-nav-link group text-left" title="{{ escape_attr(page.prev.title) }}" aria-label="{{ escape_attr(__('post.prev') + ': ' + page.prev.title) }}">
              <span aria-hidden="true">&larr;</span>
              <span class="post-nav-title">{{ escape_html(page.prev.title) }}</span>
         </a>
         {% else %}
-        <div></div>
+        <div aria-hidden="true"></div>
         {% endif %}
 
         {% if page.next %}
-        <a href="{{ href_for(page.next.path) }}" class="post-nav-link group text-right" title="{{ escape_attr(page.next.title) }}">
+        <a href="{{ href_for(page.next.path) }}" class="post-nav-link group text-right" title="{{ escape_attr(page.next.title) }}" aria-label="{{ escape_attr(__('post.next') + ': ' + page.next.title) }}">
             <span class="post-nav-title">{{ escape_html(page.next.title) }}</span>
             <span aria-hidden="true">&rarr;</span>
         </a>
         {% else %}
-        <div></div>
+        <div aria-hidden="true"></div>
         {% endif %}
-    </div>
+    </nav>
 {% endset %}
 {% include "_partial/components/article.njk" %}
 {% endblock %}

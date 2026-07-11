@@ -1,8 +1,8 @@
 categories:
   count_hint: "%s · 本层 %s / 分类页 %s"
-  meta_more: +%s
+  meta_more: "+%s"
   more: 查看全部
-  more_count: +%s 篇
+  more_count: "+%s 篇"
 
 clipboard:
   copied: 已复制
@@ -15,6 +15,13 @@ comments:
 common:
   back_to_top: 回到顶部
   empty: 这里还没有内容。
+  rss: RSS
+  skip_to_content: 跳到正文
+
+footer:
+  credit_by: 制作
+  credit_prefix: 优雅主题
+  love: 爱
 
 gallery:
   view_image: 查看图片
@@ -31,9 +38,14 @@ nav:
 
 page:
   next: 下一页
-  number: 第 %s 页
+  number: "第 %s 页"
   pagination: 分页导航
   prev: 上一页
+
+post:
+  navigation: 文章导航
+  next: 上一篇（更旧）
+  prev: 下一篇（更新）
 
 search:
   placeholder: 搜索文章…

@@ -110,11 +110,12 @@
             chromeObserver = new MutationObserver(() => {
                 syncModalChrome();
             });
+            // Prefer dialog open/replace over deep attribute spam during result updates.
             chromeObserver.observe(modal, {
                 attributes: true,
                 childList: true,
                 subtree: true,
-                attributeFilter: ['open', 'class', 'style', 'aria-hidden', 'hidden']
+                attributeFilter: ['open']
             });
         }
 

@@ -7,7 +7,7 @@
     const script = window.__clipboardScript || '';
     if (!script) return;
 
-    const { loadBootstrapScript } = rt;
+    const { scheduleIdle, createFeatureLoader } = rt;
 
     function createCodeBlockCursor() {
         const root = document.querySelector('main') || document.body;
@@ -37,9 +37,13 @@
     const eagerBlocks = cursor.next(4);
     if (!eagerBlocks.length) return;
 
-    let loading = false;
     const pendingTargets = [];
     const pendingTargetSet = new Set();
+    const feature = createFeatureLoader({
+        id: 'clipboard',
+        src: script,
+        onError: () => {}
+    });
 
     function queueTargets(targets) {
         (targets || []).forEach((target) => {
@@ -64,21 +68,15 @@
             return;
         }
 
+        // Queue before load so concurrent load() subscribers enhance all targets.
         queueTargets(targets);
-        if (loading) return;
-        loading = true;
-
-        loadBootstrapScript(script, {
-            onload: () => {
-                loading = false;
-                enhanceTargets(pendingTargets);
-                pendingTargets.length = 0;
-                pendingTargetSet.clear();
-                window.__shiroClipboardTargets = [];
-                if (typeof onLoaded === 'function') onLoaded();
-            },
-            onerror: () => { loading = false; }
-        }, 'clipboard');
+        feature.load(() => {
+            enhanceTargets(pendingTargets);
+            pendingTargets.length = 0;
+            pendingTargetSet.clear();
+            window.__shiroClipboardTargets = [];
+            if (typeof onLoaded === 'function') onLoaded();
+        });
     }
 
     function enhanceRemaining() {
@@ -90,15 +88,11 @@
     }
 
     function schedule(task) {
-        if (rt.scheduleIdle) {
-            rt.scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
+        if (scheduleIdle) {
+            scheduleIdle(task, { timeout: 1000, fallbackMs: 64 });
             return;
         }
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(task, { timeout: 1000 });
-        } else {
-            window.setTimeout(() => task(), 64);
-        }
+        window.setTimeout(() => task(), 64);
     }
 
     const observer = 'IntersectionObserver' in window
@@ -121,9 +115,6 @@
         if (blocks.length) schedule(observeNextBatch);
     }
 
-    // Load immediately when IntersectionObserver is unavailable or one of the
-    // first few code blocks is already inside the eager-load zone (≤ 300px below
-    // the viewport bottom — which also covers any block already scrolled past).
     const isNearViewport = (block) => block.getBoundingClientRect().top < window.innerHeight + 300;
     if (!observer) {
         loadClipboard(eagerBlocks, enhanceRemaining);

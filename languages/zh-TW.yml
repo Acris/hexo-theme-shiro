@@ -1,8 +1,8 @@
 categories:
   count_hint: "%s · 本層 %s / 分類頁 %s"
-  meta_more: +%s
+  meta_more: "+%s"
   more: 查看全部
-  more_count: +%s 篇
+  more_count: "+%s 篇"
 
 clipboard:
   copied: 已複製
@@ -15,6 +15,13 @@ comments:
 common:
   back_to_top: 回到頂部
   empty: 這裡還沒有內容。
+  rss: RSS
+  skip_to_content: 跳到正文
+
+footer:
+  credit_by: 製作
+  credit_prefix: 優雅主題
+  love: 愛
 
 gallery:
   view_image: 查看圖片
@@ -31,9 +38,14 @@ nav:
 
 page:
   next: 下一頁
-  number: 第 %s 頁
+  number: "第 %s 頁"
   pagination: 分頁導航
   prev: 上一頁
+
+post:
+  navigation: 文章導覽
+  next: 上一篇（較舊）
+  prev: 下一篇（較新）
 
 search:
   placeholder: 搜尋文章…

@@ -11,7 +11,6 @@ const {
     safeNavigationUrl,
     safeResourceUrl,
     safeScriptJson,
-    resourceOrigin,
     normalizedLinkTarget,
     isFeatureEnabled,
     normalizeLangAttr,
@@ -53,6 +52,7 @@ const {
     postMetaCategorySummary,
     resolveCategoryForPage
 } = require('./lib/categories');
+const { groupPostsByYear } = require('./lib/archive');
 
 const assetHashCache = new Map();
 
@@ -99,13 +99,23 @@ hexo.extend.helper.register('href_for', function (path) {
 });
 
 // Optional SRI attribute string for CDN tags (integrity + crossorigin), or "".
+// Non-empty invalid digests are ignored and warned once per generate.
 hexo.extend.helper.register('sri_attrs', function (integrity) {
-    return sriAttrsHtml(integrity);
+    return sriAttrsHtml(integrity, {
+        warn: (msg) => {
+            if (hexo.log && typeof hexo.log.warn === 'function') hexo.log.warn(msg);
+        }
+    });
 });
 
 // Normalized SRI digest or "" (for client-side integrity globals).
 hexo.extend.helper.register('sri_integrity', function (integrity) {
-    return normalizeSriIntegrity(integrity);
+    const raw = String(integrity == null ? '' : integrity).trim();
+    const hash = normalizeSriIntegrity(raw);
+    if (raw && !hash && hexo.log && typeof hexo.log.warn === 'function') {
+        hexo.log.warn('[shiro] invalid SRI integrity ignored (expected sha256|384|512-… base64)');
+    }
+    return hash;
 });
 
 // Optional CSP nonce attribute for theme-injected scripts when security.csp_nonce is set.
@@ -132,9 +142,7 @@ hexo.extend.helper.register('safe_resource_url_for', function (value, fallback, 
     return safeResourceUrl(value, this, fallback, options);
 });
 
-hexo.extend.helper.register('resource_origin_for', function (value, fallback) {
-    return resourceOrigin(safeResourceUrl(value, this, fallback || ''));
-});
+// resource_origin_for removed: layout uses gates.lightgalleryPreconnectUrl only.
 
 hexo.extend.helper.register('link_target', function (value) {
     return normalizedLinkTarget(value);
@@ -149,7 +157,8 @@ hexo.extend.helper.register('feature_enabled', function (value, defaultOn) {
     return isFeatureEnabled(value, defaultOn === true || defaultOn === 'true');
 });
 
-// Single source for comments container / foot scripts / runtime gate.
+// comments_state: thin alias for child themes / tests. Layout should prefer
+// page_feature_gates().shiroComments (same resolveCommentsState under the hood).
 hexo.extend.helper.register('comments_state', function (page) {
     return resolveCommentsState(this.theme, page, {
         isPost: typeof this.is_post === 'function' && this.is_post(),
@@ -158,6 +167,7 @@ hexo.extend.helper.register('comments_state', function (page) {
 });
 
 // Page feature gates + CDN URLs for layout (pure policy lives in feature-gates.js).
+// Layout templates must bind gates once here — do not re-implement feature policy.
 hexo.extend.helper.register('page_feature_gates', function () {
     const page = this.page || {};
     const theme = this.theme || {};
@@ -241,10 +251,25 @@ hexo.extend.helper.register('category_for_page', function (page) {
 // Yearly archive URL helper: honours Hexo's archive_dir instead of a hard-coded
 // 'archives/' segment, so custom archive_dir sites link to the right page.
 hexo.extend.helper.register('archive_url', function (year) {
-    const configured = String((hexo.config && hexo.config.archive_dir) || 'archives').replace(/^\/+|\/+$/g, '');
+    const configured = String((this.config && this.config.archive_dir)
+        || (hexo.config && hexo.config.archive_dir)
+        || 'archives').replace(/^\/+|\/+$/g, '');
     const archiveDir = configured || 'archives';
     const path = String(this.url_for(archiveDir + '/' + year) || '').replace(/\/+$/, '');
     return path + '/';
+});
+
+// Year → posts groups for archive/tag/category list templates (no open/close div state in Nunjucks).
+hexo.extend.helper.register('posts_by_year', function (posts) {
+    return groupPostsByYear(posts, (post) => {
+        if (!post || post.date == null) return '';
+        if (typeof this.date === 'function') return String(this.date(post.date, 'YYYY') || '');
+        const d = post.date;
+        if (typeof d.year === 'function') return String(d.year());
+        if (typeof d.format === 'function') return String(d.format('YYYY'));
+        const date = d instanceof Date ? d : new Date(d);
+        return Number.isFinite(date.getTime()) ? String(date.getFullYear()) : '';
+    });
 });
 
 // Cache-busting helper: appends ?v=<hash> to local asset URLs
@@ -287,9 +312,7 @@ hexo.extend.helper.register('has_images', function (page) {
     return pageAnalysis(page).imageCount > 0;
 });
 
-hexo.extend.helper.register('first_image', function (page) {
-    return pageAnalysis(page).firstImage;
-});
+// first_image removed: OG path uses resolveOpenGraphImage / pageAnalysis internally.
 
 hexo.extend.helper.register('excerpt_for', function (post, length) {
     return excerptFor(post, length);
@@ -376,5 +399,6 @@ module.exports = {
     util: require('./lib/util'),
     comments: require('./lib/comments'),
     categories: require('./lib/categories'),
-    featureGates: require('./lib/feature-gates')
+    featureGates: require('./lib/feature-gates'),
+    archive: require('./lib/archive')
 };

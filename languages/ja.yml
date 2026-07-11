@@ -1,8 +1,8 @@
 categories:
   count_hint: "%s · この階層 %s / 一覧 %s"
-  meta_more: +%s
+  meta_more: "+%s"
   more: すべて見る
-  more_count: +%s
+  more_count: "+%s"
 
 clipboard:
   copied: コピーしました
@@ -15,6 +15,13 @@ comments:
 common:
   back_to_top: トップへ戻る
   empty: まだ何もありません。
+  rss: RSS
+  skip_to_content: 本文へスキップ
+
+footer:
+  credit_by: 制作
+  credit_prefix: テーマ
+  love: 愛
 
 gallery:
   view_image: 画像を見る
@@ -34,6 +41,11 @@ page:
   number: '%s ページ目'
   pagination: ページネーション
   prev: 前へ
+
+post:
+  navigation: 記事ナビ
+  next: 古い記事
+  prev: 新しい記事
 
 search:
   placeholder: 記事を検索…

@@ -4,7 +4,9 @@
     // Shared client helpers for feature bootstraps (asset load, bootstrap script,
     // image safety, connection-aware warm). Loaded once as runtime.min.js before
     // any dependent deferred/sync feature script.
-    if (window.__shiroRuntime) return;
+    // Namespace: window.__shiro.runtime (flat window.__shiroRuntime kept as alias).
+    const root = (window.__shiro = window.__shiro || {});
+    if (window.__shiroRuntime || root.runtime) return;
 
     const assetTimeout = 12000;
 
@@ -108,6 +110,8 @@
     // Protocol: window URL -> loadBootstrapScript(url, {onload,onerror}, shortId)
     // -> optional scheduleIdleWarm. Do not invent a parallel loader path.
     // `id` is a short stable token for dedupe (not the full URL - URLs break CSS selectors).
+    // Dynamically inserted classic scripts are effectively async; we do not set
+    // defer (it is a no-op on createElement('script') and documents the wrong model).
     function loadBootstrapScript(src, callbacks, id) {
         const opts = callbacks || {};
         const token = String(id || src || 'bootstrap')
@@ -121,7 +125,6 @@
         const selector = 'script[data-shiro-bootstrap="' + token + '"]';
         return loadAsset('script', {
             src: src,
-            defer: true,
             'data-shiro-bootstrap': token
         }, selector).then(() => {
             if (typeof opts.onload === 'function') opts.onload();
@@ -129,6 +132,90 @@
             if (typeof opts.onerror === 'function') opts.onerror(error);
             return Promise.reject(error);
         });
+    }
+
+    /**
+     * Load a feature bootstrap script once; concurrent load() share one promise.
+     * onReady runs after success (including late subscribers). Failures call
+     * onError and clear pending so a later load() can retry.
+     * @param {{ id: string, src: string, onReady?: function, onError?: function }} options
+     * @returns {{ load: function, isLoading: function }}
+     */
+    function createFeatureLoader(options) {
+        const opts = options || {};
+        const id = opts.id || 'feature';
+        const src = opts.src || '';
+        // inflight: in-progress load. ready: resolved after first success (reuse).
+        let inflight = null;
+        let ready = null;
+
+        return {
+            isLoading: () => !!inflight,
+            load: (onReady) => {
+                if (!src) {
+                    const err = new Error('Missing feature script URL for ' + id);
+                    if (typeof opts.onError === 'function') opts.onError(err);
+                    return Promise.reject(err);
+                }
+
+                if (ready) {
+                    return ready.then(() => {
+                        if (typeof onReady === 'function') onReady();
+                    });
+                }
+
+                if (!inflight) {
+                    inflight = loadBootstrapScript(src, {
+                        onload: () => {
+                            if (typeof opts.onReady === 'function') opts.onReady();
+                        },
+                        onerror: (error) => {
+                            if (typeof opts.onError === 'function') opts.onError(error);
+                        }
+                    }, id).then(() => {
+                        ready = Promise.resolve();
+                        inflight = null;
+                    }, () => {
+                        inflight = null;
+                        return Promise.reject(new Error('Feature script failed: ' + id));
+                    });
+                }
+
+                return inflight.then(() => {
+                    if (typeof onReady === 'function') onReady();
+                }).catch(() => {
+                    // onError already ran; call sites need no .catch.
+                });
+            }
+        };
+    }
+
+    /**
+     * Bind one-shot intent warm (hover/press/focus) and return a cleanup fn.
+     * @param {function} warmFn
+     * @param {{ root?: EventTarget, events?: string[], capture?: boolean, shouldWarm?: function(Event): boolean }} [options]
+     */
+    function bindIntentWarm(warmFn, options) {
+        const opts = options || {};
+        const root = opts.root || document;
+        const events = opts.events || ['pointerover', 'pointerdown', 'focusin'];
+        const capture = opts.capture !== false;
+        let done = false;
+
+        const handler = (event) => {
+            if (done) return;
+            if (typeof opts.shouldWarm === 'function' && !opts.shouldWarm(event)) return;
+            done = true;
+            events.forEach((name) => root.removeEventListener(name, handler, capture));
+            warmFn(event);
+        };
+
+        events.forEach((name) => root.addEventListener(name, handler, capture));
+        return () => {
+            if (done) return;
+            done = true;
+            events.forEach((name) => root.removeEventListener(name, handler, capture));
+        };
     }
 
     function isSafeImageUrl(url) {
@@ -180,9 +267,11 @@
         });
     }
 
-    window.__shiroRuntime = {
+    const api = {
         loadAsset,
         loadBootstrapScript,
+        createFeatureLoader,
+        bindIntentWarm,
         isSafeImageUrl,
         isDecorativeImg,
         imageSource,
@@ -191,4 +280,7 @@
         scheduleIdleWarm,
         cspNonce
     };
+    root.runtime = api;
+    // Flat alias for existing bootstraps (clipboard / search / comments / …).
+    window.__shiroRuntime = api;
 })();

@@ -37,6 +37,19 @@
     --color-code-bg: #f8fafc;
     --color-code-gutter: #f1f5f9;
 
+    /* Syntax highlighting (Hexo highlight / gist). Dark swaps in dark.css. */
+    --color-code-comment: #a8a29e;
+    --color-code-string: #5b6e3a;
+    --color-code-number: #a85a1f;
+    --color-code-attr: #8a4a1a;
+    --color-code-meta: #8a8278;
+    --color-code-title: var(--color-ink);
+    --color-code-keyword: var(--color-seal);
+    --color-code-addition: #4a6b2a;
+    --color-code-addition-bg: rgba(91, 110, 58, 0.1);
+    --color-code-deletion: var(--color-seal);
+    --color-code-deletion-bg: rgba(175, 58, 82, 0.08);
+
     --font-code: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
     --font-eng: 'Cormorant Garamond', serif;
     --font-serif: 'Cardo', 'Zen Old Mincho', 'Noto Serif JP', 'Noto Serif SC', serif;

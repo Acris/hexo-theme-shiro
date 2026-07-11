@@ -34,7 +34,7 @@
             <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="focus-elegant header-pill-btn"
-                    href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" target="_blank" rel="noopener noreferrer" aria-label="RSS">
+                    href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ escape_attr(__('common.rss')) }}">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
@@ -72,9 +72,9 @@
 
     <!-- Desktop Menu -->
     <div class="hidden md:block">
-        <ul class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
+        <ul class="nav-desktop flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-base text-slate-700 px-4">
             {% for item in menu_items %}
-            <li>{{ menu_link(item, "focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors") }}</li>
+            <li>{{ menu_link(item, "nav-desktop-link focus-elegant rounded-md px-2 py-1 hover:text-seal transition-colors") }}</li>
             {% if not loop.last %}
             <li class="text-slate-400 select-none" role="separator" aria-hidden="true">/</li>
             {% endif %}

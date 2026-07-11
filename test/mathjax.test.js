@@ -198,7 +198,7 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[1], '$E=mc^2$');
             assert.equal(protectedMath.segments[2], '\\(a\\)');
 
-            const restored = restoreProtectedMath(protectedMath.content, protectedMath.segments);
+            const restored = restoreProtectedMath(protectedMath.content, protectedMath);
             assert.match(restored, /\\\$5/);
             assert.match(restored, /\$E=mc\^2\$/);
             assert.match(restored, /\\\(a\\\)/);
@@ -313,8 +313,27 @@ describe('scripts/mathjax.js', () => {
         });
 
         it('HTML-escapes restored TeX', () => {
-            const restored = restoreProtectedMath('p @@SHIRO_MATH_0@@ q', ['\\(a<b\\)']);
+            const salt = 'deadbeefcafe';
+            const restored = restoreProtectedMath(
+                'p @@SHIRO_MATH_' + salt + '_0@@ q',
+                { segments: ['\\(a<b\\)'], salt }
+            );
             assert.equal(restored, 'p \\(a&lt;b\\) q');
+        });
+
+        it('does not restore foreign @@SHIRO_MATH_N@@ prose tokens', () => {
+            const protectedMath = protectMarkdownMath('literal @@SHIRO_MATH_0@@ and \\(a\\)', {
+                inlineDollars: false
+            });
+            assert.ok(protectedMath.segments);
+            assert.equal(protectedMath.segments.length, 1);
+            assert.match(protectedMath.content, /literal @@SHIRO_MATH_0@@ and/);
+            assert.match(protectedMath.content, new RegExp(
+                '@@SHIRO_MATH_' + protectedMath.salt + '_0@@'
+            ));
+            const restored = restoreProtectedMath(protectedMath.content, protectedMath);
+            assert.match(restored, /literal @@SHIRO_MATH_0@@ and/);
+            assert.match(restored, /\\\(a\\\)/);
         });
     });
 
@@ -335,9 +354,9 @@ describe('scripts/mathjax.js', () => {
             };
 
             before(data);
-            assert.match(data.content, /@@SHIRO_MATH_0@@/);
-            assert.match(data.excerpt, /@@SHIRO_MATH_1@@/);
-            assert.match(data.more, /@@SHIRO_MATH_2@@/);
+            assert.match(data.content, /@@SHIRO_MATH_[0-9a-f]+_0@@/i);
+            assert.match(data.excerpt, /@@SHIRO_MATH_[0-9a-f]+_1@@/i);
+            assert.match(data.more, /@@SHIRO_MATH_[0-9a-f]+_2@@/i);
             // Segments live only in the module WeakMap (not on the post object).
             assert.equal(Object.prototype.hasOwnProperty.call(data, PLACEHOLDER_PROP), false);
             assert.equal(JSON.stringify(data).includes(PLACEHOLDER_PROP), false);
@@ -360,7 +379,7 @@ describe('scripts/mathjax.js', () => {
 
             before(data);
             assert.equal(data.content, 'plain body with no math');
-            assert.match(data.excerpt, /@@SHIRO_MATH_0@@/);
+            assert.match(data.excerpt, /@@SHIRO_MATH_[0-9a-f]+_0@@/i);
 
             after(data);
             assert.equal(data.excerpt, 'summary with \\(E=mc^2\\)');
@@ -368,11 +387,12 @@ describe('scripts/mathjax.js', () => {
 
         it('after_post_render restores from WeakMap without requiring pageWantsMathjax', () => {
             const after = registeredFilters.after_post_render[0].fn;
+            const salt = 'aabbccddeeff';
             const data = {
-                content: 'x @@SHIRO_MATH_0@@ y',
+                content: 'x @@SHIRO_MATH_' + salt + '_0@@ y',
                 mathjax: false
             };
-            storeSegments(data, ['\\(z\\)']);
+            storeSegments(data, { segments: ['\\(z\\)'], salt });
             after(data);
             assert.equal(data.content, 'x \\(z\\) y');
             assert.equal(takeSegments(data), undefined);

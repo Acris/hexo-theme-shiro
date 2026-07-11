@@ -1,26 +1,20 @@
 {% extends "_layout.njk" %}
 {% from "_macro/ui.njk" import section_title, render_tag with context %}
+{% from "_macro/archive.njk" import render_list with context %}
 
 {% block content %}
 <section class="mx-auto max-w-3xl">
     {{ section_title(__('nav.tags'), page.tag) }}
 
     {% if is_tag() %}
-        {% from "_macro/archive.njk" import render_list with context %}
         {# Use Hexo paginated page.posts (honours per_page), not the full tag collection. #}
-        {% set posts = page.posts.sort('date', -1) if page.posts else null %}
-        {% if posts and posts.length > 0 %}
-            {{ render_list(posts) }}
-            {% include "_partial/common/pagination.njk" %}
-        {% else %}
-            {% include "_partial/common/empty.njk" %}
-        {% endif %}
+        {% include "_partial/common/paginated-posts.njk" %}
     {% else %}
         <!-- Tag Cloud -->
         {% if site.tags.length > 0 %}
         <div class="text-center mt-12 mb-16">
             <div class="flex flex-wrap justify-center gap-3">
-                {# Sort by post count descending; tags with equal count retain alphabetical order (stable sort) #}
+                {# Sort by post count descending; equal count keeps alphabetical order (stable sort) #}
                 {% set tags = site.tags.sort('name', 1).sort('length', -1) %}
                 {% for tag in tags.toArray() %}
                 {{ render_tag(tag, true) }}

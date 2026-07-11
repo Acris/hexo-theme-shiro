@@ -8,7 +8,9 @@
 </script>
 {% if state.disqusReady %}
 {% include "_partial/comments/disqus.njk" %}
+<script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-disqus.min.js')) }}"></script>
 {% elif state.giscusReady %}
 {% include "_partial/comments/giscus.njk" %}
+<script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url('js/comments-giscus.min.js')) }}"></script>
 {% endif %}
 {% endif %}

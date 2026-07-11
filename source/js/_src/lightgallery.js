@@ -91,10 +91,30 @@
         return escapeHtml(value).replace(/"/g, '&quot;');
     };
 
-    // Return a normalized meaningful HTTP(S) link, or null.
+    // Meaningful navigable page link for the "view source" caption button.
+    // Absolute http(s) only (opens in a new tab); relative site paths stay on href.
     const normalizedSourceUrl = (url) => {
         const value = String(url || '').trim();
         return !/[\u0000-\u001F\u007F]/.test(value) && /^https?:\/\//i.test(value) ? value : null;
+    };
+
+    const ORIGINAL_HREF_ATTR = 'data-shiro-original-href';
+
+    // Fallback when LightGallery assets fail: prefer the pre-gallery page href.
+    const fallbackNavigationUrl = (link) => {
+        const original = (link.getAttribute(ORIGINAL_HREF_ATTR) || '').trim();
+        if (original && !/[\u0000-\u001F\u007F]/.test(original)
+            && !/^(?:javascript|vbscript|data):/i.test(original)) {
+            return original;
+        }
+        const href = (link.getAttribute('href') || '').trim();
+        const dataSrc = (link.getAttribute('data-src') || '').trim();
+        if (href && href !== dataSrc && !isSafeImageUrl(href)
+            && !/^(?:javascript|vbscript|data):/i.test(href)) {
+            return href;
+        }
+        const imageUrl = dataSrc || href;
+        return isSafeImageUrl(imageUrl) ? imageUrl : '';
     };
 
     const getCaption = (img) => img.getAttribute('title') || img.getAttribute('alt') || '';
@@ -146,7 +166,7 @@
         }
     }
 
-    const setLgAttributes = (link, imgSrc, caption, linkedUrl) => {
+    const setLgAttributes = (link, imgSrc, caption, linkedUrl, originalHref) => {
         const setIfChanged = (name, value) => {
             if (link.getAttribute(name) !== value) link.setAttribute(name, value);
         };
@@ -155,6 +175,11 @@
         // preserving the original href for SEO and right-click behavior.
         setIfChanged('data-src', imgSrc);
         setIfChanged('data-lg-item', 'true');
+        if (originalHref && originalHref !== imgSrc) {
+            setIfChanged(ORIGINAL_HREF_ATTR, originalHref);
+        } else if (link.hasAttribute(ORIGINAL_HREF_ATTR)) {
+            link.removeAttribute(ORIGINAL_HREF_ATTR);
+        }
 
         const subHtml = buildSubHtml(caption, linkedUrl);
         if (subHtml) {
@@ -181,11 +206,12 @@
         const caption = getCaption(img);
 
         if (existing) {
-            const href = existing.getAttribute('href') || '';
+            const href = (existing.getAttribute('href') || '').trim();
             const linkedUrl = normalizedSourceUrl(href);
+            // Remember pre-gallery destination for asset-failure fallback.
+            const originalHref = href && href !== src ? href : '';
 
-            // Set lightgallery attributes; original href is preserved
-            setLgAttributes(existing, src, caption, linkedUrl);
+            setLgAttributes(existing, src, caption, linkedUrl, originalHref);
             rememberGalleryItem(container, existing);
             if (!existing.getAttribute('aria-label')) {
                 const viewText = i18nGallery().view_image || 'View image';
@@ -194,7 +220,7 @@
             return existing;
         }
 
-        // No wrapping <a> - create one
+        // No wrapping <a> - create one (href is the image itself).
         const link = document.createElement('a');
         link.setAttribute('href', src);
         img.parentNode.insertBefore(link, img);
@@ -202,7 +228,7 @@
 
         const viewText = i18nGallery().view_image || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);
-        setLgAttributes(link, src, caption, null);
+        setLgAttributes(link, src, caption, null, '');
         rememberGalleryItem(container, link);
         return link;
     };
@@ -231,10 +257,13 @@
     }
 
     function followFallbackLink(link) {
-        // If LightGallery fails to load after we prepared a gallery item, keep
-        // the click aligned with the lightbox intent by opening the image URL.
-        const href = link.getAttribute('data-src') || link.getAttribute('href');
-        if (!isSafeImageUrl(href)) return;
+        // Prefer the original page/source href when present; else open the image.
+        const href = fallbackNavigationUrl(link);
+        if (!href) return;
+        if (/^https?:\/\//i.test(href) || href.indexOf('//') === 0) {
+            window.open(href, '_blank', 'noopener,noreferrer');
+            return;
+        }
         window.location.href = href;
     }
 

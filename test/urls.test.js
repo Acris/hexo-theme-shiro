@@ -187,6 +187,10 @@ describe('scripts/lib/urls', () => {
             assert.equal(sriAttrsHtml(''), '');
             assert.equal(sriAttrsHtml('md5-notvalid'), '');
             assert.equal(sriAttrsHtml('sha256-abc def'), '');
+            const warns = [];
+            assert.equal(sriAttrsHtml('md5-notvalid', { warn: (m) => warns.push(m) }), '');
+            assert.equal(warns.length, 1);
+            assert.match(warns[0], /invalid SRI/);
         });
 
         it('emits nonce only for safe non-empty values', () => {

@@ -34,9 +34,12 @@
             setOpen(false);
             btn.focus();
         }
-        // Focus trap: cycle Tab within open menu
+        // Focus trap: cycle Tab across toggle + open menu panel.
         if (e.key === 'Tab' && panel.dataset.open === 'true') {
-            const focusable = panel.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+            const panelFocusable = Array.from(
+                panel.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])')
+            );
+            const focusable = [btn].concat(panelFocusable);
             if (focusable.length === 0) return;
             const first = focusable[0];
             const last = focusable[focusable.length - 1];

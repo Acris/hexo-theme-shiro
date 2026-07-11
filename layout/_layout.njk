@@ -16,6 +16,7 @@
             <span class="shiro-preloader-ring"></span>
         </div>
     </div>
+    <a href="#main-content" class="shiro-skip-link">{{ escape_html(__('common.skip_to_content')) }}</a>
     {% if gates.siteSealEnabled %}
     {{ svg_filters() }}
     {% endif %}
@@ -36,7 +37,7 @@
             {% include "_partial/common/header.njk" %}
 
             <!-- Main Content -->
-            <main class="section-divider">
+            <main id="main-content" class="section-divider" tabindex="-1">
                 {% block content %}{% endblock %}
             </main>
 
@@ -88,6 +89,7 @@
         {% endif %}
         {% if gates.needsLightgallery or gates.needsCode %}
         window.__i18n = window.__i18n || {};
+        (window.__shiro = window.__shiro || {}).i18n = window.__i18n;
         {% endif %}
         {% if gates.searchEnabled %}
         {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}

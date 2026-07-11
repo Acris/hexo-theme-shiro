@@ -37,11 +37,12 @@
 
     function enhanceBlock(block) {
         if (!block || block.dataset.clipboardEnhanced === 'true') return;
-        block.dataset.clipboardEnhanced = 'true';
 
-        // Skip empty code blocks
+        // Skip empty code blocks (do not mark enhanced so a later fill can retry).
         const codeEl = block.querySelector('td.code pre') || block.querySelector('pre');
         if (!codeEl || !codeEl.textContent.trim()) return;
+
+        block.dataset.clipboardEnhanced = 'true';
 
         // Hexo highlight wraps each line in <span class="line">;
         // plain textContent concatenates them without newlines.
@@ -60,20 +61,34 @@
         btn.setAttribute('aria-label', i18nCopy());
         btn.innerHTML = iconCopy;
 
+        let resetTimer = 0;
+        const resetButton = () => {
+            btn.innerHTML = iconCopy;
+            btn.classList.remove('copied');
+            btn.setAttribute('aria-label', i18nCopy());
+            btn.disabled = false;
+        };
+
         btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            btn.disabled = true;
+            if (resetTimer) {
+                clearTimeout(resetTimer);
+                resetTimer = 0;
+            }
             copyText(copyValue).then(() => {
                 btn.innerHTML = iconDone;
                 btn.classList.add('copied');
                 btn.setAttribute('aria-label', i18nCopied());
-                setTimeout(() => {
-                    btn.innerHTML = iconCopy;
-                    btn.classList.remove('copied');
-                    btn.setAttribute('aria-label', i18nCopy());
+                resetTimer = setTimeout(() => {
+                    resetTimer = 0;
+                    resetButton();
                 }, 2000);
             }).catch(() => {
                 btn.setAttribute('aria-label', i18nFailed());
-                setTimeout(() => {
-                    btn.setAttribute('aria-label', i18nCopy());
+                resetTimer = setTimeout(() => {
+                    resetTimer = 0;
+                    resetButton();
                 }, 2000);
             });
         });
@@ -94,7 +109,8 @@
 
     function scheduleEnhance(blocks) {
         const queue = Array.from(blocks);
-        const schedule = (window.__shiroRuntime && window.__shiroRuntime.scheduleIdle)
+        const rt = window.__shiroRuntime;
+        const schedule = (rt && rt.scheduleIdle)
             || ((task, options) => {
                 const opts = options || {};
                 const idle = window.requestIdleCallback

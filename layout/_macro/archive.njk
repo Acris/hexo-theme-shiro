@@ -6,7 +6,7 @@
 {% set post_date_text = date(post.date, 'YYYY/MM/DD') %}
 <article class="group flex items-baseline gap-6">
     <time datetime="{{ escape_attr(post_date_attr) }}" class="w-24 shrink-0 text-right text-sm font-medium text-slate-400 oldstyle-nums">
-        {{ post_date_text }}
+        {{ escape_html(post_date_text) }}
     </time>
     <h3 class="text-base font-normal text-slate-700 transition-colors group-hover:text-seal">
         <a href="{{ href_for(post.path) }}" class="link-underline">{{ escape_html(post.title) }}</a>
@@ -16,28 +16,19 @@
 
 {% macro render_list(posts) %}
     <div class="space-y-16 max-w-2xl mx-auto">
-        {% set currentYear = '' %}
-        {% for post in posts.toArray() %}
-            {% set y = date(post.date, 'YYYY') %}
-            {% if y != currentYear %}
-                {% if currentYear != '' %}
-                </div>{# close .space-y-4 #}
-                </div>{# close .relative #}
-                {% endif %}
-                {% set currentYear = y %}
-                <div class="relative">{# year group wrapper — closed when year changes or after loop #}
-                <h2 class="section-heading">
-                    {{ icon_nav_arrow() }}
-                    {{ y }}
-                </h2>
-                <div class="space-y-4">
-            {% endif %}
-            {{ archive_item(post) }}
+        {% for group in posts_by_year(posts) %}
+        <div class="relative">
+            <h2 class="section-heading">
+                {{ icon_nav_arrow() }}
+                {{ escape_html(group.year) }}
+            </h2>
+            <div class="space-y-4">
+                {% for post in group.posts %}
+                {{ archive_item(post) }}
+                {% endfor %}
+            </div>
+        </div>
         {% endfor %}
-        {% if currentYear != '' %}
-            </div>{# close .space-y-4 #}
-            </div>{# close .relative #}
-        {% endif %}
     </div>
 {% endmacro %}
 
@@ -57,4 +48,3 @@
         {% endfor %}
     </div>
 {% endmacro %}
-

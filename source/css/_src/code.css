@@ -4,7 +4,7 @@
 /* Participates in the same cascade layers as style.min.css (see _tailwind.css).
    Keeps feature rules from beating Tailwind utilities as unlayered CSS. */
 @layer components {
-    .prose-shiro .highlight:not(.not-prose) {
+    .prose-shiro .highlight {
         width: 100%;
         min-width: 0;
         margin: 1.5rem 0;
@@ -48,9 +48,10 @@
         line-height: var(--leading-relaxed);
     }
 
+    /* Syntax colors via design tokens (dark swaps on html[data-theme=dark]). */
     .prose-shiro .highlight .comment,
     .prose-shiro .highlight .quote {
-        color: #a8a29e;
+        color: var(--color-code-comment);
         font-style: italic;
     }
 
@@ -60,7 +61,7 @@
     .prose-shiro .highlight .section,
     .prose-shiro .highlight .link,
     .prose-shiro .highlight .meta-keyword {
-        color: var(--color-seal);
+        color: var(--color-code-keyword);
     }
 
     .prose-shiro .highlight .string,
@@ -70,13 +71,13 @@
     .prose-shiro .highlight .regexp,
     .prose-shiro .highlight .meta-string,
     .prose-shiro .highlight .attr {
-        color: #5b6e3a;
+        color: var(--color-code-string);
     }
 
     .prose-shiro .highlight .number,
     .prose-shiro .highlight .symbol,
     .prose-shiro .highlight .bullet {
-        color: #a85a1f;
+        color: var(--color-code-number);
     }
 
     .prose-shiro .highlight .title,
@@ -88,28 +89,28 @@
     .prose-shiro .highlight .type,
     .prose-shiro .highlight .class .title,
     .prose-shiro .highlight .params {
-        color: var(--color-ink);
+        color: var(--color-code-title);
         font-weight: 600;
     }
 
     .prose-shiro .highlight .attribute,
     .prose-shiro .highlight .variable,
     .prose-shiro .highlight .tag {
-        color: #8a4a1a;
+        color: var(--color-code-attr);
     }
 
     .prose-shiro .highlight .meta {
-        color: #8a8278;
+        color: var(--color-code-meta);
     }
 
     .prose-shiro .highlight .addition {
-        color: #4a6b2a;
-        background-color: rgba(91, 110, 58, 0.1);
+        color: var(--color-code-addition);
+        background-color: var(--color-code-addition-bg);
     }
 
     .prose-shiro .highlight .deletion {
-        color: var(--color-seal);
-        background-color: rgba(175, 58, 82, 0.08);
+        color: var(--color-code-deletion);
+        background-color: var(--color-code-deletion-bg);
     }
 
     .prose-shiro .highlight .emphasis {
@@ -212,7 +213,7 @@
            width). Bleed distance is owned by .prose-shiro --shiro-code-bleed so the
            measure and expansion stay one design contract. Pre-apply on .highlight so
            first paint matches the width after clipboard.js wraps the block. */
-        .prose-shiro .highlight:not(.not-prose),
+        .prose-shiro .highlight,
         .highlight-wrapper {
             width: calc(100% + (2 * var(--shiro-code-bleed, 3.5rem)));
             margin-right: calc(-1 * var(--shiro-code-bleed, 3.5rem));
@@ -220,7 +221,7 @@
         }
 
         /* Once wrapped, let the wrapper own the geometry to avoid doubling margins. */
-        .highlight-wrapper > .highlight:not(.not-prose) {
+        .highlight-wrapper > .highlight {
             width: 100%;
             margin-right: 0;
             margin-left: 0;
@@ -304,7 +305,7 @@
 
     /* Dark: one theme gate; nested for maintainability (feature CSS is not Tailwind-scanned). */
     /* Dark theme overrides (flat selectors — feature CSS is not Tailwind-scanned). */
-    html[data-theme="dark"] .prose-shiro .highlight:not(.not-prose) {
+    html[data-theme="dark"] .prose-shiro .highlight {
         border-color: var(--color-border-strong);
         background-color: var(--color-code-bg);
         color: var(--color-text-body);
@@ -317,69 +318,7 @@
         color: var(--color-slate-600);
     }
 
-    html[data-theme="dark"] .prose-shiro .highlight .comment,
-    html[data-theme="dark"] .prose-shiro .highlight .quote {
-        color: var(--color-text-subtle);
-        font-style: italic;
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .keyword,
-    html[data-theme="dark"] .prose-shiro .highlight .selector-tag,
-    html[data-theme="dark"] .prose-shiro .highlight .literal,
-    html[data-theme="dark"] .prose-shiro .highlight .section,
-    html[data-theme="dark"] .prose-shiro .highlight .link,
-    html[data-theme="dark"] .prose-shiro .highlight .meta-keyword {
-        color: color-mix(in srgb, var(--color-seal) 75%, white);
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .string,
-    html[data-theme="dark"] .prose-shiro .highlight .doctag,
-    html[data-theme="dark"] .prose-shiro .highlight .template-tag,
-    html[data-theme="dark"] .prose-shiro .highlight .template-variable,
-    html[data-theme="dark"] .prose-shiro .highlight .regexp,
-    html[data-theme="dark"] .prose-shiro .highlight .meta-string,
-    html[data-theme="dark"] .prose-shiro .highlight .attr {
-        color: #b5c48a;
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .number,
-    html[data-theme="dark"] .prose-shiro .highlight .symbol,
-    html[data-theme="dark"] .prose-shiro .highlight .bullet {
-        color: #e0a571;
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .title,
-    html[data-theme="dark"] .prose-shiro .highlight .name,
-    html[data-theme="dark"] .prose-shiro .highlight .selector-id,
-    html[data-theme="dark"] .prose-shiro .highlight .selector-class,
-    html[data-theme="dark"] .prose-shiro .highlight .built_in,
-    html[data-theme="dark"] .prose-shiro .highlight .builtin-name,
-    html[data-theme="dark"] .prose-shiro .highlight .type,
-    html[data-theme="dark"] .prose-shiro .highlight .class .title,
-    html[data-theme="dark"] .prose-shiro .highlight .params {
-        color: var(--color-text-heading);
-        font-weight: 600;
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .attribute,
-    html[data-theme="dark"] .prose-shiro .highlight .variable,
-    html[data-theme="dark"] .prose-shiro .highlight .tag {
-        color: #d49a6a;
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .meta {
-        color: var(--color-text-subtle);
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .addition {
-        color: #b5c48a;
-        background-color: rgba(181, 196, 138, 0.1);
-    }
-
-    html[data-theme="dark"] .prose-shiro .highlight .deletion {
-        color: color-mix(in srgb, var(--color-seal) 75%, white);
-        background-color: rgba(175, 58, 82, 0.15);
-    }
+    /* Syntax token colors inherit from dark.css root swaps — no per-token dark rules. */
 
     html[data-theme="dark"] .prose-shiro .highlight figcaption {
         border-bottom-color: var(--color-border-strong);

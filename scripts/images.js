@@ -339,6 +339,22 @@ function localImageSize(src, post) {
     return null;
 }
 
+// Opt highlight/gist blocks out of Typography (`not-prose`) so code feature CSS
+// owns their tables/pre without fighting prose styles.
+// Only rewrite real open tags (not prose samples like class="highlight" in <pre>).
+// Token match is exact so "gist-file" is not treated as "gist".
+function markCodeBlocksNotProse(html) {
+    return String(html || '').replace(
+        /<([a-z][\w:-]*)(\s[^>]*?\s|\s)class\s*=\s*(["'])([^"']*)\3([^>]*)>/gi,
+        (match, tag, pre, quote, classes, post) => {
+            const tokens = classes.trim().split(/\s+/).filter(Boolean);
+            const hasCode = tokens.some((t) => t === 'highlight' || t === 'gist');
+            if (!hasCode || tokens.includes('not-prose')) return match;
+            return '<' + tag + pre + 'class=' + quote + 'not-prose ' + classes + quote + post + '>';
+        }
+    );
+}
+
 function optimizeImages(html, options) {
     const opts = options || {};
     let imageIndex = 0;
@@ -383,14 +399,21 @@ function optimizeImages(html, options) {
 
 hexo.extend.filter.register('after_post_render', function (data) {
     if (!data) return data;
-    data.content = optimizeImages(data.content, { post: data, firstImageEager: true });
-    if (data.excerpt) data.excerpt = optimizeImages(data.excerpt, { post: data, firstImageEager: false });
+    data.content = markCodeBlocksNotProse(
+        optimizeImages(data.content, { post: data, firstImageEager: true })
+    );
+    if (data.excerpt) {
+        data.excerpt = markCodeBlocksNotProse(
+            optimizeImages(data.excerpt, { post: data, firstImageEager: false })
+        );
+    }
     return data;
 });
 
 // Pure surface for unit tests (filter registration stays the side effect of this file).
 module.exports = {
     optimizeImages,
+    markCodeBlocksNotProse,
     parseAttrs,
     renderAttrs,
     isRemoteUrl,

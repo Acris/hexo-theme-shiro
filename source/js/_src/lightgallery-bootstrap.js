@@ -8,7 +8,8 @@
     if (!script) return;
 
     const {
-        loadBootstrapScript,
+        createFeatureLoader,
+        bindIntentWarm,
         isSafeImageUrl,
         isDecorativeImg,
         imageSource,
@@ -16,15 +17,27 @@
         scheduleIdleWarm
     } = rt;
 
-    let loading = false;
     let warmed = false;
+    let unbindWarm = null;
+
+    const feature = createFeatureLoader({
+        id: 'lightgallery',
+        src: script,
+        onReady: () => {
+            cleanupBootstrapListeners();
+        },
+        onError: () => {
+            warmed = false;
+            window.__shiroLightGalleryAutoOpen = null;
+            window.__shiroLightGalleryWarmRequested = false;
+        }
+    });
 
     function shouldHandleImage(img) {
         const src = imageSource(img);
         return isSafeImageUrl(src) && !isDecorativeImg(img);
     }
 
-    // Resolve the qualifying gallery image for a click target, or null.
     function qualifyingImage(target) {
         if (!target || !target.closest) return null;
 
@@ -37,42 +50,31 @@
         return img;
     }
 
-    function cleanupWarmListeners() {
-        document.removeEventListener('pointerover', handleIntent, true);
-        document.removeEventListener('pointerdown', handleIntent, true);
-        document.removeEventListener('focusin', handleIntent, true);
-    }
-
     function cleanupBootstrapListeners() {
         document.removeEventListener('click', handleClick, true);
-        cleanupWarmListeners();
+        if (typeof unbindWarm === 'function') {
+            unbindWarm();
+            unbindWarm = null;
+        }
     }
 
     function loadGallery() {
-        loading = true;
-        loadBootstrapScript(script, {
-            onload: cleanupBootstrapListeners,
-            onerror: () => {
-                loading = false;
-                warmed = false;
-                window.__shiroLightGalleryAutoOpen = null;
-                window.__shiroLightGalleryWarmRequested = false;
-            }
-        }, 'lightgallery');
+        // Concurrent load() shares one promise (createFeatureLoader).
+        feature.load();
     }
 
-    // Eagerly fetch the gallery script and CDN assets on the first hint of
-    // intent (hover / press / focus) so the click itself opens instantly.
     function warm() {
         if (warmed) return;
         warmed = true;
-        cleanupWarmListeners();
+        if (typeof unbindWarm === 'function') {
+            unbindWarm();
+            unbindWarm = null;
+        }
 
         if (window.__shiroLightGalleryOpen) {
             if (typeof window.__shiroLightGalleryWarm === 'function') window.__shiroLightGalleryWarm();
             return;
         }
-        if (loading) return;
 
         window.__shiroLightGalleryWarmRequested = true;
         loadGallery();
@@ -86,7 +88,6 @@
         }
 
         window.__shiroLightGalleryAutoOpen = target;
-        if (loading) return;
         loadGallery();
     }
 
@@ -99,28 +100,20 @@
         open(img);
     }
 
-    function handleIntent(event) {
-        if (warmed) return;
-
+    function intentShouldWarm(event) {
         const target = event.target;
-        if (!target || !target.closest) return;
+        if (!target || !target.closest) return false;
 
         const prose = target.closest('.prose-shiro');
-        if (!prose) return;
+        if (!prose) return false;
 
-        // Hover/press lands on the image; keyboard focus lands on its wrapping link.
         let img = target.closest('img');
         if ((!img || !prose.contains(img)) && target.querySelector) {
             img = target.querySelector('img');
         }
-        if (!img || !prose.contains(img) || !shouldHandleImage(img)) return;
-
-        warm();
+        return !!(img && prose.contains(img) && shouldHandleImage(img));
     }
 
-    // Touch devices have no hover, so per-image intent fires too late (pointerdown is
-    // almost simultaneous with click). Proactively warm when the first image nears the
-    // viewport (or on idle), gated on connection quality to avoid wasting metered data.
     function proactiveWarm() {
         if (warmed || !connectionAllowsWarm()) return;
         scheduleIdleWarm(() => warm());
@@ -152,9 +145,10 @@
     }
 
     document.addEventListener('click', handleClick, true);
-    document.addEventListener('pointerover', handleIntent, true);
-    document.addEventListener('pointerdown', handleIntent, true);
-    document.addEventListener('focusin', handleIntent, true);
+    unbindWarm = bindIntentWarm(() => warm(), {
+        capture: true,
+        shouldWarm: intentShouldWarm
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', scheduleProactiveWarm, { once: true });

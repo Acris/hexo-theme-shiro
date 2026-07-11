@@ -44,10 +44,24 @@
             --color-code-bg: #1b1a19;
             --color-code-gutter: #181817;
 
+            /* Syntax tokens (shared by feature code.css light+dark rules). */
+            --color-code-comment: var(--color-text-subtle);
+            --color-code-string: #b5c48a;
+            --color-code-number: #e0a571;
+            --color-code-attr: #d49a6a;
+            --color-code-meta: var(--color-text-subtle);
+            --color-code-title: var(--color-text-heading);
+            --color-code-keyword: color-mix(in srgb, var(--color-seal) 75%, white);
+            --color-code-addition: #b5c48a;
+            --color-code-addition-bg: rgba(181, 196, 138, 0.1);
+            --color-code-deletion: color-mix(in srgb, var(--color-seal) 75%, white);
+            --color-code-deletion-bg: rgba(175, 58, 82, 0.15);
+
             /* Override Tailwind slate palette → slightly warm neutral gray tones
                so all text-slate-*, bg-slate-*, border-slate-* utilities
                automatically harmonize with the dark theme.
-               Each step has clear visual separation (Δ ~10-15 lightness). */
+               Each step has clear visual separation (Δ ~10-15 lightness).
+               Longer-term: migrate chrome to semantic tokens and drop invert. */
             --color-slate-50: #272625;
             --color-slate-100: #2f2e2c;
             --color-slate-200: #373634;
@@ -242,7 +256,7 @@
     }
 
     /* Dark: footer */
-    footer .text-sm {
+    .site-footer-meta {
         @variant dark {
             color: var(--color-text-muted);
         }
@@ -263,7 +277,7 @@
     }
 
     /* Dark: desktop nav */
-    nav ul.flex > li > a {
+    .nav-desktop-link {
         @variant dark {
             color: var(--color-text-muted);
 

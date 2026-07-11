@@ -3,10 +3,25 @@
 // Pure MathJax markdown shield + gate helpers (no Hexo registration).
 // Hexo filters/helpers: scripts/mathjax.js.
 
+const crypto = require('crypto');
 const { escapeHtml, escapeRegExp } = require('./util');
 
+// Legacy export name kept for tests; storage is a WeakMap in scripts/mathjax.js.
 const PLACEHOLDER_PROP = '__shiroMathPlaceholders';
-const PLACEHOLDER_RE = /@@SHIRO_MATH_(\d+)@@/g;
+
+// Placeholders are @@SHIRO_MATH_<salt>_<id>@@ so prose that happens to contain
+// @@SHIRO_MATH_0@@ (docs, examples) cannot collide with a live protect pass.
+function makePlaceholderSalt() {
+    return crypto.randomBytes(6).toString('hex');
+}
+
+function placeholderToken(salt, id) {
+    return '@@SHIRO_MATH_' + salt + '_' + id + '@@';
+}
+
+function placeholderReplaceRe(salt) {
+    return new RegExp('@@SHIRO_MATH_' + escapeRegExp(salt) + '_(\\d+)@@', 'g');
+}
 
 // Longest names first so the open-pattern prefers alignedat over aligned over align.
 const MATH_ENV_NAMES = [
@@ -278,7 +293,7 @@ function nextInterestingIndex(source, from) {
 
 function protectMarkdownMath(content, options) {
     const source = String(content || '');
-    if (!source) return { content: source, segments: null };
+    if (!source) return { content: source, segments: null, salt: null };
 
     const opts = options || {};
     const inlineDollars = opts.inlineDollars === true;
@@ -288,18 +303,20 @@ function protectMarkdownMath(content, options) {
     // Environments: always shield \begin{…}\end{…} from Markdown even when the
     // client has process_environments: false (asymmetric on purpose — MD must
     // not mangle TeX; client simply will not typeset bare envs).
+    // Shared salt + startIndex let protectPostFields merge fields with unique ids.
+    const salt = opts.salt ? String(opts.salt) : makePlaceholderSalt();
+    const startIndex = Math.max(0, Number(opts.startIndex) || 0);
     const segments = [];
     let result = '';
     let cursor = 0;
 
-    // Sequential ids (@@SHIRO_MATH_0@@, …) keep the shield simple. If a heading
-    // is rendered while placeholders are still present, auto-generated anchor
-    // ids may include those tokens and can shift when formulas are inserted
-    // earlier in the post — acceptable for this theme (not content-hash stable).
+    // Salted sequential ids. If a heading is rendered while placeholders are
+    // still present, auto-generated anchor ids may include those tokens and can
+    // shift when formulas are inserted earlier — acceptable for this theme.
     function placeholder(segment) {
-        const id = segments.length;
+        const id = startIndex + segments.length;
         segments.push(segment);
-        return '@@SHIRO_MATH_' + id + '@@';
+        return placeholderToken(salt, id);
     }
 
     const warnContext = {
@@ -368,17 +385,34 @@ function protectMarkdownMath(content, options) {
         cursor = next;
     }
 
+    if (!segments.length) {
+        return { content: source, segments: null, salt: null };
+    }
+
     return {
-        content: segments.length ? result : source,
-        segments: segments.length ? segments : null
+        content: result,
+        segments,
+        salt
     };
 }
 
-function restoreProtectedMath(content, segments) {
+/**
+ * Restore protected TeX. Prefer { segments, salt } from protectMarkdownMath /
+ * protectPostFields. Bare (content, segments, salt) remains supported.
+ */
+function restoreProtectedMath(content, segmentsOrStore, saltArg) {
     const source = String(content || '');
-    if (!segments || !segments.length) return source;
+    let segments = segmentsOrStore;
+    let salt = saltArg;
 
-    return source.replace(PLACEHOLDER_RE, (match, id) => {
+    if (segmentsOrStore && !Array.isArray(segmentsOrStore) && typeof segmentsOrStore === 'object') {
+        segments = segmentsOrStore.segments;
+        salt = segmentsOrStore.salt;
+    }
+
+    if (!segments || !segments.length || !salt) return source;
+
+    return source.replace(placeholderReplaceRe(String(salt)), (match, id) => {
         const segment = segments[Number(id)];
         return segment === undefined ? match : escapeHtml(segment);
     });
@@ -449,6 +483,8 @@ function pageWantsMathjax(data, mathjaxConfig) {
 module.exports = {
     PLACEHOLDER_PROP,
     DEFAULT_MATHJAX_SRC,
+    makePlaceholderSalt,
+    placeholderToken,
     protectMarkdownMath,
     restoreProtectedMath,
     scanMathAt,

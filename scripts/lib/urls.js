@@ -154,10 +154,18 @@ function normalizeSriIntegrity(value) {
 /**
  * HTML attribute string for Subresource Integrity, or empty when unused/invalid.
  * Always pairs integrity with crossorigin=anonymous (required for SRI on CDN).
+ * @param {string} integrity
+ * @param {{ warn?: function(string): void }} [options] optional warn when non-empty value is rejected
  */
-function sriAttrsHtml(integrity) {
-    const hash = normalizeSriIntegrity(integrity);
-    if (!hash) return '';
+function sriAttrsHtml(integrity, options) {
+    const raw = String(integrity == null ? '' : integrity).trim();
+    const hash = normalizeSriIntegrity(raw);
+    if (!hash) {
+        if (raw && options && typeof options.warn === 'function') {
+            options.warn('[shiro] invalid SRI integrity ignored (expected sha256|384|512-… base64)');
+        }
+        return '';
+    }
     return ' integrity="' + hash + '" crossorigin="anonymous"';
 }
 

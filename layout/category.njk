@@ -9,13 +9,7 @@
         {% set page_cat = category_for_page(page) %}
         {{ section_title(__('nav.categories'), category_path_label(page_cat) if page_cat else page.category) }}
         {# Full Hexo assignment list (may be a superset of index exclusive previews). #}
-        {% set posts = page.posts.sort('date', -1) if page.posts else null %}
-        {% if posts and posts.length > 0 %}
-            {{ render_list(posts) }}
-            {% include "_partial/common/pagination.njk" %}
-        {% else %}
-            {% include "_partial/common/empty.njk" %}
-        {% endif %}
+        {% include "_partial/common/paginated-posts.njk" %}
     {% else %}
         {{ section_title(__('nav.categories')) }}
         {% set cards = category_index_cards() %}
@@ -51,8 +45,8 @@
                             <a class="focus-elegant btn-ink"
                                 href="{{ href_for(card.path) }}"
                                 aria-label="{{ escape_attr(__('categories.more') + ' ' + __('categories.more_count', card.remaining)) }}">
-                                <span>{{ __('categories.more') }}</span>
-                                <span class="btn-ink-meta oldstyle-nums">{{ __('categories.more_count', card.remaining) }}</span>
+                                <span>{{ escape_html(__('categories.more')) }}</span>
+                                <span class="btn-ink-meta oldstyle-nums">{{ escape_html(__('categories.more_count', card.remaining)) }}</span>
                             </a>
                         </div>
                         {% endif %}

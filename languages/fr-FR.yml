@@ -1,8 +1,8 @@
 categories:
   count_hint: "%s · %s ici / %s sur la page"
-  meta_more: +%s
+  meta_more: "+%s"
   more: Tout voir
-  more_count: +%s
+  more_count: "+%s"
 
 clipboard:
   copied: Copié
@@ -15,6 +15,13 @@ comments:
 common:
   back_to_top: Retour en haut
   empty: Rien ici pour le moment.
+  rss: RSS
+  skip_to_content: Aller au contenu
+
+footer:
+  credit_by: Réalisé par
+  credit_prefix: Thème élégant par
+  love: amour
 
 gallery:
   view_image: Voir l'image
@@ -31,9 +38,14 @@ nav:
 
 page:
   next: Suivant
-  number: Page %s
+  number: "Page %s"
   pagination: Pagination
   prev: Précédent
+
+post:
+  navigation: Navigation des articles
+  next: Article plus ancien
+  prev: Article plus récent
 
 search:
   placeholder: Rechercher des articles…

@@ -25,7 +25,7 @@
         <a href="{{ href_for(post.path) }}"
             class="focus-elegant btn-ink"
             aria-label="{{ escape_attr(__('index.read_more') + ': ' + post.title) }}">
-            {{ __('index.read_more') }}
+            {{ escape_html(__('index.read_more')) }}
         </a>
     </div>
     {% endif %}

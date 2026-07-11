@@ -1,0 +1,9 @@
+{# Shared paginated post list for tag/category detail pages.
+   Expects render_list imported by the caller (with context). #}
+{% set posts = page.posts.sort('date', -1) if page.posts else null %}
+{% if posts and posts.length > 0 %}
+    {{ render_list(posts) }}
+    {% include "_partial/common/pagination.njk" %}
+{% else %}
+    {% include "_partial/common/empty.njk" %}
+{% endif %}
