@@ -31,10 +31,9 @@
             /* Semantic text hierarchy — 4 clear levels */
             --color-text-heading: #e8e5e1;
             --color-text-body: #b0ada9;
-            --color-text-muted: #807d7a;
             --color-text-subtle: #615e5b;
             --color-text-faint: #33312f;
-            /* AA idle chrome on paper-dark (~5.1:1); muted alone can fall short. */
+            /* AA idle / secondary chrome on paper-dark (~5.1:1). */
             --color-text-chrome: #918e8a;
             --color-on-seal: rgba(255, 255, 255, 0.95);
 
@@ -61,7 +60,7 @@
             --color-code-deletion-bg: rgba(175, 58, 82, 0.15);
 
             /* Slate palette is NOT inverted. Chrome uses semantic tokens
-               (text-heading/body/muted/chrome, border-*, bg-*). Do not reintroduce
+               (text-heading/body/chrome, border-*, bg-*). Do not reintroduce
                full slate remapping — it breaks third-party / author HTML colors. */
 
             /* Scrollbar */

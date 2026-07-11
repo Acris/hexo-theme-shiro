@@ -153,7 +153,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 <div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-text-chrome {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow(class=meta_icon) }}
-        <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-muted"><time datetime="{{ escape_attr(post_date_attr) }}">{{ post_date_text }}</time></a>
+        <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-chrome"><time datetime="{{ escape_attr(post_date_attr) }}">{{ post_date_text }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
         {% set post_categories = post.categories.toArray() %}
@@ -163,14 +163,14 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
             {% if show_all_cats %}
                 {# Article header: full hierarchy / all assigned categories. #}
                 {% for cat in post_categories %}
-                    <a class="link-muted" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
+                    <a class="link-chrome" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
                     {% if not loop.last %}<span class="text-text-faint">/</span>{% endif %}
                 {% endfor %}
             {% else %}
                 {# List cards: deepest primary + parallel overflow (+N); title lists all topic paths. #}
                 {% set cat_meta = post_meta_category(post) %}
                 {% if cat_meta and cat_meta.primary %}
-                <a class="link-muted" href="{{ href_for(cat_meta.primary.path) }}" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(cat_meta.primary.name) }}</a>
+                <a class="link-chrome" href="{{ href_for(cat_meta.primary.path) }}" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(cat_meta.primary.name) }}</a>
                 {% if cat_meta.moreCount > 0 %}
                 <span class="meta-cat-more oldstyle-nums" title="{{ escape_attr(cat_meta.title) }}">{{ escape_html(__('categories.meta_more', cat_meta.moreCount)) }}</span>
                 {% endif %}

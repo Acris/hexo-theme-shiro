@@ -5,7 +5,7 @@ description: >-
   Clean minimalist Hexo theme: washi paper on fog, single vermilion seal,
   serif reading UI. Canonical names match theme CSS (paper, ink, seal, fog).
 colors:
-  # Spec aliases (= ink / muted / seal / fog). Prefer Shiro names in UI and CSS.
+  # Spec aliases (= ink / chrome / seal / fog). Prefer Shiro names in UI and CSS.
   primary: "#2b3036"
   secondary: "#6b7280"
   tertiary: "#b0171a"
@@ -16,8 +16,8 @@ colors:
   ink: "#2b3036"
   heading: "#1a1a2e"
   body: "#2b3036"
-  muted: "#6b7280"
   seal: "#b0171a"
+  chrome: "#6b7280"
   on-seal: "#fffffff2"
   code-bg: "#f8fafc"
   code-gutter: "#f1f5f9"
@@ -29,7 +29,7 @@ colors:
   heading-dark: "#e8e5e1"
   body-dark: "#b0ada9"
   seal-dark: "#d4453a"
-  # Dark idle chrome (text-chrome token); use when muted-dark would fail AA on paper
+  # Dark idle chrome (text-chrome token); AA-safe on paper-dark
   chrome-idle-dark: "#918e8a"
   # Semantic type/chrome (CSS: --color-text-*); not via inverted slate utilities
   text-chrome: "#6b7280"
@@ -181,7 +181,7 @@ components:
     textColor: "{colors.heading-dark}"
   site-subtitle:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.body-sm}"
   button-ink:
     # Idle is bordered (slate/border-strong), not a solid fill — schema has no border field.
@@ -198,7 +198,7 @@ components:
     textColor: "{colors.on-seal}"
   header-pill:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.label-sm}"
     rounded: "{rounded.full}"
     padding: 4px 12px
@@ -210,7 +210,7 @@ components:
     textColor: "{colors.chrome-idle-dark}"
   tag-pill:
     backgroundColor: "{colors.code-bg}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.body-sm}"
     rounded: "{rounded.md}"
     padding: 6px 12px
@@ -219,7 +219,7 @@ components:
     textColor: "{colors.seal}"
   back-to-top:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     rounded: "{rounded.full}"
     size: 36px
   back-to-top-hover:
@@ -237,14 +237,14 @@ components:
   toc-panel:
     # Real UI uses semi-transparent panel over the page; paper is the AA composite.
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.label-sm}"
     rounded: "{rounded.lg}"
     padding: 16px
     width: "{spacing.toc-width}"
   toc-link:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.toc-link}"
   toc-link-dark:
     backgroundColor: "{colors.paper-dark}"
@@ -279,10 +279,10 @@ components:
   code-gutter-dark:
     backgroundColor: "{colors.code-gutter-dark}"
     textColor: "{colors.chrome-idle-dark}"
-  link-muted:
+  link-chrome:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
-  link-muted-hover:
+    textColor: "{colors.chrome}"
+  link-chrome-hover:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.seal}"
   prose-inline-code:
@@ -291,11 +291,11 @@ components:
     typography: "{typography.code}"
   meta-chip:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.meta}"
   empty-state:
     backgroundColor: "{colors.paper}"
-    textColor: "{colors.muted}"
+    textColor: "{colors.chrome}"
     typography: "{typography.body-md}"
   heading-text:
     backgroundColor: "{colors.paper}"
@@ -344,20 +344,20 @@ Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`
 | Role | Spec alias | Shiro name | Light | Dark |
 |:-----|:-----------|:-----------|:------|:-----|
 | Core ink | `primary` | `ink` (chrome) · `body` (reading) | both `#2b3036` | ink `#d4d0cc` · body `#b0ada9` |
-| Metadata / idle chrome | `secondary` | **`chrome`** (UI) · `muted` (legacy token) | light `#6b7280` | dark chrome `#918e8a` (AA idle). Prefer `text-chrome` / `--color-text-chrome` for UI; `--color-text-muted` remains in the design system but is not preferred for new UI |
+| Metadata / idle chrome | `secondary` | **`chrome`** | light `#6b7280` | dark `#918e8a` (AA idle). CSS `--color-text-chrome` / `text-text-chrome` |
 | Accent | `tertiary` | `seal` | `#b0171a` | `#d4453a` |
 | Atmosphere | `neutral` | `fog` | `#f5f4f2` | `#181817` |
 | Surface | — | `paper` | `#ffffff` | `#1f1e1d` |
 | Titles | — | `heading` | `#1a1a2e` | `#e8e5e1` |
 
-**Naming:** Spec aliases (`primary` / `secondary` / `tertiary` / `neutral`) equal `ink` / `muted` / `seal` / `fog` and exist only for design.md tooling. **New UI, components, and theme CSS always use Shiro names** — never a parallel `text-primary` / `--color-primary` track. (`neutral` may lint as orphaned; that is intentional.)
+**Naming:** Spec aliases (`primary` / `secondary` / `tertiary` / `neutral`) equal `ink` / `chrome` / `seal` / `fog` and exist only for design.md tooling. **New UI, components, and theme CSS always use Shiro names** — never a parallel `text-primary` / `--color-primary` track. (`neutral` may lint as orphaned; that is intentional.)
 
 - **Seal (朱):** Hovers, active page, progress bar, inline code, stamp, preloader mark. Never large solid section fills.
 - **Line numbers:** Light `code-line-number` (`#475569` ≈ Tailwind light `slate-600`); dark `chrome-idle-dark` (`#918e8a`, remapped dark `slate-600`).
-- **Chrome idle dark:** Operable idle icons/labels on paper-dark when muted would fail ~4.5:1.
+- **Chrome idle dark:** Operable idle icons/labels on paper-dark when contrast would fail ~4.5:1.
 - **CSS-only (not decision tokens):** `subtle` / `faint` (+ dark) — decorative only, never body/controls; borders (`soft-border`, `border-strong`, `border-decorative`, `focus-ring`); alpha `bg-panel` / `bg-inset` / `bg-overlay` (+ dark); fog gradient mids (`#f1f0ee` light, `#191918` dark); scrollbar track/thumb greys. Full list: `source/css/_tailwind.css`.
 - **Alpha / composite fills:** Paint over paper/fog. Contrast-check against the composite surface (often documented as `paper`), not raw rgba on black. Header pills may use near-paper translucent slate fills in CSS while tokens list solid `paper` for AA pairs.
-- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light idle → `muted`+; dark operable idle → `body` or `chrome-idle-dark`. Theme UI secondary/idle text prefers the **`text-chrome`** token (and `text-text-chrome` utilities) over `text-muted` so dark meta/chrome stays AA-safe.
+- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light and dark UI secondary/idle text use **`text-chrome`** (`text-text-chrome` / `--color-text-chrome`). Dark chrome is AA on paper (`chrome-idle-dark`).
 
 Tailwind `slate-*` is remapped under `html[data-theme=dark]` so one class set serves both themes.
 
@@ -376,11 +376,11 @@ Weights loaded: Cardo 400/700; Zen Old Mincho 400/600; Cormorant 400/600; Fira C
 
 **Token sizes are representative desktop / upper values.** Implementations may step down on small viewports (e.g. site title ~2.2–3.1rem, card titles ~1.35–1.6rem). Do not treat a single rem value as the only legal size.
 
-**Hierarchy:** Site title centered title-face (responsive); page titles bold Cardo ~1.8–2.4rem; card titles smaller bold, hover seal; prose relaxed leading, links hover seal; meta muted with middots and oldstyle nums.
+**Hierarchy:** Site title centered title-face (responsive); page titles bold Cardo ~1.8–2.4rem; card titles smaller bold, hover seal; prose relaxed leading, links hover seal; meta chrome with middots and oldstyle nums.
 
-**Site note:** Under the paper card, a decorative Japanese line (default copy: 「白は、余白の名。」), title face, wide tracking, muted/faint opacity — `aria-hidden`, not content or SEO text.
+**Site note:** Under the paper card, a decorative Japanese line (default copy: 「白は、余白の名。」), title face, wide tracking, chrome/faint opacity — `aria-hidden`, not content or SEO text.
 
-**Icons:** Line icons, ~2px stroke, round caps/joins; inherit `muted` / `chrome-idle-dark` idle and `seal` on hover. No separate icon palette or filled glyph sets as default chrome.
+**Icons:** Line icons, ~2px stroke, round caps/joins; inherit `chrome` / `chrome-idle-dark` idle and `seal` on hover. No separate icon palette or filled glyph sets as default chrome.
 
 No geometric sans as primary UI. Title face only for branding moments.
 
@@ -411,7 +411,7 @@ No multi-column dashboard home.
 
 Dark: fog `#181817`, paper `#1f1e1d`, transparent border, softer `0 1px 2px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)`.
 
-Other cues: 2px seal progress (`z-50`); back-to-top / TOC as quiet floats; search backdrop muted ink/black. Scrollbars follow fog/ink greys (thin, low-contrast track/thumb in CSS) — chrome, not a second accent. No heavy glows or neumorphism.
+Other cues: 2px seal progress (`z-50`); back-to-top / TOC as quiet floats; search backdrop soft ink/black. Scrollbars follow fog/ink greys (thin, low-contrast track/thumb in CSS) — chrome, not a second accent. No heavy glows or neumorphism.
 
 ## Motion
 
@@ -459,7 +459,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 ### Buttons & chrome
 
 - **`.btn-ink`:** Idle = paper-like surface + visible border + ink text (not a filled primary). Hover = seal fill + on-seal + ink shadow. Active = slight press. Shared by home “read more” and category “view all”; optional `.btn-ink-meta` is quieter count text that tracks idle/hover ink.
-- **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `muted` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `chrome-idle-dark`. Hover seal.
+- **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `chrome` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `chrome-idle-dark`. Hover seal.
 - **`.tag-pill`:** Soft chip; hover seal border/text.
 - **`.menu-panel`:** Collapsible sheet, `2xl`, paper surface; mobile nav list.
 - **Focus:** `.focus-elegant` ring + offset; dark may lean seal.
@@ -468,10 +468,10 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 ### Navigation & reading
 
 - Nav links: hover seal, no heavy active fills.
-- Pagination: muted; current = seal underline; oldstyle nums.
+- Pagination: chrome; current = seal underline; oldstyle nums.
 - Progress: 2px seal, posts only.
-- Back to top: 36px; idle muted / dark body; hover seal.
-- TOC: quieter title (title face + em dashes); links muted (light) / body (dark); active seal.
+- Back to top: 36px; idle chrome; hover seal.
+- TOC: quieter title (title face + em dashes); links chrome (light) / body (dark); active seal.
 
 ### Content
 
@@ -495,7 +495,7 @@ Three-state control: **system / light / dark**. Switching cross-fades; it does n
 - Use **one** seal accent; keep it scarce.
 - Serif reading on the paper card; full CJK fallbacks.
 - Warm neutrals in both day fog and 夜の白.
-- AA idle: light `muted`; dark `body` or `chrome-idle-dark`.
+- AA idle: `chrome` (light) / `chrome-idle-dark` (dark).
 - Name tokens in CSS as Shiro (`paper`, `ink`, `seal`, …).
 
 **Don't**

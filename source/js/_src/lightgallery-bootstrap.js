@@ -102,11 +102,9 @@
             failed: failed,
             live: shiro.lightGalleryOpen,
             target: target,
-            // First click wins while the feature script is still loading.
+            // Last click wins while the feature script is still loading.
             stash: (img) => {
-                if (shiro.lightGalleryAutoOpen == null) {
-                    shiro.lightGalleryAutoOpen = img;
-                }
+                shiro.lightGalleryAutoOpen = img;
             },
             load: loadGallery,
             navigate: navigateFromImage

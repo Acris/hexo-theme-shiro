@@ -15,14 +15,12 @@
     // (duplicate ids). Stable dialog id matches header aria-controls.
     const MODAL_SELECTOR = '.shiro-search-components > pagefind-modal';
     const DIALOG_ID = 'shiroSearchDialog';
-    // Slow safety net only: dialog close + open attribute cover normal paths.
-    const CHROME_POLL_MS = 1000;
+    // Chrome sync: MutationObserver + dialog close (no continuous poll).
     const toggle = document.getElementById('searchToggle');
     const modal = document.querySelector(MODAL_SELECTOR);
 
     let loading = null;
     let loaded = false;
-    let chromePollTimer = 0;
     let chromeObserver = null;
     let chromeWatching = false;
     let boundDialog = null;
@@ -59,10 +57,6 @@
 
     function stopChromeWatch() {
         chromeWatching = false;
-        if (chromePollTimer) {
-            clearTimeout(chromePollTimer);
-            chromePollTimer = 0;
-        }
         if (chromeObserver) {
             chromeObserver.disconnect();
             chromeObserver = null;
@@ -111,7 +105,6 @@
     }
 
     // Host childList (dialog replace) + dialog open attribute + close event.
-    // Slow isOpen poll only as last-resort safety while open.
     function startChromeWatch() {
         if (!modal || chromeWatching) return;
         chromeWatching = true;
@@ -132,18 +125,6 @@
             bindDialogClose(dialog);
             observeDialogOpen(dialog);
         }
-
-        const tick = () => {
-            if (!chromeWatching) return;
-            if (!isModalOpen()) {
-                applyModalChrome(false);
-                return;
-            }
-            const nextDialog = ensureDialogId();
-            if (nextDialog) bindDialogClose(nextDialog);
-            chromePollTimer = setTimeout(tick, CHROME_POLL_MS);
-        };
-        chromePollTimer = setTimeout(tick, CHROME_POLL_MS);
     }
 
     function ensureAssets() {

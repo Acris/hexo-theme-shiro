@@ -350,7 +350,7 @@
         @apply flex items-center gap-2 text-text-chrome transition-colors hover:text-seal max-w-[45%];
     }
 
-    .link-muted {
+    .link-chrome {
         @apply text-text-chrome underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
     }
 

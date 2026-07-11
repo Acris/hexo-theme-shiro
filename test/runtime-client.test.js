@@ -13,7 +13,7 @@ const {
     concatRuntimeSource,
     listRuntimeParts,
     assertRuntimeSource
-} = require('../tools/build-assets');
+} = require('../scripts/lib/runtime-source');
 const runtimeSource = concatRuntimeSource();
 
 function createHarness() {
@@ -419,23 +419,23 @@ describe('dispatchLiveOrStash / dispatchLiveOrWarm (LG handoff single source)', 
         assert.equal(loads.length, 1);
     });
 
-    it('first-click stash wins when caller ignores later targets', () => {
-        // Mirrors lightgallery-bootstrap: only set autoOpen when unset.
+    it('last-click stash wins when caller overwrites autoOpen', () => {
+        // Mirrors lightgallery-bootstrap: always set autoOpen (last wins).
         const bag = { lightGalleryAutoOpen: null };
-        const stashFirst = (img) => {
-            if (bag.lightGalleryAutoOpen == null) bag.lightGalleryAutoOpen = img;
+        const stashLast = (img) => {
+            bag.lightGalleryAutoOpen = img;
         };
         rt.dispatchLiveOrStash({
             target: 'first',
-            stash: stashFirst,
+            stash: stashLast,
             load: () => {}
         });
         rt.dispatchLiveOrStash({
             target: 'second',
-            stash: stashFirst,
+            stash: stashLast,
             load: () => {}
         });
-        assert.equal(bag.lightGalleryAutoOpen, 'first');
+        assert.equal(bag.lightGalleryAutoOpen, 'second');
     });
 
     it('navigates when failed', () => {
