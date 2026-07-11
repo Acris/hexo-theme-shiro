@@ -170,6 +170,8 @@ security:
 # Image lightbox (config key is lightGallery with capital G). Swap CDN URLs if needed.
 # When enabled, a primary click on post/page body images opens the lightbox
 # (modifier-clicks / middle-click keep browser defaults).
+# While the gallery script is still loading, the first primary click wins; further
+# primary clicks on other images are ignored until the lightbox is ready.
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css

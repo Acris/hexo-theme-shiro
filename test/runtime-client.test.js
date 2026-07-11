@@ -7,8 +7,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-// Runtime is split under source/js/_src/runtime/*.js (concat order = sort).
-const { concatRuntimeSource } = require('../tools/build-assets');
+// Runtime is split under source/js/_src/runtime/*.js (explicit RUNTIME_PARTS order).
+const {
+    RUNTIME_PARTS,
+    concatRuntimeSource,
+    listRuntimeParts,
+    assertRuntimeSource
+} = require('../tools/build-assets');
 const runtimeSource = concatRuntimeSource();
 
 function createHarness() {
@@ -92,6 +97,19 @@ function createHarness() {
 
     return { window, document, elements, rt: window.__shiroRuntime };
 }
+
+describe('runtime build contract', () => {
+    it('manifest matches disk and concat is a single IIFE with required APIs', () => {
+        const paths = listRuntimeParts();
+        assert.equal(paths.length, RUNTIME_PARTS.length);
+        paths.forEach((filePath, index) => {
+            assert.ok(filePath.endsWith(RUNTIME_PARTS[index]));
+        });
+        assert.doesNotThrow(() => assertRuntimeSource(runtimeSource, paths));
+        assert.match(runtimeSource, /;\(\(\)\s*=>\s*\{/);
+        assert.match(runtimeSource, /\}\)\(\);\s*$/);
+    });
+});
 
 describe('client runtime protocol', () => {
     let harness;

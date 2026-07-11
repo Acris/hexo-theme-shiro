@@ -166,6 +166,7 @@ security:
 
 # 图片灯箱（配置键为 lightGallery，G 大写）。可按需替换 CDN URL。
 # 启用后，文章/页面正文中图片的主键单击会打开灯箱（修饰键/中键仍走浏览器默认行为）。
+# 灯箱脚本加载完成前，以第一次主键单击的图片为准；加载完成前对其它图片的主键单击会被忽略。
 lightGallery:
   enabled: true
   css: https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css

@@ -344,7 +344,7 @@ Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`
 | Role | Spec alias | Shiro name | Light | Dark |
 |:-----|:-----------|:-----------|:------|:-----|
 | Core ink | `primary` | `ink` (chrome) · `body` (reading) | both `#2b3036` | ink `#d4d0cc` · body `#b0ada9` |
-| Metadata | `secondary` | `muted` | `#6b7280` | CSS `--color-text-muted` `#807d7a` (prefer `body` / `chrome-idle-dark` for operable idle) |
+| Metadata / idle chrome | `secondary` | **`chrome`** (UI) · `muted` (legacy token) | light `#6b7280` | dark chrome `#918e8a` (AA idle). Prefer `text-chrome` / `--color-text-chrome` for UI; `--color-text-muted` remains in the design system but is not preferred for new UI |
 | Accent | `tertiary` | `seal` | `#b0171a` | `#d4453a` |
 | Atmosphere | `neutral` | `fog` | `#f5f4f2` | `#181817` |
 | Surface | — | `paper` | `#ffffff` | `#1f1e1d` |
