@@ -2,6 +2,9 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 // images.js registers a Hexo filter on load — stub the global first.
 global.hexo = {
@@ -17,6 +20,7 @@ global.hexo = {
 const {
     optimizeImages,
     markCodeBlocksNotProse,
+    localImageSize,
     localImageCandidates
 } = require('../scripts/images.js');
 const {
@@ -179,6 +183,30 @@ describe('scripts/images.js (orchestrator)', () => {
 
     it('exposes localImageCandidates for path resolution', () => {
         assert.equal(typeof localImageCandidates, 'function');
+    });
+
+    it('discovers an image created after an earlier missing lookup', () => {
+        const sourceDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shiro-images-'));
+        const imageDir = path.join(sourceDir, 'images');
+        const imagePath = path.join(imageDir, 'late.png');
+        const previousSourceDir = global.hexo.source_dir;
+        global.hexo.source_dir = sourceDir;
+
+        try {
+            assert.equal(localImageSize('/images/late.png'), null);
+            fs.mkdirSync(imageDir);
+
+            const pngHeader = Buffer.alloc(24);
+            Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex').copy(pngHeader);
+            pngHeader.writeUInt32BE(32, 16);
+            pngHeader.writeUInt32BE(18, 20);
+            fs.writeFileSync(imagePath, pngHeader);
+
+            assert.deepEqual(localImageSize('/images/late.png'), { width: 32, height: 18 });
+        } finally {
+            global.hexo.source_dir = previousSourceDir;
+            fs.rmSync(sourceDir, { recursive: true, force: true });
+        }
     });
 
     describe('markCodeBlocksNotProse', () => {

@@ -59,9 +59,11 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Feature CSS minify (`tools/build-assets.js`) sets Lightning CSS `targets` so nesting flattens for older browsers; prefer flat `html[data-theme=dark] …` selectors in `_src` sources.
 - Client runtime source is split under `source/js/_src/runtime/*.js` (manifest + concat in `scripts/lib/runtime-source.js` → `runtime.min.js`). Lightgallery feature: `source/js/_src/lightgallery/*.js` via `scripts/lib/lightgallery-source.js`. MathJax pure logic: `scripts/lib/mathjax/*` re-exported by `mathjax-protect.js`. Build fails on missing/extra parts or broken single-IIFE shape.
 - Lazy client features: two intentional protocols — (1) **classic body scripts** (`createFeatureLoader` + `featureReady`/`featureAbort`): lightgallery, clipboard, mobile-menu; (2) **external component UI** (Pagefind search): `loadAsset` only; `whenDefined` raced with clearable timeout. Comments: boot queue → `runtime.comments`. `createFeatureLoader` `onError(err, { permanent })`: abort/timeout/missing-src permanent; network retryable. **LG / clipboard / mobile-menu** only hard-stop on `permanent`. Clipboard/menu **re-arm** after retryable fail (delayed reload / keep viewport listener).
+- Collapsed mobile-menu / inline-TOC content must be `inert` so hidden links leave the tab order. Disclosure buttons stay hidden until their client handler is ready. Mobile-menu permanent load failure restores the visible no-JS fallback; inline TOC is expanded without JS and collapses only after its deferred client initializes.
 - Standard lazy open/warm handoff (LightGallery): `runtime.dispatchLiveOrStash` / `dispatchLiveOrWarm`. Do not invent a parallel handoff.
 - Client config on `window.__shiro` bare keys only; read via `runtime.get(...)`. **API is `window.__shiro.runtime` only** (no flat `__shiroRuntime`). Shared escapes: `runtime.escapeHtml` / `escapeAttr`. LightGallery: bootstrap owns capture; feature installs open/warm; ready = API installed. Shared: `safeNavigate` / `navigateFromImage` / `isModifiedClick`.
 - Post-render HTML: `scripts/lib/code-blocks.js` + `scripts/lib/image-meta.js` + pure `scripts/lib/image-optimize.js`. `scripts/images.js` is the Hexo filter orchestrator only (exports optimizeImages / localImageSize / markCodeBlocksNotProse).
+- File-backed caches in `scripts/images.js` must revalidate positive entries and must not permanently cache missing files/directories; `hexo server` can add assets without restarting the process.
 - CSP nonce: layout prefers `csp_nonce_attr(gates.shiroCspNonce)` (single normalize in gates).
 - MathJax protect placeholders are salted (`@@SHIRO_MATH_<salt>_<id>@@`) so prose tokens cannot collide with a live protect pass.
 - Archive year groups: helper `posts_by_year` / `scripts/lib/archive.js` (do not re-open/close year `<div>`s in Nunjucks loops).
@@ -132,7 +134,7 @@ Also:
 
 **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) — `<type>(optional-scope): description`; imperative, lowercase subject ≤72 chars; scopes like `toc`, `search`, `readme`. Breaking: `!` and/or `BREAKING CHANGE:` footer.
 
-**Release:** package is published to npm without a restrictive `files` list — run `npm pack --dry-run` before tagging; keep generated `*.min.css` / `*.min.js` in the package. Align `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL:
+**Release:** `.npmignore` excludes tests, build-only sources/tools, and maintainer docs; run `npm pack --dry-run` before tagging and keep runtime `scripts/lib/**` plus generated `*.min.css` / `*.min.js` in the package. Align `package.json`, `package-lock.json`, and every documented `hexo-theme-shiro@<version>` URL:
 
 ```bash
 node -e "const p=require('./package.json').version,l=require('./package-lock.json'); if (l.version !== p || l.packages[''].version !== p) process.exit(1); console.log(p)"

@@ -17,45 +17,12 @@ const JPEG_HEADER_BYTES = 512 * 1024;
 const SVG_HEADER_BYTES = 16 * 1024;
 const imageMetaCache = new Map();
 const localImageSizeCache = new Map();
-const existingFileCache = new Set();
-const missingFileCache = new Set();
-const existingDirCache = new Set();
-const missingDirCache = new Set();
-
-function directoryExists(dirPath) {
-    const normalized = path.normalize(dirPath);
-    if (existingDirCache.has(normalized)) return true;
-    if (missingDirCache.has(normalized)) return false;
-
-    try {
-        if (fs.statSync(normalized).isDirectory()) {
-            existingDirCache.add(normalized);
-            return true;
-        }
-    } catch (_) {}
-
-    missingDirCache.add(normalized);
-    return false;
-}
 
 function fileExists(filePath) {
     const normalized = path.normalize(filePath);
-    if (existingFileCache.has(normalized)) return true;
-    if (missingFileCache.has(normalized)) return false;
-
-    if (!directoryExists(path.dirname(normalized))) {
-        missingFileCache.add(normalized);
-        return false;
-    }
-
     try {
-        if (fs.statSync(normalized).isFile()) {
-            existingFileCache.add(normalized);
-            return true;
-        }
+        return fs.statSync(normalized).isFile();
     } catch (_) {}
-
-    missingFileCache.add(normalized);
     return false;
 }
 
@@ -121,9 +88,8 @@ function localImageSizeCacheKey(src, post) {
 function localImageSize(src, post) {
     const cacheKey = localImageSizeCacheKey(src, post);
     const cached = localImageSizeCache.get(cacheKey);
-    if (cached) {
-        // Re-validate via mtime when the resolved file path is known.
-        if (!cached.filePath) return cached.size;
+    if (cached && cached.filePath) {
+        // Positive entries are revalidated; missing files are never cached.
         if (fileStatKey(cached.filePath) === cached.stamp) return cached.size;
     }
 
@@ -142,7 +108,7 @@ function localImageSize(src, post) {
         }
     }
 
-    localImageSizeCache.set(cacheKey, { size: null, filePath: '', stamp: '' });
+    localImageSizeCache.delete(cacheKey);
     return null;
 }
 

@@ -111,6 +111,31 @@ describe('runtime build contract', () => {
     });
 });
 
+describe('client accessibility contracts', () => {
+    function clientSource(name) {
+        return fs.readFileSync(path.join(__dirname, '../source/js/_src', name), 'utf8');
+    }
+
+    it('removes collapsed mobile navigation from the tab order and restores fallback', () => {
+        assert.match(clientSource('mobile-menu.js'), /panel\.inert\s*=\s*!open/);
+        const bootstrap = clientSource('mobile-menu-bootstrap.js');
+        assert.match(bootstrap, /panel\.inert\s*=\s*true/);
+        assert.match(bootstrap, /restoreFallbackMenu\(\)/);
+        assert.match(bootstrap, /button\.hidden\s*=\s*true/);
+        assert.match(bootstrap, /button\.hidden\s*=\s*false/);
+    });
+
+    it('removes the collapsed inline TOC from the tab order', () => {
+        const source = clientSource('toc.js');
+        assert.match(source, /body\.inert\s*=\s*!open/);
+        assert.match(source, /toggleBtn\.hidden\s*=\s*false/);
+    });
+
+    it('hides the inactive back-to-top button from keyboard focus', () => {
+        assert.match(clientSource('back-to-top.js'), /backBtn\.hidden\s*=\s*!visible/);
+    });
+});
+
 describe('client runtime protocol', () => {
     let harness;
 

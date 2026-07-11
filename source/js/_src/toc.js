@@ -35,18 +35,19 @@
         const toggleBtn = tocInline.querySelector('.toc-toggle');
         const body = tocInline.querySelector('.toc-body');
         if (toggleBtn && body) {
+            function setInlineOpen(open) {
+                body.dataset.open = open ? 'true' : 'false';
+                body.inert = !open;
+                body.style.maxHeight = open ? body.scrollHeight + 'px' : '0';
+                body.style.opacity = open ? '1' : '0';
+                toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+
+            setInlineOpen(false);
+            toggleBtn.hidden = false;
             toggleBtn.addEventListener('click', () => {
                 const open = body.dataset.open === 'true';
-                if (open) {
-                    body.dataset.open = 'false';
-                    body.style.maxHeight = '0';
-                    body.style.opacity = '0';
-                } else {
-                    body.dataset.open = 'true';
-                    body.style.maxHeight = body.scrollHeight + 'px';
-                    body.style.opacity = '1';
-                }
-                toggleBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+                setInlineOpen(!open);
                 const chevron = toggleBtn.querySelector('.toc-chevron');
                 if (chevron && !reducedMotion.matches) {
                     chevron.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';

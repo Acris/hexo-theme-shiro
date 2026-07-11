@@ -17,6 +17,7 @@
 
     function setOpen(open) {
         panel.dataset.open = open ? 'true' : 'false';
+        panel.inert = !open;
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         if (reducedMotion.matches) {
             chevron.style.transform = 'none';
@@ -75,6 +76,8 @@
     };
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
+
+    setOpen(false);
 
     if (rtReady && typeof rtReady.featureReady === 'function') {
         rtReady.featureReady('mobile-menu');

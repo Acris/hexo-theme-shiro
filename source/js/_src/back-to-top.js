@@ -9,6 +9,7 @@
 
     const setBackToTopVisible = (visible) => {
         backBtn.dataset.visible = visible ? 'true' : 'false';
+        backBtn.hidden = !visible;
     };
 
     backBtn.addEventListener('click', () => {

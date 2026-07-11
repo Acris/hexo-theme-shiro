@@ -1,12 +1,34 @@
 ;(() => {
     'use strict';
 
+    const panel = document.getElementById('mobileMenu');
+    const button = document.getElementById('menuBtn');
+
+    function restoreFallbackMenu() {
+        if (panel) {
+            panel.inert = false;
+            panel.dataset.open = 'true';
+        }
+        if (button) {
+            button.hidden = true;
+            button.setAttribute('aria-expanded', 'true');
+        }
+    }
+
+    if (panel) panel.inert = true;
+
     const shiro = window.__shiro || {};
     const rt = shiro.runtime;
-    if (!rt || typeof rt.get !== 'function') return;
+    if (!rt || typeof rt.get !== 'function') {
+        restoreFallbackMenu();
+        return;
+    }
 
     const script = rt.get('mobileMenuScript') || '';
-    if (!script) return;
+    if (!script) {
+        restoreFallbackMenu();
+        return;
+    }
 
     const { createFeatureLoader } = rt;
     const query = window.matchMedia('(max-width: 767px)');
@@ -35,6 +57,7 @@
         id: 'mobile-menu',
         src: script,
         onReady: () => {
+            if (button) button.hidden = false;
             if (retryTimer) {
                 clearTimeout(retryTimer);
                 retryTimer = 0;
@@ -49,6 +72,7 @@
                     retryTimer = 0;
                 }
                 removeViewportListener();
+                restoreFallbackMenu();
                 console.warn('[shiro-mobile-menu] feature aborted', error);
                 return;
             }

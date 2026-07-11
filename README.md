@@ -22,6 +22,7 @@ Made by Acris with ❤️
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
 - **Responsive**: Fully responsive design for mobile and desktop.
+- **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, and motion-aware controls.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`).
 - **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
