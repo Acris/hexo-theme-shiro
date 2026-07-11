@@ -195,7 +195,6 @@ hexo.extend.helper.register('page_feature_gates', function () {
     });
 
     gates.toc = toc;
-    gates.tocConfig = tocConfig;
 
     // Single comments resolve: client bag reuses gates.shiroComments.
     gates.commentsClientConfig = buildCommentsClientConfig(theme, page, {

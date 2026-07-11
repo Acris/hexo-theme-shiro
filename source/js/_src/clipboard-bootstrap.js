@@ -9,6 +9,7 @@
     if (!script) return;
 
     const { scheduleIdle, createFeatureLoader } = rt;
+    const RETRY_MS = 2000;
 
     function createCodeBlockCursor() {
         const root = document.querySelector('main') || document.body;
@@ -42,6 +43,8 @@
     const pendingTargetSet = new Set();
     let permanent = false;
     let observer = null;
+    let retryTimer = 0;
+    let afterLoad = null;
 
     function clearPending() {
         pendingTargets.length = 0;
@@ -58,9 +61,38 @@
 
     function hardStop(error) {
         permanent = true;
+        afterLoad = null;
+        if (retryTimer) {
+            clearTimeout(retryTimer);
+            retryTimer = 0;
+        }
         clearPending();
         stopObserving();
         console.warn('[shiro-clipboard] feature aborted', error);
+    }
+
+    function runAfterLoad() {
+        if (permanent) return;
+        enhanceTargets(pendingTargets);
+        clearPending();
+        const cb = afterLoad;
+        afterLoad = null;
+        if (typeof cb === 'function') cb();
+    }
+
+    function scheduleRetry() {
+        if (permanent || retryTimer) return;
+        retryTimer = setTimeout(() => {
+            retryTimer = 0;
+            if (permanent) return;
+            // Keep pending targets visible to the observer until enhance succeeds.
+            if (observer) {
+                pendingTargets.forEach((target) => {
+                    if (target && target.isConnected) observer.observe(target);
+                });
+            }
+            feature.load(runAfterLoad);
+        }, RETRY_MS);
     }
 
     const feature = createFeatureLoader({
@@ -72,6 +104,7 @@
                 return;
             }
             console.warn('[shiro-clipboard] load failed (retryable)', error);
+            scheduleRetry();
         }
     });
 
@@ -99,13 +132,9 @@
             return;
         }
 
+        if (typeof onLoaded === 'function') afterLoad = onLoaded;
         queueTargets(targets);
-        feature.load(() => {
-            if (permanent) return;
-            enhanceTargets(pendingTargets);
-            clearPending();
-            if (typeof onLoaded === 'function') onLoaded();
-        });
+        feature.load(runAfterLoad);
     }
 
     function enhanceRemaining() {
@@ -129,8 +158,16 @@
             }
             const targets = entries.filter(entry => entry.isIntersecting).map(entry => entry.target);
             if (!targets.length) return;
-            targets.forEach(target => observer.unobserve(target));
-            loadClipboard(targets, observeNextBatch);
+            // Unobserve only after a successful enhance (runAfterLoad path).
+            // Retryable load fail re-observes pending targets in scheduleRetry.
+            loadClipboard(targets, () => {
+                if (observer) {
+                    targets.forEach((target) => {
+                        if (target) observer.unobserve(target);
+                    });
+                }
+                observeNextBatch();
+            });
         }, { rootMargin: '300px 0px', threshold: 0 })
         : null;
 

@@ -537,70 +537,66 @@ describe('dispatchLiveOrStash / dispatchLiveOrWarm (LG handoff single source)', 
     });
 });
 
-describe('comments ready queue contract', () => {
-    it('drains parse-time queue when whenCommentsReady is replaced', () => {
+describe('comments-bootstrap.js contract', () => {
+    const commentsBootstrapSource = fs.readFileSync(
+        path.join(__dirname, '../source/js/_src/comments-bootstrap.js'),
+        'utf8'
+    );
+
+    it('drains queue, installs runtime.comments, and retires bag whenCommentsReady', () => {
+        const harness = createHarness();
+        const { window, rt } = harness;
         const calls = [];
-        const shiro = {
-            commentsReadyQueue: [
-                () => calls.push('a'),
-                () => calls.push('b')
-            ],
-            whenCommentsReady: (fn) => {
-                shiro.commentsReadyQueue.push(fn);
-            }
+        const shiro = window.__shiro;
+        shiro.commentsCss = '';
+        shiro.commentsReadyQueue = [
+            () => calls.push('a'),
+            () => calls.push('b')
+        ];
+        shiro.whenCommentsReady = (fn) => {
+            shiro.commentsReadyQueue.push(fn);
         };
 
-        function runCommentBoot(callback) {
-            if (typeof callback === 'function') callback();
-        }
-        shiro.whenCommentsReady = (callback) => {
-            runCommentBoot(callback);
-        };
-        const queued = Array.isArray(shiro.commentsReadyQueue)
-            ? shiro.commentsReadyQueue.slice()
-            : [];
-        shiro.commentsReadyQueue = [];
-        queued.forEach(runCommentBoot);
-        shiro.whenCommentsReady(() => calls.push('c'));
+        vm.runInNewContext(commentsBootstrapSource, {
+            window,
+            document: window.document,
+            console
+        });
 
-        assert.deepEqual(calls, ['a', 'b', 'c']);
+        assert.ok(rt.comments);
+        assert.equal(rt.comments.failed, false);
+        // Avoid cross-realm Array deepEqual (vm.runInNewContext vs host []).
+        assert.equal(calls.join(','), 'a,b');
+        assert.equal(shiro.commentsReadyQueue.length, 0);
+
+        // Bag surface is retired (no-op); live API is runtime.comments only.
+        shiro.whenCommentsReady(() => calls.push('bag-late'));
+        assert.equal(calls.join(','), 'a,b');
+        rt.comments.whenReady(() => calls.push('c'));
+        assert.equal(calls.join(','), 'a,b,c');
     });
 
-    it('abort path drops queue and installs permanent no-op whenReady', () => {
+    it('aborts with no-op whenReady when runtime is missing', () => {
         const calls = [];
-        const shiro = {
-            commentsReadyQueue: [
-                () => calls.push('should-not-run')
-            ],
-            whenCommentsReady: (fn) => {
-                shiro.commentsReadyQueue.push(fn);
+        const window = {
+            __shiro: {
+                commentsReadyQueue: [() => calls.push('should-not-run')],
+                whenCommentsReady: (fn) => {
+                    window.__shiro.commentsReadyQueue.push(fn);
+                }
             }
         };
-        const rt = {};
+        window.window = window;
 
-        function abortComments() {
-            const fail = function () { /* permanent no-op */ };
-            shiro.commentsReadyQueue = [];
-            shiro.whenCommentsReady = fail;
-            rt.comments = {
-                failed: true,
-                whenReady: fail,
-                loadCss: function () { return Promise.resolve(); },
-                onNearViewport: function (_el, callback) {
-                    if (typeof callback === 'function') callback();
-                }
-            };
-        }
+        vm.runInNewContext(commentsBootstrapSource, {
+            window,
+            document: {},
+            console: { error() {}, warn() {} }
+        });
 
-        abortComments();
-        shiro.whenCommentsReady(() => calls.push('late'));
-        if (rt.comments && typeof rt.comments.whenReady === 'function') {
-            rt.comments.whenReady(() => calls.push('rt-late'));
-        }
-
-        assert.deepEqual(shiro.commentsReadyQueue, []);
-        assert.equal(rt.comments.failed, true);
-        assert.deepEqual(calls, []);
+        assert.equal(window.__shiro.commentsReadyQueue.length, 0);
+        window.__shiro.whenCommentsReady(() => calls.push('late'));
+        assert.equal(calls.length, 0);
     });
 });
 

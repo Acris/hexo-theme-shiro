@@ -10,7 +10,9 @@
 
     const { createFeatureLoader } = rt;
     const query = window.matchMedia('(max-width: 767px)');
+    const RETRY_MS = 2000;
     let permanent = false;
+    let retryTimer = 0;
 
     function removeViewportListener() {
         if (query.removeEventListener) {
@@ -20,19 +22,38 @@
         }
     }
 
-    // Permanent errors stop retry; network failures keep the viewport listener.
+    function scheduleRetry() {
+        if (permanent || retryTimer || !query.matches) return;
+        retryTimer = setTimeout(() => {
+            retryTimer = 0;
+            if (!permanent && query.matches) loadMobileMenu();
+        }, RETRY_MS);
+    }
+
+    // Permanent errors stop retry; network failures reschedule while still mobile.
     const feature = createFeatureLoader({
         id: 'mobile-menu',
         src: script,
-        onReady: removeViewportListener,
+        onReady: () => {
+            if (retryTimer) {
+                clearTimeout(retryTimer);
+                retryTimer = 0;
+            }
+            removeViewportListener();
+        },
         onError: (error, meta) => {
             if (meta && meta.permanent) {
                 permanent = true;
+                if (retryTimer) {
+                    clearTimeout(retryTimer);
+                    retryTimer = 0;
+                }
                 removeViewportListener();
                 console.warn('[shiro-mobile-menu] feature aborted', error);
                 return;
             }
             console.warn('[shiro-mobile-menu] load failed (retryable)', error);
+            scheduleRetry();
         }
     });
 
@@ -45,11 +66,14 @@
         if (event.matches) loadMobileMenu();
     }
 
-    if (query.matches) {
-        loadMobileMenu();
-    } else if (query.addEventListener) {
+    // Always listen: recovers after retryable fail without leaving mobile, and
+    // still loads when crossing down from desktop.
+    if (query.addEventListener) {
         query.addEventListener('change', handleViewportChange);
     } else if (query.addListener) {
         query.addListener(handleViewportChange);
+    }
+    if (query.matches) {
+        loadMobileMenu();
     }
 })();

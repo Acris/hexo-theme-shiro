@@ -54,9 +54,14 @@
                 if (text === 'false') return '0';
                 return text || fallback;
             };
-            // g.src is scheme-normalized in buildCommentsClientConfig (server).
+            // g.src is always set and scheme-normalized in buildCommentsClientConfig.
+            const src = String(g.src || '').trim();
+            if (!src) {
+                console.error('[shiro-comments] giscus src missing after server normalize');
+                return;
+            }
             const s = d.createElement('script');
-            s.src = String(g.src || '').trim() || 'https://giscus.app/client.js';
+            s.src = src;
             s.async = true;
             s.crossOrigin = 'anonymous';
             const nonce = typeof rt.cspNonce === 'function' ? rt.cspNonce() : '';

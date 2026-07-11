@@ -9,15 +9,7 @@ const { markCodeBlocksNotProse } = require('./lib/code-blocks');
 const {
     optimizeImages: optimizeImagesPure,
     localImageCandidates,
-    cleanUrl,
-    parseAttrs,
-    renderAttrs,
-    isRemoteUrl,
-    escapeAttrValue,
-    hasAttrName,
-    appendAttr,
-    getAttr,
-    attrLookup
+    cleanUrl
 } = require('./lib/image-optimize');
 
 const DEFAULT_HEADER_BYTES = 64 * 1024;
