@@ -1,0 +1,51 @@
+{# FOUC prevention + progressive-enhancement marker (must stay early + sync).
+   Expects google_fonts from head.njk (font preload token). #}
+<script{{ csp_nonce_attr() }} data-cfasync="false">
+;(() => {
+    // Progressive enhancement marker (mobile nav CSS uses html.js).
+    document.documentElement.classList.add('js');
+    const defaultTheme = {{ js_value(gates.darkModeDefault) | safe }};
+    window.__themeDefault = defaultTheme;
+    {% if gates.shiroCspNonce %}
+    window.__shiroCspNonce = {{ js_value(gates.shiroCspNonce) | safe }};
+    {% endif %}
+    const states = defaultTheme === 'system' ? ['system', 'light', 'dark'] : ['light', 'dark'];
+    let saved;
+    try { saved = localStorage.getItem('theme'); } catch (_) {}
+    const state = saved && states.includes(saved) ? saved : defaultTheme;
+    const html = document.documentElement;
+    html.setAttribute('data-theme-state', state);
+    const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    // Pagefind dark contract only when search is enabled.
+    const syncPagefindTheme = {{ 'true' if gates.searchEnabled else 'false' }};
+    window.__shiroSearchEnabled = syncPagefindTheme;
+    // Single source for theme-toggle.js and system-follow listener.
+    const applyResolvedTheme = (dark) => {
+        html.setAttribute('data-theme', dark ? 'dark' : 'light');
+        if (syncPagefindTheme) {
+            if (dark) html.setAttribute('data-pf-theme', 'dark');
+            else html.removeAttribute('data-pf-theme');
+        }
+        html.style.colorScheme = dark ? 'dark' : 'light';
+    };
+    window.__shiroApplyResolvedTheme = applyResolvedTheme;
+    applyResolvedTheme(state === 'dark' || (state !== 'light' && darkQuery.matches));
+    if (defaultTheme === 'system') {
+        // Follow OS theme while in system mode even if the toggle script is absent.
+        const followSystem = () => {
+            if (html.getAttribute('data-theme-state') !== 'system') return;
+            applyResolvedTheme(darkQuery.matches);
+        };
+        if (darkQuery.addEventListener) darkQuery.addEventListener('change', followSystem);
+        else if (darkQuery.addListener) darkQuery.addListener(followSystem);
+    }
+    // Preloader skip: session value must match this page's font-bundle URL.
+    const fontsReadyToken = {{ js_value(google_fonts[0] if google_fonts.length else '') | safe }};
+    window.__shiroFontsReadyToken = fontsReadyToken;
+    try {
+        if (fontsReadyToken && sessionStorage.getItem('shiro:fonts-ready') === fontsReadyToken) {
+            html.classList.add('shiro-preloader-done');
+        }
+    } catch (_) {}
+})();
+</script>

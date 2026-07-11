@@ -12,9 +12,8 @@
     };
 
     // Stub (bootstrap.njk) queues until deferred comments-bootstrap drains.
-    (window.__shiroWhenCommentsReady || function (fn) {
-        console.warn('[shiro-comments] Disqus boot skipped: whenReady missing');
-        if (typeof fn === 'function') try { fn(); } catch (_) {}
+    (window.__shiroWhenCommentsReady || function () {
+        console.error('[shiro-comments] Disqus boot skipped: whenReady missing');
     })(function () {
         const d = document, w = window;
         const disqus_thread = d.getElementById('disqus_thread');

@@ -39,7 +39,7 @@
     {{ article_extra_html | safe }}
 
     {# Containers only; scripts load from layout foot via comments/foot.njk. #}
-    {% if needs_comments %}
+    {% if gates.needsComments %}
     {% include "_partial/comments/index.njk" %}
     {% endif %}
 </article>

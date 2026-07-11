@@ -1,0 +1,18 @@
+{# Lowest-priority connection warm + font preload (before FOUC theme script).
+   Expects google_fonts from head.njk. #}
+{% if gates.needsLightgallery %}
+{% if gates.lightgalleryPreconnectUrl %}
+<link rel="preconnect" href="{{ attr_url(gates.lightgalleryPreconnectUrl) }}" />
+{% endif %}
+<link rel="prefetch" as="script" href="{{ attr_url(gates.lightgalleryJsUrl) }}" />
+<link rel="prefetch" as="style" href="{{ attr_url(gates.lightgalleryCssUrl) }}" />
+<link rel="prefetch" as="script" href="{{ attr_url(versioned_url('js/lightgallery.min.js')) }}" />
+{% endif %}
+{% if gates.searchEnabled %}
+<link rel="prefetch" as="style" href="{{ attr_url(versioned_url('css/search.min.css')) }}" />
+<link rel="prefetch" as="style" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.css')) }}" />
+<link rel="prefetch" as="script" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.js')) }}" />
+{% endif %}
+{% if google_fonts.length %}
+<link rel="preload" as="style" href="{{ attr_url(google_fonts[0]) }}" />
+{% endif %}

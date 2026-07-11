@@ -5,11 +5,11 @@
 {% set post_date_attr = date(post.date, 'YYYY-MM-DD') %}
 {% set post_date_text = date(post.date, 'YYYY/MM/DD') %}
 <article class="group flex items-baseline gap-6">
-    <time datetime="{{ post_date_attr }}" class="w-24 shrink-0 text-right text-sm font-medium text-slate-400 oldstyle-nums">
+    <time datetime="{{ escape_attr(post_date_attr) }}" class="w-24 shrink-0 text-right text-sm font-medium text-slate-400 oldstyle-nums">
         {{ post_date_text }}
     </time>
     <h3 class="text-base font-normal text-slate-700 transition-colors group-hover:text-seal">
-        <a href="{{ url_for(post.path) }}" class="link-underline">{{ escape_html(post.title) }}</a>
+        <a href="{{ href_for(post.path) }}" class="link-underline">{{ escape_html(post.title) }}</a>
     </h3>
 </article>
 {% endmacro %}

@@ -11,15 +11,38 @@ const {
     resourceOrigin
 } = require('./urls');
 const { resolveCommentsState } = require('./comments');
-const { resolveMathjaxConfig, pageWantsMathjax } = require('./mathjax-protect');
+const {
+    resolveMathjaxConfig,
+    pageWantsMathjax,
+    DEFAULT_MATHJAX_SRC
+} = require('./mathjax-protect');
 
+// LightGallery CDN defaults — keep in sync with _config.yml lightGallery.* only.
+// Client scripts must use template-injected window.__lightgallery* (no hardcoded fallback).
 const DEFAULT_LIGHTGALLERY_JS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js';
 const DEFAULT_LIGHTGALLERY_CSS = 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css';
-const DEFAULT_MATHJAX_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js';
 
 function resolveDarkModeDefault(raw) {
     const text = String(raw == null ? 'light' : raw).trim();
     return text === 'system' || text === 'dark' ? text : 'light';
+}
+
+/**
+ * Ordered theme-relative foot scripts (versioned in layout via versioned_url).
+ * Comments scripts stay in comments/foot.njk (inline + provider).
+ */
+function buildFootScripts(flags) {
+    const scripts = [];
+    if (flags.needsRuntimeFoot) scripts.push('js/runtime.min.js');
+    if (flags.searchEnabled) scripts.push('js/search-bootstrap.min.js');
+    if (flags.needsLightgallery) scripts.push('js/lightgallery-bootstrap.min.js');
+    if (flags.needsCode) scripts.push('js/clipboard-bootstrap.min.js');
+    if (flags.needsToc) scripts.push('js/toc.min.js');
+    if (flags.needsProgressBar) scripts.push('js/progress.min.js');
+    if (flags.needsBackToTop) scripts.push('js/back-to-top.min.js');
+    if (flags.darkModeToggle) scripts.push('js/theme-toggle.min.js');
+    if (flags.needsMobileMenu) scripts.push('js/mobile-menu-bootstrap.min.js');
+    return scripts;
 }
 
 /**
@@ -127,6 +150,18 @@ function resolveFeatureGates(input) {
     const needsRuntimeFoot = needsFeatureRuntime || needsComments;
     const shiroCspNonce = normalizeCspNonce(input.cspNonce);
 
+    const footScripts = buildFootScripts({
+        needsRuntimeFoot,
+        searchEnabled,
+        needsLightgallery,
+        needsCode,
+        needsToc,
+        needsProgressBar,
+        needsBackToTop,
+        darkModeToggle,
+        needsMobileMenu
+    });
+
     return {
         siteConfig: site,
         searchConfig: search,
@@ -143,7 +178,6 @@ function resolveFeatureGates(input) {
         needsToc,
 
         needsMathjax,
-        mathjaxOpts,
         mathjaxSrc,
         mathjaxInlineDollars: needsMathjax ? mathjaxOpts.inlineDollars : false,
         mathjaxProcessEnvironments: needsMathjax ? mathjaxOpts.processEnvironments : true,
@@ -167,6 +201,7 @@ function resolveFeatureGates(input) {
 
         needsFeatureRuntime,
         needsRuntimeFoot,
+        footScripts,
         shiroCspNonce
     };
 }
@@ -221,5 +256,6 @@ module.exports = {
     DEFAULT_MATHJAX_SRC,
     resolveDarkModeDefault,
     resolveFeatureGates,
+    buildFootScripts,
     buildCommentsClientConfig
 };

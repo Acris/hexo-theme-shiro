@@ -285,6 +285,9 @@ function protectMarkdownMath(content, options) {
     // Shield \$ when single-dollar math is on, or when processEscapes is on so
     // Markdown does not strip the backslash before MathJax processEscapes.
     const protectEscapedDollar = inlineDollars || opts.processEscapes !== false;
+    // Environments: always shield \begin{…}\end{…} from Markdown even when the
+    // client has process_environments: false (asymmetric on purpose — MD must
+    // not mangle TeX; client simply will not typeset bare envs).
     const segments = [];
     let result = '';
     let cursor = 0;
@@ -384,6 +387,7 @@ function restoreProtectedMath(content, segments) {
 // Theme mathjax config (defaults match _config.yml).
 // enabled: false → never; true → every_page / front-matter.
 // every_page: false → only mathjax: true; true → all posts/pages except mathjax: false.
+// CDN default: keep in sync with _config.yml mathjax.src (single export for feature-gates).
 const DEFAULT_MATHJAX_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js';
 
 function resolveMathjaxTags(value) {
@@ -444,6 +448,7 @@ function pageWantsMathjax(data, mathjaxConfig) {
 
 module.exports = {
     PLACEHOLDER_PROP,
+    DEFAULT_MATHJAX_SRC,
     protectMarkdownMath,
     restoreProtectedMath,
     scanMathAt,

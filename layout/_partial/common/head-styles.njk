@@ -1,0 +1,12 @@
+{# Stylesheets + preloader after FOUC/MathJax discovery. Expects google_fonts. #}
+{% for google_fonts_url in google_fonts %}
+<link rel="stylesheet" href="{{ attr_url(google_fonts_url) }}" />
+{% endfor %}
+<link rel="stylesheet" href="{{ attr_url(versioned_url('css/style.min.css')) }}">
+{% if gates.needsCode %}
+<link rel="stylesheet" href="{{ attr_url(versioned_url('css/code.min.css')) }}">
+{% endif %}
+{% if gates.needsToc %}
+<link rel="stylesheet" href="{{ attr_url(versioned_url('css/toc.min.css')) }}">
+{% endif %}
+<script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ attr_url(versioned_url('js/preloader.min.js')) }}"></script>

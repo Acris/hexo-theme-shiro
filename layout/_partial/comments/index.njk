@@ -1,6 +1,6 @@
 {# Containers only — scripts in comments/foot.njk after deferred runtime.
-   Prefer layout-set shiro_comments; fall back to comments_state(page). #}
-{% set state = shiro_comments if shiro_comments is defined else comments_state(page) %}
+   Requires layout parent: {% set gates = page_feature_gates() %}. #}
+{% set state = gates.shiroComments %}
 {% if state.disqusReady %}
 <div id="disqus_thread" class="mt-10" data-pagefind-ignore></div>
 {% elif state.giscusReady %}

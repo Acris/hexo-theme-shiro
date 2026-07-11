@@ -45,17 +45,18 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Font family changes: update the family list in `google_font_urls` (shared preload / preloader token).
 - Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Indexing runs on `hexo generate` / `hexo deploy` `before_exit`, **not** `hexo server`. No `npx` fallback.
 - Word count: theme `word_count.enabled` only controls display; counting needs host [hexo-word-counter](https://github.com/next-theme/hexo-word-counter). Missing plugin omits meta — does **not** fail generate.
-- Keep default LightGallery CDN versions in sync across `_config.yml`, `layout/_layout.njk`, and `source/js/_src/lightgallery.js`.
+- Keep default LightGallery CDN versions in sync across `_config.yml` and `scripts/lib/feature-gates.js` (`DEFAULT_LIGHTGALLERY_*`). Client JS uses only template-injected `window.__lightgallery*` (no hardcoded CDN fallback).
 - Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
 - MathJax: set `protect: false` when using pandoc `--mathjax` or `hexo-filter-mathjax`. No KaTeX.
 - Optional `security.csp_nonce` is emitted on theme `<script>` tags via `csp_nonce_attr`, injected as `window.__shiroCspNonce`, and applied by `runtime.js` to dynamically created scripts; optional CDN SRI via `sri_attrs` / `sri_integrity` / `lightGallery.*_integrity` / `mathjax.integrity` (empty = no attributes).
-- Hexo’s `hexo-renderer-nunjucks` sets `autoescape: false`. Escape text/attrs with helpers `escape_html` / `escape_attr` (not `| safe`). Menu `target` is allowlisted (`_self|_blank|_parent|_top`).
+- Hexo’s `hexo-renderer-nunjucks` sets `autoescape: false`. Escape text/attrs with helpers `escape_html` / `escape_attr` (not `| safe`); for `href`/`src` prefer `href_for` / `attr_url`. Menu `target` is allowlisted (`_self|_blank|_parent|_top`).
 - Feature flags: use helper `feature_enabled(value, defaultOn)` (default-off: search/comments/mathjax/word_count; default-on: toc/lightGallery/progress/back_to_top/dark_mode.toggle).
-- Page gates + CDN URLs: pure `scripts/lib/feature-gates.js` → helper `page_feature_gates()` → layout binds names only (do not re-implement policy in Nunjucks).
+- Page gates + CDN URLs: pure `scripts/lib/feature-gates.js` → helper `page_feature_gates()` → layout sets `gates` once; templates read `gates.*` (do not re-implement policy in Nunjucks). Foot feature scripts come from `gates.footScripts` (ordered paths); comments stay in `comments/foot.njk`.
+- Attribute URLs: prefer `href_for(path)` / `attr_url(value)` over raw `url_for` / `versioned_url` in `href`/`src` (Hexo nunjucks autoescape is off).
 - Comments readiness: `scripts/lib/comments.js` + `comments_state` / gates.`shiroComments`. Containers: `comments/index.njk`; scripts: `comments/foot.njk` after deferred `runtime.min.js`. Client config: `comments_client_config` → `window.__shiroCommentsConfig`. Boot: sync queue stub in `comments/bootstrap.njk` → defer `comments-bootstrap.min.js` (helpers + drain) → provider inlines call `__shiroWhenCommentsReady` only.
 - Feature CSS minify (`tools/build-assets.js`) sets Lightning CSS `targets` so nesting flattens for older browsers; prefer flat `html[data-theme=dark] …` selectors in `_src` sources.
 - Lazy client features use bootstrap + body scripts (`*-bootstrap.js` + feature file). Canonical loader: `runtime.loadBootstrapScript(src, { onload, onerror }, id)` with a short stable `id` + optional `scheduleIdleWarm`. Do not invent a parallel path.
-- Comments boot queue protocol is specified by pure `scripts/lib/boot-queue.js` (unit-tested); the browser mirrors it (stub enqueue in `comments/bootstrap.njk`, activate+drain in `comments-bootstrap.js`).
+- Comments boot: stub enqueue in `comments/bootstrap.njk` during parse; `comments-bootstrap.js` (after `runtime.min.js`) installs helpers and drains `__shiroCommentsReadyQueue`. Missing runtime aborts hard — do not silent-run providers.
 
 ## Workflow rules
 

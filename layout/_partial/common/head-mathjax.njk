@@ -1,0 +1,27 @@
+{% if gates.needsMathjax %}
+{# MathJax v4 defaults already include \(...\) and $$ / \[ \]. Optionally
+   append $...$ via the official '[+]' API when inline_dollars is enabled.
+   ui/no-dark-mode: MathJax UI follows prefers-color-scheme, but Shiro theme
+   is driven by html[data-theme] (can force light/dark against the OS). Disable
+   OS dark chrome so explorer/dialogs do not fight a forced theme; site dark
+   skin is applied in CSS (dialog.mjx-dialog + prose color inherit).
+   Script loads only on post/page views (not home/archive lists). #}
+<!-- MathJax pages: configure and enqueue the deferred engine after first-paint-critical
+     theme/font hints, while still before blocking stylesheets can delay discovery. -->
+<script{{ csp_nonce_attr() }} data-cfasync="false">
+    window.MathJax = {
+        loader: {
+            load: ['ui/no-dark-mode']
+        },
+        tex: {
+            {% if gates.mathjaxInlineDollars %}
+            inlineMath: { '[+]': {{ js_value([['$', '$']]) | safe }} },
+            {% endif %}
+            processEscapes: {{ js_value(gates.mathjaxProcessEscapes) | safe }},
+            processEnvironments: {{ js_value(gates.mathjaxProcessEnvironments) | safe }},
+            tags: {{ js_value(gates.mathjaxTags) | safe }}
+        }
+    };
+</script>
+<script defer{{ csp_nonce_attr() }} data-cfasync="false" src="{{ attr_url(gates.mathjaxSrc) }}"{{ sri_attrs(gates.mathjaxIntegrity) }}></script>
+{% endif %}

@@ -1,17 +1,20 @@
 ;(() => {
     'use strict';
 
-    const configValue = (key, fallback) => (
-        Object.prototype.hasOwnProperty.call(window, key) ? window[key] : fallback
-    );
-    const cssHref = configValue('__lightgalleryCss', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/css/lightgallery.min.css');
-    const jsSrc = configValue('__lightgalleryJs', 'https://cdn.jsdelivr.net/npm/lightgallery@2.9.0/lightgallery.min.js');
-    const themeCssHref = window.__lightgalleryThemeCss || '';
+    // URLs come only from layout injection (gates / feature_var). No hardcoded CDN
+    // fallback — keeps version pin in _config.yml + feature-gates only.
+    const cssHref = String(window.__lightgalleryCss || '').trim();
+    const jsSrc = String(window.__lightgalleryJs || '').trim();
+    const themeCssHref = String(window.__lightgalleryThemeCss || '').trim();
     const cssIntegrity = String(window.__lightgalleryCssIntegrity || '').trim();
     const jsIntegrity = String(window.__lightgalleryJsIntegrity || '').trim();
 
     const rt = window.__shiroRuntime;
     if (!rt) return;
+    if (!cssHref || !jsSrc) {
+        console.error('[shiro-lightgallery] missing __lightgalleryCss/__lightgalleryJs; aborting');
+        return;
+    }
 
     const { loadAsset, isSafeImageUrl, isDecorativeImg, imageSource } = rt;
 

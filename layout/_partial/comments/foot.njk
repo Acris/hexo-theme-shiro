@@ -1,6 +1,6 @@
-{# Deferred comment scripts (after runtime). Same shiro_comments as containers. #}
+{# Deferred comment scripts (after runtime). Requires layout gates. #}
 {% from "_macro/ui.njk" import feature_var with context %}
-{% set state = shiro_comments if shiro_comments is defined else comments_state(page) %}
+{% set state = gates.shiroComments %}
 {% if state.shouldRender %}
 {% include "_partial/comments/bootstrap.njk" %}
 <script{{ csp_nonce_attr() }}>

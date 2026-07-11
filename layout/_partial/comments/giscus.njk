@@ -1,9 +1,8 @@
 {# Container in comments/index.njk; config from window.__shiroCommentsConfig (foot). #}
 <script{{ csp_nonce_attr() }}>
 // Stub (bootstrap.njk) queues until deferred comments-bootstrap drains.
-(window.__shiroWhenCommentsReady || function (fn) {
-    console.warn('[shiro-comments] giscus boot skipped: whenReady missing');
-    if (typeof fn === 'function') try { fn(); } catch (_) {}
+(window.__shiroWhenCommentsReady || function () {
+    console.error('[shiro-comments] giscus boot skipped: whenReady missing');
 })(function () {
     const d = document, w = window;
     const container = d.getElementById('giscus-container');

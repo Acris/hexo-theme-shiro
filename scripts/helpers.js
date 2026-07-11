@@ -81,6 +81,15 @@ hexo.extend.helper.register('escape_attr', function (value) {
     return escapeAttr(value);
 });
 
+// Attribute-context URL helpers (prefer these over raw url_for / versioned_url in href/src).
+hexo.extend.helper.register('attr_url', function (value) {
+    return escapeAttr(value == null ? '' : value);
+});
+
+hexo.extend.helper.register('href_for', function (path) {
+    return escapeAttr(this.url_for(path));
+});
+
 // Optional SRI attribute string for CDN tags (integrity + crossorigin), or "".
 hexo.extend.helper.register('sri_attrs', function (integrity) {
     return sriAttrsHtml(integrity);
@@ -324,6 +333,5 @@ module.exports = {
     seal: require('./lib/seal'),
     util: require('./lib/util'),
     comments: require('./lib/comments'),
-    featureGates: require('./lib/feature-gates'),
-    bootQueue: require('./lib/boot-queue')
+    featureGates: require('./lib/feature-gates')
 };

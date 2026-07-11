@@ -1,0 +1,92 @@
+{# SEO / social meta. Relies on gates for favicon + RSS site config. #}
+{% set page_title = build_page_title(page, config) %}
+{% set clean_desc = clean_description(page, config) %}
+{% set og_img = og_image(page) %}
+{% set page_author = page.author or config.author %}
+{% set keywords = page.keywords %}
+{% if not keywords and page.tags and page.tags.length %}
+    {% set keywords %}{% for tag in page.tags.toArray() %}{{ tag.name }}{% if not loop.last %}, {% endif %}{% endfor %}{% endset %}
+{% endif %}
+{% set keywords = keywords or config.keywords %}
+<title>{{ escape_html(page_title) }}</title>
+
+{% if clean_desc %}
+<meta name="description" content="{{ escape_attr(clean_desc) }}" />
+{% endif %}
+{% if page_author %}
+<meta name="author" content="{{ escape_attr(page_author) }}" />
+{% endif %}
+{% if keywords %}
+<meta name="keywords" content="{{ escape_attr(keywords) }}" />
+{% endif %}
+
+<meta property="og:title" content="{{ escape_attr(page_title) }}" />
+{% if clean_desc %}
+<meta property="og:description" content="{{ escape_attr(clean_desc) }}" />
+{% endif %}
+<meta property="og:url" content="{{ escape_attr(url) }}" />
+<meta property="og:type" content="{% if is_post() %}article{% else %}website{% endif %}" />
+<meta property="og:site_name" content="{{ escape_attr(config.title) }}" />
+{% set og_locale_value = og_locale(page, config) %}
+{% if og_locale_value %}
+<meta property="og:locale" content="{{ escape_attr(og_locale_value) }}" />
+{% endif %}
+{% if og_img %}
+<meta property="og:image" content="{{ escape_attr(og_img) }}" />
+<meta property="og:image:alt" content="{{ escape_attr(page_title) }}" />
+{% set og_img_size = og_image_size(page) %}
+{% if og_img_size %}
+<meta property="og:image:width" content="{{ escape_attr(og_img_size.width) }}" />
+<meta property="og:image:height" content="{{ escape_attr(og_img_size.height) }}" />
+{% endif %}
+{% endif %}
+{% if is_post() %}
+{% if page.date %}
+<meta property="article:published_time" content="{{ escape_attr(date_xml(page.date)) }}" />
+{% endif %}
+{% if page.updated %}
+<meta property="article:modified_time" content="{{ escape_attr(date_xml(page.updated)) }}" />
+{% endif %}
+{% if page_author %}
+<meta property="article:author" content="{{ escape_attr(page_author) }}" />
+{% endif %}
+{% if page.tags and page.tags.length %}
+{% for tag in page.tags.toArray() %}
+<meta property="article:tag" content="{{ escape_attr(tag.name) }}" />
+{% endfor %}
+{% endif %}
+{% endif %}
+
+<meta name="twitter:card" content="{% if og_img %}summary_large_image{% else %}summary{% endif %}" />
+<meta name="twitter:title" content="{{ escape_attr(page_title) }}" />
+{% if clean_desc %}
+<meta name="twitter:description" content="{{ escape_attr(clean_desc) }}" />
+{% endif %}
+{% if og_img %}
+<meta name="twitter:image" content="{{ escape_attr(og_img) }}" />
+{% endif %}
+
+<link rel="canonical" href="{{ attr_url(url) }}" />
+
+{% if page.total and page.total > 1 %}
+{% if page.prev %}
+<link rel="prev" href="{{ attr_url(full_url_for(page.prev_link or '/')) }}" />
+{% endif %}
+{% if page.next %}
+<link rel="next" href="{{ attr_url(full_url_for(page.next_link or '/')) }}" />
+{% endif %}
+{% endif %}
+
+{% set structured_data_nodes = structured_data(page, config) %}
+{% if structured_data_nodes.length %}
+<script{{ csp_nonce_attr() }} type="application/ld+json">{{ js_value(structured_data_nodes) | safe }}</script>
+{% endif %}
+
+{% if gates.siteFavicon %}
+<link rel="icon" href="{{ attr_url(safe_resource_url_for(gates.siteFavicon, '/favicon.svg', true)) }}" />
+{% endif %}
+
+{% set rss_config = gates.siteConfig.rss or {} %}
+{% if rss_config.enabled %}
+<link rel="alternate" type="application/atom+xml" title="{{ escape_attr(config.title) }}" href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" />
+{% endif %}

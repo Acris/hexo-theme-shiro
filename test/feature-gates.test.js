@@ -70,6 +70,18 @@ describe('scripts/lib/feature-gates', () => {
             assert.equal(g.needsRuntimeFoot, true);
             assert.equal(g.shiroCspNonce, 'abc');
             assert.equal(g.pageLang, 'en');
+            assert.equal(Object.hasOwn(g, 'mathjaxOpts'), false);
+            assert.deepEqual(g.footScripts, [
+                'js/runtime.min.js',
+                'js/search-bootstrap.min.js',
+                'js/lightgallery-bootstrap.min.js',
+                'js/clipboard-bootstrap.min.js',
+                'js/toc.min.js',
+                'js/progress.min.js',
+                'js/back-to-top.min.js',
+                'js/theme-toggle.min.js',
+                'js/mobile-menu-bootstrap.min.js'
+            ]);
         });
 
         it('keeps pages comment-free unless front-matter opts in', () => {

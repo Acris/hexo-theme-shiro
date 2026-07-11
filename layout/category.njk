@@ -24,13 +24,13 @@
                 <div id="{{ escape_attr('cat-' + cat.slug) }}" class="scroll-mt-24">
                     <h2 class="section-heading">
                         {{ icon_folder() }}
-                        <a class="link-muted hover:text-seal" href="{{ url_for(cat.path) }}">{{ escape_html(cat.name) }}</a>
+                        <a class="link-muted hover:text-seal" href="{{ href_for(cat.path) }}">{{ escape_html(cat.name) }}</a>
                         <span class="ml-auto text-sm font-normal text-slate-400 oldstyle-nums">{{ cat.length }}</span>
                     </h2>
                     {{ render_simple_list(cat.posts.sort('date', -1), category_preview_limit) }}
                     {% if cat.length > category_preview_limit %}
                     <p class="mt-4 text-center text-sm">
-                        <a class="link-muted" href="{{ url_for(cat.path) }}">{{ __('index.read_more') }}</a>
+                        <a class="link-muted" href="{{ href_for(cat.path) }}">{{ __('index.read_more') }}</a>
                     </p>
                     {% endif %}
                 </div>

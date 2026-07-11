@@ -176,7 +176,8 @@ mathjax:
   # false = never load; true = follow every_page / front-matter.
   enabled: false
   # false = only pages with mathjax: true in front-matter.
-  # true  = all posts/pages except mathjax: false (opt-out).
+  # true  = all post/page views except mathjax: false (opt-out).
+  # Script loads on post/page only (home/archive lists stay free of MathJax).
   every_page: false
   # MathJax script URL; pin a version for reproducibility (like lightGallery).
   src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
@@ -186,7 +187,8 @@ mathjax:
   tags: none
   # Enable $...$ as inline math (off by default, matching MathJax v4).
   inline_dollars: false
-  # Process bare \begin{env}...\end{env} outside delimiters.
+  # Client: process bare \begin{env}...\end{env}. Markdown shield always
+  # protects those blocks from MD even when this is false.
   process_environments: true
   # Treat \$ as a literal dollar in text.
   process_escapes: true
@@ -350,7 +352,7 @@ mathjax: true
 ---
 ```
 
-For a site-wide math blog, set `enabled: true` and `every_page: true`; use `mathjax: false` on pages that should stay script-free.
+For a site-wide math blog, set `enabled: true` and `every_page: true`; use `mathjax: false` on pages that should stay script-free. MathJax is injected only on post/page views — home/archive/tag/category lists do not load the engine (excerpts may show raw TeX until the full post is opened).
 
 **Delimiters.** Defaults follow MathJax v4: `\(...\)` (inline) and `$$...$$` / `\[...\]` (display). Single-dollar `$...$` is **off** by default. Set `inline_dollars: true` to enable it.
 

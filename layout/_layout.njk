@@ -2,44 +2,13 @@
 {% from "_macro/ui.njk" import svg_filters, feature_var, feature_i18n with context %}
 {# Feature gates must be {% set %} in this parent template — Nunjucks include
    scope does not leak child sets to the parent (v2.4+). Policy lives in
-   page_feature_gates() (scripts/lib/feature-gates.js); templates only bind names. #}
+   page_feature_gates() (scripts/lib/feature-gates.js). Templates read gates.*
+   directly (no long rebind list). #}
 {% set gates = page_feature_gates() %}
-{% set site_config = gates.siteConfig %}
-{% set search_config = gates.searchConfig %}
-{% set menu_items = gates.menuItems %}
-{% set dark_mode_default = gates.darkModeDefault %}
-{% set dark_mode_toggle = gates.darkModeToggle %}
-{% set search_enabled = gates.searchEnabled %}
-{% set site_seal_enabled = gates.siteSealEnabled %}
-{% set site_favicon = gates.siteFavicon %}
-{% set page_lang = gates.pageLang %}
-{% set needs_code = gates.needsCode %}
-{% set needs_toc = gates.needsToc %}
-{% set needs_mathjax = gates.needsMathjax %}
-{% set mathjax_src = gates.mathjaxSrc %}
-{% set mathjax_inline_dollars = gates.mathjaxInlineDollars %}
-{% set mathjax_process_environments = gates.mathjaxProcessEnvironments %}
-{% set mathjax_process_escapes = gates.mathjaxProcessEscapes %}
-{% set mathjax_tags = gates.mathjaxTags %}
-{% set mathjax_integrity = gates.mathjaxIntegrity %}
-{% set needs_lightgallery = gates.needsLightgallery %}
-{% set lightgallery_js_url = gates.lightgalleryJsUrl %}
-{% set lightgallery_css_url = gates.lightgalleryCssUrl %}
-{% set lightgallery_js_integrity = gates.lightgalleryJsIntegrity %}
-{% set lightgallery_css_integrity = gates.lightgalleryCssIntegrity %}
-{% set lightgallery_preconnect_url = gates.lightgalleryPreconnectUrl %}
-{% set needs_progress_bar = gates.needsProgressBar %}
-{% set needs_back_to_top = gates.needsBackToTop %}
-{% set needs_mobile_menu = gates.needsMobileMenu %}
-{% set shiro_comments = gates.shiroComments %}
-{% set needs_comments = gates.needsComments %}
-{% set needs_feature_runtime = gates.needsFeatureRuntime %}
-{% set needs_runtime_foot = gates.needsRuntimeFoot %}
-{% set shiro_csp_nonce = gates.shiroCspNonce %}
-<html lang="{{ page_lang }}" class="h-full scroll-smooth">
+<html lang="{{ escape_attr(gates.pageLang) }}" class="h-full scroll-smooth">
 {% include "_partial/common/head.njk" %}
 
-<body class="h-full fog-bg text-slate-800"{% if needs_lightgallery %} data-shiro-lightgallery="true"{% endif %}>
+<body class="h-full fog-bg text-slate-800"{% if gates.needsLightgallery %} data-shiro-lightgallery="true"{% endif %}>
     <!-- Preloader: font CSS load + fonts.ready, or preloader.min.js deadline. -->
     <div id="shiroPreloader" class="shiro-preloader" aria-hidden="true">
         <div class="shiro-preloader-ripple" aria-hidden="true">
@@ -47,14 +16,14 @@
             <span class="shiro-preloader-ring"></span>
         </div>
     </div>
-    {% if site_seal_enabled %}
+    {% if gates.siteSealEnabled %}
     {{ svg_filters() }}
     {% endif %}
 
-    {% if needs_progress_bar %}
+    {% if gates.needsProgressBar %}
     <div id="progressBar" class="progress-bar" aria-hidden="true"></div>
     {% endif %}
-    {% if needs_back_to_top %}
+    {% if gates.needsBackToTop %}
     <div id="backToTopSentinel" class="back-to-top-sentinel" aria-hidden="true"></div>
     {% endif %}
 
@@ -82,20 +51,20 @@
         </aside>
     </div>
 
-    {% if needs_back_to_top %}
+    {% if gates.needsBackToTop %}
     <button id="backToTop" type="button" class="back-to-top" data-visible="false" aria-label="{{ escape_attr(__('common.back_to_top')) }}">
         <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
         </svg>
     </button>
     {% endif %}
-    {% if search_enabled %}
+    {% if gates.searchEnabled %}
     {# Default instance; no host id (Pagefind would copy it onto the internal dialog).
        Expanded so pagefind-input can take search.placeholder. Bootstrap forces the
        light-DOM dialog id to shiroSearchDialog (aria-controls) and syncs scroll-lock
        chrome from pagefind-modal.isOpen while open. #}
     <div class="shiro-search-components" data-pagefind-ignore>
-        <pagefind-config bundle-path="{{ url_for('/pagefind/') }}"{% if search_config.force_language %}{% set force_lang = lang_attr(search_config.force_language) %}{% if force_lang %} lang="{{ force_lang }}"{% endif %}{% endif %}></pagefind-config>
+        <pagefind-config bundle-path="{{ attr_url(url_for('/pagefind/')) }}"{% if gates.searchConfig.force_language %}{% set force_lang = lang_attr(gates.searchConfig.force_language) %}{% if force_lang %} lang="{{ escape_attr(force_lang) }}"{% endif %}{% endif %}></pagefind-config>
         <pagefind-modal reset-on-close>
             <pagefind-modal-header>
                 <pagefind-input placeholder="{{ escape_attr(__('search.placeholder')) }}"></pagefind-input>
@@ -112,31 +81,31 @@
     {% endif %}
 
     <!-- Scripts -->
-    {% if needs_feature_runtime or shiro_csp_nonce %}
+    {% if gates.needsFeatureRuntime or gates.shiroCspNonce %}
     <script{{ csp_nonce_attr() }}>
-        {% if shiro_csp_nonce %}
-        {{ feature_var('__shiroCspNonce', shiro_csp_nonce) }}
+        {% if gates.shiroCspNonce %}
+        {{ feature_var('__shiroCspNonce', gates.shiroCspNonce) }}
         {% endif %}
-        {% if needs_lightgallery or needs_code %}
+        {% if gates.needsLightgallery or gates.needsCode %}
         window.__i18n = window.__i18n || {};
         {% endif %}
-        {% if search_enabled %}
+        {% if gates.searchEnabled %}
         {{ feature_var('__pagefindBase', url_for('/pagefind/')) }}
         {{ feature_var('__searchCss', versioned_url('css/search.min.css')) }}
         {% endif %}
-        {% if needs_lightgallery %}
+        {% if gates.needsLightgallery %}
         {{ feature_i18n('gallery', {
             view_image: __('gallery.view_image'),
             visit_source: __('gallery.visit_source')
         }) }}
         {{ feature_var('__lightgalleryThemeCss', versioned_url('css/lightgallery.min.css')) }}
-        {{ feature_var('__lightgalleryCss', lightgallery_css_url) }}
-        {{ feature_var('__lightgalleryJs', lightgallery_js_url) }}
-        {{ feature_var('__lightgalleryCssIntegrity', lightgallery_css_integrity or '') }}
-        {{ feature_var('__lightgalleryJsIntegrity', lightgallery_js_integrity or '') }}
+        {{ feature_var('__lightgalleryCss', gates.lightgalleryCssUrl) }}
+        {{ feature_var('__lightgalleryJs', gates.lightgalleryJsUrl) }}
+        {{ feature_var('__lightgalleryCssIntegrity', gates.lightgalleryCssIntegrity or '') }}
+        {{ feature_var('__lightgalleryJsIntegrity', gates.lightgalleryJsIntegrity or '') }}
         {{ feature_var('__lightgalleryScript', versioned_url('js/lightgallery.min.js')) }}
         {% endif %}
-        {% if needs_code %}
+        {% if gates.needsCode %}
         {{ feature_i18n('clipboard', {
             copied: __('clipboard.copied'),
             copy: __('clipboard.copy'),
@@ -144,39 +113,15 @@
         }) }}
         {{ feature_var('__clipboardScript', versioned_url('js/clipboard.min.js')) }}
         {% endif %}
-        {% if needs_mobile_menu %}
+        {% if gates.needsMobileMenu %}
         {{ feature_var('__mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
         {% endif %}
     </script>
     {% endif %}
-    {% if needs_runtime_foot %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/runtime.min.js') }}"></script>
-    {% endif %}
-    {% if search_enabled %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/search-bootstrap.min.js') }}"></script>
-    {% endif %}
-    {% if needs_lightgallery %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/lightgallery-bootstrap.min.js') }}"></script>
-    {% endif %}
-    {% if needs_code %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/clipboard-bootstrap.min.js') }}"></script>
-    {% endif %}
-    {% if needs_toc %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/toc.min.js') }}"></script>
-    {% endif %}
-    {% if needs_progress_bar %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/progress.min.js') }}"></script>
-    {% endif %}
-    {% if needs_back_to_top %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/back-to-top.min.js') }}"></script>
-    {% endif %}
-    {% if dark_mode_toggle %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/theme-toggle.min.js') }}"></script>
-    {% endif %}
-    {% if needs_mobile_menu %}
-    <script defer{{ csp_nonce_attr() }} src="{{ versioned_url('js/mobile-menu-bootstrap.min.js') }}"></script>
-    {% endif %}
-    {% if needs_comments %}
+    {% for script_path in gates.footScripts %}
+    <script defer{{ csp_nonce_attr() }} src="{{ attr_url(versioned_url(script_path)) }}"></script>
+    {% endfor %}
+    {% if gates.needsComments %}
     {% include "_partial/comments/foot.njk" %}
     {% endif %}
 

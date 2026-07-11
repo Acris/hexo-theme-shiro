@@ -1,4 +1,6 @@
 {% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark, menu_link with context %}
+{% set site_config = gates.siteConfig %}
+{% set menu_items = gates.menuItems %}
 {% set rss_config = site_config.rss or {} %}
 <header class="relative" data-pagefind-ignore>
 
@@ -7,15 +9,15 @@
             <div class="relative inline-block">
                 {% if is_home() %}
                 <h1 class="site-title">
-                    <a href="{{ url_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
+                    <a href="{{ href_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
                 </h1>
                 {% else %}
                 <p class="site-title">
-                    <a href="{{ url_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
+                    <a href="{{ href_for('/') }}">{{ escape_html(config.title | default("白夜書簡", true)) }}</a>
                 </p>
                 {% endif %}
                 <!-- Seal: Mathematically Centered -->
-                {% if site_seal_enabled %}
+                {% if gates.siteSealEnabled %}
                 <div
                     class="absolute left-full top-1/2 -translate-y-1/2 ml-1 sm:ml-4 origin-left scale-75 sm:scale-110">
                     {{ seal(site_config.seal_text | default("白", true)) }}
@@ -27,23 +29,23 @@
                 {{ escape_html(config.subtitle) }}
             </p>
             {% endif %}
-            {% set has_header_actions = rss_config.enabled or dark_mode_toggle or search_enabled %}
+            {% set has_header_actions = rss_config.enabled or gates.darkModeToggle or gates.searchEnabled %}
             {% if has_header_actions %}
             <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2">
                 {% if rss_config.enabled %}
                 <a class="focus-elegant header-pill-btn"
-                    href="{{ safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml') }}" target="_blank" rel="noopener noreferrer" aria-label="RSS">
+                    href="{{ attr_url(safe_resource_url_for(rss_config.path | default('/atom.xml'), '/atom.xml')) }}" target="_blank" rel="noopener noreferrer" aria-label="RSS">
                     {{ icon_rss() }}
                 </a>
                 {% endif %}
-                {% if dark_mode_toggle %}
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + dark_mode_default)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}">
+                {% if gates.darkModeToggle %}
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + gates.darkModeDefault)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}">
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
-                {% if search_enabled %}
+                {% if gates.searchEnabled %}
                 {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
                 <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}">
                     {{ icon_search() }}

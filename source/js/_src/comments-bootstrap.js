@@ -1,8 +1,15 @@
 ;(() => {
     'use strict';
 
-    // Mirrors scripts/lib/boot-queue.js (createBootQueue) — keep behavior aligned.
-    // Stub in comments/bootstrap.njk enqueues; this deferred file activates + drains.
+    // Comments CSS + near-viewport helpers, then drain the parse-time boot queue.
+    // Stub in comments/bootstrap.njk pushes onto __shiroCommentsReadyQueue; this
+    // deferred file (after runtime.min.js) installs helpers and runs the queue.
+
+    const rt = window.__shiroRuntime;
+    if (!rt || typeof rt.loadAsset !== 'function') {
+        console.error('[shiro-comments] runtime missing; comments bootstrap aborted');
+        return;
+    }
 
     const commentsCss = window.__commentsCss || '';
     let commentsCssLoading = null;
@@ -10,12 +17,7 @@
     window.__shiroLoadCommentsCss = window.__shiroLoadCommentsCss || (() => {
         if (!commentsCss) return Promise.resolve();
         if (commentsCssLoading) return commentsCssLoading;
-        const loadAsset = window.__shiroRuntime && window.__shiroRuntime.loadAsset;
-        if (!loadAsset) {
-            console.warn('[shiro-comments] runtime loadAsset missing; comments CSS skipped');
-            return Promise.resolve();
-        }
-        commentsCssLoading = loadAsset('link', {
+        commentsCssLoading = rt.loadAsset('link', {
             rel: 'stylesheet',
             href: commentsCss,
             'data-shiro-comments-css': 'true'
@@ -49,7 +51,7 @@
         }
     }
 
-    // Activate: replace stub so later callers run immediately; drain queued boots.
+    // Activate: later callers run immediately; drain parse-time queue.
     window.__shiroWhenCommentsReady = (callback) => {
         runCommentBoot(callback);
     };

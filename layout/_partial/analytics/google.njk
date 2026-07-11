@@ -4,7 +4,7 @@
   <!-- Google tag (gtag.js) — SRI omitted because Google updates this script frequently,
        which would break integrity checks. Use CSP script-src (and optional security.csp_nonce)
        instead for protection. -->
-  <script async{{ csp_nonce_attr() }} src="{{ 'https://www.googletagmanager.com/gtag/js?id=' + url_query(google_analytics.id) }}"></script>
+  <script async{{ csp_nonce_attr() }} src="{{ attr_url('https://www.googletagmanager.com/gtag/js?id=' + url_query(google_analytics.id)) }}"></script>
   <script{{ csp_nonce_attr() }}>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}

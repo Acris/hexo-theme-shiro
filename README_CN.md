@@ -173,7 +173,8 @@ mathjax:
   # false = 永不加载；true = 按 every_page / front-matter 决定。
   enabled: false
   # false = 仅 front-matter 写了 mathjax: true 的页。
-  # true  = 所有文章/页面，除非 front-matter 写 mathjax: false（单页关闭）。
+  # true  = 所有文章/独立页面视图，除非 front-matter 写 mathjax: false。
+  # 脚本只在 post/page 注入（首页/归档等列表页不加载 MathJax）。
   every_page: false
   # MathJax 脚本 URL；建议像 lightGallery 一样固定版本以保证可复现。
   src: https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-chtml.js
@@ -183,7 +184,8 @@ mathjax:
   tags: none
   # 启用 $...$ 行内公式（默认关闭，与 MathJax v4 一致）。
   inline_dollars: false
-  # 是否处理定界符外的裸 \begin{env}...\end{env}。
+  # 客户端是否处理裸 \begin{env}...\end{env}。Markdown 护栏仍会保护
+  # 这些块，即使此处为 false（避免 MD 破坏 TeX；客户端只是不排版）。
   process_environments: true
   # 将正文 \$ 视为字面美元符号。
   process_escapes: true
@@ -345,7 +347,7 @@ mathjax: true
 ---
 ```
 
-全站数学向博客可设 `enabled: true` 与 `every_page: true`，个别无公式页写 `mathjax: false` 即可跳过脚本。
+全站数学向博客可设 `enabled: true` 与 `every_page: true`，个别无公式页写 `mathjax: false` 即可跳过脚本。MathJax 仅在文章/独立页面注入——首页/归档/标签/分类列表不加载引擎（列表摘要里的公式会保持 TeX 原文，打开正文后再排版）。
 
 **定界符。** 默认与 MathJax v4 一致：行内 `\(...\)`、独立 `$$...$$` / `\[...\]`。单美元 `$...$` **默认关闭**。需要时设 `inline_dollars: true`。
 

@@ -273,7 +273,7 @@ function readFileHeader(filePath) {
         const length = Math.min(stat.size, imageHeaderLimit(filePath));
         if (!length) return Buffer.alloc(0);
 
-        const buffer = Buffer.allocUnsafe(length);
+        const buffer = Buffer.alloc(length);
         const bytesRead = fs.readSync(fd, buffer, 0, length, 0);
         return bytesRead === length ? buffer : buffer.subarray(0, bytesRead);
     } finally {
