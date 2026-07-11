@@ -230,7 +230,7 @@
     /* Dark: footer */
     .site-footer-meta {
         @variant dark {
-            color: var(--color-text-muted);
+            color: var(--color-text-chrome);
         }
     }
 
@@ -251,7 +251,7 @@
     /* Dark: desktop nav */
     .nav-desktop-link {
         @variant dark {
-            color: var(--color-text-muted);
+            color: var(--color-text-chrome);
 
             &:hover { @apply text-seal; }
         }

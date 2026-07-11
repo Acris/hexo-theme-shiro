@@ -7,10 +7,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const runtimeSource = fs.readFileSync(
-    path.join(__dirname, '../source/js/_src/runtime.js'),
-    'utf8'
-);
+// Runtime is split under source/js/_src/runtime/*.js (concat order = sort).
+const { concatRuntimeSource } = require('../tools/build-assets');
+const runtimeSource = concatRuntimeSource();
 
 function createHarness() {
     const elements = [];
@@ -400,6 +399,25 @@ describe('dispatchLiveOrStash / dispatchLiveOrWarm (LG handoff single source)', 
         assert.equal(path, 'stash');
         assert.equal(stashed, 'img1');
         assert.equal(loads.length, 1);
+    });
+
+    it('first-click stash wins when caller ignores later targets', () => {
+        // Mirrors lightgallery-bootstrap: only set autoOpen when unset.
+        const bag = { lightGalleryAutoOpen: null };
+        const stashFirst = (img) => {
+            if (bag.lightGalleryAutoOpen == null) bag.lightGalleryAutoOpen = img;
+        };
+        rt.dispatchLiveOrStash({
+            target: 'first',
+            stash: stashFirst,
+            load: () => {}
+        });
+        rt.dispatchLiveOrStash({
+            target: 'second',
+            stash: stashFirst,
+            load: () => {}
+        });
+        assert.equal(bag.lightGalleryAutoOpen, 'first');
     });
 
     it('navigates when failed', () => {

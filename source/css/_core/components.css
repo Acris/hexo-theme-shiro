@@ -198,7 +198,7 @@
 
     /* Optional meta inside button-ink (e.g. remaining post count on category index). */
     .btn-ink-meta {
-        @apply text-xs font-medium tracking-wide text-text-muted;
+        @apply text-xs font-medium tracking-wide text-text-chrome;
     }
 
     .btn-ink:hover .btn-ink-meta {
@@ -250,7 +250,7 @@
     }
 
     .site-subtitle {
-        @apply mt-3 text-sm leading-relaxed text-text-muted sm:text-[0.95rem];
+        @apply mt-3 text-sm leading-relaxed text-text-chrome sm:text-[0.95rem];
     }
 
     .page-title,
@@ -319,7 +319,7 @@
     }
 
     .category-block--branch .category-node-name {
-        @apply text-sm font-medium text-text-muted;
+        @apply text-sm font-medium text-text-chrome;
     }
 
     .category-block--has-posts .category-node-name {
@@ -328,7 +328,7 @@
 
     /* Count only on leaves — avoids triple “7” on A / B / C chains. */
     .category-node-count {
-        @apply ml-auto shrink-0 text-sm font-medium tabular-nums text-text-muted;
+        @apply ml-auto shrink-0 text-sm font-medium tabular-nums text-text-chrome;
     }
 
     /* Align post list with leaf title (no extra indent stack). */
@@ -347,11 +347,11 @@
     }
 
     .post-nav-link {
-        @apply flex items-center gap-2 text-text-muted transition-colors hover:text-seal max-w-[45%];
+        @apply flex items-center gap-2 text-text-chrome transition-colors hover:text-seal max-w-[45%];
     }
 
     .link-muted {
-        @apply text-text-muted underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
+        @apply text-text-chrome underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
     }
 
     .link-underline {
@@ -359,7 +359,7 @@
     }
 
     .tag-pill {
-        @apply inline-flex items-center rounded-md border border-border-strong bg-bg-inset px-3 py-1.5 text-sm text-text-muted duration-200 hover:border-seal/50 hover:text-seal;
+        @apply inline-flex items-center rounded-md border border-border-strong bg-bg-inset px-3 py-1.5 text-sm text-text-chrome duration-200 hover:border-seal/50 hover:text-seal;
         transition-property: color, border-color;
     }
 
@@ -375,7 +375,7 @@
     .pagination {
         & .page-number,
         & .extend {
-            @apply text-text-muted underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
+            @apply text-text-chrome underline-offset-4 decoration-border-decorative transition-colors hover:text-seal hover:underline;
         }
 
         & .page-number {
@@ -436,15 +436,15 @@
         --shiro-code-bleed: 3.5rem;
         --tw-prose-body: var(--color-text-body);
         --tw-prose-headings: var(--color-text-heading);
-        --tw-prose-lead: var(--color-text-muted);
+        --tw-prose-lead: var(--color-text-chrome);
         --tw-prose-links: var(--color-text-body);
         --tw-prose-bold: var(--color-text-heading);
-        --tw-prose-counters: var(--color-text-muted);
+        --tw-prose-counters: var(--color-text-chrome);
         --tw-prose-bullets: var(--color-text-faint);
         --tw-prose-hr: var(--color-border-decorative);
-        --tw-prose-quotes: var(--color-text-muted);
+        --tw-prose-quotes: var(--color-text-chrome);
         --tw-prose-quote-borders: var(--color-text-faint);
-        --tw-prose-captions: var(--color-text-muted);
+        --tw-prose-captions: var(--color-text-chrome);
         --tw-prose-code: var(--color-seal);
         /* Align bare <pre> with highlight/code surfaces (not terminal black). */
         --tw-prose-pre-code: var(--color-text-body);

@@ -81,10 +81,8 @@ function minifyCssFile(inputRel, outputRel) {
     writeFileIfChanged(output, result.code);
 }
 
-async function minifyJsFile(inputRel, outputRel) {
-    const input = path.join(root, inputRel);
+async function minifyJsCode(code, outputRel) {
     const output = path.join(root, outputRel);
-    const code = fs.readFileSync(input, 'utf8');
     const result = await terser.minify(code, {
         compress: true,
         mangle: true,
@@ -95,22 +93,61 @@ async function minifyJsFile(inputRel, outputRel) {
     writeFileIfChanged(output, result.code + '\n');
 }
 
+async function minifyJsFile(inputRel, outputRel) {
+    const input = path.join(root, inputRel);
+    await minifyJsCode(fs.readFileSync(input, 'utf8'), outputRel);
+}
+
+// runtime.min.js is built from ordered parts (single IIFE, shared scope).
+const RUNTIME_PARTS_DIR = path.join(root, 'source', 'js', '_src', 'runtime');
+
+function listRuntimeParts() {
+    if (!fs.existsSync(RUNTIME_PARTS_DIR)) {
+        throw new Error('Runtime parts directory missing: source/js/_src/runtime');
+    }
+    return fs.readdirSync(RUNTIME_PARTS_DIR)
+        .filter((file) => file.endsWith('.js') && !file.endsWith('.min.js'))
+        .sort()
+        .map((file) => path.join(RUNTIME_PARTS_DIR, file));
+}
+
+function concatRuntimeSource() {
+    return listRuntimeParts()
+        .map((filePath) => fs.readFileSync(filePath, 'utf8'))
+        .join('\n');
+}
+
 async function minifyJs() {
     const jsDir = path.join(root, 'source', 'js', '_src');
     const files = fs.readdirSync(jsDir)
-        .filter(file => file.endsWith('.js') && !file.endsWith('.min.js'))
+        .filter((file) => file.endsWith('.js') && !file.endsWith('.min.js'))
         .sort();
     const outputs = [];
 
     for (const file of files) {
+        // Monolith runtime.js removed; use runtime/ parts only.
+        if (file === 'runtime.js') {
+            console.warn('Ignoring stale source/js/_src/runtime.js (use runtime/*.js parts)');
+            continue;
+        }
         const base = file.slice(0, -3);
         const output = 'source/js/' + base + '.min.js';
         outputs.push(output);
         await minifyJsFile('source/js/_src/' + file, output);
     }
 
+    const runtimeOutput = 'source/js/runtime.min.js';
+    outputs.push(runtimeOutput);
+    await minifyJsCode(concatRuntimeSource(), runtimeOutput);
+
     removeStaleGeneratedFiles('source/js', outputs, '.min.js');
 }
+
+// Export for unit tests that need unminified runtime source.
+module.exports = {
+    concatRuntimeSource,
+    listRuntimeParts
+};
 
 async function main() {
     runTailwind();
@@ -125,7 +162,9 @@ async function main() {
     await minifyJs();
 }
 
-main().catch(error => {
-    console.error(error);
-    process.exit(1);
-});
+if (require.main === module) {
+    main().catch((error) => {
+        console.error(error);
+        process.exit(1);
+    });
+}

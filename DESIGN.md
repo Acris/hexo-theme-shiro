@@ -357,7 +357,7 @@ Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`
 - **Chrome idle dark:** Operable idle icons/labels on paper-dark when muted would fail ~4.5:1.
 - **CSS-only (not decision tokens):** `subtle` / `faint` (+ dark) — decorative only, never body/controls; borders (`soft-border`, `border-strong`, `border-decorative`, `focus-ring`); alpha `bg-panel` / `bg-inset` / `bg-overlay` (+ dark); fog gradient mids (`#f1f0ee` light, `#191918` dark); scrollbar track/thumb greys. Full list: `source/css/_tailwind.css`.
 - **Alpha / composite fills:** Paint over paper/fog. Contrast-check against the composite surface (often documented as `paper`), not raw rgba on black. Header pills may use near-paper translucent slate fills in CSS while tokens list solid `paper` for AA pairs.
-- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light idle → `muted`+; dark operable idle → `body` or `chrome-idle-dark`.
+- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light idle → `muted`+; dark operable idle → `body` or `chrome-idle-dark`. Theme UI secondary/idle text prefers the **`text-chrome`** token (and `text-text-chrome` utilities) over `text-muted` so dark meta/chrome stays AA-safe.
 
 Tailwind `slate-*` is remapped under `html[data-theme=dark]` so one class set serves both themes.
 

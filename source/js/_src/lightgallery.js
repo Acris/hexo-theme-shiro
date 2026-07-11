@@ -244,6 +244,9 @@
             return existing;
         }
 
+        // Detached / racing DOM: refuse so openFromElement returns false → navigate.
+        if (!img.parentNode) return null;
+
         const link = document.createElement('a');
         link.setAttribute('href', src);
         img.parentNode.insertBefore(link, img);

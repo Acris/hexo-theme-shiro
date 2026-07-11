@@ -9,7 +9,7 @@
 @layer components {
     .shiro-search-components {
         --pf-text: var(--color-text-body);
-        --pf-text-secondary: var(--color-text-muted);
+        --pf-text-secondary: var(--color-text-chrome);
         --pf-text-muted: var(--color-text-subtle);
         --pf-background: var(--color-paper);
         --pf-border: var(--color-soft-border);

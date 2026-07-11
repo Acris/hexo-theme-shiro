@@ -85,7 +85,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem 1rem;
-        color: var(--color-text-muted);
+        color: var(--color-text-chrome);
         cursor: pointer;
         font-size: 0.875rem;
         line-height: 1.25rem;
@@ -157,7 +157,7 @@
         position: relative;
         display: block;
         padding: 0.25rem 0;
-        color: var(--color-text-muted);
+        color: var(--color-text-chrome);
         font-family: var(--font-serif);
         font-size: 0.8rem;
         line-height: 1.6;
@@ -214,7 +214,7 @@
     }
 
     html[data-theme="dark"] .toc-toggle {
-        color: var(--color-text-muted);
+        color: var(--color-text-chrome);
     }
 
     html[data-theme="dark"] .toc-toggle:hover {

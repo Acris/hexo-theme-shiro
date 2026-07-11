@@ -88,6 +88,8 @@
             });
         });
 
+        if (!block.parentNode) return;
+
         const wrapper = document.createElement('div');
         wrapper.className = 'highlight-wrapper';
         block.parentNode.insertBefore(wrapper, block);
