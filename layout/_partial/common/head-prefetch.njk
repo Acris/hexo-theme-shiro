@@ -14,5 +14,6 @@
 <link rel="prefetch" as="script" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.js')) }}" />
 {% endif %}
 {% if google_fonts.length %}
-<link rel="preload" as="style" href="{{ attr_url(google_fonts[0]) }}" />
+{# Trusted theme URL stays raw so CDN optimizers preserve its query separators. #}
+<link rel="preload" as="style" href="{{ google_fonts[0] }}" />
 {% endif %}

@@ -1,6 +1,7 @@
 {# Stylesheets + preloader after FOUC/MathJax discovery. Expects google_fonts. #}
 {% for google_fonts_url in google_fonts %}
-<link rel="stylesheet" href="{{ attr_url(google_fonts_url) }}" />
+{# Trusted theme URL stays raw so CDN optimizers preserve its query separators. #}
+<link rel="stylesheet" href="{{ google_fonts_url }}" />
 {% endfor %}
 <link rel="stylesheet" href="{{ attr_url(versioned_url('css/style.min.css')) }}">
 {% if gates.needsCode %}
