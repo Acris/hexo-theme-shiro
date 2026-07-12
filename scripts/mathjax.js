@@ -74,7 +74,16 @@ function takeSegments(data) {
  * @returns {{ segments: string[]|null, salt: string|null }}
  */
 function protectPostFields(data, protectOpts) {
-    const salt = makePlaceholderSalt();
+    const sourceText = PROTECT_FIELDS
+        .map(field => (typeof data[field] === 'string' ? data[field] : ''))
+        .join('\0');
+    const stableSeed = protectOpts.sourcePath || sourceText;
+    let attempt = 0;
+    let salt = makePlaceholderSalt(stableSeed);
+    while (sourceText.includes('@@SHIRO_MATH_' + salt + '_')) {
+        attempt += 1;
+        salt = makePlaceholderSalt(stableSeed + '\0' + attempt);
+    }
     const allSegments = [];
     const opts = Object.assign({}, protectOpts, { salt });
 

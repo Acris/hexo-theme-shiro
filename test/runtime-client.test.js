@@ -154,6 +154,18 @@ describe('client accessibility contracts', () => {
         assert.match(clientSource('back-to-top.js'), /backBtn\.hidden\s*=\s*!visible/);
     });
 
+    it('prevents interaction with content hidden behind the font veil', () => {
+        const preloader = clientSource('preloader.js');
+        const components = fs.readFileSync(
+            path.join(__dirname, '../source/css/_core/components.css'),
+            'utf8'
+        );
+        assert.match(preloader, /classList\.add\(['"]shiro-preloader-dismissed['"]\)/);
+        assert.match(components, /body > :not\(\.shiro-preloader\)[\s\S]*?visibility:\s*hidden/);
+        assert.match(components, /\.shiro-preloader[\s\S]*?pointer-events:\s*auto/);
+        assert.match(components, /shiro-preloader-content-failsafe/);
+    });
+
     it('keeps LightGallery controls readable on its theme-independent dark stage', () => {
         const source = fs.readFileSync(
             path.join(__dirname, '../source/css/_src/lightgallery.css'),

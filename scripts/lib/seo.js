@@ -107,8 +107,14 @@ function cleanDescription(page, config, options) {
 }
 
 function copyrightYear(since, currentYear) {
-    const current = String(currentYear != null ? currentYear : new Date().getFullYear());
-    return (since && since.toString() !== current) ? since + '\u2013' + current : current;
+    const currentNumber = Number(currentYear != null ? currentYear : new Date().getFullYear());
+    const current = Number.isInteger(currentNumber) ? currentNumber : new Date().getFullYear();
+    const raw = String(since == null ? '' : since).trim();
+    if (!/^\d{4}$/.test(raw)) return String(current);
+
+    const start = Number(raw);
+    if (start < 1000 || start > current) return String(current);
+    return start === current ? String(current) : start + '\u2013' + current;
 }
 
 function structuredData(page, config, options) {

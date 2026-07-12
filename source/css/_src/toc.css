@@ -146,16 +146,8 @@
         line-height: var(--leading-snug);
     }
 
-    .toc-item[data-level="0"] {
+    .toc-list-nested {
         padding-left: 0.75rem;
-    }
-
-    .toc-item[data-level="1"] {
-        padding-left: 1.5rem;
-    }
-
-    .toc-item[data-level="2"] {
-        padding-left: 2.25rem;
     }
 
     .toc-link {

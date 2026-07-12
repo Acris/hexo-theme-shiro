@@ -51,6 +51,19 @@
         }
     }
 
+    /* Hide underlying controls as well as pixels until fonts settle. The CSS
+       failsafe restores content with the veil even if preloader JS is blocked. */
+    body > :not(.shiro-preloader) {
+        visibility: hidden;
+        animation: shiro-preloader-content-failsafe 0s linear 6.5s forwards;
+    }
+
+    html.shiro-preloader-done body > :not(.shiro-preloader),
+    html.shiro-preloader-dismissed body > :not(.shiro-preloader) {
+        visibility: visible;
+        animation: none;
+    }
+
     /* Preloader veil; CSS failsafe (6s) must outlive longest JS deadline (5s). */
     .shiro-preloader {
         position: fixed;
@@ -59,7 +72,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        pointer-events: none;
+        pointer-events: auto;
         opacity: 1;
         visibility: visible;
         background: linear-gradient(180deg, var(--color-fog) 0%, var(--color-fog-mid) 55%, var(--color-fog) 100%);
@@ -126,6 +139,12 @@
         to {
             opacity: 0;
             visibility: hidden;
+        }
+    }
+
+    @keyframes shiro-preloader-content-failsafe {
+        to {
+            visibility: visible;
         }
     }
 

@@ -164,7 +164,13 @@ function countHeadingsInHtml(html) {
     let token;
     while ((token = nextHtmlToken(source, position))) {
         position = token.end;
-        if (token.type !== 'tag' || token.closing || !/^h[2-6]$/.test(token.name)) continue;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (!/^h[2-6]$/.test(token.name)) continue;
         const level = Number(token.name[1]);
         counts.set(level, (counts.get(level) || 0) + 1);
     }

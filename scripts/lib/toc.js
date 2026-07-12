@@ -120,14 +120,32 @@ function rewriteTocHeadings(source, levels) {
 }
 
 function renderTocList(headings, minLevel) {
-    const items = headings.map(heading => {
-        const indent = Math.max(0, heading.level - minLevel);
-        return '<li class="toc-item" data-level="' + indent + '">'
-            + '<a class="toc-link" href="' + escapeHtml(fragmentHref(heading.id)) + '" data-target="' + escapeHtml(heading.id) + '">'
-            + escapeHtml(heading.title)
-            + '</a></li>';
-    }).join('');
-    return '<ul class="toc-list">' + items + '</ul>';
+    const root = { level: minLevel - 1, children: [] };
+    const stack = [root];
+
+    headings.forEach((heading) => {
+        while (stack.length > 1 && stack[stack.length - 1].level >= heading.level) {
+            stack.pop();
+        }
+        const node = { level: heading.level, heading, children: [] };
+        stack[stack.length - 1].children.push(node);
+        stack.push(node);
+    });
+
+    function renderNodes(nodes, depth) {
+        const className = depth > 0 ? 'toc-list toc-list-nested' : 'toc-list';
+        const items = nodes.map((node) => {
+            const heading = node.heading;
+            const children = node.children.length ? renderNodes(node.children, depth + 1) : '';
+            return '<li class="toc-item" data-level="' + depth + '">'
+                + '<a class="toc-link" href="' + escapeHtml(fragmentHref(heading.id)) + '" data-target="' + escapeHtml(heading.id) + '">'
+                + escapeHtml(heading.title)
+                + '</a>' + children + '</li>';
+        }).join('');
+        return '<ul class="' + className + '">' + items + '</ul>';
+    }
+
+    return renderNodes(root.children, 0);
 }
 
 function buildToc(content, tocConfig) {

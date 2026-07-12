@@ -21,7 +21,7 @@ colors:
   chrome: "#6b7280"
   on-seal: "#fffffff2"
   code-bg: "#f8fafc"
-  code-gutter: "#f1f5f9"
+  code-gutter: "#f6f8fa"
   # Surfaces & type (dark · 夜の白)
   paper-dark: "#1f1e1d"
   fog-dark: "#181817"
@@ -438,7 +438,7 @@ Transitions are quiet and mechanical — a soft light switch, not a door slam or
 - Cap routine UI motion under ~400ms; if it needs longer, cut it.
 - `prefers-reduced-motion`: collapse durations (keep tiny non-zero if JS waits on `transitionend`).
 - Theme: View Transitions fade or class-based color fade — not a theatrical wipe.
-- Preloader: fog veil + seal ripple; CSS failsafe outlives JS deadline; reduced motion stills the ripple.
+- Preloader: fog veil + seal ripple; underlying content stays hidden and non-interactive until dismissal; CSS failsafe outlives JS deadline and reveals both layers; reduced motion stills the ripple.
 
 ## Shapes
 
@@ -463,7 +463,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 
 - **`.fog-bg` / `.paper`:** Only content shell; no full-bleed hero behind the fog.
 - **Seal stamp:** Single character, vermilion. Front-matter tokens only constrain color + type; **geometry is the shared SVG path** (`seal_path_d` / generated `favicon.svg`) — a carved 朱文 form, not a Material circular badge or app-icon grid. Not a button.
-- **Preloader:** Fog veil + seal graphic mark (mark is decorative; may sit under AA vs fog).
+- **Preloader:** Fog veil + seal graphic mark (mark is decorative; may sit under AA vs fog). Underlying controls are visibility-hidden until font readiness or the shared failsafe.
 
 ### Buttons & chrome
 

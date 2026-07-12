@@ -182,8 +182,8 @@ main .gsc-loading-image {
 
     /* Foreground — matching Shiro dark text hierarchy */
     --color-fg-default: #e8e5e1;
-    --color-fg-muted: #807d7a;
-    --color-fg-subtle: #615e5b;
+    --color-fg-muted: #918e8a;
+    --color-fg-subtle: #8a8783;
 
     /* Canvas — matching Shiro dark palette: paper=#1f1e1d, fog=#181817 */
     --color-canvas-default: #1f1e1d;

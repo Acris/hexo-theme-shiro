@@ -36,9 +36,8 @@ function protectMarkdownMath(content, options) {
     let result = '';
     let cursor = 0;
 
-    // Salted sequential ids. If a heading is rendered while placeholders are
-    // still present, auto-generated anchor ids may include those tokens and can
-    // shift when formulas are inserted earlier — acceptable for this theme.
+    // Filter callers provide a stable, collision-checked post salt so renderer-
+    // generated heading ids remain reproducible across identical builds.
     function placeholder(segment) {
         const id = startIndex + segments.length;
         segments.push(segment);

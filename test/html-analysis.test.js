@@ -184,5 +184,12 @@ describe('scripts/lib/html-analysis', () => {
 
             assert.equal(pageLooksLong({ content: '<p>short</p>' }), false);
         });
+
+        it('ignores heading-like text in opaque and code containers', () => {
+            const content = '<script><h2>one</h2><h2>two</h2></script>'
+                + '<template><h2>three</h2></template>'
+                + '<pre><h2>four</h2></pre><p>short</p>';
+            assert.equal(pageLooksLong({ content }), false);
+        });
     });
 });

@@ -3,7 +3,10 @@
 const crypto = require('crypto');
 const { escapeRegExp } = require('../util');
 
-function makePlaceholderSalt() {
+function makePlaceholderSalt(seed) {
+    if (seed != null && seed !== '') {
+        return crypto.createHash('sha256').update(String(seed)).digest('hex').slice(0, 12);
+    }
     return crypto.randomBytes(6).toString('hex');
 }
 

@@ -4,14 +4,18 @@
     // Dismiss after this page's theme fonts settle, or a connection-aware deadline.
     // CSS failsafe must outlive the longest JS deadline (.shiro-preloader).
     const overlay = document.getElementById('shiroPreloader');
-    if (!overlay) return;
+    const html = document.documentElement;
+    if (!overlay) {
+        html.classList.add('shiro-preloader-dismissed');
+        return;
+    }
 
     const storageKey = 'shiro:fonts-ready';
     const shiro = window.__shiro || {};
     const fontsReadyToken = typeof shiro.fontsReadyToken === 'string' ? shiro.fontsReadyToken : '';
 
     const markReady = () => {
-        document.documentElement.classList.add('shiro-preloader-done');
+        html.classList.add('shiro-preloader-done');
         if (!fontsReadyToken) return;
         try {
             const storedFontsReady = sessionStorage.getItem(storageKey);
@@ -29,7 +33,7 @@
         } catch (error) {}
     };
 
-    if (document.documentElement.classList.contains('shiro-preloader-done')) {
+    if (html.classList.contains('shiro-preloader-done')) {
         overlay.parentNode && overlay.parentNode.removeChild(overlay);
         return;
     }
@@ -50,6 +54,8 @@
         hidden = true;
         if (failsafe) clearTimeout(failsafe);
 
+        // Reveal the now-settled page under the fading veil and restore interaction.
+        html.classList.add('shiro-preloader-dismissed');
         // is-loaded before markReady so :not(.is-loaded) display:none can't cut the fade.
         overlay.classList.add('is-loaded');
         if (remember) markReady();

@@ -429,6 +429,24 @@ describe('scripts/mathjax.js', () => {
             assert.equal(data.excerpt, 'summary with \\(E=mc^2\\)');
         });
 
+        it('uses reproducible placeholder salts for the same source path', () => {
+            const before = registeredFilters.before_post_render[0].fn;
+            const after = registeredFilters.after_post_render[0].fn;
+            const first = {
+                content: 'heading \\(x\\)',
+                mathjax: true,
+                source: 'source/_posts/stable-math.md'
+            };
+            const second = Object.assign({}, first);
+
+            before(first);
+            before(second);
+            assert.equal(first.content, second.content);
+
+            after(first);
+            after(second);
+        });
+
         it('after_post_render restores from WeakMap without requiring pageWantsMathjax', () => {
             const after = registeredFilters.after_post_render[0].fn;
             const salt = 'aabbccddeeff';

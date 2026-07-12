@@ -70,6 +70,18 @@ describe('scripts/lib/toc', () => {
             assert.equal(result.html.includes('data-target="c"'), false);
         });
 
+        it('renders heading hierarchy as semantic nested lists', () => {
+            const src = '<h2>Parent</h2><h3>Child</h3><h4>Grandchild</h4><h2>Sibling</h2>';
+            const result = buildToc(src, { depth: 4, min_headings: 4 });
+            assert.equal(result.shouldRender, true);
+            assert.equal((result.html.match(/toc-list-nested/g) || []).length, 2);
+            assert.match(
+                result.html,
+                /data-target="parent"[^>]*>Parent<\/a><ul class="toc-list toc-list-nested">/
+            );
+            assert.match(result.html, /data-target="sibling"[^>]*>Sibling<\/a><\/li><\/ul>$/);
+        });
+
         it('ignores headings inside pre/code/script blocks', () => {
             const src = [
                 '<pre><h2>Code heading</h2></pre>',

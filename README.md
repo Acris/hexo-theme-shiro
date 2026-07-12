@@ -26,11 +26,11 @@ Made by Acris with ❤️
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`); the footer credit remains in English.
 - **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
-- **Table of Contents**: Sidebar TOC for articles with configurable heading depth.
+- **Table of Contents**: Sidebar TOC with a semantic heading hierarchy and configurable depth.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
 - **Word Count & Reading Time**: Optional post meta via [hexo-word-counter](https://github.com/next-theme/hexo-word-counter).
 - **Back to Top**: Smooth scroll back-to-top button.
-- **Font-load Preloader**: A themed veil covers the page until theme fonts are ready.
+- **Font-load Preloader**: A themed veil covers the page and blocks underlying interaction until theme fonts are ready.
 - **Code Blocks**: Syntax highlighting with copy button and language labels.
 - **MathJax**: Optional MathJax v4 TeX rendering (per-page or site-wide; no KaTeX).
 - **Images**: Optimized content images and LightGallery lightbox.
@@ -47,6 +47,8 @@ Made by Acris with ❤️
 ### Install
 
 Shiro requires Node.js 20 or later. If you're using Hexo 5.0 or later, the simplest way to install is through npm:
+
+The generated CSS targets the Tailwind CSS v4 browser baseline: Safari 16.4+, Chrome 111+, and Firefox 128+.
 
 ```bash
 npm i hexo-theme-shiro
@@ -427,6 +429,8 @@ npx serve public
 ```
 
 ### Content Security Policy
+
+Shiro treats Hexo-rendered post HTML as trusted content; sanitize it in the renderer or publishing pipeline when accepting untrusted authors or CMS input.
 
 Set CSP as an HTTP response header at the host or edge. Start with a request-specific nonce in `script-src`, `object-src 'none'`, `base-uri 'self'`, and the sources below; add only the rows for enabled features.
 

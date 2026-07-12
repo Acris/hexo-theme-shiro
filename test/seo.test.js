@@ -81,6 +81,8 @@ describe('scripts/lib/seo', () => {
             assert.equal(copyrightYear(2020, 2026), '2020\u20132026');
             assert.equal(copyrightYear(2026, 2026), '2026');
             assert.equal(copyrightYear(null, 2026), '2026');
+            assert.equal(copyrightYear('<img src=x onerror=alert(1)>', 2026), '2026');
+            assert.equal(copyrightYear(2027, 2026), '2026');
         });
     });
 
