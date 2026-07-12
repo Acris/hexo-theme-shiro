@@ -2,6 +2,8 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const { markCodeBlocksNotProse } = require('../scripts/lib/code-blocks');
 
@@ -58,5 +60,16 @@ describe('scripts/lib/code-blocks', () => {
             assert.match(out, /title="a > b"/);
             assert.match(out, /class="not-prose highlight js"/);
         });
+    });
+
+    it('keeps highlight spacing after opting blocks out of Typography', () => {
+        const css = fs.readFileSync(
+            path.join(__dirname, '../source/css/_src/code.css'),
+            'utf8'
+        );
+        assert.match(
+            css,
+            /\.prose-shiro \.highlight pre\s*\{[^}]*padding:\s*0\.75rem 1rem;/s
+        );
     });
 });
