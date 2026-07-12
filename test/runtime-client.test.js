@@ -192,6 +192,34 @@ describe('client accessibility contracts', () => {
         assert.match(bootstrap, /button\.hidden\s*=\s*false/);
     });
 
+    it('keeps the search trigger hidden until its handler is ready', () => {
+        const header = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/header.njk'),
+            'utf8'
+        );
+        const bootstrap = clientSource('search-bootstrap.js');
+
+        assert.match(header, /<button id="searchToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(
+            bootstrap,
+            /toggle\.addEventListener\('click', openModal\);[\s\S]*?toggle\.hidden\s*=\s*false/
+        );
+    });
+
+    it('keeps the theme trigger hidden until its handler is ready', () => {
+        const header = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/header.njk'),
+            'utf8'
+        );
+        const toggle = clientSource('theme-toggle.js');
+
+        assert.match(header, /<button id="themeToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(
+            toggle,
+            /btn\.addEventListener\('click', cycle\);[\s\S]*?btn\.hidden\s*=\s*false/
+        );
+    });
+
     it('removes the collapsed inline TOC from the tab order', () => {
         const source = clientSource('toc.js');
         assert.match(source, /body\.inert\s*=\s*!open/);

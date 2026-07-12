@@ -22,7 +22,7 @@ Made by Acris with ❤️
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
 - **Responsive**: Fully responsive design for mobile and desktop.
-- **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, and motion-aware controls.
+- **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, motion-aware controls, and JS-only triggers hidden until ready.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`); the footer credit remains in English.
 - **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
@@ -31,7 +31,7 @@ Made by Acris with ❤️
 - **Word Count & Reading Time**: Optional post meta via [hexo-word-counter](https://github.com/next-theme/hexo-word-counter).
 - **Back to Top**: Smooth scroll back-to-top button.
 - **Font-load Preloader**: A themed veil covers the page and blocks underlying interaction until theme fonts are ready.
-- **Code Blocks**: Syntax highlighting with copy button and language labels.
+- **Code Blocks**: Syntax highlighting with copy button and language labels; styles and interactive copy assets load only when needed.
 - **MathJax**: Optional MathJax v4 TeX rendering (per-page or site-wide; no KaTeX).
 - **Images**: Optimized content images and LightGallery lightbox.
 - **Comments**: Disqus and giscus (GitHub Discussions), loaded when needed.
@@ -39,7 +39,7 @@ Made by Acris with ❤️
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **SEO-friendly**: Meta tags, social cards, and structured data.
 - **Seal Stamp**: Optional decorative vermilion seal (印章) in the header; customize the character with `seal_text`.
-- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after generation or immediately before deployment, with no external service.
+- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after generation or immediately before deployment, with no external service; the trigger stays hidden until its client handler is ready.
 - **Fast**: Performance-focused with minimal JavaScript and careful asset loading.
 
 ## Installation

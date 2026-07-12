@@ -85,7 +85,7 @@
     {# cspNonce is set only in head-theme (single source). #}
     {% if gates.needsFeatureRuntime %}
     <script{{ csp_nonce_attr(gates.shiroCspNonce) }}>
-        {% if gates.needsLightgallery or gates.needsCode %}
+        {% if gates.needsLightgallery or gates.needsClipboard %}
         (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
         {% endif %}
         {% if gates.searchEnabled %}
@@ -106,7 +106,7 @@
             script: versioned_url('js/lightgallery.min.js')
         }) }}
         {% endif %}
-        {% if gates.needsCode %}
+        {% if gates.needsClipboard %}
         {{ feature_i18n('clipboard', {
             copied: __('clipboard.copied'),
             copy: __('clipboard.copy'),

@@ -60,13 +60,6 @@ function startsBlankLine(source, index) {
     return true;
 }
 
-function hasBlankLineBetween(source, from, to) {
-    for (let cursor = from; cursor < to; cursor += 1) {
-        if (source[cursor] === '\n' && startsBlankLine(source, cursor)) return true;
-    }
-    return false;
-}
-
 function closingFenceLine(line, marker, minLength) {
     let cursor = 0;
     let spaces = 0;
@@ -89,6 +82,7 @@ function skipFenceBlock(source, start) {
     if (!match) return start;
 
     const marker = match[2][0];
+    if (marker === '`' && firstLine.slice(match[0].length).includes('`')) return start;
     const minLength = match[2].length;
     let cursor = firstLineEnd === source.length ? source.length : firstLineEnd + 1;
 
@@ -129,7 +123,6 @@ function skipCodeSpan(source, start) {
     let end;
     while ((end = source.indexOf(marker, searchFrom)) !== -1) {
         if (source[end - 1] !== '`' && source[end + length] !== '`') {
-            if (hasBlankLineBetween(source, start + length, end)) return start;
             return end + length;
         }
         searchFrom = end + length;

@@ -43,7 +43,7 @@ function buildFootScripts(flags) {
     if (flags.needsRuntimeFoot) scripts.push('js/runtime.min.js');
     if (flags.searchEnabled) scripts.push('js/search-bootstrap.min.js');
     if (flags.needsLightgallery) scripts.push('js/lightgallery-bootstrap.min.js');
-    if (flags.needsCode) scripts.push('js/clipboard-bootstrap.min.js');
+    if (flags.needsClipboard) scripts.push('js/clipboard-bootstrap.min.js');
     if (flags.needsToc) scripts.push('js/toc.min.js');
     if (flags.needsProgressBar) scripts.push('js/progress.min.js');
     if (flags.needsBackToTop) scripts.push('js/back-to-top.min.js');
@@ -61,6 +61,8 @@ function buildFootScripts(flags) {
  * @param {boolean} input.isPage
  * @param {boolean} input.isHome
  * @param {boolean} input.hasCode
+ * @param {boolean} input.hasCodeBlocks
+ * @param {boolean} input.hasClipboardTargets
  * @param {boolean} input.hasImages
  * @param {boolean} input.looksLong
  * @param {boolean} input.shouldRenderToc
@@ -111,7 +113,13 @@ function resolveFeatureGates(input) {
     const pageLangRaw = page.lang || page.language || configLang;
     const pageLang = normalizeLangAttr(pageLangRaw) || 'en';
 
-    const needsCode = !!input.hasCode;
+    const needsCodeFont = !!input.hasCode;
+    const needsCode = input.hasCodeBlocks === undefined
+        ? needsCodeFont
+        : !!input.hasCodeBlocks;
+    const needsClipboard = input.hasClipboardTargets === undefined
+        ? needsCode
+        : !!input.hasClipboardTargets;
     const needsToc = isFeatureEnabled(toc.enabled, true) && reading && !!input.shouldRenderToc;
 
     const mathjaxOpts = resolveMathjaxConfig(theme);
@@ -163,7 +171,7 @@ function resolveFeatureGates(input) {
 
     const needsFeatureRuntime = searchEnabled
         || needsLightgallery
-        || needsCode
+        || needsClipboard
         || needsMobileMenu;
     const needsRuntimeFoot = needsFeatureRuntime || needsComments;
     const shiroCspNonce = normalizeCspNonce(input.cspNonce);
@@ -172,7 +180,7 @@ function resolveFeatureGates(input) {
         needsRuntimeFoot,
         searchEnabled,
         needsLightgallery,
-        needsCode,
+        needsClipboard,
         needsToc,
         needsProgressBar,
         needsBackToTop,
@@ -193,6 +201,8 @@ function resolveFeatureGates(input) {
         pageLang,
 
         needsCode,
+        needsCodeFont,
+        needsClipboard,
         needsToc,
 
         needsMathjax,

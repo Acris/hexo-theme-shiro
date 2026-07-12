@@ -4,7 +4,7 @@
     <meta name="generator" content="Hexo {{ escape_attr(hexo.version) }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    {% set google_fonts = google_font_urls(page, config, theme, gates.needsCode) %}
+    {% set google_fonts = google_font_urls(page, config, theme, gates.needsCodeFont) %}
     {% include "_partial/common/head-prefetch.njk" %}
     {# FOUC theme script before blocking stylesheets (first-paint contract). #}
     {% include "_partial/common/head-theme.njk" %}

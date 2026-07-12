@@ -82,4 +82,5 @@
 
     btn.addEventListener('click', cycle);
     apply(getState());
+    btn.hidden = false;
 })();

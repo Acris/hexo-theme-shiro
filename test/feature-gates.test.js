@@ -47,6 +47,8 @@ describe('scripts/lib/feature-gates', () => {
             isPage: false,
             isHome: false,
             hasCode: true,
+            hasCodeBlocks: true,
+            hasClipboardTargets: true,
             hasImages: true,
             looksLong: true,
             shouldRenderToc: true,
@@ -58,7 +60,9 @@ describe('scripts/lib/feature-gates', () => {
         it('enables post features and comments when configured', () => {
             const g = resolveFeatureGates(base);
             assert.equal(g.searchEnabled, true);
+            assert.equal(g.needsCodeFont, true);
             assert.equal(g.needsCode, true);
+            assert.equal(g.needsClipboard, true);
             assert.equal(g.needsToc, true);
             assert.equal(g.needsMathjax, true);
             assert.equal(g.mathjaxSrc, DEFAULT_MATHJAX_SRC);
@@ -83,6 +87,53 @@ describe('scripts/lib/feature-gates', () => {
                 'js/theme-toggle.min.js',
                 'js/mobile-menu-bootstrap.min.js'
             ]);
+        });
+
+        it('keeps the code font without loading block-code assets for inline code', () => {
+            const g = resolveFeatureGates({
+                ...base,
+                theme: {
+                    ...base.theme,
+                    search: { enabled: false },
+                    lightGallery: { enabled: false },
+                    comments: { enabled: false },
+                    menu: []
+                },
+                hasCode: true,
+                hasCodeBlocks: false,
+                hasClipboardTargets: false,
+                hasImages: false,
+                menuLength: 0
+            });
+
+            assert.equal(g.needsCodeFont, true);
+            assert.equal(g.needsCode, false);
+            assert.equal(g.needsClipboard, false);
+            assert.equal(g.footScripts.includes('js/runtime.min.js'), false);
+            assert.equal(g.footScripts.includes('js/clipboard-bootstrap.min.js'), false);
+        });
+
+        it('styles standalone pre blocks without loading clipboard assets', () => {
+            const g = resolveFeatureGates({
+                ...base,
+                theme: {
+                    ...base.theme,
+                    search: { enabled: false },
+                    lightGallery: { enabled: false },
+                    comments: { enabled: false },
+                    menu: []
+                },
+                hasCode: true,
+                hasCodeBlocks: true,
+                hasClipboardTargets: false,
+                hasImages: false,
+                menuLength: 0
+            });
+
+            assert.equal(g.needsCode, true);
+            assert.equal(g.needsClipboard, false);
+            assert.equal(g.footScripts.includes('js/runtime.min.js'), false);
+            assert.equal(g.footScripts.includes('js/clipboard-bootstrap.min.js'), false);
         });
 
         it('keeps pages comment-free unless front-matter opts in', () => {

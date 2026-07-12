@@ -99,7 +99,8 @@ function isWithinDir(baseDir, filePath) {
     const base = path.resolve(baseDir);
     const target = path.resolve(filePath);
     const relative = path.relative(base, target);
-    return relative === '' || (!!relative && !relative.startsWith('..') && !path.isAbsolute(relative));
+    const outside = relative === '..' || relative.startsWith('..' + path.sep);
+    return relative === '' || (!!relative && !outside && !path.isAbsolute(relative));
 }
 
 /**

@@ -102,6 +102,29 @@ describe('scripts/lib/fonts', () => {
             assert.doesNotMatch(prefetch, /attr_url\(google_fonts\[0\]\)/);
         });
 
+        it('keeps the code font gate independent from block-code assets', () => {
+            const head = fs.readFileSync(
+                path.join(root, 'layout/_partial/common/head.njk'),
+                'utf8'
+            );
+            const styles = fs.readFileSync(
+                path.join(root, 'layout/_partial/common/head-styles.njk'),
+                'utf8'
+            );
+            const layout = fs.readFileSync(
+                path.join(root, 'layout/_layout.njk'),
+                'utf8'
+            );
+
+            assert.match(head, /google_font_urls\([^)]*gates\.needsCodeFont\)/);
+            assert.match(styles, /\{% if gates\.needsCode %\}/);
+            assert.match(
+                layout,
+                /\{% if gates\.needsLightgallery or gates\.needsClipboard %\}/
+            );
+            assert.match(layout, /\{% if gates\.needsClipboard %\}[\s\S]*?clipboardScript/);
+        });
+
         it('avoids synthetic weights in theme-owned font contexts', () => {
             const layout = [
                 'layout/_layout.njk',

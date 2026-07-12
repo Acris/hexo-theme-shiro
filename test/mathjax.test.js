@@ -333,6 +333,18 @@ describe('scripts/mathjax.js', () => {
             }
         });
 
+        it('skips code spans that contain blank lines', () => {
+            const source = '`before\n\n$x$\nafter` and $y$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.deepEqual(protectedMath.segments, ['$y$']);
+        });
+
+        it('does not open a backtick fence when its info string contains backticks', () => {
+            const source = '``` code ```\n$x$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.deepEqual(protectedMath.segments, ['$x$']);
+        });
+
         it('does not close a fenced block with a four-space-indented fence', () => {
             const source = '```\n$x$\n    ```\n$y$';
             const protectedMath = protectMarkdownMath(source, { inlineDollars: true });

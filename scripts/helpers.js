@@ -21,6 +21,7 @@ const { isFeatureEnabled } = require('./lib/features');
 const {
     pageAnalysis,
     pageHasCode,
+    pageCodeFlags,
     pageLooksLong,
     excerptFor,
     excerptForCard
@@ -70,6 +71,10 @@ hexo.extend.helper.register('google_font_urls', function (page, config, themeCon
 
 hexo.extend.helper.register('page_has_code', function (page, themeConfig) {
     return pageHasCode(page, themeConfig, this);
+});
+
+hexo.extend.helper.register('page_code_flags', function (page, themeConfig) {
+    return pageCodeFlags(page, themeConfig, this);
 });
 
 hexo.extend.helper.register('page_looks_long', function (page) {
@@ -174,6 +179,18 @@ hexo.extend.helper.register('page_feature_gates', function () {
     const toc = typeof this.build_toc === 'function'
         ? this.build_toc(page, tocConfig)
         : { shouldRender: false, content: (page && page.content) || '', html: '' };
+    const codeFlags = typeof this.page_code_flags === 'function'
+        ? this.page_code_flags(page, theme)
+        : (() => {
+            const hasCode = typeof this.page_has_code === 'function'
+                ? this.page_has_code(page, theme)
+                : false;
+            return {
+                hasCode,
+                hasCodeBlocks: hasCode,
+                hasClipboardTargets: hasCode
+            };
+        })();
 
     const gates = resolveFeatureGates({
         theme,
@@ -182,9 +199,9 @@ hexo.extend.helper.register('page_feature_gates', function () {
         isPost,
         isPage,
         isHome,
-        hasCode: typeof this.page_has_code === 'function'
-            ? this.page_has_code(page, theme)
-            : false,
+        hasCode: codeFlags.hasCode,
+        hasCodeBlocks: codeFlags.hasCodeBlocks,
+        hasClipboardTargets: codeFlags.hasClipboardTargets,
         hasImages: typeof this.has_images === 'function' ? this.has_images(page) : false,
         looksLong: typeof this.page_looks_long === 'function' ? this.page_looks_long(page) : false,
         shouldRenderToc: !!toc.shouldRender,
@@ -302,7 +319,8 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
     const sourceDir = pathFn.join(hexo.theme_dir, 'source');
     const filePath = pathFn.join(sourceDir, rel);
     const relative = pathFn.relative(sourceDir, filePath);
-    if (!relative || relative.startsWith('..') || pathFn.isAbsolute(relative)) {
+    const outside = relative === '..' || relative.startsWith('..' + pathFn.sep);
+    if (!relative || outside || pathFn.isAbsolute(relative)) {
         return this.url_for(assetPath);
     }
 

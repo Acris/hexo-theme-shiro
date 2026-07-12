@@ -24,6 +24,7 @@ const pageAnalysisCache = new WeakMap();
 const excerptCache = new WeakMap();
 
 const CODE_CLASS_TOKENS = new Set(['highlight', 'gist']);
+const HIGHLIGHT_CLASS_TOKENS = new Set(['highlight']);
 const RAW_CONTENT_ELEMENTS = new Set(HTML_TOKEN_OPAQUE_ELEMENTS);
 const ANALYSIS_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
 const DESCRIPTION_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre']);
@@ -34,8 +35,9 @@ function hasClassToken(attrs, tokens) {
     return classValue.split(/\s+/).some(token => tokens.has(token));
 }
 
-function hasCodeContent(content) {
-    if (!content) return false;
+function codeContentFlags(content) {
+    const flags = { hasCode: false, hasCodeBlocks: false, hasClipboardTargets: false };
+    if (!content) return flags;
     const source = String(content);
     let position = 0;
     let token;
@@ -47,10 +49,24 @@ function hasCodeContent(content) {
             position = close ? close.end : source.length;
             continue;
         }
-        if (token.name === 'pre' || token.name === 'code'
-            || hasClassToken(token.attrs, CODE_CLASS_TOKENS)) return true;
+        if (hasClassToken(token.attrs, HIGHLIGHT_CLASS_TOKENS)) {
+            return { hasCode: true, hasCodeBlocks: true, hasClipboardTargets: true };
+        }
+        if (token.name === 'pre' || hasClassToken(token.attrs, CODE_CLASS_TOKENS)) {
+            flags.hasCode = true;
+            flags.hasCodeBlocks = true;
+        }
+        if (token.name === 'code') flags.hasCode = true;
     }
-    return false;
+    return flags;
+}
+
+function hasCodeContent(content) {
+    return codeContentFlags(content).hasCode;
+}
+
+function hasBlockCodeContent(content) {
+    return codeContentFlags(content).hasCodeBlocks;
 }
 
 function strippedHtml(content) {
@@ -180,12 +196,17 @@ function countHeadingsInHtml(html) {
 function defineAnalysisGetters(analysis, html, textHtml) {
     let firstImageInfoCache;
     let imageCountCache;
-    let hasCodeCache;
+    let codeFlagsCache;
     let headingCountsCache;
 
     function firstImageData() {
         if (firstImageInfoCache === undefined) firstImageInfoCache = firstImageInfo(html);
         return firstImageInfoCache;
+    }
+
+    function codeFlags() {
+        if (!codeFlagsCache) codeFlagsCache = codeContentFlags(html);
+        return codeFlagsCache;
     }
 
     Object.defineProperties(analysis, {
@@ -211,10 +232,19 @@ function defineAnalysisGetters(analysis, html, textHtml) {
         hasCode: {
             enumerable: true,
             get() {
-                if (hasCodeCache === undefined) {
-                    hasCodeCache = hasCodeContent(html) || hasCodeContent(analysis.excerpt);
-                }
-                return hasCodeCache;
+                return codeFlags().hasCode;
+            }
+        },
+        hasCodeBlocks: {
+            enumerable: true,
+            get() {
+                return codeFlags().hasCodeBlocks;
+            }
+        },
+        hasClipboardTargets: {
+            enumerable: true,
+            get() {
+                return codeFlags().hasClipboardTargets;
             }
         },
         headingCounts: {
@@ -232,7 +262,6 @@ function analyzeHtml(content) {
     const textHtml = cachedStrippedHtml(html);
     const analysis = {
         html,
-        excerpt: '',
         tocCache: new Map()
     };
 
@@ -244,12 +273,10 @@ function pageAnalysis(page) {
     if (!page || typeof page !== 'object') return analyzeHtml('');
 
     const html = String(page.content || '');
-    const excerpt = String(page.excerpt || '');
     const cached = pageAnalysisCache.get(page);
-    if (cached && cached.html === html && cached.excerpt === excerpt) return cached;
+    if (cached && cached.html === html) return cached;
 
     const analysis = analyzeHtml(html);
-    analysis.excerpt = excerpt;
     pageAnalysisCache.set(page, analysis);
     return analysis;
 }
@@ -268,36 +295,56 @@ function excerptFallbackLength(fallbackConfig) {
     return DEFAULT_EXCERPT_LENGTH;
 }
 
-function renderedPostCardHasCode(post, themeConfig) {
-    if (!post) return false;
-    if (post.excerpt) return hasCodeContent(post.excerpt);
-
-    if (excerptFallbackEnabled(themeConfig)) {
-        const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
-        const limit = excerptFallbackLength(fallback);
-        if (limit > 0 && graphemeLength(htmlTextFromHtml(post.content)) > limit) return false;
-    }
-
-    return hasCodeContent(post.content);
+function renderedPostCardCodeFlags(post, themeConfig) {
+    return codeContentFlags(excerptForCard(post, themeConfig).content);
 }
 
-function pageHasCode(page, themeConfig, context) {
-    if (!page) return false;
+function rendersPostCards(context) {
+    return context && ['is_home', 'is_tag', 'is_category'].some((name) => (
+        typeof context[name] === 'function' && context[name]()
+    ));
+}
+
+function pageCodeFlags(page, themeConfig, context) {
+    if (!page) return { hasCode: false, hasCodeBlocks: false, hasClipboardTargets: false };
 
     const isReadingPage = context && (
         (typeof context.is_post === 'function' && context.is_post())
         || (typeof context.is_page === 'function' && context.is_page())
     );
-    if (isReadingPage || !page.posts) return pageAnalysis(page).hasCode;
-
-    const rendersPostCards = context && ['is_home', 'is_tag', 'is_category'].some((name) => (
-        typeof context[name] === 'function' && context[name]()
-    ));
-    if (rendersPostCards) {
-        return collectionToArray(page.posts).some(post => renderedPostCardHasCode(post, themeConfig));
+    if (isReadingPage || !page.posts) {
+        const analysis = pageAnalysis(page);
+        return {
+            hasCode: analysis.hasCode,
+            hasCodeBlocks: analysis.hasCodeBlocks,
+            hasClipboardTargets: analysis.hasClipboardTargets
+        };
     }
 
-    return pageAnalysis(page).hasCode;
+    if (rendersPostCards(context)) {
+        const flags = { hasCode: false, hasCodeBlocks: false, hasClipboardTargets: false };
+        const posts = collectionToArray(page.posts);
+        for (let i = 0; i < posts.length; i += 1) {
+            const postFlags = renderedPostCardCodeFlags(posts[i], themeConfig);
+            flags.hasCode = flags.hasCode || postFlags.hasCode;
+            flags.hasCodeBlocks = flags.hasCodeBlocks || postFlags.hasCodeBlocks;
+            flags.hasClipboardTargets = flags.hasClipboardTargets
+                || postFlags.hasClipboardTargets;
+            if (flags.hasClipboardTargets) break;
+        }
+        return flags;
+    }
+
+    const analysis = pageAnalysis(page);
+    return {
+        hasCode: analysis.hasCode,
+        hasCodeBlocks: analysis.hasCodeBlocks,
+        hasClipboardTargets: analysis.hasClipboardTargets
+    };
+}
+
+function pageHasCode(page, themeConfig, context) {
+    return pageCodeFlags(page, themeConfig, context).hasCode;
 }
 
 function pageLooksLong(page) {
@@ -446,9 +493,11 @@ function excerptFor(post, length) {
 module.exports = {
     pageAnalysis,
     hasCodeContent,
+    hasBlockCodeContent,
     htmlTextFromHtml,
     htmlWithoutCodeContent,
     pageHasCode,
+    pageCodeFlags,
     pageLooksLong,
     tocHeadingLevels,
     firstImageInfo,

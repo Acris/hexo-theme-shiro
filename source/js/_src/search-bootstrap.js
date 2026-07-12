@@ -255,6 +255,7 @@
 
     if (toggle) {
         toggle.addEventListener('click', openModal);
+        toggle.hidden = false;
         if (typeof bindIntentWarm === 'function') {
             unbindWarm = bindIntentWarm(warm, {
                 root: toggle,

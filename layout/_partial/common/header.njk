@@ -38,7 +38,7 @@
                 </a>
                 {% endif %}
                 {% if gates.darkModeToggle %}
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + gates.darkModeDefault)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}">
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + gates.darkModeDefault)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}" hidden>
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
@@ -46,7 +46,7 @@
                 {% endif %}
                 {% if gates.searchEnabled %}
                 {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}">
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}" hidden>
                     {{ icon_search() }}
                 </button>
                 {% endif %}

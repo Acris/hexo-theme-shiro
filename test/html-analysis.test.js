@@ -5,7 +5,9 @@ const assert = require('node:assert/strict');
 
 const {
     hasCodeContent,
+    hasBlockCodeContent,
     pageHasCode,
+    pageCodeFlags,
     pageLooksLong,
     excerptFor,
     excerptForCard,
@@ -24,10 +26,64 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(hasCodeContent('<p>plain</p>'), false);
         });
 
+        it('distinguishes inline code from block-code feature targets', () => {
+            assert.equal(hasBlockCodeContent('<code>x</code>'), false);
+            assert.equal(hasBlockCodeContent('<pre><code>x</code></pre>'), true);
+            assert.equal(hasBlockCodeContent('<figure class="highlight js">x</figure>'), true);
+            assert.equal(hasBlockCodeContent('<div class="gist">x</div>'), true);
+        });
+
+        it('returns font and block-code flags from one page analysis', () => {
+            const inline = pageCodeFlags(
+                { content: '<p>Use <code>npm test</code>.</p>' },
+                {},
+                { is_post: () => true }
+            );
+            const block = pageCodeFlags(
+                { content: '<pre><code>npm test</code></pre>' },
+                {},
+                { is_post: () => true }
+            );
+            const highlighted = pageCodeFlags(
+                { content: '<figure class="highlight js"><pre>npm test</pre></figure>' },
+                {},
+                { is_post: () => true }
+            );
+
+            assert.deepEqual(inline, {
+                hasCode: true,
+                hasCodeBlocks: false,
+                hasClipboardTargets: false
+            });
+            assert.deepEqual(block, {
+                hasCode: true,
+                hasCodeBlocks: true,
+                hasClipboardTargets: false
+            });
+            assert.deepEqual(highlighted, {
+                hasCode: true,
+                hasCodeBlocks: true,
+                hasClipboardTargets: true
+            });
+        });
+
         it('pageHasCode uses analysis for reading pages', () => {
             const page = { content: '<pre>code</pre>' };
             assert.equal(pageHasCode(page, {}, { is_post: () => true }), true);
             assert.equal(pageHasCode({ content: '<p>hi</p>' }, {}, { is_post: () => true }), false);
+        });
+
+        it('ignores a manual excerpt that is not rendered on a reading page', () => {
+            const flags = pageCodeFlags({
+                content: '<p>Plain article body.</p>',
+                excerpt: '<figure class="highlight"><pre>hidden excerpt code</pre></figure>'
+            }, {}, { is_post: () => true });
+
+            assert.deepEqual(flags, {
+                hasCode: false,
+                hasCodeBlocks: false,
+                hasClipboardTargets: false
+            });
         });
 
         it('checks rendered excerpts on home, tag, and category post lists', () => {
@@ -44,6 +100,20 @@ describe('scripts/lib/html-analysis', () => {
             });
         });
 
+        it('ignores hidden post bodies when card fallback is disabled', () => {
+            const flags = pageCodeFlags(
+                { posts: [{ content: '<figure class="highlight"><pre>code</pre></figure>' }] },
+                { excerpt: { fallback: { enabled: false } } },
+                { is_home: () => true }
+            );
+
+            assert.deepEqual(flags, {
+                hasCode: false,
+                hasCodeBlocks: false,
+                hasClipboardTargets: false
+            });
+        });
+
         it('does not inspect post bodies for archive-only lists', () => {
             const page = {
                 posts: [{ excerpt: '<pre>code</pre>', content: '<pre>full code</pre>' }]
@@ -55,6 +125,7 @@ describe('scripts/lib/html-analysis', () => {
             const content = '<noscript><figure class="highlight">fallback</figure></noscript>'
                 + '<iframe><code>frame fallback</code></iframe>';
             assert.equal(hasCodeContent(content), false);
+            assert.equal(hasBlockCodeContent(content), false);
         });
     });
 

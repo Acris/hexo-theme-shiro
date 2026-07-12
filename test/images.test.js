@@ -218,6 +218,15 @@ describe('scripts/lib/image-optimize', () => {
             assert.ok(list.some((p) => p.endsWith('images/rock&roll.png')));
         });
 
+        it('allows local filenames that begin with two dots', () => {
+            const sourceDir = '/site/source';
+            const list = pureCandidates('/..cover.png', null, {
+                sourceDir,
+                root: '/'
+            });
+            assert.ok(list.some((p) => p.endsWith('/source/..cover.png')));
+        });
+
         it('ignores remote urls', () => {
             assert.deepEqual(
                 pureCandidates('https://cdn.example/a.png', null, {
