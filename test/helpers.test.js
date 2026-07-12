@@ -45,4 +45,46 @@ describe('scripts/helpers', () => {
         assert.match(versionedUrl.call(context, '..asset.js'), /^\/\.\.asset\.js\?v=[a-f0-9]{8}$/);
         assert.equal(versionedUrl.call(context, '../outside.js'), '/../outside.js');
     });
+
+    it('uses the resolved hierarchical category label in page titles', () => {
+        const buildPageTitle = helpers.get('build_page_title');
+        const parent = { _id: 'a', name: 'Parent', path: 'categories/parent/' };
+        const child = {
+            _id: 'b',
+            parent: 'a',
+            name: 'Child',
+            path: 'categories/parent/child/'
+        };
+        const context = {
+            site: { categories: [parent, child] },
+            is_home: () => false,
+            is_archive: () => false,
+            is_tag: () => false,
+            is_category: () => true,
+            __: (key) => ({ 'nav.categories': 'Categories' }[key] || key)
+        };
+
+        assert.equal(
+            buildPageTitle.call(
+                context,
+                { title: 'Child', category: 'Child', path: 'categories/parent/child/' },
+                { title: 'Site' }
+            ),
+            'Categories: Parent / Child | Site'
+        );
+    });
+
+    it('applies list-card image loading defaults without overriding authors', () => {
+        const excerptForCard = helpers.get('excerpt_for_card');
+        const context = { theme: {} };
+        const post = {
+            excerpt: '<img src="/cover.png">',
+            content: '<img src="/cover.png"><p>Body</p>'
+        };
+        assert.match(excerptForCard.call(context, post, true).content, /loading="eager"/);
+        assert.match(excerptForCard.call(context, post, false).content, /loading="lazy"/);
+
+        post.excerpt = '<img src="/cover.png" loading="lazy">';
+        assert.match(excerptForCard.call(context, post, true).content, /loading="lazy"/);
+    });
 });

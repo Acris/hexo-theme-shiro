@@ -21,4 +21,14 @@ describe('template security contracts', () => {
         );
         assert.match(source, /\{\{\s*escape_html\(copyright_year\(/);
     });
+
+    it('uses image descriptions for social alt text and omits name-only article authors', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/head-seo.njk'),
+            'utf8'
+        );
+        assert.match(source, /og:image:alt[^\n]*og_img_alt/);
+        assert.match(source, /twitter:image:alt[^\n]*og_img_alt/);
+        assert.doesNotMatch(source, /property="article:author"/);
+    });
 });

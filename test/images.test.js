@@ -25,6 +25,7 @@ const {
 } = require('../scripts/images.js');
 const {
     optimizeImages: pureOptimize,
+    defaultFirstImageLoading,
     parseAttrs,
     isRemoteUrl,
     cleanUrl,
@@ -84,6 +85,23 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /loading="eager"/);
             assert.match(out, /loading="lazy"/);
             assert.doesNotMatch(out, /fetchpriority=/);
+        });
+
+        it('defers only the first image loading policy for list cards', () => {
+            const html = '<img src="https://cdn.example/1.png"><img src="https://cdn.example/2.png">';
+            const out = pureOptimize(html, { deferFirstImageLoading: true });
+            assert.doesNotMatch(out.split('>')[0], /loading=/);
+            assert.match(out, /2\.png"[^>]*loading="lazy"/);
+        });
+
+        it('defaults the first card image without overriding authored loading', () => {
+            const html = '<p><img src="/first.png"></p><img src="/second.png">';
+            assert.match(defaultFirstImageLoading(html, 'eager'), /first\.png" loading="eager"/);
+            assert.match(defaultFirstImageLoading(html, 'lazy'), /first\.png" loading="lazy"/);
+            assert.match(
+                defaultFirstImageLoading('<img src="/first.png" loading="lazy">', 'eager'),
+                /loading="lazy"/
+            );
         });
 
         it('does not invent sizes without srcset', () => {

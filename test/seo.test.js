@@ -111,6 +111,14 @@ describe('scripts/lib/seo', () => {
                 }),
                 'Archives: 2024 | Site'
             );
+            assert.equal(
+                buildPageTitle({ category: 'Child' }, config, {
+                    isCategory: true,
+                    categoryLabel: 'Parent / Child',
+                    t: (k) => (k === 'nav.categories' ? 'Categories' : k)
+                }),
+                'Categories: Parent / Child | Site'
+            );
         });
     });
 
@@ -164,13 +172,15 @@ describe('scripts/lib/seo', () => {
             });
             assert.equal(fromPhoto.url, 'https://cdn.example/p.jpg');
             assert.equal(fromPhoto.width, 0);
+            assert.equal(fromPhoto.alt, '');
 
             const fromContent = resolveOpenGraphImage(context, {
-                content: '<p><img src="/pic.png" width="640" height="360"></p>'
+                content: '<p><img src="/pic.png" width="640" height="360" alt="A quiet lake &amp; trees"></p>'
             });
             assert.equal(fromContent.url, 'https://example.com/pic.png');
             assert.equal(fromContent.width, 640);
             assert.equal(fromContent.height, 360);
+            assert.equal(fromContent.alt, 'A quiet lake & trees');
         });
     });
 

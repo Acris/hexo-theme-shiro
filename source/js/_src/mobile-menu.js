@@ -76,9 +76,11 @@
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 
-    setOpen(false);
-
     if (rtReady && typeof rtReady.featureReady === 'function') {
+        setOpen(false);
+        if (document.documentElement) {
+            document.documentElement.classList.add('mobile-menu-ready');
+        }
         rtReady.featureReady('mobile-menu');
     }
 })();

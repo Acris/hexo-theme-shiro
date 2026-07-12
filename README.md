@@ -22,7 +22,7 @@ Made by Acris with ❤️
 
 - **Clean Aesthetics**: Minimalist design with focus on typography and readability.
 - **Responsive**: Fully responsive design for mobile and desktop.
-- **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, motion-aware controls, and JS-only triggers hidden until ready.
+- **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, motion-aware controls, and a visible mobile-menu fallback until its handler is ready.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
   and French (`fr`); the footer credit remains in English.
 - **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
@@ -33,7 +33,7 @@ Made by Acris with ❤️
 - **Font-load Preloader**: A themed veil covers the page and blocks underlying interaction until theme fonts are ready.
 - **Code Blocks**: Syntax highlighting with copy button and language labels; styles and interactive copy assets load only when needed.
 - **MathJax**: Optional MathJax v4 TeX rendering (per-page or site-wide; no KaTeX).
-- **Images**: Optimized content images and LightGallery lightbox.
+- **Images**: Optimized content images, prioritized first home-card image, and LightGallery with original-image fallback.
 - **Comments**: Disqus and giscus (GitHub Discussions), loaded when needed.
 - **Google Analytics**: GA4 support.
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).

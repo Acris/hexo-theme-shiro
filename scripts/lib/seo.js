@@ -39,15 +39,17 @@ function cachedCleanDescriptionText(owner, field, source, producer) {
 }
 
 function resolveOpenGraphImage(context, page) {
-    if (!page) return { url: '', width: 0, height: 0 };
+    if (!page) return { url: '', width: 0, height: 0, alt: '' };
     const photos = scalarOrCollectionToArray(page.photos);
     for (const photo of photos) {
         const url = normalizeOpenGraphImageUrl(photo, context, page);
-        if (url) return { url, width: 0, height: 0 };
+        if (url) return { url, width: 0, height: 0, alt: '' };
     }
     const info = pageAnalysis(page).firstImageInfo;
     const url = normalizeOpenGraphImageUrl(info.src, context, page);
-    return url ? { url, width: info.width, height: info.height } : { url: '', width: 0, height: 0 };
+    return url
+        ? { url, width: info.width, height: info.height, alt: info.alt }
+        : { url: '', width: 0, height: 0, alt: '' };
 }
 
 function isoDateString(value) {
@@ -81,9 +83,9 @@ function cleanDescription(page, config, options) {
     const isReadingPage = !!opts.isReadingPage;
     const stripHtml = typeof opts.stripHtml === 'function'
         ? opts.stripHtml
-        : value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
+        : value => htmlTextFromHtml(value);
     const textFromDescription = value => normalizePlainText(stripHtml(value));
-    const textFromHtmlSource = value => htmlTextFromHtml(htmlWithoutCodeContent(value), META_DESCRIPTION_LENGTH);
+    const textFromHtmlSource = value => htmlTextFromHtml(htmlWithoutCodeContent(value));
     const candidates = [];
 
     if (page && page.description) {
@@ -195,13 +197,16 @@ function buildPageTitle(page, config, options) {
     const t = (key) => (typeof opts.t === 'function' ? opts.t(key) : key);
 
     if (opts.isHome) return pageLabel ? pageLabel + ' | ' + site : site;
+    if (opts.isCategory) {
+        const category = opts.categoryLabel || (page && page.category) || '';
+        return t('nav.categories') + (category ? ': ' + category : '') + suffix + ' | ' + site;
+    }
     if (page && page.title) return page.title + ' | ' + site;
     if (opts.isArchive) {
         const period = archivePeriod(page);
         return t('nav.archives') + (period ? ': ' + period : '') + suffix + ' | ' + site;
     }
     if (opts.isTag) return t('nav.tags') + (page && page.tag ? ': ' + page.tag : '') + suffix + ' | ' + site;
-    if (opts.isCategory) return t('nav.categories') + (page && page.category ? ': ' + page.category : '') + suffix + ' | ' + site;
     return site;
 }
 

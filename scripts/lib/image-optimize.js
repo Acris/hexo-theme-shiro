@@ -163,6 +163,7 @@ function localImageCandidates(src, post, ctx) {
  * @param {{
  *   post?: object,
  *   firstImageEager?: boolean,
+ *   deferFirstImageLoading?: boolean,
  *   getLocalSize?: function(string, object|undefined): ({width:number,height:number}|null)
  * }} [options]
  */
@@ -212,7 +213,7 @@ function optimizeImages(html, options) {
         ensure('decoding', 'async');
         if (isFirstContentImage) {
             ensure('loading', 'eager');
-        } else {
+        } else if (!(opts.deferFirstImageLoading && imageIndex === 1)) {
             ensure('loading', 'lazy');
         }
         // The HTML standard permits `sizes` only with width (`w`) descriptors.
@@ -248,6 +249,36 @@ function optimizeImages(html, options) {
     return output + source.slice(cursor);
 }
 
+function defaultFirstImageLoading(html, value) {
+    const loading = value === 'eager' ? 'eager' : 'lazy';
+    const source = String(html || '');
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (IMAGE_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (token.name !== 'img') continue;
+
+        const attrs = parseAttrs(token.attrs);
+        const lookup = attrLookup(attrs);
+        const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
+        const srcset = getAttr(attrs, lookup, 'srcset');
+        if (!src && !srcset) continue;
+        if (lookup.has('loading')) return source;
+
+        const nextAttrs = appendAttr(token.attrs, 'loading', loading);
+        return source.slice(0, token.attrsStart)
+            + nextAttrs
+            + source.slice(token.attrsEnd);
+    }
+    return source;
+}
+
 module.exports = {
     parseAttrs,
     attrLookup,
@@ -255,5 +286,6 @@ module.exports = {
     cleanUrl,
     isRemoteUrl,
     localImageCandidates,
+    defaultFirstImageLoading,
     optimizeImages
 };

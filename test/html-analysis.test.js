@@ -78,18 +78,14 @@ describe('scripts/lib/html-analysis', () => {
             });
         });
 
-        it('checks rendered excerpts on home, tag, and category post lists', () => {
+        it('checks rendered excerpts only on home post cards', () => {
             const page = {
+                content: '<pre>collection metadata is not rendered</pre>',
                 posts: [{ excerpt: '<pre>code</pre>', content: '<p>full</p>' }]
             };
-            const contexts = [
-                { is_home: () => true },
-                { is_tag: () => true },
-                { is_category: () => true }
-            ];
-            contexts.forEach((context) => {
-                assert.equal(pageHasCode(page, {}, context), true);
-            });
+            assert.equal(pageHasCode(page, {}, { is_home: () => true }), true);
+            assert.equal(pageHasCode(page, {}, { is_tag: () => true }), false);
+            assert.equal(pageHasCode(page, {}, { is_category: () => true }), false);
         });
 
         it('ignores hidden post bodies when card fallback is disabled', () => {
@@ -135,6 +131,7 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(info.src, '/a.png');
             assert.equal(info.width, 100);
             assert.equal(info.height, 50);
+            assert.equal(info.alt, '');
         });
 
         it('handles greater-than signs inside quoted image attributes', () => {
@@ -142,7 +139,8 @@ describe('scripts/lib/html-analysis', () => {
             assert.deepEqual(info, {
                 src: '/quoted.png',
                 width: 64,
-                height: 32
+                height: 32,
+                alt: ''
             });
         });
 
@@ -151,7 +149,8 @@ describe('scripts/lib/html-analysis', () => {
             assert.deepEqual(firstImageInfo(content), {
                 src: '/small.png',
                 width: 640,
-                height: 360
+                height: 360,
+                alt: ''
             });
             assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
@@ -178,8 +177,17 @@ describe('scripts/lib/html-analysis', () => {
             assert.deepEqual(firstImageInfo(content), {
                 src: '/visible.png',
                 width: 80,
-                height: 40
+                height: 40,
+                alt: ''
             });
+            assert.equal(pageAnalysis({ content }).imageCount, 1);
+        });
+
+        it('does not count decorative images as LightGallery targets', () => {
+            const content = '<img src="/presentation.png" role="presentation">'
+                + '<img src="/emoji.png" class="inline emoji">'
+                + '<img src="/pixel.png" width="1" height="1">'
+                + '<img src="/photo.png" width="800" height="600">';
             assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
     });

@@ -184,9 +184,17 @@ describe('client accessibility contracts', () => {
     }
 
     it('removes collapsed mobile navigation from the tab order and restores fallback', () => {
-        assert.match(clientSource('mobile-menu.js'), /panel\.inert\s*=\s*!open/);
+        const feature = clientSource('mobile-menu.js');
+        assert.match(feature, /panel\.inert\s*=\s*!open/);
+        assert.match(feature, /classList\.add\('mobile-menu-ready'\)/);
+        const header = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/header.njk'),
+            'utf8'
+        );
+        assert.match(header, /id="mobileMenu"[^>]*data-open="true"/);
         const bootstrap = clientSource('mobile-menu-bootstrap.js');
-        assert.match(bootstrap, /panel\.inert\s*=\s*true/);
+        assert.doesNotMatch(bootstrap, /panel\.inert\s*=\s*true/);
+        assert.match(bootstrap, /classList\.remove\('mobile-menu-ready'\)/);
         assert.match(bootstrap, /restoreFallbackMenu\(\)/);
         assert.match(bootstrap, /button\.hidden\s*=\s*true/);
         assert.match(bootstrap, /button\.hidden\s*=\s*false/);
@@ -286,6 +294,14 @@ describe('client accessibility contracts', () => {
         assert.match(
             components,
             /:where\(button,[\s\S]*?\) img \{[\s\S]*?cursor:\s*inherit;/
+        );
+    });
+
+    it('falls back to the original image after a retryable gallery load failure', () => {
+        const bootstrap = clientSource('lightgallery-bootstrap.js');
+        assert.match(
+            bootstrap,
+            /fallbackPendingClick\(\);\s*console\.warn\('\[shiro-lightgallery\] load failed \(retryable\)'/
         );
     });
 

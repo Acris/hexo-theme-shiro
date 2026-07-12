@@ -5,6 +5,9 @@
     const button = document.getElementById('menuBtn');
 
     function restoreFallbackMenu() {
+        if (document.documentElement) {
+            document.documentElement.classList.remove('mobile-menu-ready');
+        }
         if (panel) {
             panel.inert = false;
             panel.dataset.open = 'true';
@@ -14,8 +17,6 @@
             button.setAttribute('aria-expanded', 'true');
         }
     }
-
-    if (panel) panel.inert = true;
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime;
@@ -77,6 +78,7 @@
                 return;
             }
             console.warn('[shiro-mobile-menu] load failed (retryable)', error);
+            restoreFallbackMenu();
             scheduleRetry();
         }
     });

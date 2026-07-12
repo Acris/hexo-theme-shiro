@@ -2,6 +2,7 @@
 {% set page_title = build_page_title(page, config) %}
 {% set clean_desc = clean_description(page, config) %}
 {% set og_img = og_image(page) %}
+{% set og_img_alt = og_image_alt(page) %}
 {% set page_author = page.author or config.author %}
 {% set keywords = page.keywords %}
 {% if not keywords and page.tags and page.tags.length %}
@@ -33,7 +34,9 @@
 {% endif %}
 {% if og_img %}
 <meta property="og:image" content="{{ escape_attr(og_img) }}" />
-<meta property="og:image:alt" content="{{ escape_attr(page_title) }}" />
+{% if og_img_alt %}
+<meta property="og:image:alt" content="{{ escape_attr(og_img_alt) }}" />
+{% endif %}
 {% set og_img_size = og_image_size(page) %}
 {% if og_img_size %}
 <meta property="og:image:width" content="{{ escape_attr(og_img_size.width) }}" />
@@ -46,9 +49,6 @@
 {% endif %}
 {% if page.updated %}
 <meta property="article:modified_time" content="{{ escape_attr(date_xml(page.updated)) }}" />
-{% endif %}
-{% if page_author %}
-<meta property="article:author" content="{{ escape_attr(page_author) }}" />
 {% endif %}
 {% if page.tags and page.tags.length %}
 {% for tag in page.tags.toArray() %}
@@ -64,7 +64,9 @@
 {% endif %}
 {% if og_img %}
 <meta name="twitter:image" content="{{ escape_attr(og_img) }}" />
-<meta name="twitter:image:alt" content="{{ escape_attr(page_title) }}" />
+{% if og_img_alt %}
+<meta name="twitter:image:alt" content="{{ escape_attr(og_img_alt) }}" />
+{% endif %}
 {% endif %}
 
 <link rel="canonical" href="{{ attr_url(url) }}" />

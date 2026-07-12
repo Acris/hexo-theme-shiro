@@ -233,15 +233,14 @@
         }
     }
 
-    /* Progressive enhancement: open on small screens without JS.
-       html.js (FOUC script) collapses the panel until the toggle opens it. */
+    /* Progressive enhancement: collapse only after the toggle handler is ready. */
     .menu-panel {
         @apply translate-y-0 opacity-100 transition-menu duration-[260ms] ease-out;
         max-height: 70vh;
         overflow-y: auto;
     }
 
-    html.js .menu-panel {
+    html.mobile-menu-ready .menu-panel {
         @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0;
 
         &[data-open="true"] {

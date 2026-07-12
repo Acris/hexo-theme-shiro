@@ -53,6 +53,12 @@
         if (pending) navigateFromImage(pending);
     }
 
+    function fallbackPendingClick() {
+        const pending = shiro.lightGalleryAutoOpen;
+        shiro.lightGalleryAutoOpen = null;
+        if (pending) navigateFromImage(pending);
+    }
+
     // onReady: feature open/warm installed — drop intent warm only (keep click capture).
     // Permanent errors (abort/timeout) hardFail; network fetch remains retryable.
     const feature = createFeatureLoader({
@@ -64,6 +70,7 @@
                 hardFail();
                 return;
             }
+            fallbackPendingClick();
             console.warn('[shiro-lightgallery] load failed (retryable)', error);
         }
     });

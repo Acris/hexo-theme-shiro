@@ -295,10 +295,8 @@ function renderedPostCardCodeFlags(post, themeConfig) {
     return codeContentFlags(excerptForCard(post, themeConfig).content);
 }
 
-function rendersPostCards(context) {
-    return context && ['is_home', 'is_tag', 'is_category'].some((name) => (
-        typeof context[name] === 'function' && context[name]()
-    ));
+function rendersHomeCards(context) {
+    return context && typeof context.is_home === 'function' && context.is_home();
 }
 
 function pageCodeFlags(page, themeConfig, context) {
@@ -317,7 +315,7 @@ function pageCodeFlags(page, themeConfig, context) {
         };
     }
 
-    if (rendersPostCards(context)) {
+    if (rendersHomeCards(context)) {
         const flags = { hasCode: false, hasCodeBlocks: false, hasClipboardTargets: false };
         const posts = collectionToArray(page.posts);
         for (let i = 0; i < posts.length; i += 1) {
@@ -331,12 +329,7 @@ function pageCodeFlags(page, themeConfig, context) {
         return flags;
     }
 
-    const analysis = pageAnalysis(page);
-    return {
-        hasCode: analysis.hasCode,
-        hasCodeBlocks: analysis.hasCodeBlocks,
-        hasClipboardTargets: analysis.hasClipboardTargets
-    };
+    return { hasCode: false, hasCodeBlocks: false, hasClipboardTargets: false };
 }
 
 function pageHasCode(page, themeConfig, context) {
@@ -377,7 +370,7 @@ function firstSrcsetUrl(value) {
 }
 
 function firstImageInfo(content) {
-    const empty = { src: '', width: 0, height: 0 };
+    const empty = { src: '', width: 0, height: 0, alt: '' };
     if (!content) return empty;
     const source = String(content);
     let position = 0;
@@ -402,7 +395,8 @@ function firstImageInfo(content) {
                 return {
                     src: String(value).trim(),
                     width: imageDimensionAttr(attrs, 'width'),
-                    height: imageDimensionAttr(attrs, 'height')
+                    height: imageDimensionAttr(attrs, 'height'),
+                    alt: decodeHtmlEntities(imageAttrValue(attrs, 'alt')).trim()
                 };
             }
         }
@@ -415,6 +409,13 @@ function imageAttrValue(attrs, name) {
 }
 
 function imageHasLightboxSource(attrs) {
+    const role = decodeHtmlEntities(imageAttrValue(attrs, 'role')).trim().toLowerCase();
+    if (role === 'presentation') return false;
+    const classes = decodeHtmlEntities(imageAttrValue(attrs, 'class')).split(/\s+/);
+    if (classes.includes('emoji')) return false;
+    const width = imageDimensionAttr(attrs, 'width');
+    const height = imageDimensionAttr(attrs, 'height');
+    if (width && height && width <= 3 && height <= 3) return false;
     return isLightboxImageSrcCandidate(imageAttrValue(attrs, 'src'))
         || isLightboxImageSrcCandidate(imageAttrValue(attrs, 'data-src'))
         || isLightboxImageSrcCandidate(firstSrcsetUrl(imageAttrValue(attrs, 'srcset')));

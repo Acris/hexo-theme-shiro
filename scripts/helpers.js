@@ -54,6 +54,7 @@ const {
     resolveCategoryForPage
 } = require('./lib/categories');
 const { groupPostsByYear, archivePeriod } = require('./lib/archive');
+const { defaultFirstImageLoading } = require('./lib/image-optimize');
 
 const assetHashCache = new Map();
 
@@ -340,9 +341,13 @@ hexo.extend.helper.register('excerpt_for', function (post, length) {
     return excerptFor(post, length);
 });
 
-// Home/list cards: applies theme.excerpt.fallback (enabled/length) server-side.
-hexo.extend.helper.register('excerpt_for_card', function (post) {
-    return excerptForCard(post, this.theme || {});
+// Home cards: applies theme.excerpt.fallback and the per-page image loading default.
+hexo.extend.helper.register('excerpt_for_card', function (post, firstCard) {
+    const excerpt = excerptForCard(post, this.theme || {});
+    return {
+        ...excerpt,
+        content: defaultFirstImageLoading(excerpt.content, firstCard ? 'eager' : 'lazy')
+    };
 });
 
 hexo.extend.helper.register('clean_description', function (page, config) {
@@ -359,11 +364,18 @@ hexo.extend.helper.register('copyright_year', function (since) {
 });
 
 hexo.extend.helper.register('build_page_title', function (page, config) {
+    const isCategory = typeof this.is_category === 'function' && this.is_category();
+    const category = isCategory
+        ? resolveCategoryForPage(page, this.site && this.site.categories)
+        : null;
     return buildPageTitle(page, config, {
         isHome: typeof this.is_home === 'function' && this.is_home(),
         isArchive: typeof this.is_archive === 'function' && this.is_archive(),
         isTag: typeof this.is_tag === 'function' && this.is_tag(),
-        isCategory: typeof this.is_category === 'function' && this.is_category(),
+        isCategory,
+        categoryLabel: category
+            ? categoryPathLabel(category, this.site && this.site.categories)
+            : '',
         pageNumberLabel: (n) => this.__('page.number', n),
         t: (key) => this.__(key)
     });
@@ -381,6 +393,10 @@ hexo.extend.generator.register('favicon_svg', function () {
 
 hexo.extend.helper.register('og_image', function (page) {
     return resolveOpenGraphImage(this, page).url;
+});
+
+hexo.extend.helper.register('og_image_alt', function (page) {
+    return resolveOpenGraphImage(this, page).alt;
 });
 
 // og:image dimensions, reused from the width/height scripts/images.js injects into the

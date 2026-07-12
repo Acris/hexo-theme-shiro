@@ -81,8 +81,8 @@
         </ul>
     </div>
 
-    <!-- Mobile Menu Panel: open without JS (progressive enhancement); html.js collapses until toggled. -->
-    <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
+    <!-- Mobile Menu Panel: open until the deferred toggle handler is ready. -->
+    <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="true">
         <ul
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-border-strong bg-paper/95 shadow-xs">
             {% for item in menu_items %}

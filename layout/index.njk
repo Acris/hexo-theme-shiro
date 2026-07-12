@@ -4,6 +4,7 @@
 {% block content %}
     {% if page.posts and page.posts.length > 0 %}
     {% for post in page.posts.toArray() %}
+        {% set first_card = loop.first %}
         {% include "_partial/components/post-card.njk" %}
 
         {% if not loop.last %}

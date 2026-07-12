@@ -117,6 +117,7 @@ function optimizeImages(html, options) {
     return optimizeImagesPure(html, {
         post: opts.post,
         firstImageEager: opts.firstImageEager,
+        deferFirstImageLoading: opts.deferFirstImageLoading,
         getLocalSize: (src, post) => localImageSize(src, post)
     });
 }
@@ -128,7 +129,7 @@ hexo.extend.filter.register('after_post_render', function (data) {
     );
     if (data.excerpt) {
         data.excerpt = markCodeBlocksNotProse(
-            optimizeImages(data.excerpt, { post: data, firstImageEager: false })
+            optimizeImages(data.excerpt, { post: data, deferFirstImageLoading: true })
         );
     }
     return data;
