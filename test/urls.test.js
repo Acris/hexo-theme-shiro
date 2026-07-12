@@ -161,11 +161,15 @@ describe('scripts/lib/urls', () => {
     });
 
     describe('normalizeLangAttr', () => {
-        it('accepts BCP47-like language tags only', () => {
+        it('canonicalizes valid BCP 47 language tags', () => {
             assert.equal(normalizeLangAttr('zh-CN'), 'zh-CN');
             assert.equal(normalizeLangAttr('en'), 'en');
+            assert.equal(normalizeLangAttr('zh_cn'), 'zh-CN');
+            assert.equal(normalizeLangAttr('EN-us'), 'en-US');
+            assert.equal(normalizeLangAttr('zh-hant-tw'), 'zh-Hant-TW');
             assert.equal(normalizeLangAttr('bad tag'), '');
             assert.equal(normalizeLangAttr('en"onmouseover=x'), '');
+            assert.equal(normalizeLangAttr('en--US'), '');
         });
     });
 

@@ -52,22 +52,55 @@ function resolveLocalPagefind(searchDirs) {
     }
 }
 
-function versionParts(version) {
-    const match = String(version || '').match(/^(\d+)\.(\d+)\.(\d+)/);
+function parseVersion(version) {
+    const match = String(version || '').match(
+        /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/
+    );
     if (!match) return null;
-    return [Number(match[1]), Number(match[2]), Number(match[3])];
+    const prerelease = match[4] ? match[4].split('.') : [];
+    if (prerelease.some(identifier => /^\d+$/.test(identifier)
+        && identifier.length > 1 && identifier[0] === '0')) return null;
+    return {
+        numbers: [Number(match[1]), Number(match[2]), Number(match[3])],
+        prerelease
+    };
+}
+
+function comparePrerelease(current, target) {
+    if (!current.length && !target.length) return 0;
+    if (!current.length) return 1;
+    if (!target.length) return -1;
+
+    const length = Math.max(current.length, target.length);
+    for (let i = 0; i < length; i += 1) {
+        if (current[i] === undefined) return -1;
+        if (target[i] === undefined) return 1;
+        if (current[i] === target[i]) continue;
+
+        const currentNumeric = /^\d+$/.test(current[i]);
+        const targetNumeric = /^\d+$/.test(target[i]);
+        if (currentNumeric && targetNumeric) {
+            if (current[i].length !== target[i].length) {
+                return current[i].length > target[i].length ? 1 : -1;
+            }
+            return current[i] > target[i] ? 1 : -1;
+        }
+        if (currentNumeric !== targetNumeric) return currentNumeric ? -1 : 1;
+        return current[i] > target[i] ? 1 : -1;
+    }
+    return 0;
 }
 
 function versionAtLeast(version, minimum) {
-    const current = versionParts(version);
-    const target = versionParts(minimum);
+    const current = parseVersion(version);
+    const target = parseVersion(minimum);
     if (!current || !target) return false;
 
-    for (let i = 0; i < target.length; i += 1) {
-        if (current[i] > target[i]) return true;
-        if (current[i] < target[i]) return false;
+    for (let i = 0; i < target.numbers.length; i += 1) {
+        if (current.numbers[i] > target.numbers[i]) return true;
+        if (current.numbers[i] < target.numbers[i]) return false;
     }
-    return true;
+    return comparePrerelease(current.prerelease, target.prerelease) >= 0;
 }
 
 function runPagefind(args, command) {
@@ -87,22 +120,18 @@ function installHint() {
     return 'Install Pagefind ' + MIN_PAGEFIND_VERSION + '+ in your site root with `npm install pagefind --save-dev`, or set search.enabled: false.';
 }
 
-// after_generate runs before routes are written; hook before_exit after generate/deploy.
-hexo.extend.filter.register('before_exit', function () {
-    const hexoCmd = (hexo.env && hexo.env.cmd) || '';
-    if (!/^(generate|g|deploy|d)$/.test(hexoCmd)) return;
-
+function buildPagefindIndex(context) {
     // Theme search only (same gate as layout page_feature_gates / UI).
-    const themeCfg = (hexo.theme && hexo.theme.config) || {};
+    const themeCfg = (context.theme && context.theme.config) || {};
     const cfg = themeCfg.search || {};
     if (!isFeatureEnabled(cfg.enabled, false)) return;
 
-    const publicDir = path.resolve(hexo.base_dir, hexo.config.public_dir || 'public');
+    const publicDir = path.resolve(context.base_dir, context.config.public_dir || 'public');
     if (!fs.existsSync(publicDir)) {
         throw new Error('[pagefind] public dir not found: ' + publicDir);
     }
 
-    const searchDirs = searchDirsFor(hexo.base_dir);
+    const searchDirs = searchDirsFor(context.base_dir);
     const command = resolveLocalPagefind(searchDirs);
     if (!command) {
         throw new Error('[pagefind] search.enabled is true but Pagefind was not found in: ' + searchDirs.join(', ') + '. ' + installHint());
@@ -115,23 +144,46 @@ hexo.extend.filter.register('before_exit', function () {
     pushStringArg(args, '--root-selector', cfg.root_selector || 'body');
     pushStringArg(args, '--force-language', cfg.force_language);
 
-    hexo.log.info('[pagefind] building search index with local Pagefind ' + command.version + '...');
+    context.log.info('[pagefind] building search index with local Pagefind ' + command.version + '...');
     try {
         runPagefind(args, command);
-        hexo.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
+        context.log.info('[pagefind] index ready at ' + path.join(publicDir, 'pagefind'));
     } catch (error) {
-        hexo.log.error('[pagefind] failed: ' + error.message);
-        hexo.log.error('[pagefind] ' + installHint());
+        context.log.error('[pagefind] failed: ' + error.message);
+        context.log.error('[pagefind] ' + installHint());
         throw error;
     }
-}, 20);
+}
+
+function registerPagefindHooks(context, indexer) {
+    const buildIndex = typeof indexer === 'function'
+        ? indexer
+        : () => buildPagefindIndex(context);
+    let indexed = false;
+
+    function buildOnce() {
+        if (indexed) return;
+        const result = buildIndex();
+        indexed = true;
+        return result;
+    }
+
+    // Deploy hooks run after optional generation but before the deployer reads public/.
+    context.on('deployBefore', buildOnce);
+    // Standalone generate has no deploy hook; routes are fully written by before_exit.
+    context.extend.filter.register('before_exit', function () {
+        const command = (context.env && context.env.cmd) || '';
+        if (/^(generate|g)$/.test(command)) return buildOnce();
+    }, 20);
+}
+
+registerPagefindHooks(hexo);
 
 // Pure surface for unit tests (filter registration stays the side effect).
 module.exports = {
     MIN_PAGEFIND_VERSION,
-    versionParts,
     versionAtLeast,
     uniqueDirs,
-    searchDirsFor,
-    installHint
+    installHint,
+    registerPagefindHooks
 };

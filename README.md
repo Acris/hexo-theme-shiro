@@ -39,14 +39,14 @@ Made by Acris with ❤️
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **SEO-friendly**: Meta tags, social cards, and structured data.
 - **Seal Stamp**: Optional decorative vermilion seal (印章) in the header; customize the character with `seal_text`.
-- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after `hexo generate`, with no external service.
+- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after generation or immediately before deployment, with no external service.
 - **Fast**: Performance-focused with minimal JavaScript and careful asset loading.
 
 ## Installation
 
 ### Install
 
-If you're using Hexo 5.0 or later, the simplest way to install is through npm:
+Shiro requires Node.js 20 or later. If you're using Hexo 5.0 or later, the simplest way to install is through npm:
 
 ```bash
 npm i hexo-theme-shiro
@@ -293,7 +293,7 @@ analytics:
     id: ""
 
 # Site search powered by Pagefind (https://pagefind.app/).
-# Index is built automatically after `hexo generate` into `public/pagefind/`.
+# Index is built after generation and finalized before deployment in `public/pagefind/`.
 # Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
 #   npm install pagefind --save-dev
 # Generation fails with an install hint if Pagefind is missing or too old.
@@ -405,7 +405,7 @@ In theme config (`_config.shiro.yml`), set `word_count.enabled: true` after inst
 
 ### Search
 
-Shiro ships with built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically after `hexo generate`, so you do not need a separate search command before publishing.
+Shiro ships with built-in static site search powered by [Pagefind](https://pagefind.app/). The index is generated automatically after a standalone `hexo generate` and before deployment, so you do not need a separate search command before publishing.
 
 **Install** (required when search is enabled) — Pagefind 1.5.0+ as a devDependency in your **site root** (not the theme directory):
 
@@ -413,18 +413,34 @@ Shiro ships with built-in static site search powered by [Pagefind](https://pagef
 npm install pagefind --save-dev
 ```
 
-This applies to both npm and git theme installs. If Pagefind is missing or older than 1.5.0, `hexo generate` / `hexo deploy` fails with an install hint so broken search is caught before publishing.
+This applies to both npm and git theme installs. If Pagefind is missing, older than 1.5.0, or a pre-release below 1.5.0, `hexo generate` / `hexo deploy` fails with an install hint so broken search is caught before publishing.
 
 Set `search.enabled: true` in theme config to turn search on. Search UI language follows `<html lang>` (or `search.force_language` if set).
 
 **Local preview**
 
-The search index is built during `hexo generate` / `hexo deploy`, not during `hexo server`. For publishing, run `hexo generate` before upload so `public/pagefind/` is included. To preview search locally:
+The search index is built during `hexo generate` / `hexo deploy`, not during `hexo server`. `hexo generate --deploy`, `hexo deploy --generate`, and `hexo deploy` all finalize the index before the deployer reads `public/`. To preview search locally:
 
 ```bash
 hexo clean && hexo g
 npx serve public
 ```
+
+### Content Security Policy
+
+Set CSP as an HTTP response header at the host or edge. Start with a request-specific nonce in `script-src`, `object-src 'none'`, `base-uri 'self'`, and the sources below; add only the rows for enabled features.
+
+| Feature | Directive additions for the default URLs |
+| ------- | ---------------------------------------- |
+| Core theme / Pagefind | `script-src 'self' 'nonce-<request-nonce>'`; `style-src 'self'`; `style-src-attr 'unsafe-inline'`; `font-src 'self' data:`; `img-src 'self' data:` |
+| Google Fonts | `style-src https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com` |
+| LightGallery | `script-src https://cdn.jsdelivr.net`; `style-src https://cdn.jsdelivr.net` |
+| MathJax | `script-src https://cdn.jsdelivr.net`; `font-src https://cdn.jsdelivr.net` |
+| giscus | `script-src https://giscus.app`; `frame-src https://giscus.app` |
+| Disqus | `script-src https://*.disqus.com https://*.disquscdn.com`; `frame-src https://*.disqus.com`; `connect-src` / `img-src` for the same hosts |
+| Google Analytics | `script-src https://www.googletagmanager.com`; `connect-src https://www.google-analytics.com https://region1.google-analytics.com` |
+
+`style-src-attr 'unsafe-inline'` is required for interactive element state and category depth; on browsers without CSP Level 3 support, place `'unsafe-inline'` in `style-src` instead. Add any custom CDN, image, comment, or analytics hosts you configure. `security.csp_nonce` is a static config hook only—real nonce protection requires the host to inject a fresh nonce into both the CSP header and rendered theme config for every response.
 
 ## Development
 
@@ -444,6 +460,8 @@ hexo-theme-shiro/
 ```
 
 ### Getting Started
+
+Development and asset builds require Node.js 20.19 or later; `.node-version` records the recommended version.
 
 1. Install dependencies in the theme directory:
 

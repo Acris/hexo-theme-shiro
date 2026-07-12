@@ -43,7 +43,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 
 - No static `source/favicon.svg` — generator overwrites it; seal path is `SEAL_PATH_D` / `seal_path_d`.
 - Font family changes: update the family list in `google_font_urls` (shared preload / preloader token).
-- Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Indexing runs on `hexo generate` / `hexo deploy` `before_exit`, **not** `hexo server`. No `npx` fallback.
+- Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Standalone generation indexes at `before_exit`; deployment indexes at `deployBefore`, with process-level deduplication for combined commands. It does **not** index during `hexo server`; there is no `npx` fallback.
 - Word count: theme `word_count.enabled` only controls display; counting needs host [hexo-word-counter](https://github.com/next-theme/hexo-word-counter). Missing plugin omits meta — does **not** fail generate.
 - Keep default LightGallery CDN versions in sync across `_config.yml` and `scripts/lib/feature-gates.js` (`DEFAULT_LIGHTGALLERY_*`). Client reads one bag object via `runtime.get('lightgallery')` (`css` / `js` / `themeCss` / `script` / integrities) — no hardcoded CDN fallback.
 - Runtime-injected class names are not Tailwind-scanned from client JS — put styles in feature CSS or a scanned template.
@@ -62,7 +62,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Collapsed mobile-menu / inline-TOC content must be `inert` so hidden links leave the tab order. Disclosure buttons stay hidden until their client handler is ready. Mobile-menu permanent load failure restores the visible no-JS fallback; inline TOC is expanded without JS and collapses only after its deferred client initializes.
 - Standard lazy open/warm handoff (LightGallery): `runtime.dispatchLiveOrStash` / `dispatchLiveOrWarm`. Do not invent a parallel handoff.
 - Client config on `window.__shiro` bare keys only; read via `runtime.get(...)`. **API is `window.__shiro.runtime` only** (no flat `__shiroRuntime`). Shared escapes: `runtime.escapeHtml` / `escapeAttr`. LightGallery: bootstrap owns capture; feature installs open/warm; ready = API installed. Shared: `safeNavigate` / `navigateFromImage` / `isModifiedClick`.
-- Post-render HTML: `scripts/lib/code-blocks.js` + `scripts/lib/image-meta.js` + pure `scripts/lib/image-optimize.js`. `scripts/images.js` is the Hexo filter orchestrator only (exports optimizeImages / localImageSize / markCodeBlocksNotProse).
+- Post-render HTML: quote-aware token/attribute boundaries live in `scripts/lib/html-scanner.js`; consumers include `html-analysis.js`, `toc.js`, `code-blocks.js`, and `image-optimize.js`. `scripts/images.js` is the Hexo filter orchestrator only (exports optimizeImages / localImageSize / markCodeBlocksNotProse); do not reintroduce `[^>]*` tag parsing.
 - File-backed caches in `scripts/images.js` must revalidate positive entries and must not permanently cache missing files/directories; `hexo server` can add assets without restarting the process.
 - CSP nonce: layout prefers `csp_nonce_attr(gates.shiroCspNonce)` (single normalize in gates).
 - MathJax protect placeholders are salted (`@@SHIRO_MATH_<salt>_<id>@@`) so prose tokens cannot collide with a live protect pass.

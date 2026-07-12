@@ -81,7 +81,14 @@
 
     function setLinksActive(id, active) {
         const targetLinks = linksByTarget.get(id) || [];
-        targetLinks.forEach(link => link.classList.toggle('active', active));
+        targetLinks.forEach((link) => {
+            link.classList.toggle('active', active);
+            if (active) {
+                link.setAttribute('aria-current', 'location');
+            } else {
+                link.removeAttribute('aria-current');
+            }
+        });
     }
 
     function scrollSidebarActiveLink(id) {

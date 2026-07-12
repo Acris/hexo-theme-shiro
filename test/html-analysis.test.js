@@ -10,7 +10,8 @@ const {
     excerptFor,
     excerptForCard,
     pageAnalysis,
-    firstImageInfo
+    firstImageInfo,
+    htmlTextFromHtml
 } = require('../scripts/lib/html-analysis');
 
 describe('scripts/lib/html-analysis', () => {
@@ -36,6 +37,22 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(info.src, '/a.png');
             assert.equal(info.width, 100);
             assert.equal(info.height, 50);
+        });
+
+        it('handles greater-than signs inside quoted image attributes', () => {
+            const info = firstImageInfo('<img title="a > b" src="/quoted.png" width="64" height="32">');
+            assert.deepEqual(info, {
+                src: '/quoted.png',
+                width: 64,
+                height: 32
+            });
+        });
+
+        it('does not leak quoted tag attributes into extracted text', () => {
+            assert.equal(
+                htmlTextFromHtml('<p title="not > text">Visible text</p>', 200),
+                'Visible text'
+            );
         });
 
         it('caches analysis per page object', () => {

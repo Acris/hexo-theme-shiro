@@ -37,5 +37,12 @@ describe('scripts/lib/code-blocks', () => {
             assert.match(out, /class="not-prose highlight"/);
             assert.match(out, /class="not-prose gist"/);
         });
+
+        it('finds class attributes after quoted greater-than signs', () => {
+            const html = '<figure title="a > b" class="highlight js"><pre>x</pre></figure>';
+            const out = markCodeBlocksNotProse(html);
+            assert.match(out, /title="a > b"/);
+            assert.match(out, /class="not-prose highlight js"/);
+        });
     });
 });

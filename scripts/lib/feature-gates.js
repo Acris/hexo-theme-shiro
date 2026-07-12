@@ -279,6 +279,5 @@ module.exports = {
     DEFAULT_MATHJAX_SRC,
     resolveDarkModeDefault,
     resolveFeatureGates,
-    buildFootScripts,
     buildCommentsClientConfig
 };

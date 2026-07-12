@@ -37,14 +37,14 @@
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **SEO 友好**：元信息、社交卡片与结构化数据。
 - **印章**：可选的装饰性朱红印章显示在页头，可通过 `seal_text` 自定义文字。
-- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——`hexo generate` 后自动生成索引，无需外部服务。
+- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——生成完成后或部署前自动生成索引，无需外部服务。
 - **快速**：注重性能，JavaScript 精简，资源按需加载。
 
 ## 安装
 
 ### 安装主题
 
-如果你使用 Hexo 5.0 或更高版本，最简单的安装方式是通过 npm：
+Shiro 要求 Node.js 20 或更高版本。如果你使用 Hexo 5.0 或更高版本，最简单的安装方式是通过 npm：
 
 ```bash
 npm i hexo-theme-shiro
@@ -287,7 +287,7 @@ analytics:
     id: ""
 
 # 站内搜索，由 Pagefind 提供（https://pagefind.app/）
-# 索引会在 `hexo generate` 之后自动构建并写入 `public/pagefind/`。
+# 索引会在生成后构建，并在部署前于 `public/pagefind/` 中最终完成。
 # 启用搜索时必须安装 Pagefind 1.5.0+ 为站点级 devDependency：
 #   npm install pagefind --save-dev
 # 若未安装或版本过旧，生成会失败并提示安装。
@@ -397,7 +397,7 @@ symbols_count_time:
 
 ### 搜索
 
-Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索引会在 `hexo generate` 完成后自动生成；发布前无需再单独运行搜索索引命令。
+Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。独立运行 `hexo generate` 后会自动生成索引，部署命令则会在部署开始前完成索引；发布前无需再单独运行搜索索引命令。
 
 **安装**（启用搜索时必须）——将 Pagefind 1.5.0+ 作为 devDependency 安装到 **站点根目录**（不是主题目录）：
 
@@ -405,18 +405,34 @@ Shiro 内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索。索
 npm install pagefind --save-dev
 ```
 
-无论 npm 还是 git 安装主题都需要这样做。若未安装 Pagefind，或版本低于 1.5.0，`hexo generate` / `hexo deploy` 会失败并给出安装提示，以便发布前发现搜索不可用。
+无论 npm 还是 git 安装主题都需要这样做。若未安装 Pagefind、版本低于 1.5.0，或使用低于正式版 1.5.0 的预发布版本，`hexo generate` / `hexo deploy` 会失败并给出安装提示，以便发布前发现搜索不可用。
 
 在主题配置中将 `search.enabled` 设为 `true` 即可开启。搜索界面语言跟随 `<html lang>`（或配置的 `search.force_language`）。
 
 **本地预览**
 
-搜索索引在 `hexo generate` / `hexo deploy` 时构建，**不会**在 `hexo server` 期间重建。发布时请先 `hexo generate`，确保 `public/pagefind/` 已写入后再上传。本地预览搜索可：
+搜索索引在 `hexo generate` / `hexo deploy` 时构建，**不会**在 `hexo server` 期间重建。`hexo generate --deploy`、`hexo deploy --generate` 与 `hexo deploy` 都会在部署器读取 `public/` 前完成索引。本地预览搜索可：
 
 ```bash
 hexo clean && hexo g
 npx serve public
 ```
+
+### 内容安全策略（CSP）
+
+请由宿主或边缘服务通过 HTTP 响应头设置 CSP。基础策略应在 `script-src` 使用每请求 nonce，并包含 `object-src 'none'`、`base-uri 'self'`；然后只为实际启用的功能添加下表来源。
+
+| 功能 | 默认 URL 所需的指令补充 |
+| ---- | ----------------------- |
+| 主题核心 / Pagefind | `script-src 'self' 'nonce-<每请求 nonce>'`；`style-src 'self'`；`style-src-attr 'unsafe-inline'`；`font-src 'self' data:`；`img-src 'self' data:` |
+| Google Fonts | `style-src https://fonts.googleapis.com`；`font-src https://fonts.gstatic.com` |
+| LightGallery | `script-src https://cdn.jsdelivr.net`；`style-src https://cdn.jsdelivr.net` |
+| MathJax | `script-src https://cdn.jsdelivr.net`；`font-src https://cdn.jsdelivr.net` |
+| giscus | `script-src https://giscus.app`；`frame-src https://giscus.app` |
+| Disqus | `script-src https://*.disqus.com https://*.disquscdn.com`；`frame-src https://*.disqus.com`；并在 `connect-src` / `img-src` 加入相同主机 |
+| Google Analytics | `script-src https://www.googletagmanager.com`；`connect-src https://www.google-analytics.com https://region1.google-analytics.com` |
+
+交互元素状态与分类深度需要 `style-src-attr 'unsafe-inline'`；不支持 CSP Level 3 的浏览器需改在 `style-src` 中加入 `'unsafe-inline'`。自定义 CDN、图片、评论或统计域名也必须加入对应指令。`security.csp_nonce` 只是静态配置钩子；真正的 nonce 防护必须由宿主为每个响应生成新值，并同时注入 CSP 响应头与主题配置。
 
 ## 开发
 
@@ -436,6 +452,8 @@ hexo-theme-shiro/
 ```
 
 ### 快速开始
+
+开发与资源构建要求 Node.js 20.19 或更高版本；`.node-version` 记录了推荐版本。
 
 1. 在主题目录安装依赖：
 

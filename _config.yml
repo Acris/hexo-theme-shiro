@@ -188,7 +188,7 @@ analytics:
     id: ""
 
 # Site search powered by Pagefind (https://pagefind.app/) Component UI.
-# Index is built automatically after `hexo generate` and written to `public/pagefind/`.
+# Index is built after generation and finalized before deployment in `public/pagefind/`.
 # Required when enabled: install Pagefind 1.5.0+ as a site-level devDependency:
 #   npm install pagefind --save-dev
 # Generation fails with an install hint if Pagefind is missing or too old.

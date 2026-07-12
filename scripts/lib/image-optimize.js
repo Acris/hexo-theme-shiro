@@ -3,29 +3,18 @@
 // Pure image HTML optimization (no Hexo / fs). Path candidates accept injected dirs.
 
 const path = require('path');
+const {
+    nextHtmlToken,
+    findElementClose,
+    parseHtmlAttributes
+} = require('./html-scanner');
 
 const DEFAULT_IMAGE_SIZES = '(min-width: 768px) 672px, calc(100vw - 2rem)';
-const OPTIMIZABLE_IMAGE_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<img\b([^>]*)>/gi;
+const IMAGE_SKIPPED_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
 
 // Lightweight HTML attribute parsing/rendering for <img> tags in rendered Hexo output.
 function parseAttrs(source) {
-    const attrs = [];
-    source.replace(/([^\s=\/<>]+)(?:\s*=\s*("[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g, (match, name, rawValue) => {
-        let value = '';
-        let quote = '"';
-        if (rawValue) {
-            if ((rawValue[0] === '"' && rawValue[rawValue.length - 1] === '"')
-                || (rawValue[0] === "'" && rawValue[rawValue.length - 1] === "'")) {
-                quote = rawValue[0];
-                value = rawValue.slice(1, -1);
-            } else {
-                value = rawValue;
-            }
-        }
-        attrs.push({ name, value, quote, boolean: !rawValue });
-        return match;
-    });
-    return attrs;
+    return parseHtmlAttributes(source);
 }
 
 function renderAttrs(attrs) {
@@ -157,16 +146,30 @@ function optimizeImages(html, options) {
     const getLocalSize = typeof opts.getLocalSize === 'function'
         ? opts.getLocalSize
         : () => null;
+    const source = String(html || '');
     let imageIndex = 0;
-    return String(html || '').replace(OPTIMIZABLE_IMAGE_RE, (match, skippedTag, rawAttrs) => {
-        if (rawAttrs === undefined) return match;
+    let cursor = 0;
+    let position = 0;
+    let output = '';
+    let token;
+
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (IMAGE_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (token.name !== 'img') continue;
 
         // Presence only via parseAttrs map — never raw-string regex (class tokens
         // like "loading" must not suppress real loading/width attributes).
+        const rawAttrs = token.attrs;
         const attrs = parseAttrs(rawAttrs);
         const lookup = attrLookup(attrs);
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
-        if (!src) return match;
+        if (!src) continue;
 
         const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
         imageIndex += 1;
@@ -204,23 +207,23 @@ function optimizeImages(html, options) {
             }
         }
 
-        return '<img' + out + '>';
-    });
+        const replacement = source.slice(token.start, token.attrsStart)
+            + out
+            + source.slice(token.attrsEnd, token.end);
+        output += source.slice(cursor, token.start) + replacement;
+        cursor = token.end;
+    }
+
+    return output + source.slice(cursor);
 }
 
 module.exports = {
-    DEFAULT_IMAGE_SIZES,
     parseAttrs,
     renderAttrs,
     attrLookup,
     getAttr,
-    escapeAttrValue,
-    appendAttr,
     cleanUrl,
     isRemoteUrl,
-    decodeUrlPath,
-    normalizedRootPath,
-    isWithinDir,
     localImageCandidates,
     optimizeImages
 };

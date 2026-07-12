@@ -66,7 +66,6 @@ function pageWantsMathjax(data, mathjaxConfig) {
 
 module.exports = {
     DEFAULT_MATHJAX_SRC,
-    resolveMathjaxTags,
     resolveMathjaxConfig,
     pageWantsMathjax
 };

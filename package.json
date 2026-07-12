@@ -23,7 +23,14 @@
   "author": "Acris Liu",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=20.19.0",
+      "onFail": "error"
+    }
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.0",

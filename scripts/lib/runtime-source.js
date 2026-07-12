@@ -80,9 +80,7 @@ function concatRuntimeSource() {
 }
 
 module.exports = {
-    ROOT,
     RUNTIME_PARTS,
-    RUNTIME_PARTS_DIR,
     listRuntimeParts,
     assertRuntimeSource,
     concatRuntimeSource

@@ -4,12 +4,11 @@ const {
     collectionToArray,
     scalarOrCollectionToArray,
     normalizePlainText,
-    primaryLanguage,
     pageLanguage,
     escapeHtml,
     truncateText
 } = require('./util');
-const { normalizeOpenGraphImageUrl } = require('./urls');
+const { normalizeOpenGraphImageUrl, normalizeLangAttr } = require('./urls');
 const {
     pageAnalysis,
     htmlTextFromHtml,
@@ -64,11 +63,16 @@ function isoDateString(value) {
 }
 
 function openGraphLocale(language) {
-    const normalized = primaryLanguage(language).replace(/-/g, '_');
-    const segments = normalized.split('_').filter(Boolean);
-    if (!segments.length) return '';
-    if (segments.length === 1) return segments[0];
-    return segments[0] + '_' + segments.slice(1).join('_').toUpperCase();
+    const raw = Array.isArray(language) ? language[0] : language;
+    const normalized = normalizeLangAttr(raw);
+    if (!normalized) return '';
+    try {
+        const locale = new Intl.Locale(normalized);
+        const region = locale.region || locale.maximize().region;
+        return region ? locale.language.toLowerCase() + '_' + region.toUpperCase() : '';
+    } catch (_) {
+        return '';
+    }
 }
 
 function cleanDescription(page, config, options) {
@@ -202,7 +206,6 @@ function faviconSvg(sealText) {
 }
 
 module.exports = {
-    META_DESCRIPTION_LENGTH,
     cleanDescription,
     copyrightYear,
     structuredData,

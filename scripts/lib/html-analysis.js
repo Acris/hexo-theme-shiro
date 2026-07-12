@@ -2,28 +2,29 @@
 
 const {
     collectionToArray,
-    escapeRegExp,
     escapeHtml,
     decodeHtmlEntities,
     truncateText
 } = require('./util');
 const { hasUrlControlChars } = require('./urls');
 const { isFeatureEnabled } = require('./features');
+const {
+    HTML_VOID_ELEMENTS,
+    nextHtmlToken,
+    findElementClose,
+    htmlAttributeValue,
+    htmlTextContent
+} = require('./html-scanner');
 
 const DEFAULT_EXCERPT_LENGTH = 200;
 // WeakMap so hexo server / watch can drop analysis when page objects are GC'd.
 const pageAnalysisCache = new WeakMap();
 const excerptCache = new WeakMap();
 
-const HTML_SKIPPED_CONTENT_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)/gi;
-const HTML_ID_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
-const HTML_IMAGE_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<img\b([^>]*)>/gi;
-const TOC_HEADING_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template|pre|code)\b[\s\S]*?(?:<\/\1\s*>|$)|<h([2-6])\b([^>]*)>([\s\S]*?)<\/h\2>/gi;
-const CODE_CONTENT_RE = /<!--[\s\S]*?-->|<(script|style|textarea|template)\b[\s\S]*?(?:<\/\1\s*>|$)|<([a-z][\w:-]*)\b([^>]*)>/gi;
 const CODE_CLASS_TOKENS = new Set(['highlight', 'gist']);
-const HTML_VOID_TAGS = new Set([
-    'area', 'base', 'br', 'col', 'embed', 'hr', 'img',
-    'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
+const RAW_CONTENT_ELEMENTS = new Set(['script', 'style', 'textarea', 'template']);
+const ANALYSIS_SKIPPED_ELEMENTS = new Set([
+    'script', 'style', 'textarea', 'template', 'pre', 'code'
 ]);
 
 function hasClassToken(attrs, tokens) {
@@ -34,129 +35,99 @@ function hasClassToken(attrs, tokens) {
 
 function hasCodeContent(content) {
     if (!content) return false;
-    const re = CODE_CONTENT_RE;
-    re.lastIndex = 0;
-    let match;
-    while ((match = re.exec(String(content)))) {
-        const tagName = match[2] && match[2].toLowerCase();
-        if (tagName === 'pre' || tagName === 'code' || hasClassToken(match[3], CODE_CLASS_TOKENS)) {
-            re.lastIndex = 0;
-            return true;
+    const source = String(content);
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (RAW_CONTENT_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
         }
+        if (token.name === 'pre' || token.name === 'code'
+            || hasClassToken(token.attrs, CODE_CLASS_TOKENS)) return true;
     }
-    re.lastIndex = 0;
     return false;
 }
 
 function strippedHtml(content) {
-    return String(content || '').replace(HTML_SKIPPED_CONTENT_RE, '');
+    return stripElementBlocks(content, ANALYSIS_SKIPPED_ELEMENTS);
 }
 
 function htmlWithoutCodeContent(content) {
-    const withoutRawBlocks = String(content || '')
-        .replace(/<!--[\s\S]*?-->|<(script|style|textarea|template)\b[\s\S]*?(?:<\/\1\s*>|$)/gi, ' ')
-        .replace(/<pre\b[\s\S]*?(?:<\/\s*pre>|$)/gi, ' ');
+    const withoutRawBlocks = stripElementBlocks(
+        content,
+        new Set(['script', 'style', 'textarea', 'template', 'pre'])
+    );
 
     return stripClassTokenBlocks(withoutRawBlocks, CODE_CLASS_TOKENS);
 }
 
+function stripElementBlocks(content, names) {
+    const source = String(content || '');
+    let output = '';
+    let cursor = 0;
+    let position = 0;
+    let token;
+
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        let remove = token.type === 'comment';
+        let end = token.end;
+        if (token.type === 'tag' && !token.closing && names.has(token.name)) {
+            const close = findElementClose(source, token);
+            end = close ? close.end : source.length;
+            position = end;
+            remove = true;
+        }
+        if (!remove) continue;
+        output += source.slice(cursor, token.start) + ' ';
+        cursor = end;
+    }
+
+    return output + source.slice(cursor);
+}
+
 function stripClassTokenBlocks(content, tokens) {
     const source = String(content || '');
-    const tagRe = /<([a-z][\w:-]*)\b([^>]*)>/gi;
     let result = '';
     let cursor = 0;
-    let match;
+    let position = 0;
+    let token;
 
-    while ((match = tagRe.exec(source))) {
-        if (!hasClassToken(match[2], tokens)) continue;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (RAW_CONTENT_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (!hasClassToken(token.attrs, tokens)) continue;
 
-        const start = match.index;
+        const start = token.start;
         if (start < cursor) continue;
 
         result += source.slice(cursor, start) + ' ';
-        cursor = shouldSkipOnlyOpeningTag(match[0], match[1])
-            ? tagRe.lastIndex
-            : skipElementBlock(source, tagRe.lastIndex, match[1]);
-        tagRe.lastIndex = cursor;
+        const close = findElementClose(source, token);
+        cursor = token.selfClosing || HTML_VOID_ELEMENTS.has(token.name)
+            ? token.end
+            : (close ? close.end : source.length);
+        position = cursor;
     }
 
     return result + source.slice(cursor);
 }
 
-function shouldSkipOnlyOpeningTag(openingTag, tagName) {
-    return HTML_VOID_TAGS.has(String(tagName || '').toLowerCase()) || /\/\s*>$/.test(openingTag);
-}
-
-function skipBlock(source, start, openTag) {
-    const close = new RegExp('</' + openTag + '\\s*>', 'i');
-    const match = close.exec(source.slice(start));
-    return match ? start + match.index + match[0].length : source.length;
-}
-
-function skipElementBlock(source, start, openTag) {
-    const tag = escapeRegExp(openTag);
-    const tagRe = new RegExp('</?' + tag + '\\b[^>]*>', 'gi');
-    let depth = 1;
-    let match;
-    tagRe.lastIndex = start;
-
-    while ((match = tagRe.exec(source))) {
-        const text = match[0];
-        if (/^<\//.test(text)) {
-            depth -= 1;
-            if (depth === 0) return tagRe.lastIndex;
-        } else if (!/\/\s*>$/.test(text)) {
-            depth += 1;
-        }
-    }
-
-    return source.length;
-}
-
 function htmlTextFromHtml(content, length) {
     const limit = Math.max(0, Number(length) || 0);
-    const source = String(content || '');
     const targetLength = limit > 0 ? limit + 40 : 0;
-
-    let text = '';
-    let i = 0;
-
-    while (i < source.length) {
-        // Cheap upper-bound check: text.length is always ≥ condensed length, so this
-        // short-circuits long documents without repeatedly normalizing the buffer.
-        if (targetLength && text.length > targetLength * 3) break;
-
-        const ch = source[i];
-
-        if (ch !== '<') {
-            const nextTag = source.indexOf('<', i);
-            const end = nextTag === -1 ? source.length : nextTag;
-            text += source.slice(i, end);
-            i = end;
-            continue;
-        }
-
-        // HTML comment
-        if (source.startsWith('<!--', i)) {
-            const end = source.indexOf('-->', i + 4);
-            i = end === -1 ? source.length : end + 3;
-            continue;
-        }
-
-        // Skip entire block contents.
-        const blockTag = /^<(script|style|textarea|template)\b/i.exec(source.slice(i, i + 11));
-        if (blockTag) {
-            i = skipBlock(source, i, blockTag[1]);
-            text += ' ';
-            continue;
-        }
-
-        // Any other tag
-        const tagEnd = source.indexOf('>', i + 1);
-        i = tagEnd === -1 ? source.length : tagEnd + 1;
-        text += ' ';
-    }
-
+    const text = htmlTextContent(content, {
+        skipElements: RAW_CONTENT_ELEMENTS,
+        maxLength: targetLength ? targetLength * 3 : 0
+    });
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
 }
 
@@ -174,23 +145,32 @@ function cachedStrippedHtml(html) {
 }
 
 function countImagesInHtml(html) {
-    const re = HTML_IMAGE_RE;
-    re.lastIndex = 0;
+    const source = String(html || '');
     let count = 0;
-    let match;
-    while ((match = re.exec(html))) {
-        if (match[2] === undefined) continue;
-        if (imageHasLightboxSource(match[2])) count += 1;
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (token.name === 'img' && imageHasLightboxSource(token.attrs)) count += 1;
     }
-    re.lastIndex = 0;
     return count;
 }
 
 function countHeadingsInHtml(html) {
     const counts = new Map();
-    const matches = html.matchAll(/<h([2-6])\b[^>]*>/gi);
-    for (const match of matches) {
-        const level = Number(match[1]);
+    const source = String(html || '');
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing || !/^h[2-6]$/.test(token.name)) continue;
+        const level = Number(token.name[1]);
         counts.set(level, (counts.get(level) || 0) + 1);
     }
     return counts;
@@ -347,16 +327,21 @@ function firstImageInfo(content) {
     const empty = { src: '', width: 0, height: 0 };
     if (!content) return empty;
     const source = String(content);
-    const imgRe = HTML_IMAGE_RE;
-    imgRe.lastIndex = 0;
-    let img;
-    while ((img = imgRe.exec(source))) {
-        const attrs = img[2];
-        if (attrs === undefined) continue;
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        if (token.name !== 'img') continue;
+        const attrs = token.attrs;
         for (const name of ['src', 'data-src']) {
             const value = imageAttrValue(attrs, name);
             if (isUsableImageSrcCandidate(value)) {
-                imgRe.lastIndex = 0;
                 return {
                     src: String(value).trim(),
                     width: imageDimensionAttr(attrs, 'width'),
@@ -365,15 +350,11 @@ function firstImageInfo(content) {
             }
         }
     }
-    imgRe.lastIndex = 0;
     return empty;
 }
 
 function imageAttrValue(attrs, name) {
-    const valuePattern = '(?:"([^"]*)"|\'([^\']*)\'|([^\\s"\'=<>`]+))';
-    const re = new RegExp('(?:^|\\s)' + name + '\\s*=\\s*' + valuePattern, 'i');
-    const match = re.exec(attrs);
-    return match ? (match[1] || match[2] || match[3] || '') : '';
+    return htmlAttributeValue(attrs, name);
 }
 
 function imageHasLightboxSource(attrs) {
@@ -448,25 +429,14 @@ function excerptFor(post, length) {
 }
 
 module.exports = {
-    DEFAULT_EXCERPT_LENGTH,
-    HTML_ID_RE,
-    HTML_IMAGE_RE,
-    TOC_HEADING_RE,
     pageAnalysis,
-    analyzeHtml,
     hasCodeContent,
     htmlTextFromHtml,
     htmlWithoutCodeContent,
     pageHasCode,
     pageLooksLong,
     tocHeadingLevels,
-    countTocHeadingsFromAnalysis,
     firstImageInfo,
-    imageAttrValue,
-    isUsableImageSrcCandidate,
-    isLightboxImageSrcCandidate,
     excerptFor,
-    excerptForCard,
-    excerptFallbackEnabled,
-    excerptFallbackLength
+    excerptForCard
 };

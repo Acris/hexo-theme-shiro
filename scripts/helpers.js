@@ -401,20 +401,3 @@ hexo.extend.helper.register('structured_data', function (page, config) {
             : null
     });
 });
-
-// Re-export pure modules for unit tests (Hexo loads this file for side effects).
-module.exports = {
-    urls: require('./lib/urls'),
-    analysis: require('./lib/html-analysis'),
-    toc: require('./lib/toc'),
-    seo: require('./lib/seo'),
-    fonts: require('./lib/fonts'),
-    seal: require('./lib/seal'),
-    util: require('./lib/util'),
-    comments: require('./lib/comments'),
-    categories: require('./lib/categories'),
-    featureGates: require('./lib/feature-gates'),
-    archive: require('./lib/archive'),
-    codeBlocks: require('./lib/code-blocks'),
-    imageMeta: require('./lib/image-meta')
-};

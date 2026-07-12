@@ -44,6 +44,5 @@ function googleFontUrls(page, config, themeConfig, hasCode, pageHasCode, context
 
 module.exports = {
     cjkFontForLanguage,
-    googleFontUrl,
     googleFontUrls
 };

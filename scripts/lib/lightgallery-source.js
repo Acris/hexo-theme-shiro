@@ -65,9 +65,4 @@ function concatLightgallerySource() {
     return source;
 }
 
-module.exports = {
-    LIGHTGALLERY_PARTS,
-    listLightgalleryParts,
-    assertLightgallerySource,
-    concatLightgallerySource
-};
+module.exports = { concatLightgallerySource };

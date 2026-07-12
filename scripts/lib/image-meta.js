@@ -104,8 +104,5 @@ function imageSizeFromBuffer(buffer) {
 module.exports = {
     pngSize,
     gifSize,
-    jpegSize,
-    svgSize,
-    webpSize,
     imageSizeFromBuffer
 };

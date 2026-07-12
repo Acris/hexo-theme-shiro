@@ -271,26 +271,11 @@ function nextInterestingIndex(source, from) {
 }
 
 module.exports = {
-    MATH_ENV_NAMES,
-    MATH_ENV_OPEN_RE,
-    HTML_SKIP_OPEN_RE,
-    isEscaped,
     atLineStart,
-    lineEndIndex,
-    startsBlankLine,
-    hasBlankLineBetween,
-    closingFenceLine,
     skipFenceBlock,
     skipIndentedCodeBlock,
     skipCodeSpan,
     skipHtmlNoise,
-    findUnescapedClose,
-    warnUnclosedDelimiter,
-    scanDelimited,
-    scanEnvironment,
-    isSingleDollarOpener,
-    isSingleDollarCloser,
-    scanSingleDollarMath,
     scanMathAt,
     scanEscapedDollar,
     nextInterestingIndex

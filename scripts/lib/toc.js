@@ -2,7 +2,14 @@
 
 const { escapeHtml, decodeHtmlEntities, plainHeadingText } = require('./util');
 const { isFeatureEnabled } = require('./features');
-const { pageAnalysis, tocHeadingLevels, HTML_ID_RE, TOC_HEADING_RE } = require('./html-analysis');
+const { pageAnalysis, tocHeadingLevels } = require('./html-analysis');
+const {
+    nextHtmlToken,
+    findElementClose,
+    htmlAttributeValue
+} = require('./html-scanner');
+
+const TOC_SKIPPED_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
 
 function slugifyHeading(text) {
     return String(text).trim()
@@ -15,8 +22,7 @@ function slugifyHeading(text) {
 }
 
 function headingId(attrs) {
-    const match = String(attrs).match(/\sid\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
-    return match ? decodeHtmlEntities(match[1] || match[2] || match[3] || '') : '';
+    return decodeHtmlEntities(htmlAttributeValue(attrs, 'id'));
 }
 
 function tocCacheKey(tocConfig) {
@@ -29,12 +35,19 @@ function tocCacheKey(tocConfig) {
 
 function collectExistingIds(source) {
     const ids = new Set();
-    source.replace(HTML_ID_RE, (match, skippedTag, doubleQuoted, singleQuoted, unquoted) => {
-        if (doubleQuoted === undefined && singleQuoted === undefined && unquoted === undefined) return match;
-        const id = decodeHtmlEntities(doubleQuoted || singleQuoted || unquoted || '');
+    let position = 0;
+    let token;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (TOC_SKIPPED_ELEMENTS.has(token.name)) {
+            const close = findElementClose(source, token);
+            position = close ? close.end : source.length;
+            continue;
+        }
+        const id = headingId(token.attrs);
         if (id) ids.add(id);
-        return match;
-    });
+    }
     return ids;
 }
 
@@ -54,27 +67,54 @@ function uniqueHeadingId(title, existingIds) {
 function rewriteTocHeadings(source, levels) {
     const existingIds = collectExistingIds(source);
     const headings = [];
+    const replacements = [];
     let minLevel = 6;
+    let position = 0;
+    let token;
 
-    const content = source.replace(TOC_HEADING_RE, (match, skippedTag, levelRaw, attrs, inner) => {
-        if (!levelRaw) return match;
-        const level = Number(levelRaw);
-        if (!levels.has(level)) return match;
+    while ((token = nextHtmlToken(source, position))) {
+        position = token.end;
+        if (token.type !== 'tag' || token.closing) continue;
+        if (TOC_SKIPPED_ELEMENTS.has(token.name)) {
+            const skippedClose = findElementClose(source, token);
+            position = skippedClose ? skippedClose.end : source.length;
+            continue;
+        }
+        if (!/^h[2-6]$/.test(token.name)) continue;
+        const close = findElementClose(source, token);
+        if (!close) continue;
+        position = close.end;
 
+        const level = Number(token.name[1]);
+        if (!levels.has(level)) continue;
+
+        const inner = source.slice(token.end, close.start);
         const title = plainHeadingText(inner);
-        if (!title) return match;
+        if (!title) continue;
 
-        let id = headingId(attrs);
-        let nextAttrs = attrs;
+        let id = headingId(token.attrs);
         if (!id) {
             id = uniqueHeadingId(title, existingIds);
-            nextAttrs = attrs + ' id="' + escapeHtml(id) + '"';
+            replacements.push({
+                start: token.start,
+                end: token.end,
+                value: source.slice(token.start, token.attrsEnd)
+                    + ' id="' + escapeHtml(id) + '"'
+                    + source.slice(token.attrsEnd, token.end)
+            });
         }
 
         if (level < minLevel) minLevel = level;
         headings.push({ id, level, title });
-        return '<h' + levelRaw + nextAttrs + '>' + inner + '</h' + levelRaw + '>';
+    }
+
+    let content = '';
+    let cursor = 0;
+    replacements.forEach((replacement) => {
+        content += source.slice(cursor, replacement.start) + replacement.value;
+        cursor = replacement.end;
     });
+    content += source.slice(cursor);
 
     return { content, headings, minLevel };
 }

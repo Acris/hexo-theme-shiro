@@ -131,6 +131,12 @@ describe('client accessibility contracts', () => {
         assert.match(source, /toggleBtn\.hidden\s*=\s*false/);
     });
 
+    it('announces the current TOC location', () => {
+        const source = clientSource('toc.js');
+        assert.match(source, /setAttribute\(['"]aria-current['"],\s*['"]location['"]\)/);
+        assert.match(source, /removeAttribute\(['"]aria-current['"]\)/);
+    });
+
     it('hides the inactive back-to-top button from keyboard focus', () => {
         assert.match(clientSource('back-to-top.js'), /backBtn\.hidden\s*=\s*!visible/);
     });

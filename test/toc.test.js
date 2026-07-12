@@ -71,6 +71,18 @@ describe('scripts/lib/toc', () => {
             assert.match(result.html, /A &amp; B &lt;C&gt;/);
             assert.equal(result.html.includes('<C>'), false);
         });
+
+        it('preserves headings with greater-than signs in quoted attributes', () => {
+            const src = '<h2 title="a > b" id="kept">One</h2>'
+                + '<h2 data-label=">">Two</h2>'
+                + '<h2>Three</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.equal(result.content, src.replace('<h2 data-label=">">', '<h2 data-label=">" id="two">')
+                .replace('<h2>Three</h2>', '<h2 id="three">Three</h2>'));
+            assert.match(result.html, /data-target="kept"[^>]*>One</);
+            assert.equal(result.html.includes('b&quot; id='), false);
+        });
     });
 
     describe('cachedToc', () => {

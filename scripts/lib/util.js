@@ -1,5 +1,7 @@
 'use strict';
 
+const { htmlTextContent } = require('./html-scanner');
+
 function collectionToArray(value) {
     if (!value) return [];
     if (Array.isArray(value)) return value;
@@ -59,12 +61,9 @@ function normalizePlainText(value) {
 }
 
 function plainHeadingText(html) {
-    return decodeHtmlEntities(String(html)
-        .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-        .replace(/<style\b[\s\S]*?<\/style>/gi, '')
-        .replace(/<textarea\b[\s\S]*?<\/textarea>/gi, '')
-        .replace(/<template\b[\s\S]*?<\/template>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
+    return decodeHtmlEntities(htmlTextContent(html, {
+        skipElements: ['script', 'style', 'textarea', 'template']
+    })
         .replace(/\s+/g, ' ')
         .trim());
 }
@@ -84,11 +83,20 @@ function pageLanguage(page, config) {
 
 function truncateText(text, length) {
     const limit = Math.max(0, Number(length) || 0);
-    if (!limit || text.length <= limit) return text;
+    if (!limit) return text;
 
-    const head = text.substring(0, limit);
+    let graphemes;
+    if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+        graphemes = Array.from(segmenter.segment(text), item => item.segment);
+    } else {
+        graphemes = Array.from(text);
+    }
+    if (graphemes.length <= limit) return text;
+
+    const head = graphemes.slice(0, limit).join('');
     const boundary = head.lastIndexOf(' ');
-    return (boundary > 0 ? head.substring(0, boundary) : head) + '...';
+    return (boundary > 0 ? head.slice(0, boundary) : head) + '...';
 }
 
 module.exports = {

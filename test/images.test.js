@@ -139,6 +139,17 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /loading="eager"/);
             assert.match(out, /decoding="async"/);
         });
+
+        it('keeps quoted greater-than signs inside image attributes', () => {
+            const out = pureOptimize(
+                '<img title="a > b" src="https://cdn.example/a.png" alt="x > y">',
+                { firstImageEager: true }
+            );
+            assert.match(out, /^<img title="a > b" src="https:\/\/cdn\.example\/a\.png" alt="x > y"/);
+            assert.match(out, /decoding="async"/);
+            assert.match(out, /loading="eager"/);
+            assert.equal((out.match(/<img/g) || []).length, 1);
+        });
     });
 
     describe('localImageCandidates (pure path resolution)', () => {

@@ -28,9 +28,11 @@
                         {% else %}
                         <span class="category-tree-dot" aria-hidden="true"></span>
                         {% endif %}
-                        <a class="category-node-name"
-                            href="{{ href_for(card.path) }}"
-                            title="{{ escape_attr(card.fullLabel) }}">{{ escape_html(card.name) }}</a>
+                        <h2 class="min-w-0">
+                            <a class="category-node-name block"
+                                href="{{ href_for(card.path) }}"
+                                title="{{ escape_attr(card.fullLabel) }}">{{ escape_html(card.name) }}</a>
+                        </h2>
                         {% if card.showPosts %}
                         {# Exclusive total; title notes full detail size when larger (i18n). #}
                         <span class="category-node-count oldstyle-nums"

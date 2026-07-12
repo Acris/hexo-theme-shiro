@@ -69,11 +69,15 @@ function normalizedLinkTarget(value) {
     return /^(?:_self|_blank|_parent|_top)$/i.test(text) ? text : '';
 }
 
-// BCP 47-ish language tag for lang= attributes (page / force_language).
+// Canonical BCP 47 language tag for lang= attributes (page / force_language).
 function normalizeLangAttr(value) {
     const text = String(value == null ? '' : value).trim();
     if (!text || /[\s"'<>`]/.test(text)) return '';
-    return /^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{1,8})*$/.test(text) ? text : '';
+    try {
+        return Intl.getCanonicalLocales(text.replace(/_/g, '-'))[0] || '';
+    } catch (_) {
+        return '';
+    }
 }
 
 function safeScriptJson(value) {
@@ -236,9 +240,6 @@ function resolveAbsolutePageUrl(context, page, siteUrl) {
 
 module.exports = {
     hasUrlControlChars,
-    normalizedUrlText,
-    resolveNavigationUrl,
-    isSafeDataImageUrl,
     safeNavigationUrl,
     safeResourceUrl,
     normalizeAbsoluteResourceUrl,
@@ -247,8 +248,6 @@ module.exports = {
     normalizeLangAttr,
     safeScriptJson,
     resourceOrigin,
-    absoluteUrlForLocalPath,
-    pageRelativeImageUrl,
     normalizeOpenGraphImageUrl,
     resolveAbsolutePageUrl,
     normalizeSriIntegrity,

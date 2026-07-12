@@ -162,10 +162,6 @@ module.exports = {
     scanEscapedDollar,
     resolveMathjaxConfig,
     pageWantsMathjax,
-    themeMathjaxConfig,
-    PROTECT_FIELDS,
-    protectPostFields,
-    restorePostFields,
     storeSegments,
     takeSegments
 };

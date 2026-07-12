@@ -146,8 +146,12 @@ describe('scripts/lib/seo', () => {
     describe('openGraphLocale / isoDateString / faviconSvg', () => {
         it('normalizes locale tags', () => {
             assert.equal(openGraphLocale('zh-CN'), 'zh_CN');
-            assert.equal(openGraphLocale('en'), 'en');
+            assert.equal(openGraphLocale('en'), 'en_US');
+            assert.equal(openGraphLocale('fr'), 'fr_FR');
+            assert.equal(openGraphLocale('ja'), 'ja_JP');
+            assert.equal(openGraphLocale('zh-Hant'), 'zh_TW');
             assert.equal(openGraphLocale('ja_JP'), 'ja_JP');
+            assert.equal(openGraphLocale('bad tag'), '');
         });
 
         it('formats dates as ISO strings', () => {
