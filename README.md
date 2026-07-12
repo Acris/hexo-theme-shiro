@@ -345,7 +345,7 @@ Shiro renders TeX with [MathJax](https://docs.mathjax.org/en/v4.0/) only (no KaT
 
 | `enabled` | `every_page` | front-matter     | Load?        |
 | --------- | ------------ | ---------------- | ------------ |
-| `false`   | *            | *                | No           |
+| `false`   | \*           | \*               | No           |
 | `true`    | `false`      | `mathjax: true`  | Yes          |
 | `true`    | `false`      | unset / `false`  | No           |
 | `true`    | `true`       | unset / `true`   | Yes          |
@@ -434,15 +434,15 @@ Shiro treats Hexo-rendered post HTML as trusted content; sanitize it in the rend
 
 Set CSP as an HTTP response header at the host or edge. Start with a request-specific nonce in `script-src`, `object-src 'none'`, `base-uri 'self'`, and the sources below; add only the rows for enabled features.
 
-| Feature | Directive additions for the default URLs |
-| ------- | ---------------------------------------- |
+| Feature               | Directive additions for the default URLs                                                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Core theme / Pagefind | `script-src 'self' 'nonce-<request-nonce>'`; `style-src 'self'`; `style-src-elem 'self'`; `style-src-attr 'unsafe-inline'`; `font-src 'self' data:`; `img-src 'self' data:` |
-| Google Fonts | `style-src https://fonts.googleapis.com`; `style-src-elem https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com` |
-| LightGallery | `script-src https://cdn.jsdelivr.net`; `style-src https://cdn.jsdelivr.net`; `style-src-elem https://cdn.jsdelivr.net` |
-| MathJax | `script-src https://cdn.jsdelivr.net`; `style-src-elem 'unsafe-inline'`; `font-src https://cdn.jsdelivr.net` |
-| giscus | `script-src https://giscus.app`; `frame-src https://giscus.app` |
-| Disqus | `script-src https://*.disqus.com https://*.disquscdn.com`; `frame-src https://*.disqus.com`; `connect-src` / `img-src` for the same hosts |
-| Google Analytics | `script-src https://www.googletagmanager.com`; `connect-src https://www.google-analytics.com https://region1.google-analytics.com` |
+| Google Fonts          | `style-src https://fonts.googleapis.com`; `style-src-elem https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com`                                               |
+| LightGallery          | `script-src https://cdn.jsdelivr.net`; `style-src https://cdn.jsdelivr.net`; `style-src-elem https://cdn.jsdelivr.net`                                                      |
+| MathJax               | `script-src https://cdn.jsdelivr.net`; `style-src-elem 'unsafe-inline'`; `font-src https://cdn.jsdelivr.net`                                                                |
+| giscus                | `script-src https://giscus.app`; `frame-src https://giscus.app`                                                                                                             |
+| Disqus                | `script-src https://*.disqus.com https://*.disquscdn.com`; `frame-src https://*.disqus.com`; `connect-src` / `img-src` for the same hosts                                   |
+| Google Analytics      | `script-src https://www.googletagmanager.com`; `connect-src https://www.google-analytics.com https://region1.google-analytics.com`                                          |
 
 `style-src-attr 'unsafe-inline'` is required for interactive element state and category depth. MathJax CommonHTML also creates inline style elements, so it requires `'unsafe-inline'` in `style-src-elem`; a script nonce does not authorize those styles. Merge every enabled stylesheet origin into `style-src-elem`, which overrides `style-src` for style elements. On browsers without CSP Level 3 support, place the required inline allowance and origins in `style-src` instead. Add any custom CDN, image, comment, or analytics hosts you configure. `security.csp_nonce` is a static config hook only—real nonce protection requires the host to inject a fresh nonce into both the CSP header and rendered theme config for every response.
 

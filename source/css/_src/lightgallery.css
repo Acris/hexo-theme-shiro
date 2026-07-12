@@ -1,59 +1,57 @@
 /* LightGallery theme overrides.
    Loaded when the lightbox opens after the first image click. */
 
-/* Participates in the same cascade layers as style.min.css (see _tailwind.css).
-   Keeps feature rules from beating Tailwind utilities as unlayered CSS.
-   Overlay chrome uses fixed light-on-dark hex (not paper tokens): the LG stage
-   is a full-viewport dark shell independent of site data-theme paper colors. */
-@layer components {
-    .lg-outer {
-        font-family: var(--font-serif);
-        color: #f0ede9;
-        letter-spacing: 0.02em;
-    }
+/* Intentionally unlayered so these theme rules can override LightGallery's
+   unlayered vendor stylesheet. Overlay chrome uses fixed light-on-dark hex
+   (not paper tokens): the LG stage is a full-viewport dark shell independent
+   of site data-theme paper colors. */
+.lg-outer {
+    font-family: var(--font-serif);
+    color: #f0ede9;
+    letter-spacing: 0.02em;
+}
 
-    .lg-sub-html {
-        font-size: 0.95rem;
-        line-height: 1.7;
-        padding: 0.75rem 1.25rem;
-        letter-spacing: 0.04em;
-    }
+.lg-sub-html {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    padding: 0.75rem 1.25rem;
+    letter-spacing: 0.04em;
+}
 
-    .lg-sub-html p {
-        margin: 0;
-    }
+.lg-sub-html p {
+    margin: 0;
+}
 
-    .lg-sub-html .lg-source-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 10px;
-        padding: 6px 18px;
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 20px;
-        color: rgba(255, 255, 255, 0.88);
-        font-size: 13px;
-        text-decoration: none;
-        transition: background 0.2s, border-color 0.2s;
-    }
+.lg-sub-html .lg-source-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 18px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 13px;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+}
 
-    .lg-sub-html .lg-source-btn:hover {
-        background: rgba(255, 255, 255, 0.22);
-        border-color: rgba(255, 255, 255, 0.45);
-    }
+.lg-sub-html .lg-source-btn:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.45);
+}
 
-    .lg-toolbar .lg-icon,
-    .lg-next,
-    .lg-prev {
-        color: #d4d0cc;
-        opacity: 0.85;
-    }
+.lg-outer .lg-toolbar .lg-icon,
+.lg-outer .lg-next,
+.lg-outer .lg-prev {
+    color: #d4d0cc;
+    opacity: 0.85;
+}
 
-    .lg-toolbar .lg-icon:hover,
-    .lg-next:hover,
-    .lg-prev:hover {
-        color: #e8e5e1;
-        opacity: 1;
-    }
+.lg-outer .lg-toolbar .lg-icon:hover,
+.lg-outer .lg-next:hover,
+.lg-outer .lg-prev:hover {
+    color: #e8e5e1;
+    opacity: 1;
 }

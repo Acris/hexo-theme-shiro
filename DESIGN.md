@@ -211,14 +211,18 @@ components:
     backgroundColor: "{colors.paper-dark}"
     textColor: "{colors.text-chrome-dark}"
   tag-pill:
-    backgroundColor: "{colors.code-bg}"
+    # CSS paints translucent bg-inset over paper; paper is the AA composite surface.
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.chrome}"
     typography: "{typography.body-sm}"
     rounded: "{rounded.md}"
     padding: 6px 12px
   tag-pill-hover:
-    backgroundColor: "{colors.code-bg}"
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.seal}"
+  tag-pill-dark:
+    backgroundColor: "{colors.paper-dark}"
+    textColor: "{colors.text-chrome-dark}"
   back-to-top:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.chrome}"
@@ -229,7 +233,7 @@ components:
     textColor: "{colors.seal}"
   back-to-top-dark:
     backgroundColor: "{colors.paper-dark}"
-    textColor: "{colors.body-dark}"
+    textColor: "{colors.text-chrome-dark}"
   progress-bar:
     backgroundColor: "{colors.seal}"
     height: 2px
@@ -271,7 +275,7 @@ components:
     backgroundColor: "{colors.code-bg}"
     textColor: "{colors.body}"
     rounded: "{rounded.lg}"
-    padding: 16px
+    padding: 12px 16px
   code-block-dark:
     backgroundColor: "{colors.code-bg-dark}"
     textColor: "{colors.body-dark}"
@@ -304,7 +308,7 @@ components:
   empty-state:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.chrome}"
-    typography: "{typography.body-md}"
+    typography: "{typography.body-lg}"
   heading-text:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.heading}"
@@ -330,7 +334,6 @@ components:
     backgroundColor: "{colors.seal-fill}"
     textColor: "{colors.on-seal}"
     typography: "{typography.seal-mark}"
-    rounded: "{rounded.full}"
 ---
 
 # Shiro Design System
@@ -349,15 +352,15 @@ Dark mode is **夜の白** (“night white”): warm charcoal layers (deep fog �
 
 Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`paper`, `ink`, `seal`, `fog`, …).
 
-| Role | Spec alias | Shiro name | Light | Dark |
-|:-----|:-----------|:-----------|:------|:-----|
-| Core ink | `primary` | `ink` (chrome) · `body` (reading) | both `#2b3036` | ink `#d4d0cc` · body `#b0ada9` |
-| Metadata / idle chrome | `secondary` | **`chrome`** | light `#6b7280` | dark `#918e8a` (AA idle). CSS `--color-text-chrome` / `text-text-chrome` |
-| Accent foreground | `tertiary` | `seal` | `#b0171a` | `#e16a60` |
-| Accent fill | — | `seal-fill` | `#b0171a` | `#b7352e` |
-| Atmosphere | `neutral` | `fog` | `#f5f4f2` | `#181817` |
-| Surface | — | `paper` | `#ffffff` | `#1f1e1d` |
-| Titles | — | `heading` | `#1a1a2e` | `#e8e5e1` |
+| Role                   | Spec alias  | Shiro name                        | Light           | Dark                                                                     |
+| :--------------------- | :---------- | :-------------------------------- | :-------------- | :----------------------------------------------------------------------- |
+| Core ink               | `primary`   | `ink` (chrome) · `body` (reading) | both `#2b3036`  | ink `#d4d0cc` · body `#b0ada9`                                           |
+| Metadata / idle chrome | `secondary` | **`chrome`**                      | light `#6b7280` | dark `#918e8a` (AA idle). CSS `--color-text-chrome` / `text-text-chrome` |
+| Accent foreground      | `tertiary`  | `seal`                            | `#b0171a`       | `#e16a60`                                                                |
+| Accent fill            | —           | `seal-fill`                       | `#b0171a`       | `#b7352e`                                                                |
+| Atmosphere             | `neutral`   | `fog`                             | `#f5f4f2`       | `#181817`                                                                |
+| Surface                | —           | `paper`                           | `#ffffff`       | `#1f1e1d`                                                                |
+| Titles                 | —           | `heading`                         | `#1a1a2e`       | `#e8e5e1`                                                                |
 
 **Naming:** Spec aliases (`primary` / `secondary` / `tertiary` / `neutral`) equal `ink` / `chrome` / `seal` / `fog` and exist only for design.md tooling. **New UI, components, and theme CSS always use Shiro names** — never a parallel `text-primary` / `--color-primary` track. (`neutral` may lint as orphaned; that is intentional.)
 
@@ -374,12 +377,12 @@ Tailwind `slate-*` is not remapped in dark mode; theme chrome uses semantic text
 
 **Serif-first**, long-form multilingual. Token `fontFamily` is the primary face; implement full stacks:
 
-| Role | Primary | Stack |
-|:-----|:--------|:------|
-| Title / seal / TOC label / site note | Yuji Syuku | `Yuji Syuku` first for every language, followed by the locale-matched `Noto Serif JP` / `SC` / `TC` and `Zen Old Mincho` fallbacks |
-| Body / UI | Cardo | `Cardo`, then the locale-matched `Noto Serif JP` / `SC` / `TC`, with `Zen Old Mincho` as fallback |
-| English credits | Cormorant Garamond | Cormorant Garamond, serif |
-| Code | Fira Code | `Fira Code`, `JetBrains Mono`, `Cascadia Code`, ui-monospace, monospace |
+| Role                                 | Primary            | Stack                                                                                                                              |
+| :----------------------------------- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| Title / seal / TOC label / site note | Yuji Syuku         | `Yuji Syuku` first for every language, followed by the locale-matched `Noto Serif JP` / `SC` / `TC` and `Zen Old Mincho` fallbacks |
+| Body / UI                            | Cardo              | `Cardo`, then the locale-matched `Noto Serif JP` / `SC` / `TC`, with `Zen Old Mincho` as fallback                                  |
+| English credits                      | Cormorant Garamond | Cormorant Garamond, serif                                                                                                          |
+| Code                                 | Fira Code          | `Fira Code`, `JetBrains Mono`, `Cascadia Code`, ui-monospace, monospace                                                            |
 
 Weights loaded: Cardo 400/700; Zen Old Mincho 400/600; locale-matched Noto Serif JP/SC/TC 400/600; Cormorant 400/600; Fira Code 400/500; Yuji default. Prefer **400 and 700** for Cardo — no reliable 500 cut. Site note is visually light (`tracking` + opacity in CSS); token weight stays 400.
 
@@ -426,12 +429,12 @@ Other cues: 2px seal progress (`z-50`); back-to-top / TOC as quiet floats; searc
 
 Transitions are quiet and mechanical — a soft light switch, not a door slam or a bounce.
 
-| Kind | Duration | Easing |
-|:-----|:---------|:-------|
-| Interactive (hover, color, border) | ~150–300ms | `ease-soft` `cubic-bezier(0.2, 0.8, 0.2, 1)` |
-| Theme cross-fade | ~350ms | ease / View Transitions |
-| Preloader dismiss | ~420ms opacity | `ease-soft` |
-| Menu open | ~260ms | ease-out + max-height |
+| Kind                               | Duration       | Easing                                       |
+| :--------------------------------- | :------------- | :------------------------------------------- |
+| Interactive (hover, color, border) | ~150–300ms     | `ease-soft` `cubic-bezier(0.2, 0.8, 0.2, 1)` |
+| Theme cross-fade                   | ~350ms         | ease / View Transitions                      |
+| Preloader dismiss                  | ~420ms opacity | `ease-soft`                                  |
+| Menu open                          | ~260ms         | ease-out + max-height                        |
 
 - Prefer opacity and color over large movement.
 - Nothing playful: no bounce, overshoot, or spring.
@@ -444,14 +447,14 @@ Transitions are quiet and mechanical — a soft light switch, not a door slam or
 
 **Softly architectural:** restrained radii on content; full pills for compact chrome.
 
-| Element | Token |
-|:--------|:------|
-| Paper, `.btn-ink` | `xl` (0.75rem) |
-| TOC, search, code | `lg` (0.5rem) |
-| Tags, small hits | `md` (0.375rem) |
-| Header pills, back-to-top, seal, preloader rings | `full` |
-| Mobile menu sheet | `2xl` (1rem) |
-| Search marks | `sm` (0.125rem) |
+| Element                                    | Token           |
+| :----------------------------------------- | :-------------- |
+| Paper, `.btn-ink`                          | `xl` (0.75rem)  |
+| TOC, search, code                          | `lg` (0.5rem)   |
+| Tags, small hits                           | `md` (0.375rem) |
+| Header pills, back-to-top, preloader rings | `full`          |
+| Mobile menu sheet                          | `2xl` (1rem)    |
+| Search marks                               | `sm` (0.125rem) |
 
 1px low-contrast borders. Text nav: underline + offset, not filled chips. Border color is prose/CSS only (not a component schema field).
 

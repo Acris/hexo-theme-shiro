@@ -171,6 +171,15 @@ describe('client accessibility contracts', () => {
             path.join(__dirname, '../source/css/_src/lightgallery.css'),
             'utf8'
         );
+        const generated = fs.readFileSync(
+            path.join(__dirname, '../source/css/lightgallery.min.css'),
+            'utf8'
+        );
+        assert.doesNotMatch(source, /@layer\b/);
+        assert.doesNotMatch(generated, /@layer\b/);
+        assert.match(source, /\.lg-outer \.lg-toolbar \.lg-icon,/);
+        assert.match(source, /\.lg-outer \.lg-next,/);
+        assert.match(source, /\.lg-outer \.lg-prev \{/);
         assert.match(source, /\.lg-toolbar \.lg-icon,[\s\S]*?color:\s*#d4d0cc;/);
         assert.match(source, /\.lg-toolbar \.lg-icon:hover,[\s\S]*?color:\s*#e8e5e1;/);
         assert.doesNotMatch(source, /\.lg-toolbar[\s\S]*?var\(--color-text-(?:body|heading)/);

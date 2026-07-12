@@ -8,12 +8,12 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 
 ## Setup commands
 
-| Command         | Purpose                                                                               |
-| --------------- | ------------------------------------------------------------------------------------- |
-| `npm install`   | Install dev dependencies                                                              |
-| `npm run dev`   | Tailwind watch (unminified `source/css/style.min.css`)                                |
+| Command         | Purpose                                                            |
+| --------------- | ------------------------------------------------------------------ |
+| `npm install`   | Install dev dependencies                                           |
+| `npm run dev`   | Tailwind watch (unminified `source/css/style.min.css`)             |
 | `npm run build` | Release assets: core CSS, optional `*.min.css`, browser `*.min.js` |
-| `npm test`      | Node built-in tests (`test/**/*.js`)                                                  |
+| `npm test`      | Node built-in tests (`test/**/*.js`)                               |
 
 - Both `dev` and `build` read `source/css/_tailwind.css` → `source/css/style.min.css`.
 - After changing `_tailwind.css`, `source/css/_src/*`, Tailwind utilities in templates, or `source/js/_src/*`: run **`npm run build`** (see Testing for committing outputs).
@@ -22,20 +22,20 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 
 ## Repository map
 
-| Path                       | Role                                                                                                                                                                                                             |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout/`                  | Nunjucks: `_layout.njk` shell (feature gates + foot scripts; include scope does not leak `{% set %}`); `_macro/`; `_partial/common/` (`head`, `header`, …), components, comments, analytics; pages |
-| `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js` |
-| `scripts/lib/`             | Pure modules required by `helpers.js` / `mathjax.js` / `images.js` (and unit tests): urls, analysis, toc, seo, code-blocks, image-meta, … Side-effect free — safe if Hexo also loads nested `scripts/**` files. |
-| `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                          |
-| `source/css/_core/`        | Core theme CSS parts: tokens, base, components, dark, theme-toggle (imported by `_tailwind.css`)                                                                                                                 |
-| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus). Site-cascade files wrap rules in `@layer components` (match `style.min.css`); giscus iframe theme stays unlayered. |
-| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix). Runtime and LightGallery are single-IIFE sources (`runtime.js` / `lightgallery.js`).                                             |
-| `tools/`                   | `build-assets.js` (Tailwind + lightningcss + terser minify)                                                                                                                                                      |
-| `test/`                    | Unit tests (`npm test`)                                                                                                                                                                                          |
-| `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                                                                     |
-| `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                                                                         |
-| `DESIGN.md`                | Design system; sync with CSS when changing colors, type, spacing, elevation, or component look                                                                                                                   |
+| Path                       | Role                                                                                                                                                                                                                                                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout/`                  | Nunjucks: `_layout.njk` shell (feature gates + foot scripts; include scope does not leak `{% set %}`); `_macro/`; `_partial/common/` (`head`, `header`, …), components, comments, analytics; pages                                                                                                         |
+| `scripts/`                 | Hexo helpers/filters: thin `helpers.js` registrar; pure logic in `scripts/lib/` (`html-analysis`, `toc`, `urls`, `seo`, `fonts`, `seal`, `util`); also `mathjax.js`, `images.js`, `pagefind.js`, `word_count.js`                                                                                           |
+| `scripts/lib/`             | Pure modules required by `helpers.js` / `mathjax.js` / `images.js` (and unit tests): urls, analysis, toc, seo, code-blocks, image-meta, … Side-effect free — safe if Hexo also loads nested `scripts/**` files.                                                                                            |
+| `source/css/_tailwind.css` | Tailwind entry (`@import` core parts) → `style.min.css`                                                                                                                                                                                                                                                    |
+| `source/css/_core/`        | Core theme CSS parts: tokens, base, components, dark, theme-toggle (imported by `_tailwind.css`)                                                                                                                                                                                                           |
+| `source/css/_src/`         | Feature CSS → `source/css/*.min.css` (code, toc, search, comments, lightgallery, giscus). Site-cascade files normally wrap rules in `@layer components` (match `style.min.css`); LightGallery overrides stay unlayered to outrank its unlayered vendor CSS, and the giscus iframe theme is also unlayered. |
+| `source/js/_src/`          | Client sources → `source/js/*.min.js` (Hexo ignores `_src` via underscore prefix). Runtime and LightGallery are single-IIFE sources (`runtime.js` / `lightgallery.js`).                                                                                                                                    |
+| `tools/`                   | `build-assets.js` (Tailwind + lightningcss + terser minify)                                                                                                                                                                                                                                                |
+| `test/`                    | Unit tests (`npm test`)                                                                                                                                                                                                                                                                                    |
+| `languages/`               | i18n YAML (keep keys aligned across locales)                                                                                                                                                                                                                                                               |
+| `_config.yml`              | Default theme config (users copy to `_config.shiro.yml`)                                                                                                                                                                                                                                                   |
+| `DESIGN.md`                | Design system; sync with CSS when changing colors, type, spacing, elevation, or component look                                                                                                                                                                                                             |
 
 **Do not invent helpers** — check `scripts/helpers.js` first. Implementation details live in source and tests.
 

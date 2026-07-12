@@ -8,10 +8,11 @@
  *
  * Entry file: imports core parts under source/css/_core/.
  * Optional feature styles under source/css/_src/ (code, toc, search,
- * lightgallery, comments) are minified separately without Tailwind, but each
- * file wraps rules in `@layer components` so they share this layer order and
- * do not win as unlayered CSS over utilities. (giscus.min.css is an iframe
- * theme served to giscus — not part of the site cascade.)
+ * comments) are minified separately without Tailwind and wrap rules in
+ * `@layer components` so they share this layer order and do not win as
+ * unlayered CSS over utilities. LightGallery overrides stay unlayered so they
+ * outrank its unlayered vendor CSS. (giscus.min.css is an iframe theme served
+ * to giscus — not part of the site cascade.)
  * Feature dark overrides use `html[data-theme=dark]` (same contract as the
  * custom `dark` variant below) because those files are not Tailwind-scanned.
  *
