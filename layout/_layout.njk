@@ -65,7 +65,7 @@
        light-DOM dialog id to shiroSearchDialog (aria-controls) and syncs scroll-lock
        chrome from pagefind-modal.isOpen while open. #}
     <div class="shiro-search-components" data-pagefind-ignore>
-        <pagefind-config bundle-path="{{ attr_url(url_for('/pagefind/')) }}"{% if gates.searchConfig.force_language %}{% set force_lang = lang_attr(gates.searchConfig.force_language) %}{% if force_lang %} lang="{{ escape_attr(force_lang) }}"{% endif %}{% endif %}></pagefind-config>
+        <pagefind-config bundle-path="{{ attr_url(url_for('/pagefind/', { relative: false })) }}" base-url="{{ attr_url(url_for('/', { relative: false })) }}"{% if gates.searchConfig.force_language %}{% set force_lang = lang_attr(gates.searchConfig.force_language) %}{% if force_lang %} lang="{{ escape_attr(force_lang) }}"{% endif %}{% endif %}></pagefind-config>
         <pagefind-modal reset-on-close>
             <pagefind-modal-header>
                 <pagefind-input placeholder="{{ escape_attr(__('search.placeholder')) }}"></pagefind-input>

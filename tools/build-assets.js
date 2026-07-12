@@ -10,8 +10,8 @@ const { concatRuntimeSource } = require('../scripts/lib/runtime-source');
 const { concatLightgallerySource } = require('../scripts/lib/lightgallery-source');
 
 const root = path.resolve(__dirname, '..');
-const binExt = process.platform === 'win32' ? '.cmd' : '';
-const tailwindBin = path.join(root, 'node_modules', '.bin', 'tailwindcss' + binExt);
+const tailwindPackage = require.resolve('@tailwindcss/cli/package.json', { paths: [root] });
+const tailwindCli = path.join(path.dirname(tailwindPackage), 'dist', 'index.mjs');
 const optionalCssFiles = [
     ['source/css/_src/code.css', 'source/css/code.min.css'],
     ['source/css/_src/comments.css', 'source/css/comments.min.css'],
@@ -22,7 +22,8 @@ const optionalCssFiles = [
 ];
 
 function runTailwind() {
-    execFileSync(tailwindBin, [
+    execFileSync(process.execPath, [
+        tailwindCli,
         '-i', './source/css/_tailwind.css',
         '-o', './source/css/style.min.css',
         '--minify'
@@ -106,13 +107,12 @@ async function minifyJs() {
         .filter((file) => file.endsWith('.js') && !file.endsWith('.min.js'))
         .sort();
     const outputs = [];
-    // Top-level monoliths removed in favor of *_src/<name>/* parts.
-    const skipTopLevel = new Set(['runtime.js', 'lightgallery.js']);
+    // Top-level monoliths were replaced by *_src/<name>/* parts.
+    const forbiddenTopLevel = new Set(['runtime.js', 'lightgallery.js']);
 
     for (const file of files) {
-        if (skipTopLevel.has(file)) {
-            console.warn('Ignoring stale source/js/_src/' + file + ' (use parts directory)');
-            continue;
+        if (forbiddenTopLevel.has(file)) {
+            throw new Error('Stale source/js/_src/' + file + ' found; use the parts directory');
         }
         const base = file.slice(0, -3);
         const output = 'source/js/' + base + '.min.js';

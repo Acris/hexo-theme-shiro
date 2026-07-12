@@ -21,14 +21,19 @@ function jpegSize(buffer) {
     let offset = 2;
     while (offset < buffer.length) {
         if (buffer[offset] !== 0xff) return null;
-        const marker = buffer[offset + 1];
-        offset += 2;
-        if (marker === 0xd8 || marker === 0xd9) continue;
+        while (offset < buffer.length && buffer[offset] === 0xff) offset += 1;
+        if (offset >= buffer.length) return null;
+        const marker = buffer[offset];
+        offset += 1;
+        if (marker === 0xd8 || marker === 0xd9 || marker === 0x01
+            || (marker >= 0xd0 && marker <= 0xd7)) continue;
+        if (marker === 0xda || marker === 0x00) return null;
         if (offset + 2 > buffer.length) return null;
         const length = buffer.readUInt16BE(offset);
         if (length < 2 || offset + length > buffer.length) return null;
         if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7)
             || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf)) {
+            if (length < 8) return null;
             return { width: buffer.readUInt16BE(offset + 7), height: buffer.readUInt16BE(offset + 5) };
         }
         offset += length;
@@ -58,10 +63,11 @@ function svgSize(buffer) {
     if (width && height) {
         return { width, height };
     }
-    const viewBoxMatch = head.match(/\bviewBox\s*=\s*["']\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)/i);
-    if (viewBoxMatch) {
-        const viewBoxWidth = roundedPositiveNumber(viewBoxMatch[1]);
-        const viewBoxHeight = roundedPositiveNumber(viewBoxMatch[2]);
+    const viewBoxValue = svgAttributeValue(head.match(/\bviewBox\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i));
+    const viewBox = viewBoxValue.trim().split(/[\s,]+/).map(Number);
+    if (viewBox.length === 4 && viewBox.every(Number.isFinite)) {
+        const viewBoxWidth = roundedPositiveNumber(viewBox[2]);
+        const viewBoxHeight = roundedPositiveNumber(viewBox[3]);
         return viewBoxWidth && viewBoxHeight ? { width: viewBoxWidth, height: viewBoxHeight } : null;
     }
     return null;
@@ -91,6 +97,64 @@ function webpSize(buffer) {
     return null;
 }
 
+function bmffBox(buffer, offset, end) {
+    if (offset + 8 > end) return null;
+    let size = buffer.readUInt32BE(offset);
+    const type = buffer.toString('ascii', offset + 4, offset + 8);
+    let headerSize = 8;
+    if (size === 1) {
+        if (offset + 16 > end) return null;
+        const largeSize = buffer.readBigUInt64BE(offset + 8);
+        if (largeSize > BigInt(Number.MAX_SAFE_INTEGER)) return null;
+        size = Number(largeSize);
+        headerSize = 16;
+    } else if (size === 0) {
+        size = end - offset;
+    }
+    if (size < headerSize || offset + size > end) return null;
+    return { type, offset, size, headerSize, end: offset + size };
+}
+
+function findIspeSize(buffer, start, end) {
+    const containers = new Set(['meta', 'iprp', 'ipco']);
+    let offset = start;
+    while (offset < end) {
+        const box = bmffBox(buffer, offset, end);
+        if (!box) return null;
+        const payload = box.offset + box.headerSize;
+        if (box.type === 'ispe' && payload + 12 <= box.end) {
+            const width = buffer.readUInt32BE(payload + 4);
+            const height = buffer.readUInt32BE(payload + 8);
+            if (width && height) return { width, height };
+        }
+        if (containers.has(box.type)) {
+            const childStart = payload + (box.type === 'meta' ? 4 : 0);
+            const size = childStart <= box.end ? findIspeSize(buffer, childStart, box.end) : null;
+            if (size) return size;
+        }
+        offset = box.end;
+    }
+    return null;
+}
+
+function avifSize(buffer) {
+    let offset = 0;
+    let isAvif = false;
+    while (offset < buffer.length) {
+        const box = bmffBox(buffer, offset, buffer.length);
+        if (!box) break;
+        if (box.type === 'ftyp') {
+            const payload = box.offset + box.headerSize;
+            for (let position = payload; position + 4 <= box.end; position += 4) {
+                const brand = buffer.toString('ascii', position, position + 4);
+                if (brand === 'avif' || brand === 'avis') isAvif = true;
+            }
+        }
+        offset = box.end;
+    }
+    return isAvif ? findIspeSize(buffer, 0, buffer.length) : null;
+}
+
 /**
  * Best-effort dimensions from a file header buffer.
  * @param {Buffer} buffer
@@ -98,7 +162,8 @@ function webpSize(buffer) {
  */
 function imageSizeFromBuffer(buffer) {
     if (!buffer || !buffer.length) return null;
-    return pngSize(buffer) || gifSize(buffer) || jpegSize(buffer) || webpSize(buffer) || svgSize(buffer);
+    return pngSize(buffer) || gifSize(buffer) || jpegSize(buffer) || webpSize(buffer)
+        || avifSize(buffer) || svgSize(buffer);
 }
 
 module.exports = {

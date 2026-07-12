@@ -15,6 +15,7 @@
             return navigator.clipboard.writeText(text);
         }
         return new Promise((resolve, reject) => {
+            const previousFocus = document.activeElement;
             const ta = document.createElement('textarea');
             ta.value = text;
             ta.setAttribute('readonly', '');
@@ -27,6 +28,13 @@
                 reject();
             } finally {
                 document.body.removeChild(ta);
+                if (previousFocus && previousFocus.isConnected && typeof previousFocus.focus === 'function') {
+                    try {
+                        previousFocus.focus({ preventScroll: true });
+                    } catch (_) {
+                        previousFocus.focus();
+                    }
+                }
             }
         });
     }
@@ -57,16 +65,17 @@
         btn.innerHTML = iconCopy;
 
         let resetTimer = 0;
+        let copying = false;
         const resetButton = () => {
             btn.innerHTML = iconCopy;
             btn.classList.remove('copied');
             btn.setAttribute('aria-label', i18nCopy());
-            btn.disabled = false;
         };
 
         btn.addEventListener('click', () => {
-            if (btn.disabled) return;
-            btn.disabled = true;
+            if (copying) return;
+            copying = true;
+            btn.setAttribute('aria-busy', 'true');
             if (resetTimer) {
                 clearTimeout(resetTimer);
                 resetTimer = 0;
@@ -85,6 +94,9 @@
                     resetTimer = 0;
                     resetButton();
                 }, 2000);
+            }).finally(() => {
+                copying = false;
+                btn.removeAttribute('aria-busy');
             });
         });
 

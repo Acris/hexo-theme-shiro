@@ -72,7 +72,10 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Dark mode does **not** invert the Tailwind slate scale. Prefer semantic tokens over `text-slate-*`. UI idle / secondary text uses **`text-chrome`** only (`text-text-chrome` / `--color-text-chrome`). Use `--color-seal` for foreground accents and `--color-seal-fill` for surfaces carrying `--color-on-seal`; there is no `--color-text-muted` token.
 - Comments boot: stub enqueue in `comments/bootstrap.njk` (`__shiro.commentsReadyQueue`); `comments-bootstrap.js` installs `runtime.comments` and drains. Missing runtime aborts. Providers use `runtime.comments` only; immediate load if `onNearViewport` missing.
 - Pagefind indexes only when **theme** `search.enabled` is on (not `hexo.config.search`).
+- Pagefind Component UI config carries both `bundle-path` and Hexo-root `base-url`; keep result links correct for subdirectory deployments.
 - Home cards: `excerpt_for_card` — no manual excerpt + fallback off → empty body + read-more (never full post HTML).
+- Footer credit is fixed English copy and has no `footer.*` i18n namespace.
+- Local image metadata resolution checks Hexo's `post.asset_dir` and the Markdown file's same-name asset folder before its source directory.
 - Feature CSS dark overrides use flat `html[data-theme=dark] …` (not Tailwind-scanned). Core dark uses `@variant dark` in `_core/dark.css`.
 
 ## Workflow rules

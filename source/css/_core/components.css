@@ -472,6 +472,16 @@
             }
         }
 
+        /* Markdown tables are direct prose children; keep wide data inside the reading column. */
+        & > table {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            overscroll-behavior-inline: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* MathJax CHTML: inherit prose ink/body (no separate math palette). */
         & mjx-container {
             color: inherit;

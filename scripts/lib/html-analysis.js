@@ -4,6 +4,7 @@ const {
     collectionToArray,
     escapeHtml,
     decodeHtmlEntities,
+    graphemeLength,
     truncateText
 } = require('./util');
 const { hasUrlControlChars } = require('./urls');
@@ -121,19 +122,16 @@ function stripClassTokenBlocks(content, tokens) {
     return result + source.slice(cursor);
 }
 
-function htmlTextFromHtml(content, length) {
-    const limit = Math.max(0, Number(length) || 0);
-    const targetLength = limit > 0 ? limit + 40 : 0;
+function htmlTextFromHtml(content) {
     const text = htmlTextContent(content, {
-        skipElements: RAW_CONTENT_ELEMENTS,
-        maxLength: targetLength ? targetLength * 3 : 0
+        skipElements: RAW_CONTENT_ELEMENTS
     });
     return decodeHtmlEntities(text).replace(/\s+/g, ' ').trim();
 }
 
 function htmlTextReachesLength(content, length) {
     const limit = Math.max(0, Number(length) || 0);
-    return limit > 0 && htmlTextFromHtml(content, limit).length >= limit;
+    return limit > 0 && graphemeLength(htmlTextFromHtml(content)) >= limit;
 }
 
 function cachedStrippedHtml(html) {
@@ -274,7 +272,7 @@ function renderedPostCardHasCode(post, themeConfig) {
     if (excerptFallbackEnabled(themeConfig)) {
         const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
         const limit = excerptFallbackLength(fallback);
-        if (limit > 0 && htmlTextFromHtml(post.content, limit).length > limit) return false;
+        if (limit > 0 && graphemeLength(htmlTextFromHtml(post.content)) > limit) return false;
     }
 
     return hasCodeContent(post.content);
@@ -412,8 +410,8 @@ function excerptFor(post, length) {
         const manual = String(post.excerpt);
         result = { content: post.excerpt, truncated: !full || manual !== full };
     } else if (limit > 0) {
-        const plain = htmlTextFromHtml(post.content, limit);
-        if (plain.length > limit) {
+        const plain = htmlTextFromHtml(post.content);
+        if (graphemeLength(plain) > limit) {
             result = { content: '<p>' + escapeHtml(truncateText(plain, limit)) + '</p>', truncated: true };
         } else {
             result = { content: post.content || '', truncated: false };

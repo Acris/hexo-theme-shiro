@@ -5,6 +5,28 @@
 
 const { isFeatureEnabled } = require('./features');
 
+const GISCUS_MAPPINGS = new Set(['pathname', 'url', 'title', 'og:title', 'specific', 'number']);
+const GISCUS_INPUT_POSITIONS = new Set(['top', 'bottom']);
+
+function normalizeGiscusMapping(value) {
+    const mapping = String(value || '').trim().toLowerCase();
+    return GISCUS_MAPPINGS.has(mapping) ? mapping : 'pathname';
+}
+
+function normalizeGiscusInputPosition(value) {
+    const position = String(value || '').trim().toLowerCase();
+    return GISCUS_INPUT_POSITIONS.has(position) ? position : 'bottom';
+}
+
+function normalizeGiscusBinary(value, fallback) {
+    if (value === true || value === 1) return '1';
+    if (value === false || value === 0) return '0';
+    const text = String(value == null ? '' : value).trim().toLowerCase();
+    if (text === '1' || text === 'true') return '1';
+    if (text === '0' || text === 'false') return '0';
+    return fallback === '1' ? '1' : '0';
+}
+
 /**
  * Resolve which comment provider (if any) is fully configured for rendering.
  *
@@ -47,10 +69,11 @@ function resolveCommentsState(themeConfig, page, options) {
         && provider === 'disqus'
         && /^[a-z0-9-]+$/i.test(shortname);
 
-    const mapping = giscus.mapping || 'pathname';
-    const mappingReady = (mapping === 'specific' || mapping === 'number')
-        ? !!giscus.term
-        : true;
+    const mapping = normalizeGiscusMapping(giscus.mapping);
+    const term = String(giscus.term || '').trim();
+    const mappingReady = mapping === 'specific'
+        ? !!term
+        : (mapping === 'number' ? /^[1-9]\d*$/.test(term) : true);
     const giscusReady = enabled
         && provider === 'giscus'
         && !!giscus.repo
@@ -76,5 +99,8 @@ function resolveCommentsState(themeConfig, page, options) {
 }
 
 module.exports = {
-    resolveCommentsState
+    resolveCommentsState,
+    normalizeGiscusMapping,
+    normalizeGiscusInputPosition,
+    normalizeGiscusBinary
 };

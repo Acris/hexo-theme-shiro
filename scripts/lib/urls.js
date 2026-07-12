@@ -160,7 +160,14 @@ function isAbsoluteHttpUrl(value) {
 function normalizeSriIntegrity(value) {
     const text = String(value || '').trim();
     if (!text) return '';
-    return /^sha(256|384|512)-[A-Za-z0-9+/]+=*$/.test(text) ? text : '';
+    const match = /^(sha256|sha384|sha512)-([A-Za-z0-9+/]+={0,2})$/.exec(text);
+    if (!match) return '';
+
+    const expectedBytes = { sha256: 32, sha384: 48, sha512: 64 }[match[1]];
+    const decoded = Buffer.from(match[2], 'base64');
+    const canonical = decoded.toString('base64').replace(/=+$/, '');
+    const supplied = match[2].replace(/=+$/, '');
+    return decoded.length === expectedBytes && canonical === supplied ? text : '';
 }
 
 /**

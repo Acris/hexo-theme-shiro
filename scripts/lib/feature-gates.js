@@ -11,7 +11,12 @@ const {
     resourceOrigin,
     normalizeAbsoluteResourceUrl
 } = require('./urls');
-const { resolveCommentsState } = require('./comments');
+const {
+    resolveCommentsState,
+    normalizeGiscusMapping,
+    normalizeGiscusInputPosition,
+    normalizeGiscusBinary
+} = require('./comments');
 const {
     resolveMathjaxConfig,
     pageWantsMathjax,
@@ -259,15 +264,15 @@ function buildCommentsClientConfig(theme, page, options) {
             repo_id: giscus.repo_id || '',
             category: giscus.category || '',
             category_id: giscus.category_id || '',
-            mapping: giscus.mapping || 'pathname',
-            term: giscus.term || '',
-            strict: giscus.strict != null ? giscus.strict : '0',
-            reactions_enabled: giscus.reactions_enabled != null ? giscus.reactions_enabled : '1',
-            emit_metadata: giscus.emit_metadata != null ? giscus.emit_metadata : '0',
-            input_position: giscus.input_position || 'bottom',
+            mapping: normalizeGiscusMapping(giscus.mapping),
+            term: String(giscus.term || '').trim(),
+            strict: normalizeGiscusBinary(giscus.strict, '0'),
+            reactions_enabled: normalizeGiscusBinary(giscus.reactions_enabled, '1'),
+            emit_metadata: normalizeGiscusBinary(giscus.emit_metadata, '0'),
+            input_position: normalizeGiscusInputPosition(giscus.input_position),
             theme: giscus.theme || 'preferred_color_scheme',
             lang: giscus.lang || 'en',
-            lazy_loading: !!giscus.lazy_loading
+            lazy_loading: isFeatureEnabled(giscus.lazy_loading, false)
         }
     };
 }

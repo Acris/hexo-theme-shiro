@@ -18,11 +18,6 @@ common:
   rss: RSS
   skip_to_content: Aller au contenu
 
-footer:
-  credit_by: Réalisé par
-  credit_prefix: Thème élégant par
-  love: amour
-
 gallery:
   view_image: Voir l'image
   visit_source: Voir le lien source

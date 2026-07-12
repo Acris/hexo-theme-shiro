@@ -26,7 +26,6 @@ const {
 const {
     optimizeImages: pureOptimize,
     parseAttrs,
-    renderAttrs,
     isRemoteUrl,
     cleanUrl,
     getAttr,
@@ -35,14 +34,13 @@ const {
 } = require('../scripts/lib/image-optimize');
 
 describe('scripts/lib/image-optimize', () => {
-    describe('parseAttrs / renderAttrs', () => {
-        it('round-trips quoted and boolean attributes', () => {
+    describe('parseAttrs', () => {
+        it('parses quoted and boolean attributes', () => {
             const attrs = parseAttrs('src="a.png" alt=\'x\' loading disabled');
             const lookup = attrLookup(attrs);
             assert.equal(getAttr(attrs, lookup, 'src'), 'a.png');
             assert.equal(getAttr(attrs, lookup, 'alt'), 'x');
             assert.ok(attrs.some(a => a.name === 'disabled' && a.boolean));
-            assert.match(renderAttrs(attrs), /src="a\.png"/);
         });
     });
 
@@ -62,13 +60,13 @@ describe('scripts/lib/image-optimize', () => {
     });
 
     describe('optimizeImages', () => {
-        it('adds decoding/loading/fetchpriority defaults', () => {
+        it('adds decoding/loading defaults without forcing fetch priority', () => {
             const out = pureOptimize('<p><img src="https://cdn.example/a.png" alt="a"></p>', {
                 firstImageEager: true
             });
             assert.match(out, /decoding="async"/);
             assert.match(out, /loading="eager"/);
-            assert.match(out, /fetchpriority="high"/);
+            assert.doesNotMatch(out, /fetchpriority=/);
         });
 
         it('preserves original attribute quoting when injecting', () => {

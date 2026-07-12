@@ -18,11 +18,6 @@ common:
   rss: RSS
   skip_to_content: Skip to content
 
-footer:
-  credit_by: Made by
-  credit_prefix: Elegant theme by
-  love: love
-
 gallery:
   view_image: View image
   visit_source: View Source Link

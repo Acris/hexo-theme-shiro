@@ -4,6 +4,23 @@
 
 const { collectionToArray } = require('./util');
 
+function archivePeriod(page) {
+    if (!page) return '';
+    const year = Number(page.year);
+    if (!Number.isInteger(year) || year < 1) return '';
+
+    const parts = [String(year)];
+    const month = Number(page.month);
+    if (!Number.isInteger(month) || month < 1 || month > 12) return parts[0];
+    parts.push(String(month).padStart(2, '0'));
+
+    const day = Number(page.day);
+    if (Number.isInteger(day) && day >= 1 && day <= 31) {
+        parts.push(String(day).padStart(2, '0'));
+    }
+    return parts.join('/');
+}
+
 /**
  * Group posts by calendar year (descending post order preserved within each year).
  * Expects posts already sorted (typically date desc).
@@ -45,5 +62,6 @@ function groupPostsByYear(posts, yearOf) {
 }
 
 module.exports = {
-    groupPostsByYear
+    groupPostsByYear,
+    archivePeriod
 };

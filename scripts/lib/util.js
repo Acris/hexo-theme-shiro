@@ -1,5 +1,6 @@
 'use strict';
 
+const { decodeHTML } = require('entities');
 const { htmlTextContent } = require('./html-scanner');
 
 function collectionToArray(value) {
@@ -32,28 +33,10 @@ function escapeAttr(value) {
     return escapeHtml(value);
 }
 
-function htmlCodePoint(match, code, radix) {
-    const value = parseInt(code, radix);
-    if (!Number.isFinite(value)) return match;
-    try {
-        return String.fromCodePoint(value);
-    } catch (_) {
-        return match;
-    }
-}
-
 function decodeHtmlEntities(value) {
     const text = String(value);
     if (text.indexOf('&') === -1) return text;
-    return text
-        .replace(/&#(\d+);/g, (match, code) => htmlCodePoint(match, code, 10))
-        .replace(/&#x([\da-f]+);/gi, (match, code) => htmlCodePoint(match, code, 16))
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
+    return decodeHTML(text);
 }
 
 function normalizePlainText(value) {
@@ -81,17 +64,24 @@ function pageLanguage(page, config) {
     return Array.isArray(language) ? language[0] : language;
 }
 
+function graphemesIn(text) {
+    const value = String(text == null ? '' : text);
+    if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+        const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+        return Array.from(segmenter.segment(value), item => item.segment);
+    }
+    return Array.from(value);
+}
+
+function graphemeLength(text) {
+    return graphemesIn(text).length;
+}
+
 function truncateText(text, length) {
     const limit = Math.max(0, Number(length) || 0);
     if (!limit) return text;
 
-    let graphemes;
-    if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
-        const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-        graphemes = Array.from(segmenter.segment(text), item => item.segment);
-    } else {
-        graphemes = Array.from(text);
-    }
+    const graphemes = graphemesIn(text);
     if (graphemes.length <= limit) return text;
 
     const head = graphemes.slice(0, limit).join('');
@@ -110,5 +100,6 @@ module.exports = {
     plainHeadingText,
     primaryLanguage,
     pageLanguage,
+    graphemeLength,
     truncateText
 };

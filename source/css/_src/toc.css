@@ -119,7 +119,7 @@
         opacity: 1;
     }
 
-    html.js .toc-inline .toc-body {
+    .toc-inline[data-enhanced="true"] .toc-body {
         max-height: 0;
         overflow: hidden;
         padding-inline: 1rem;
@@ -128,7 +128,7 @@
         transition: max-height 0.3s var(--ease-soft), opacity 0.3s var(--ease-soft), padding 0.3s var(--ease-soft);
     }
 
-    html.js .toc-inline .toc-body[data-open="true"] {
+    .toc-inline[data-enhanced="true"] .toc-body[data-open="true"] {
         padding-bottom: 1rem;
         opacity: 1;
     }

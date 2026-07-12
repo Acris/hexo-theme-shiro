@@ -14,6 +14,14 @@
 
     backBtn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+        const main = document.getElementById('main-content');
+        if (main && document.activeElement === backBtn) {
+            try {
+                main.focus({ preventScroll: true });
+            } catch (_) {
+                main.focus();
+            }
+        }
     });
 
     if (sentinel && 'IntersectionObserver' in window) {

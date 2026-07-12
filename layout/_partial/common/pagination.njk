@@ -1,13 +1,13 @@
 {% if page.total > 1 %}
-<section class="mt-8 md:mt-10" aria-label="{{ escape_attr(__('page.pagination')) }}">
-    <nav class="pagination flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm md:text-base font-medium">
-        {{ paginator({
+<nav class="pagination mt-8 flex flex-wrap items-center justify-center gap-6 text-sm font-medium sm:gap-8 md:mt-10 md:text-base"
+    aria-label="{{ escape_attr(__('page.pagination')) }}">
+        {% set pagination_html = paginator({
             prev_text: __('page.prev'),
             next_text: __('page.next'),
             mid_size: 1,
             space: '&hellip;',
             show_all: false
-        }) }}
-    </nav>
-</section>
+        }) %}
+        {{ pagination_html | replace('<span class="page-number current">', '<span class="page-number current" aria-current="page">') }}
+</nav>
 {% endif %}

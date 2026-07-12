@@ -51,7 +51,7 @@ const {
     postMetaCategorySummary,
     resolveCategoryForPage
 } = require('./lib/categories');
-const { groupPostsByYear } = require('./lib/archive');
+const { groupPostsByYear, archivePeriod } = require('./lib/archive');
 
 const assetHashCache = new Map();
 
@@ -264,6 +264,10 @@ hexo.extend.helper.register('archive_url', function (year) {
     const archiveDir = configured || 'archives';
     const path = String(this.url_for(archiveDir + '/' + year) || '').replace(/\/+$/, '');
     return path + '/';
+});
+
+hexo.extend.helper.register('archive_period', function (page) {
+    return archivePeriod(page);
 });
 
 // Year → posts groups for archive/tag/category list templates (no open/close div state in Nunjucks).

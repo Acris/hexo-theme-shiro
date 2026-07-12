@@ -12,17 +12,9 @@ const {
 const DEFAULT_IMAGE_SIZES = '(min-width: 768px) 672px, calc(100vw - 2rem)';
 const IMAGE_SKIPPED_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
 
-// Lightweight HTML attribute parsing/rendering for <img> tags in rendered Hexo output.
+// Lightweight HTML attribute parsing for <img> tags in rendered Hexo output.
 function parseAttrs(source) {
     return parseHtmlAttributes(source);
-}
-
-function renderAttrs(attrs) {
-    return attrs.map(attr => {
-        if (attr.boolean) return attr.name;
-        const quote = attr.quote || '"';
-        return attr.name + '=' + quote + attr.value + quote;
-    }).join(' ');
 }
 
 function attrLookup(attrs) {
@@ -116,15 +108,26 @@ function localImageCandidates(src, post, ctx) {
 
     const source = post && (post.full_source || post.source);
     let postDir = '';
+    const assetDirs = [];
+    const configuredAssetDir = post && post.asset_dir;
+    if (configuredAssetDir) {
+        assetDirs.push(path.isAbsolute(configuredAssetDir)
+            ? configuredAssetDir
+            : path.join(sourceDir, configuredAssetDir));
+    }
     if (source) {
         const absolute = path.isAbsolute(source) ? source : path.join(sourceDir, source);
         postDir = path.dirname(absolute);
+        const extension = path.extname(absolute);
+        if (extension) assetDirs.push(path.join(postDir, path.basename(absolute, extension)));
     }
 
     if (urlPath[0] === '/') {
         addCandidate(path.join(sourceDir, withoutRoot));
+        assetDirs.forEach(dir => addCandidate(path.join(dir, path.basename(withoutRoot))));
         if (postDir) addCandidate(path.join(postDir, path.basename(withoutRoot)));
     } else {
+        assetDirs.forEach(dir => addCandidate(path.resolve(dir, urlPath)));
         if (postDir) addCandidate(path.resolve(postDir, urlPath));
         addCandidate(path.join(sourceDir, urlPath));
         if (withoutRoot !== urlPath) addCandidate(path.join(sourceDir, withoutRoot));
@@ -186,10 +189,8 @@ function optimizeImages(html, options) {
         ensure('decoding', 'async');
         if (isFirstContentImage) {
             ensure('loading', 'eager');
-            ensure('fetchpriority', 'high');
         } else {
             ensure('loading', 'lazy');
-            ensure('fetchpriority', 'auto');
         }
         // `sizes` only influences resource selection when a `srcset` is present, so
         // skip it for plain Markdown images (no srcset) to avoid emitting dead markup.
@@ -219,7 +220,6 @@ function optimizeImages(html, options) {
 
 module.exports = {
     parseAttrs,
-    renderAttrs,
     attrLookup,
     getAttr,
     cleanUrl,

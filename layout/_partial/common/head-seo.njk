@@ -64,6 +64,7 @@
 {% endif %}
 {% if og_img %}
 <meta name="twitter:image" content="{{ escape_attr(og_img) }}" />
+<meta name="twitter:image:alt" content="{{ escape_attr(page_title) }}" />
 {% endif %}
 
 <link rel="canonical" href="{{ attr_url(url) }}" />

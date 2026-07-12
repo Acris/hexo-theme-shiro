@@ -18,11 +18,6 @@ common:
   rss: RSS
   skip_to_content: 本文へスキップ
 
-footer:
-  credit_by: 制作
-  credit_prefix: テーマ
-  love: 愛
-
 gallery:
   view_image: 画像を見る
   visit_source: 元のリンクを見る

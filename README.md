@@ -24,7 +24,7 @@ Made by Acris with ❤️
 - **Responsive**: Fully responsive design for mobile and desktop.
 - **Accessible Navigation**: Keyboard-safe collapsed menus, table of contents, skip link, and motion-aware controls.
 - **Multi-language**: Supports English, Simplified Chinese (`zh-CN`), Traditional Chinese (`zh-TW`), Japanese (`ja-JP`),
-  and French (`fr`).
+  and French (`fr`); the footer credit remains in English.
 - **Dark Mode**: Elegant dark theme with warm neutral tones; system / light / dark toggle.
 - **Table of Contents**: Sidebar TOC for articles with configurable heading depth.
 - **Reading Progress Bar**: Thin vermilion progress bar at the top of the page.
@@ -461,7 +461,7 @@ hexo-theme-shiro/
 
 ### Getting Started
 
-Development and asset builds require Node.js 20.19 or later; `.node-version` records the recommended version.
+Development and asset builds require Node.js 20.19 or later; `.node-version` recommends the current Node.js 24 LTS.
 
 1. Install dependencies in the theme directory:
 

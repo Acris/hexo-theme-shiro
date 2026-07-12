@@ -29,14 +29,16 @@ function wordCountMeta(ctx, post, options) {
 
     const opts = options || {};
     const out = {};
+    const site = (ctx.config && ctx.config.symbols_count_time) || {};
+    const showCount = isFeatureEnabled(site.symbols, true);
+    const showTime = isFeatureEnabled(site.time, true);
 
-    if (typeof ctx.symbolsCount === 'function') {
+    if (showCount && typeof ctx.symbolsCount === 'function') {
         const count = ctx.symbolsCount(post);
         if (count != null) out.count = count;
     }
 
-    if (typeof ctx.symbolsTime === 'function') {
-        const site = (ctx.config && ctx.config.symbols_count_time) || {};
+    if (showTime && typeof ctx.symbolsTime === 'function') {
         // Only override suffix (i18n). Leave awl/wpm undefined so the plugin
         // uses its own symbols_count_time.wpm / defaults (see hexo-word-counter).
         const suffix = opts.timeSuffix || site.suffix || 'mins.';

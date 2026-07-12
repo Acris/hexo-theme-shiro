@@ -82,6 +82,14 @@
         items.forEach((item, index) => state.itemIndex.set(item, index));
     }
 
+    function syncGalleryItems(container) {
+        const state = cachedGalleryItems(container);
+        const items = Array.from(container.querySelectorAll('a[data-lg-item]'))
+            .filter(item => item.isConnected);
+        rebuildGalleryItems(state, items);
+        return state;
+    }
+
     function rememberGalleryItem(container, link) {
         const state = cachedGalleryItems(container);
         if (!state.itemSet.has(link)) {

@@ -59,22 +59,33 @@ function buildChildrenByParent(list) {
 /**
  * Stable DOM id fragment for a category (slug → path → _id).
  */
+function categoryIdFragment(value) {
+    let output = '';
+    for (const char of String(value == null ? '' : value).normalize('NFC')) {
+        if (/[A-Za-z0-9_.-]/.test(char)) {
+            output += char;
+        } else if (/\s|[\\/]/u.test(char)) {
+            output += '-';
+        } else {
+            output += '-u' + char.codePointAt(0).toString(16) + '-';
+        }
+    }
+    return output.replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
 function categoryDomId(category) {
     if (!category) return 'unknown';
 
     const slug = category.slug != null ? String(category.slug).trim() : '';
-    if (slug) return slug.replace(/[^\w.-]+/g, '-');
+    if (slug) return categoryIdFragment(slug) || 'unknown';
 
     const path = category.path != null ? String(category.path).trim() : '';
     if (path) {
-        return path
-            .replace(/\\/g, '/')
-            .replace(/^\/+|\/+$/g, '')
-            .replace(/[^\w.-]+/g, '-')
+        return categoryIdFragment(path.replace(/\\/g, '/').replace(/^\/+|\/+$/g, ''))
             || 'unknown';
     }
 
-    if (category._id != null) return String(category._id);
+    if (category._id != null) return categoryIdFragment(category._id) || 'unknown';
     return 'unknown';
 }
 
@@ -362,6 +373,7 @@ function buildCategoryIndexCards(categories, options) {
     if (!Number.isFinite(previewLimit) || previewLimit < 0) {
         previewLimit = DEFAULT_PREVIEW_LIMIT;
     }
+    previewLimit = Math.floor(previewLimit);
 
     const list = categoriesToArray(categories);
     const byId = buildCategoryIdIndex(list);
@@ -378,11 +390,9 @@ function buildCategoryIndexCards(categories, options) {
         };
     });
 
-    prepared.sort((a, b) => a.sortKey.localeCompare(b.sortKey, undefined, {
-        sensitivity: 'base',
-        numeric: true
-    }));
+    prepared.sort((a, b) => (a.sortKey < b.sortKey ? -1 : (a.sortKey > b.sortKey ? 1 : 0)));
 
+    const usedIds = new Set();
     return prepared.map(({ cat, chain }) => {
         const exclusive = exclusivePostsWithIndex(cat, childrenByParent, postsByCatId);
         const full = (cat._id != null && postsByCatId.get(String(cat._id))) || [];
@@ -394,9 +404,17 @@ function buildCategoryIndexCards(categories, options) {
         // Index total is exclusive; detailFullTotal is Hexo full assignment (superset).
         // UI copy for the mismatch is assembled in the helper/template via i18n.
         const detailFullTotal = full.length;
+        const baseId = categoryDomId(cat);
+        let id = baseId;
+        let suffix = 2;
+        while (usedIds.has(id)) {
+            id = baseId + '-' + suffix;
+            suffix += 1;
+        }
+        usedIds.add(id);
 
         return {
-            id: categoryDomId(cat),
+            id,
             name: cat.name != null ? String(cat.name) : '',
             path: cat.path != null ? String(cat.path) : '',
             depth: Math.max(0, chain.length - 1),

@@ -18,11 +18,6 @@ common:
   rss: RSS
   skip_to_content: 跳到正文
 
-footer:
-  credit_by: 製作
-  credit_prefix: 優雅主題
-  love: 愛
-
 gallery:
   view_image: 查看圖片
   visit_source: 查看原始連結

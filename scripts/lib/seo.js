@@ -14,6 +14,7 @@ const {
     htmlTextFromHtml,
     htmlWithoutCodeContent
 } = require('./html-analysis');
+const { archivePeriod } = require('./archive');
 const { SEAL_PATH_D, SEAL_FILTER_DEFS } = require('./seal');
 
 const META_DESCRIPTION_LENGTH = 200;
@@ -149,7 +150,14 @@ function structuredData(page, config, options) {
         if (siteName) {
             const publisher = { '@type': 'Organization', name: siteName };
             const logo = fullUrlFor ? fullUrlFor('/favicon.svg') : '';
-            if (logo) publisher.logo = { '@type': 'ImageObject', url: logo };
+            if (logo) {
+                publisher.logo = {
+                    '@type': 'ImageObject',
+                    url: logo,
+                    width: 112,
+                    height: 112
+                };
+            }
             node.publisher = publisher;
         }
 
@@ -187,7 +195,10 @@ function buildPageTitle(page, config, options) {
 
     if (opts.isHome) return pageLabel ? pageLabel + ' | ' + site : site;
     if (page && page.title) return page.title + ' | ' + site;
-    if (opts.isArchive) return t('nav.archives') + (page && page.year ? ': ' + page.year : '') + suffix + ' | ' + site;
+    if (opts.isArchive) {
+        const period = archivePeriod(page);
+        return t('nav.archives') + (period ? ': ' + period : '') + suffix + ' | ' + site;
+    }
     if (opts.isTag) return t('nav.tags') + (page && page.tag ? ': ' + page.tag : '') + suffix + ' | ' + site;
     if (opts.isCategory) return t('nav.categories') + (page && page.category ? ': ' + page.category : '') + suffix + ' | ' + site;
     return site;
@@ -195,7 +206,7 @@ function buildPageTitle(page, config, options) {
 
 function faviconSvg(sealText) {
     const text = sealText || '白';
-    return '<svg width="52" height="52" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
+    return '<svg width="112" height="112" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
         + SEAL_FILTER_DEFS
         + '<path d="' + SEAL_PATH_D + '" fill="#b0171a" filter="url(#seal-roughness)" opacity="0.92"/>'
         + '<text x="50" y="50" text-anchor="middle" dominant-baseline="central" '

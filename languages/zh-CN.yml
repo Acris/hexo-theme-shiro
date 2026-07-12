@@ -18,11 +18,6 @@ common:
   rss: RSS
   skip_to_content: 跳到正文
 
-footer:
-  credit_by: 制作
-  credit_prefix: 优雅主题
-  love: 爱
-
 gallery:
   view_image: 查看图片
   visit_source: 查看原始链接

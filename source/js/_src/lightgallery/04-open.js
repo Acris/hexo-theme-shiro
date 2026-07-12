@@ -1,9 +1,5 @@
     function galleryIndex(container, item) {
-        const state = cachedGalleryItems(container);
-        const items = state.items.filter(item => item.isConnected);
-        if (items.length !== state.items.length) {
-            rebuildGalleryItems(state, items);
-        }
+        const state = syncGalleryItems(container);
         const index = state.itemIndex.get(item);
         return index === undefined ? -1 : index;
     }
@@ -26,6 +22,7 @@
     }
 
     function refreshGallery(container) {
+        syncGalleryItems(container);
         const instance = instances.get(container);
         if (instance && typeof instance.refresh === 'function') {
             try { instance.refresh(); } catch (_) {}
