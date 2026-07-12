@@ -14,7 +14,18 @@
         document.documentElement.classList.add('shiro-preloader-done');
         if (!fontsReadyToken) return;
         try {
-            sessionStorage.setItem(storageKey, fontsReadyToken);
+            const storedFontsReady = sessionStorage.getItem(storageKey);
+            let readyFontTokens;
+            try {
+                readyFontTokens = JSON.parse(storedFontsReady || '[]');
+            } catch (error) {
+                readyFontTokens = storedFontsReady ? [storedFontsReady] : [];
+            }
+            if (!Array.isArray(readyFontTokens)) readyFontTokens = [];
+            if (readyFontTokens.indexOf(fontsReadyToken) === -1) {
+                readyFontTokens.push(fontsReadyToken);
+            }
+            sessionStorage.setItem(storageKey, JSON.stringify(readyFontTokens));
         } catch (error) {}
     };
 
