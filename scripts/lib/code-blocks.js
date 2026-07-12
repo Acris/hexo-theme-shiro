@@ -2,6 +2,7 @@
 
 // Pure HTML post-processing for code/highlight surfaces (no Hexo registration).
 
+const { decodeHtmlEntities } = require('./util');
 const {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
@@ -35,7 +36,7 @@ function markCodeBlocksNotProse(html) {
         const classAttr = findHtmlAttribute(token.attrs, 'class');
         if (classAttr && !classAttr.boolean) {
             const classes = classAttr.value;
-            const tokens = String(classes || '').trim().split(/\s+/).filter(Boolean);
+            const tokens = decodeHtmlEntities(classes).trim().split(/\s+/).filter(Boolean);
             const hasCode = tokens.some(value => value === 'highlight' || value === 'gist');
             if (hasCode && !tokens.includes('not-prose')) {
                 const attrs = replaceHtmlAttributeValue(token.attrs, classAttr, 'not-prose ' + classes);

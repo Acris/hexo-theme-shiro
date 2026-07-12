@@ -204,6 +204,33 @@ describe('scripts/lib/feature-gates', () => {
             assert.equal(bad.giscus.src, DEFAULT_GISCUS_SRC);
         });
 
+        it('trims giscus identifiers before serializing client config', () => {
+            const cfg = buildCommentsClientConfig(
+                {
+                    comments: {
+                        enabled: true,
+                        provider: 'giscus',
+                        giscus: {
+                            repo: ' owner/repo ',
+                            repo_id: ' R_1 ',
+                            category: ' General ',
+                            category_id: ' DIC_1 ',
+                            theme: ' preferred_color_scheme ',
+                            lang: ' zh-CN '
+                        }
+                    }
+                },
+                {},
+                { isPost: true }
+            );
+            assert.equal(cfg.giscus.repo, 'owner/repo');
+            assert.equal(cfg.giscus.repo_id, 'R_1');
+            assert.equal(cfg.giscus.category, 'General');
+            assert.equal(cfg.giscus.category_id, 'DIC_1');
+            assert.equal(cfg.giscus.theme, 'preferred_color_scheme');
+            assert.equal(cfg.giscus.lang, 'zh-CN');
+        });
+
         it('reuses pre-resolved state when provided', () => {
             const state = {
                 provider: 'disqus',

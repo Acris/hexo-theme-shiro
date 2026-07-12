@@ -93,10 +93,18 @@ describe('scripts/lib/image-optimize', () => {
 
         it('adds sizes when srcset is present', () => {
             const out = pureOptimize(
-                '<img src="https://cdn.example/a.png" srcset="https://cdn.example/a.png 1x">',
+                '<img src="https://cdn.example/a.png" srcset="https://cdn.example/a.png 640w, https://cdn.example/a-large.png 1280w">',
                 {}
             );
             assert.match(out, /sizes="/);
+        });
+
+        it('does not add sizes to density-descriptor srcset', () => {
+            const out = pureOptimize(
+                '<img src="https://cdn.example/a.png" srcset="https://cdn.example/a.png 1x, https://cdn.example/a-2x.png 2x">',
+                {}
+            );
+            assert.equal(out.includes('sizes='), false);
         });
 
         it('does not override existing loading attributes', () => {

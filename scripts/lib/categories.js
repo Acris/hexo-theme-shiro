@@ -140,6 +140,14 @@ function categoryPathLabel(category, categories, separator) {
     return chain.map((node) => node.name).join(sep);
 }
 
+function categoryIdentityKey(category) {
+    if (!category) return '';
+    const id = category._id != null ? String(category._id) : '';
+    const path = category.path != null ? String(category.path).trim() : '';
+    const name = category.name != null ? String(category.name).trim() : '';
+    return id ? 'id:' + id : (path ? 'path:' + path : (name ? 'name:' + name : ''));
+}
+
 /**
  * Independent root → leaf paths for full article category meta.
  * Assigned ancestors collapse into their descendant path; parallel assignments
@@ -157,9 +165,7 @@ function postCategoryPaths(postCategories, allCategories) {
     for (let i = 0; i < assigned.length; i += 1) {
         const category = assigned[i];
         const id = category._id != null ? String(category._id) : '';
-        const path = category.path != null ? String(category.path).trim() : '';
-        const name = category.name != null ? String(category.name).trim() : '';
-        const key = id ? 'id:' + id : (path ? 'path:' + path : (name ? 'name:' + name : ''));
+        const key = categoryIdentityKey(category);
         if (!key || seen.has(key)) continue;
 
         const chain = categoryChainWithIndex(category, byId);
@@ -229,7 +235,16 @@ function isOnAncestorChain(ancestorId, category, byId) {
  * @returns {{ primary: object, moreCount: number, title: string }|null}
  */
 function postMetaCategorySummary(postCategories, allCategories) {
-    const assigned = collectionToArray(postCategories);
+    const assigned = [];
+    const seen = new Set();
+    const input = collectionToArray(postCategories);
+    for (let i = 0; i < input.length; i += 1) {
+        const category = input[i];
+        const key = categoryIdentityKey(category);
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        assigned.push(category);
+    }
     if (!assigned.length) return null;
 
     const siteList = allCategories == null ? null : categoriesToArray(allCategories);

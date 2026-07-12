@@ -84,31 +84,26 @@ function cleanDescription(page, config, options) {
         : value => htmlTextFromHtml(value, META_DESCRIPTION_LENGTH);
     const textFromDescription = value => normalizePlainText(stripHtml(value));
     const textFromHtmlSource = value => htmlTextFromHtml(htmlWithoutCodeContent(value), META_DESCRIPTION_LENGTH);
-    let owner = page;
-    let raw = '';
-    let cacheField = 'cleanDescription';
-    let producer = textFromDescription;
+    const candidates = [];
 
     if (page && page.description) {
-        raw = page.description;
-        cacheField = 'cleanDescription:description';
-    } else if (page && page.excerpt) {
-        raw = page.excerpt;
-        cacheField = 'cleanDescription:excerpt';
-        producer = textFromHtmlSource;
-    } else if (isReadingPage && page && page.content) {
-        raw = page.content;
-        cacheField = 'cleanDescription:content';
-        producer = textFromHtmlSource;
-    } else {
-        owner = config;
-        raw = config && config.description;
-        cacheField = 'cleanDescription:config';
+        candidates.push([page, 'cleanDescription:description', page.description, textFromDescription]);
+    }
+    if (page && page.excerpt) {
+        candidates.push([page, 'cleanDescription:excerpt', page.excerpt, textFromHtmlSource]);
+    }
+    if (isReadingPage && page && page.content) {
+        candidates.push([page, 'cleanDescription:content', page.content, textFromHtmlSource]);
+    }
+    if (config && config.description) {
+        candidates.push([config, 'cleanDescription:config', config.description, textFromDescription]);
     }
 
-    const text = cachedCleanDescriptionText(owner, cacheField, raw, producer);
-    if (!text) return '';
-    return truncateText(text, META_DESCRIPTION_LENGTH);
+    for (const [owner, field, source, producer] of candidates) {
+        const text = cachedCleanDescriptionText(owner, field, source, producer);
+        if (text) return truncateText(text, META_DESCRIPTION_LENGTH);
+    }
+    return '';
 }
 
 function copyrightYear(since, currentYear) {

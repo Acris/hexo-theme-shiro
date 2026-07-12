@@ -44,6 +44,27 @@ describe('scripts/lib/comments', () => {
             assert.equal(incomplete.shouldRender, false);
         });
 
+        it('rejects whitespace-only giscus identifiers', () => {
+            const state = resolveCommentsState(
+                {
+                    comments: {
+                        enabled: true,
+                        provider: 'giscus',
+                        giscus: {
+                            repo: '   ',
+                            repo_id: '\t',
+                            category: '\n',
+                            category_id: '  '
+                        }
+                    }
+                },
+                {},
+                { isPost: true }
+            );
+            assert.equal(state.giscusReady, false);
+            assert.equal(state.shouldRender, false);
+        });
+
         it('requires shortname for disqus', () => {
             assert.equal(
                 resolveCommentsState(

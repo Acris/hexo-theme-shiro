@@ -14,6 +14,7 @@ const {
 
 const root = path.resolve(__dirname, '..');
 const configYml = fs.readFileSync(path.join(root, '_config.yml'), 'utf8');
+const componentsCss = fs.readFileSync(path.join(root, 'source/css/_core/components.css'), 'utf8');
 const darkCss = fs.readFileSync(path.join(root, 'source/css/_core/dark.css'), 'utf8');
 const giscusCss = fs.readFileSync(path.join(root, 'source/css/_src/giscus.css'), 'utf8');
 const uiMacros = fs.readFileSync(path.join(root, 'layout/_macro/ui.njk'), 'utf8');
@@ -63,5 +64,18 @@ describe('CDN / package defaults stay in sync', () => {
 
     it('uses the semantic on-seal token for inline seal text', () => {
         assert.match(uiMacros, /<text[^>]+fill="var\(--color-on-seal\)"/);
+    });
+
+    it('maps prose keyboard hints to theme-aware semantic colors', () => {
+        assert.match(componentsCss, /--tw-prose-kbd:\s*var\(--color-text-heading\)/);
+        assert.match(
+            componentsCss,
+            /--tw-prose-kbd-shadows:\s*color-mix\(in srgb, var\(--color-text-heading\) 12%, transparent\)/
+        );
+    });
+
+    it('keeps semantic prose list markers out of decorative faint colors', () => {
+        assert.match(componentsCss, /--tw-prose-bullets:\s*var\(--color-text-chrome\)/);
+        assert.doesNotMatch(componentsCss, /--tw-prose-bullets:\s*var\(--color-text-faint\)/);
     });
 });

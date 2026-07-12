@@ -444,11 +444,13 @@
         --tw-prose-links: var(--color-text-body);
         --tw-prose-bold: var(--color-text-heading);
         --tw-prose-counters: var(--color-text-chrome);
-        --tw-prose-bullets: var(--color-text-faint);
+        --tw-prose-bullets: var(--color-text-chrome);
         --tw-prose-hr: var(--color-border-decorative);
         --tw-prose-quotes: var(--color-text-chrome);
         --tw-prose-quote-borders: var(--color-text-faint);
         --tw-prose-captions: var(--color-text-chrome);
+        --tw-prose-kbd: var(--color-text-heading);
+        --tw-prose-kbd-shadows: color-mix(in srgb, var(--color-text-heading) 12%, transparent);
         --tw-prose-code: var(--color-seal);
         /* Align bare <pre> with highlight/code surfaces (not terminal black). */
         --tw-prose-pre-code: var(--color-text-body);

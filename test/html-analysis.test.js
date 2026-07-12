@@ -30,6 +30,27 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(pageHasCode({ content: '<p>hi</p>' }, {}, { is_post: () => true }), false);
         });
 
+        it('checks rendered excerpts on home, tag, and category post lists', () => {
+            const page = {
+                posts: [{ excerpt: '<pre>code</pre>', content: '<p>full</p>' }]
+            };
+            const contexts = [
+                { is_home: () => true },
+                { is_tag: () => true },
+                { is_category: () => true }
+            ];
+            contexts.forEach((context) => {
+                assert.equal(pageHasCode(page, {}, context), true);
+            });
+        });
+
+        it('does not inspect post bodies for archive-only lists', () => {
+            const page = {
+                posts: [{ excerpt: '<pre>code</pre>', content: '<pre>full code</pre>' }]
+            };
+            assert.equal(pageHasCode(page, {}, { is_archive: () => true }), false);
+        });
+
         it('ignores code-like markup in opaque fallback containers', () => {
             const content = '<noscript><figure class="highlight">fallback</figure></noscript>'
                 + '<iframe><code>frame fallback</code></iframe>';

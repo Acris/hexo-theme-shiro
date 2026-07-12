@@ -284,7 +284,10 @@ function pageHasCode(page, themeConfig, context) {
     );
     if (isReadingPage || !page.posts) return pageAnalysis(page).hasCode;
 
-    if (context && typeof context.is_home === 'function' && context.is_home()) {
+    const rendersPostCards = context && ['is_home', 'is_tag', 'is_category'].some((name) => (
+        typeof context[name] === 'function' && context[name]()
+    ));
+    if (rendersPostCards) {
         return collectionToArray(page.posts).some(post => renderedPostCardHasCode(post, themeConfig));
     }
 

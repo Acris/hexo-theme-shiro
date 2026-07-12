@@ -103,6 +103,11 @@ describe('scripts/lib/categories', () => {
         assert.equal(peers.moreCount, 1);
         assert.equal(peers.title, 'Bar · Foo');
 
+        const duplicated = postMetaCategorySummary([foo, foo, bar], [foo, bar]);
+        assert.equal(duplicated.primary._id, 'b');
+        assert.equal(duplicated.moreCount, 1);
+        assert.equal(duplicated.title, 'Bar · Foo');
+
         // Numeric vs string ids still collapse lineage (no false +N on parents).
         const numSite = [
             { _id: 10, name: 'Root', parent: null, path: 'categories/Root/' },

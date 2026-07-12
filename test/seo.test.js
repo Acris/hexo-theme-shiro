@@ -39,6 +39,35 @@ describe('scripts/lib/seo', () => {
             );
         });
 
+        it('falls through candidates that contain no readable text', () => {
+            assert.equal(
+                cleanDescription(
+                    {
+                        description: '   ',
+                        excerpt: '<img src="cover.jpg" alt="">',
+                        content: '<pre>code only</pre><p>Readable body</p>'
+                    },
+                    { description: 'Site desc' },
+                    { isReadingPage: true }
+                ),
+                'Readable body'
+            );
+            assert.equal(
+                cleanDescription(
+                    { description: '\t', excerpt: '<p>Readable excerpt</p>' },
+                    { description: 'Site desc' }
+                ),
+                'Readable excerpt'
+            );
+            assert.equal(
+                cleanDescription(
+                    { excerpt: '<img src="cover.jpg" alt="">' },
+                    { description: 'Site desc' }
+                ),
+                'Site desc'
+            );
+        });
+
         it('truncates long descriptions', () => {
             const long = 'x'.repeat(250);
             const out = cleanDescription({ description: long }, {});

@@ -260,18 +260,18 @@ function buildCommentsClientConfig(theme, page, options) {
         },
         giscus: {
             src: giscusSrc,
-            repo: giscus.repo || '',
-            repo_id: giscus.repo_id || '',
-            category: giscus.category || '',
-            category_id: giscus.category_id || '',
+            repo: String(giscus.repo || '').trim(),
+            repo_id: String(giscus.repo_id || '').trim(),
+            category: String(giscus.category || '').trim(),
+            category_id: String(giscus.category_id || '').trim(),
             mapping: normalizeGiscusMapping(giscus.mapping),
             term: String(giscus.term || '').trim(),
             strict: normalizeGiscusBinary(giscus.strict, '0'),
             reactions_enabled: normalizeGiscusBinary(giscus.reactions_enabled, '1'),
             emit_metadata: normalizeGiscusBinary(giscus.emit_metadata, '0'),
             input_position: normalizeGiscusInputPosition(giscus.input_position),
-            theme: giscus.theme || 'preferred_color_scheme',
-            lang: giscus.lang || 'en',
+            theme: String(giscus.theme || '').trim() || 'preferred_color_scheme',
+            lang: String(giscus.lang || '').trim() || 'en',
             lazy_loading: isFeatureEnabled(giscus.lazy_loading, false)
         }
     };

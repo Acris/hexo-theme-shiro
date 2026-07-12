@@ -36,6 +36,24 @@
         text-rendering: optimizeLegibility;
     }
 
+    :lang(ja) {
+        --font-serif: 'Cardo', 'Noto Serif JP', 'Zen Old Mincho', serif;
+        --font-title: 'Yuji Syuku', 'Noto Serif JP', 'Zen Old Mincho', serif;
+    }
+
+    :lang(zh) {
+        --font-serif: 'Cardo', 'Noto Serif SC', 'Zen Old Mincho', 'Noto Serif TC', serif;
+        --font-title: 'Yuji Syuku', 'Noto Serif SC', 'Zen Old Mincho', 'Noto Serif TC', serif;
+    }
+
+    :lang(zh-Hant),
+    :lang(zh-TW),
+    :lang(zh-HK),
+    :lang(zh-MO) {
+        --font-serif: 'Cardo', 'Noto Serif TC', 'Zen Old Mincho', 'Noto Serif SC', serif;
+        --font-title: 'Yuji Syuku', 'Noto Serif TC', 'Zen Old Mincho', 'Noto Serif SC', serif;
+    }
+
     pre,
     code {
         @apply font-code;

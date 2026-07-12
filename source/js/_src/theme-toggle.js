@@ -81,5 +81,5 @@
     }
 
     btn.addEventListener('click', cycle);
-    updateIcon(getState());
+    apply(getState());
 })();

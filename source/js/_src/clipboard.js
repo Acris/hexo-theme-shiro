@@ -123,10 +123,10 @@
                 const opts = options || {};
                 const idle = window.requestIdleCallback
                     || ((fn) => window.setTimeout(fn, opts.fallbackMs || 32));
-                idle(() => task(), { timeout: opts.timeout || 800 });
+                idle((deadline) => task(deadline), { timeout: opts.timeout || 800 });
             });
         const run = (deadline) => {
-            const hasTime = () => !deadline || deadline.timeRemaining() > 4;
+            const hasTime = () => !deadline || deadline.didTimeout || deadline.timeRemaining() > 4;
             let count = 0;
             while (queue.length && hasTime() && count < 6) {
                 enhanceBlock(queue.shift());

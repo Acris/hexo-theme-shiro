@@ -43,7 +43,7 @@ function collectExistingIds(source) {
         if (token.type !== 'tag' || token.closing) continue;
         const id = headingId(token.attrs);
         if (id) ids.add(id);
-        if (TOC_SKIPPED_ELEMENTS.has(token.name)) {
+        if (HTML_TOKEN_OPAQUE_ELEMENTS.has(token.name)) {
             const close = findElementClose(source, token);
             position = close ? close.end : source.length;
         }

@@ -5,9 +5,13 @@ const { pageLanguage, primaryLanguage } = require('./util');
 const GOOGLE_FONTS_BASE = 'https://fonts.googleapis.com/css2';
 
 function cjkFontForLanguage(language) {
-    const lang = primaryLanguage(language);
-    if (/^ja(?:[-_]|$)/.test(lang)) return 'Noto Serif JP';
-    if (/^zh(?:[-_]|$)/.test(lang)) return 'Noto Serif SC';
+    const lang = primaryLanguage(language).replace(/_/g, '-');
+    if (/^ja(?:-|$)/.test(lang)) return 'Noto Serif JP';
+    if (/^zh(?:-|$)/.test(lang)) {
+        const traditional = /(?:^|-)hant(?:-|$)/.test(lang)
+            || (!/(?:^|-)hans(?:-|$)/.test(lang) && /-(?:tw|hk|mo)(?:-|$)/.test(lang));
+        return traditional ? 'Noto Serif TC' : 'Noto Serif SC';
+    }
     return '';
 }
 

@@ -51,6 +51,15 @@ describe('scripts/lib/toc', () => {
             assert.match(result.html, /data-target="same-1"/);
         });
 
+        it('avoids ids on real elements nested inside code blocks', () => {
+            const src = '<pre><code><span id="same">sample</span></code></pre>'
+                + '<h2>Same</h2><h2>Two</h2><h2>Three</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.match(result.content, /<h2 id="same-1">Same<\/h2>/);
+            assert.match(result.html, /data-target="same-1"/);
+        });
+
         it('preserves existing ids and skips headings deeper than depth', () => {
             const src = '<h2 id="keep">A</h2><h3>B</h3><h4>C</h4><h2>D</h2>';
             const result = buildToc(src, { depth: 3, min_headings: 2 });

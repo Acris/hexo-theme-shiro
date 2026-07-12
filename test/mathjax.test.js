@@ -142,6 +142,16 @@ describe('scripts/mathjax.js', () => {
             assert.equal(scanMathAt('\\begin{document}a\\end{document}', 0), '');
         });
 
+        it('scans through nested environments with the same name', () => {
+            const source = '\\begin{array}a\\begin{array}b\\end{array}c\\end{array}';
+            assert.equal(scanMathAt(source, 0), source);
+        });
+
+        it('ignores environment boundaries inside TeX comments', () => {
+            const source = '\\begin{align}a % \\end{align}\nb\\end{align}';
+            assert.equal(scanMathAt(source, 0), source);
+        });
+
         it('rejects currency-like lone dollars', () => {
             assert.equal(scanMathAt('$5', 0, { inlineDollars: true }), '');
             assert.equal(scanMathAt('costs $5 today', 6, { inlineDollars: true }), '');

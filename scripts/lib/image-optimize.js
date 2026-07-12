@@ -62,6 +62,12 @@ function isRemoteUrl(src) {
     return /^(?:[a-z][a-z0-9+.-]*:)?\/\//i.test(src) || /^(?:data|blob|mailto):/i.test(src);
 }
 
+function hasWidthDescriptor(srcset) {
+    return /[\t\n\f\r ]+[1-9]\d*w(?=[\t\n\f\r ]*(?:,|$))/.test(
+        decodeHtmlEntities(srcset)
+    );
+}
+
 function decodeUrlPath(value) {
     try {
         return decodeURIComponent(value);
@@ -194,9 +200,9 @@ function optimizeImages(html, options) {
         } else {
             ensure('loading', 'lazy');
         }
-        // `sizes` only influences resource selection when a `srcset` is present, so
-        // skip it for plain Markdown images (no srcset) to avoid emitting dead markup.
-        if (getAttr(attrs, lookup, 'srcset')) {
+        // The HTML standard permits `sizes` only with width (`w`) descriptors.
+        const srcset = getAttr(attrs, lookup, 'srcset');
+        if (hasWidthDescriptor(srcset)) {
             ensure('sizes', DEFAULT_IMAGE_SIZES);
         }
 

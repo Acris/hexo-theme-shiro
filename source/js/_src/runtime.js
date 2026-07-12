@@ -504,7 +504,7 @@
         const opts = options || {};
         const idle = window.requestIdleCallback
             || ((fn) => window.setTimeout(fn, opts.fallbackMs != null ? opts.fallbackMs : 64));
-        idle(() => task(), { timeout: opts.timeout != null ? opts.timeout : 1000 });
+        idle((deadline) => task(deadline), { timeout: opts.timeout != null ? opts.timeout : 1000 });
     }
 
     function scheduleIdleWarm(task, options) {

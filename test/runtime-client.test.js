@@ -178,6 +178,11 @@ describe('client accessibility contracts', () => {
         );
     });
 
+    it('advances idle work queues when their timeout expires', () => {
+        assert.match(clientSource('clipboard.js'), /deadline\.didTimeout/);
+        assert.match(lightgallerySource, /deadline\.didTimeout/);
+    });
+
     it('clamps reading progress during negative elastic scrolling', () => {
         const bar = { style: {} };
         const document = {
@@ -252,7 +257,54 @@ describe('client accessibility contracts', () => {
         listeners.click();
 
         assert.equal(attributes['data-theme-state'], 'light');
-        assert.deepEqual(resolved, [true, false]);
+        assert.deepEqual(resolved, [false, true, false]);
+    });
+
+    it('applies the initial theme when the early head helper is unavailable', () => {
+        const attributes = {};
+        const button = {
+            dataset: {
+                labelSystem: 'System',
+                labelLight: 'Light',
+                labelDark: 'Dark'
+            },
+            addEventListener() {},
+            setAttribute() {}
+        };
+        const html = {
+            style: {},
+            classList: { add() {}, remove() {} },
+            getAttribute(name) {
+                return attributes[name] || null;
+            },
+            setAttribute(name, value) {
+                attributes[name] = String(value);
+            },
+            removeAttribute(name) {
+                delete attributes[name];
+            }
+        };
+        const document = {
+            documentElement: html,
+            getElementById: () => button
+        };
+        const window = {
+            __shiro: {},
+            matchMedia(query) {
+                return { matches: query.includes('prefers-color-scheme: dark') };
+            }
+        };
+
+        vm.runInNewContext(clientSource('theme-toggle.js'), {
+            window,
+            document,
+            localStorage: { getItem: () => null },
+            setTimeout
+        });
+
+        assert.equal(attributes['data-theme-state'], 'system');
+        assert.equal(attributes['data-theme'], 'dark');
+        assert.equal(html.style.colorScheme, 'dark');
     });
 
     it('does not steal focus when a pointer click closes the mobile menu', () => {
@@ -406,6 +458,24 @@ describe('client runtime protocol', () => {
         window.__shiro.clipboardScript = '/js/clipboard.min.js';
         assert.equal(rt.get('clipboardScript'), '/js/clipboard.min.js');
         assert.equal(rt.get('__clipboardScript'), '/js/clipboard.min.js');
+    });
+
+    it('passes the idle deadline through to scheduled tasks', () => {
+        const { window, rt } = harness;
+        const deadline = { didTimeout: false, timeRemaining: () => 7 };
+        let received = null;
+        let timeout = 0;
+        window.requestIdleCallback = (callback, options) => {
+            timeout = options.timeout;
+            callback(deadline);
+        };
+
+        rt.scheduleIdle((value) => {
+            received = value;
+        }, { timeout: 321 });
+
+        assert.equal(received, deadline);
+        assert.equal(timeout, 321);
     });
 
     it('dedupes concurrent loadAsset calls for the same selector', async () => {

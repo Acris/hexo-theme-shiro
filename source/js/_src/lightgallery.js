@@ -334,7 +334,7 @@
     function prepareGalleryBatch(container, images) {
         const queue = Array.from(images);
         const run = (deadline) => {
-            const hasTime = () => !deadline || deadline.timeRemaining() > 4;
+            const hasTime = () => !deadline || deadline.didTimeout || deadline.timeRemaining() > 4;
             let count = 0;
             while (queue.length && hasTime() && count < 8) {
                 ensureLink(container, queue.shift());

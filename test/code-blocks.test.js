@@ -46,6 +46,12 @@ describe('scripts/lib/code-blocks', () => {
             assert.match(out, /class="not-prose gist"/);
         });
 
+        it('matches class tokens separated by character references', () => {
+            const html = '<figure class="highlight&#32;js"><pre>x</pre></figure>';
+            const out = markCodeBlocksNotProse(html);
+            assert.match(out, /class="not-prose highlight&#32;js"/);
+        });
+
         it('finds class attributes after quoted greater-than signs', () => {
             const html = '<figure title="a > b" class="highlight js"><pre>x</pre></figure>';
             const out = markCodeBlocksNotProse(html);

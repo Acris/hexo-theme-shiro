@@ -11,11 +11,14 @@ const root = path.resolve(__dirname, '..');
 
 describe('scripts/lib/fonts', () => {
     describe('cjkFontForLanguage', () => {
-        it('picks JP/SC faces from language tags', () => {
+        it('picks locale-appropriate CJK faces from language tags', () => {
             assert.equal(cjkFontForLanguage('ja'), 'Noto Serif JP');
             assert.equal(cjkFontForLanguage('ja-JP'), 'Noto Serif JP');
             assert.equal(cjkFontForLanguage('zh-CN'), 'Noto Serif SC');
-            assert.equal(cjkFontForLanguage('zh_TW'), 'Noto Serif SC');
+            assert.equal(cjkFontForLanguage('zh-Hans-TW'), 'Noto Serif SC');
+            assert.equal(cjkFontForLanguage('zh_TW'), 'Noto Serif TC');
+            assert.equal(cjkFontForLanguage('zh-Hant'), 'Noto Serif TC');
+            assert.equal(cjkFontForLanguage('zh-HK'), 'Noto Serif TC');
             assert.equal(cjkFontForLanguage('en'), '');
         });
     });
@@ -35,6 +38,52 @@ describe('scripts/lib/fonts', () => {
             assert.match(urls[0], /display=swap/);
             assert.match(urls[0], /Noto\+Serif\+SC/);
             assert.match(urls[0], /Fira\+Code/);
+        });
+
+        it('requests the Traditional Chinese face for Traditional locales', () => {
+            const urls = googleFontUrls(
+                {},
+                { language: 'zh-TW' },
+                {},
+                false,
+                () => false,
+                {}
+            );
+            assert.match(urls[0], /Noto\+Serif\+TC/);
+            assert.doesNotMatch(urls[0], /Noto\+Serif\+SC/);
+        });
+
+        it('prioritizes the loaded Chinese face over Japanese fallbacks', () => {
+            const base = fs.readFileSync(
+                path.join(root, 'source/css/_core/base.css'),
+                'utf8'
+            );
+            assert.match(
+                base,
+                /:lang\(ja\)[\s\S]*?--font-serif:\s*'Cardo', 'Noto Serif JP'/
+            );
+            assert.match(
+                base,
+                /:lang\(zh\)[\s\S]*?--font-serif:\s*'Cardo', 'Noto Serif SC'/
+            );
+            assert.match(
+                base,
+                /:lang\(zh-Hant\)[\s\S]*?--font-serif:\s*'Cardo', 'Noto Serif TC'/
+            );
+        });
+
+        it('keeps Yuji Syuku first in every title font stack', () => {
+            const styles = [
+                'source/css/_core/tokens.css',
+                'source/css/_core/base.css'
+            ].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+            const titleStacks = Array.from(
+                styles.matchAll(/--font-title:\s*([^;]+);/g),
+                match => match[1]
+            );
+
+            assert.equal(titleStacks.length, 4);
+            titleStacks.forEach(stack => assert.match(stack, /^'Yuji Syuku',/));
         });
 
         it('keeps query separators literal in Google Fonts link attributes', () => {

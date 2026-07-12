@@ -71,15 +71,19 @@ function resolveCommentsState(themeConfig, page, options) {
 
     const mapping = normalizeGiscusMapping(giscus.mapping);
     const term = String(giscus.term || '').trim();
+    const repo = String(giscus.repo || '').trim();
+    const repoId = String(giscus.repo_id || '').trim();
+    const category = String(giscus.category || '').trim();
+    const categoryId = String(giscus.category_id || '').trim();
     const mappingReady = mapping === 'specific'
         ? !!term
         : (mapping === 'number' ? /^[1-9]\d*$/.test(term) : true);
     const giscusReady = enabled
         && provider === 'giscus'
-        && !!giscus.repo
-        && !!giscus.repo_id
-        && !!giscus.category
-        && !!giscus.category_id
+        && !!repo
+        && !!repoId
+        && !!category
+        && !!categoryId
         && mappingReady;
 
     const providerReady = disqusReady || giscusReady;

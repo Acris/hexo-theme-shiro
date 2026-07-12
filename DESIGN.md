@@ -291,6 +291,12 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.seal}"
     typography: "{typography.code}"
+  prose-kbd:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.heading}"
+  prose-kbd-dark:
+    backgroundColor: "{colors.paper-dark}"
+    textColor: "{colors.heading-dark}"
   meta-chip:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.chrome}"
@@ -370,12 +376,12 @@ Tailwind `slate-*` is not remapped in dark mode; theme chrome uses semantic text
 
 | Role | Primary | Stack |
 |:-----|:--------|:------|
-| Title / seal / TOC label / site note | Yuji Syuku | `Yuji Syuku`, `Zen Old Mincho`, `Noto Serif JP`, serif |
-| Body / UI | Cardo | `Cardo`, `Zen Old Mincho`, `Noto Serif JP`, `Noto Serif SC`, serif |
+| Title / seal / TOC label / site note | Yuji Syuku | `Yuji Syuku` first for every language, followed by the locale-matched `Noto Serif JP` / `SC` / `TC` and `Zen Old Mincho` fallbacks |
+| Body / UI | Cardo | `Cardo`, then the locale-matched `Noto Serif JP` / `SC` / `TC`, with `Zen Old Mincho` as fallback |
 | English credits | Cormorant Garamond | Cormorant Garamond, serif |
 | Code | Fira Code | `Fira Code`, `JetBrains Mono`, `Cascadia Code`, ui-monospace, monospace |
 
-Weights loaded: Cardo 400/700; Zen Old Mincho 400/600; Cormorant 400/600; Fira Code 400/500; Yuji default. Prefer **400 and 700** for Cardo — no reliable 500 cut. Site note is visually light (`tracking` + opacity in CSS); token weight stays 400.
+Weights loaded: Cardo 400/700; Zen Old Mincho 400/600; locale-matched Noto Serif JP/SC/TC 400/600; Cormorant 400/600; Fira Code 400/500; Yuji default. Prefer **400 and 700** for Cardo — no reliable 500 cut. Site note is visually light (`tracking` + opacity in CSS); token weight stays 400.
 
 **Token sizes are representative desktop / upper values.** Implementations may step down on small viewports (e.g. site title ~2.2–3.1rem, card titles ~1.35–1.6rem). Do not treat a single rem value as the only legal size.
 

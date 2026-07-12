@@ -31,6 +31,17 @@ function isEscaped(source, index) {
     return slashes % 2 === 1;
 }
 
+function isInTexComment(source, index) {
+    const lineStart = Math.max(
+        source.lastIndexOf('\n', index - 1),
+        source.lastIndexOf('\r', index - 1)
+    ) + 1;
+    for (let cursor = lineStart; cursor < index; cursor += 1) {
+        if (source[cursor] === '%' && !isEscaped(source, cursor)) return true;
+    }
+    return false;
+}
+
 function atLineStart(source, index) {
     return index === 0 || source[index - 1] === '\n';
 }
@@ -192,15 +203,26 @@ function scanEnvironment(source, start, warnContext) {
 
     const envName = open[1];
     const bodyStart = start + open[0].length;
-    const closeRe = new RegExp('\\\\end\\s*\\{' + escapeRegExp(envName) + '\\}');
-    const close = closeRe.exec(source.slice(bodyStart));
-    if (!close) {
-        // Same policy as scanDelimited: do not protect, warn on generate only.
-        warnUnclosedDelimiter('\\begin{' + envName + '}', start, source, warnContext);
-        return '';
+    const boundaryRe = new RegExp(
+        '\\\\(begin|end)\\s*\\{' + escapeRegExp(envName) + '\\}',
+        'g'
+    );
+    boundaryRe.lastIndex = bodyStart;
+    let depth = 1;
+    let boundary;
+    while ((boundary = boundaryRe.exec(source))) {
+        if (isEscaped(source, boundary.index) || isInTexComment(source, boundary.index)) continue;
+        if (boundary[1] === 'begin') {
+            depth += 1;
+        } else {
+            depth -= 1;
+            if (depth === 0) return source.slice(start, boundaryRe.lastIndex);
+        }
     }
 
-    return source.slice(start, bodyStart + close.index + close[0].length);
+    // Same policy as scanDelimited: do not protect, warn on generate only.
+    warnUnclosedDelimiter('\\begin{' + envName + '}', start, source, warnContext);
+    return '';
 }
 
 // Heuristic single-dollar pairs (mitigation, not a MathJax clone).
