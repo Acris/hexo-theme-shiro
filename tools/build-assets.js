@@ -6,7 +6,6 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { transform } = require('lightningcss');
 const terser = require('terser');
-const { concatRuntimeSource } = require('../scripts/lib/runtime-source');
 const { concatLightgallerySource } = require('../scripts/lib/lightgallery-source');
 
 const root = path.resolve(__dirname, '..');
@@ -107,8 +106,8 @@ async function minifyJs() {
         .filter((file) => file.endsWith('.js') && !file.endsWith('.min.js'))
         .sort();
     const outputs = [];
-    // Top-level monoliths were replaced by *_src/<name>/* parts.
-    const forbiddenTopLevel = new Set(['runtime.js', 'lightgallery.js']);
+    // LightGallery is assembled from its ordered source parts below.
+    const forbiddenTopLevel = new Set(['lightgallery.js']);
 
     for (const file of files) {
         if (forbiddenTopLevel.has(file)) {
@@ -119,10 +118,6 @@ async function minifyJs() {
         outputs.push(output);
         await minifyJsFile('source/js/_src/' + file, output);
     }
-
-    const runtimeOutput = 'source/js/runtime.min.js';
-    outputs.push(runtimeOutput);
-    await minifyJsCode(concatRuntimeSource(), runtimeOutput);
 
     const lightgalleryOutput = 'source/js/lightgallery.min.js';
     outputs.push(lightgalleryOutput);

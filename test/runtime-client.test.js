@@ -7,14 +7,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-// Runtime is split under source/js/_src/runtime/*.js (explicit RUNTIME_PARTS order).
-const {
-    RUNTIME_PARTS,
-    concatRuntimeSource,
-    listRuntimeParts,
-    assertRuntimeSource
-} = require('../scripts/lib/runtime-source');
-const runtimeSource = concatRuntimeSource();
+const runtimeSource = fs.readFileSync(
+    path.join(__dirname, '../source/js/_src/runtime.js'),
+    'utf8'
+);
 
 function createHarness() {
     const elements = [];
@@ -99,14 +95,15 @@ function createHarness() {
 }
 
 describe('runtime build contract', () => {
-    it('manifest matches disk and concat is a single IIFE with required APIs', () => {
-        const paths = listRuntimeParts();
-        assert.equal(paths.length, RUNTIME_PARTS.length);
-        paths.forEach((filePath, index) => {
-            assert.ok(filePath.endsWith(RUNTIME_PARTS[index]));
+    it('is a single IIFE with required APIs', () => {
+        const openCount = (runtimeSource.match(/;\(\(\)\s*=>\s*\{/g) || []).length;
+        const closeCount = (runtimeSource.match(/\}\)\(\);/g) || []).length;
+        assert.equal(openCount, 1);
+        assert.equal(closeCount, 1);
+        ['featureReady', 'createFeatureLoader', 'loadAsset', 'dispatchLiveOrStash', 'escapeHtml'].forEach((token) => {
+            assert.ok(runtimeSource.includes(token), 'missing required runtime symbol: ' + token);
         });
-        assert.doesNotThrow(() => assertRuntimeSource(runtimeSource, paths));
-        assert.match(runtimeSource, /;\(\(\)\s*=>\s*\{/);
+        assert.match(runtimeSource, /^;\(\(\)\s*=>\s*\{/);
         assert.match(runtimeSource, /\}\)\(\);\s*$/);
     });
 });
