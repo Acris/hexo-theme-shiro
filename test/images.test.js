@@ -83,7 +83,7 @@ describe('scripts/lib/image-optimize', () => {
             const out = pureOptimize(html, { firstImageEager: true });
             assert.match(out, /loading="eager"/);
             assert.match(out, /loading="lazy"/);
-            assert.match(out, /fetchpriority="auto"/);
+            assert.doesNotMatch(out, /fetchpriority=/);
         });
 
         it('does not invent sizes without srcset', () => {
@@ -112,6 +112,16 @@ describe('scripts/lib/image-optimize', () => {
             const out = pureOptimize(html, { firstImageEager: true });
             assert.match(out, /<pre><img src="https:\/\/cdn\.example\/x\.png"><\/pre>/);
             assert.match(out, /cdn\.example\/y\.png"[^>]*decoding="async"/);
+        });
+
+        it('skips fallback images and keeps the first visible image eager', () => {
+            const hidden = '<noscript><img src="https://cdn.example/fallback.png"></noscript>'
+                + '<iframe><img src="https://cdn.example/frame.png"></iframe>';
+            const out = pureOptimize(hidden + '<img src="https://cdn.example/visible.png">', {
+                firstImageEager: true
+            });
+            assert.ok(out.startsWith(hidden));
+            assert.match(out, /visible\.png"[^>]*loading="eager"/);
         });
 
         it('leaves tags without src untouched', () => {

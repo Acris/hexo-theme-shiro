@@ -13,7 +13,7 @@
             bar.style.transform = 'scaleX(0)';
         } else {
             bar.style.opacity = '1';
-            const progress = Math.min(window.scrollY / docHeight, 1);
+            const progress = Math.max(0, Math.min(window.scrollY / docHeight, 1));
             bar.style.transform = 'scaleX(' + progress + ')';
         }
 

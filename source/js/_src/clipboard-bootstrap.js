@@ -73,7 +73,7 @@
 
     function runAfterLoad() {
         if (permanent) return;
-        enhanceTargets(pendingTargets);
+        enhanceCompletedTargets(pendingTargets.slice());
         clearPending();
         const cb = afterLoad;
         afterLoad = null;
@@ -124,10 +124,19 @@
         }
     }
 
+    function enhanceCompletedTargets(targets) {
+        enhanceTargets(targets);
+        if (observer) {
+            targets.forEach((target) => {
+                if (target) observer.unobserve(target);
+            });
+        }
+    }
+
     function loadClipboard(targets, onLoaded) {
         if (permanent) return;
         if (typeof shiro.enhanceClipboard === 'function') {
-            enhanceTargets(targets);
+            enhanceCompletedTargets(targets);
             if (typeof onLoaded === 'function') onLoaded();
             return;
         }
@@ -158,16 +167,9 @@
             }
             const targets = entries.filter(entry => entry.isIntersecting).map(entry => entry.target);
             if (!targets.length) return;
-            // Unobserve only after a successful enhance (runAfterLoad path).
-            // Retryable load fail re-observes pending targets in scheduleRetry.
-            loadClipboard(targets, () => {
-                if (observer) {
-                    targets.forEach((target) => {
-                        if (target) observer.unobserve(target);
-                    });
-                }
-                observeNextBatch();
-            });
+            // Successful enhancement unobserves every coalesced pending target.
+            // Retryable load failures keep those targets observed for re-entry.
+            loadClipboard(targets, observeNextBatch);
         }, { rootMargin: '300px 0px', threshold: 0 })
         : null;
 

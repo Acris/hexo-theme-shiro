@@ -140,6 +140,185 @@ describe('client accessibility contracts', () => {
     it('hides the inactive back-to-top button from keyboard focus', () => {
         assert.match(clientSource('back-to-top.js'), /backBtn\.hidden\s*=\s*!visible/);
     });
+
+    it('keeps LightGallery controls readable on its theme-independent dark stage', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../source/css/_src/lightgallery.css'),
+            'utf8'
+        );
+        assert.match(source, /\.lg-toolbar \.lg-icon,[\s\S]*?color:\s*#d4d0cc;/);
+        assert.match(source, /\.lg-toolbar \.lg-icon:hover,[\s\S]*?color:\s*#e8e5e1;/);
+        assert.doesNotMatch(source, /\.lg-toolbar[\s\S]*?var\(--color-text-(?:body|heading)/);
+    });
+
+    it('does not let LightGallery hijack images owned by other controls', () => {
+        const bootstrap = clientSource('lightgallery-bootstrap.js');
+        const components = fs.readFileSync(
+            path.join(__dirname, '../source/css/_core/components.css'),
+            'utf8'
+        );
+        assert.match(bootstrap, /!hasConflictingImageAction\(img\)/);
+        assert.match(runtimeSource, /function hasConflictingImageAction\(img\)/);
+        assert.match(
+            components,
+            /:where\(button,[\s\S]*?\) img \{[\s\S]*?cursor:\s*inherit;/
+        );
+    });
+
+    it('clamps reading progress during negative elastic scrolling', () => {
+        const bar = { style: {} };
+        const document = {
+            documentElement: { scrollHeight: 1200 },
+            getElementById: () => bar
+        };
+        const window = {
+            innerHeight: 600,
+            scrollY: -120,
+            addEventListener() {}
+        };
+        vm.runInNewContext(clientSource('progress.js'), {
+            window,
+            document,
+            requestAnimationFrame: (callback) => callback()
+        });
+        assert.equal(bar.style.transform, 'scaleX(0)');
+    });
+
+    it('does not steal focus when a pointer click closes the mobile menu', () => {
+        const buttonListeners = {};
+        const documentListeners = {};
+        const attributes = {};
+        const focusable = {
+            focus() {
+                document.activeElement = focusable;
+            }
+        };
+        const panel = {
+            dataset: { open: 'false' },
+            inert: false,
+            querySelector: () => focusable,
+            querySelectorAll: () => [focusable],
+            contains: (target) => target === focusable
+        };
+        const button = {
+            addEventListener(name, callback) {
+                buttonListeners[name] = callback;
+            },
+            setAttribute(name, value) {
+                attributes[name] = String(value);
+            },
+            focus() {
+                document.activeElement = button;
+            },
+            contains: (target) => target === button
+        };
+        const chevron = { style: {} };
+        const elements = {
+            menuBtn: button,
+            mobileMenu: panel,
+            menuChevron: chevron
+        };
+        const document = {
+            activeElement: null,
+            getElementById: (id) => elements[id] || null,
+            addEventListener(name, callback) {
+                documentListeners[name] = callback;
+            }
+        };
+        const window = {
+            __shiro: { runtime: { featureReady() {} } },
+            matchMedia: () => ({
+                matches: false,
+                addEventListener() {}
+            })
+        };
+
+        vm.runInNewContext(clientSource('mobile-menu.js'), { window, document });
+        buttonListeners.click({ stopPropagation() {} });
+        assert.equal(panel.dataset.open, 'true');
+
+        const outsideTarget = {};
+        document.activeElement = outsideTarget;
+        documentListeners.click({ target: outsideTarget });
+        assert.equal(panel.dataset.open, 'false');
+        assert.equal(document.activeElement, outsideTarget);
+    });
+
+    it('unobserves every clipboard batch coalesced before the feature is ready', () => {
+        const blocks = Array.from({ length: 4 }, (_, index) => ({
+            index,
+            isConnected: true,
+            classList: { contains: (name) => name === 'highlight' },
+            closest: () => ({}),
+            getBoundingClientRect: () => ({ top: 2000 })
+        }));
+        let cursor = 0;
+        let observerCallback = null;
+        const unobserved = [];
+        const loadCallbacks = [];
+        const shiro = {};
+        const runtime = {
+            get: () => '/js/clipboard.min.js',
+            scheduleIdle() {},
+            createFeatureLoader: () => ({
+                load(callback) {
+                    loadCallbacks.push(callback);
+                }
+            })
+        };
+        shiro.runtime = runtime;
+
+        class FakeIntersectionObserver {
+            constructor(callback) {
+                observerCallback = callback;
+            }
+
+            observe() {}
+
+            unobserve(target) {
+                unobserved.push(target);
+            }
+
+            disconnect() {}
+        }
+
+        const document = {
+            body: {},
+            querySelector: () => ({}),
+            createTreeWalker: () => ({
+                nextNode() {
+                    const block = blocks[cursor] || null;
+                    cursor += 1;
+                    return block;
+                }
+            })
+        };
+        const window = {
+            __shiro: shiro,
+            IntersectionObserver: FakeIntersectionObserver,
+            innerHeight: 600
+        };
+
+        vm.runInNewContext(clientSource('clipboard-bootstrap.js'), {
+            window,
+            document,
+            IntersectionObserver: FakeIntersectionObserver,
+            NodeFilter: {
+                SHOW_ELEMENT: 1,
+                FILTER_ACCEPT: 1,
+                FILTER_SKIP: 3
+            },
+            console
+        });
+
+        observerCallback([{ isIntersecting: true, target: blocks[0] }]);
+        observerCallback([{ isIntersecting: true, target: blocks[1] }]);
+        shiro.enhanceClipboard = () => {};
+        loadCallbacks.forEach(callback => callback());
+
+        assert.equal(unobserved.includes(blocks[0]), true);
+        assert.equal(unobserved.includes(blocks[1]), true);
+    });
 });
 
 describe('client runtime protocol', () => {
@@ -355,7 +534,7 @@ describe('client runtime protocol', () => {
         assert.equal(rejected, false);
     });
 
-    it('isModifiedClick and safeNavigate block dangerous schemes', () => {
+    it('isModifiedClick and safeNavigate allowlists navigation schemes', () => {
         const { rt, window } = harness;
         assert.equal(rt.isModifiedClick({ button: 0 }), false);
         assert.equal(rt.isModifiedClick({ button: 0, metaKey: true }), true);
@@ -371,11 +550,42 @@ describe('client runtime protocol', () => {
         assert.equal(window.location.href, '');
         assert.equal(opened, null);
 
+        ['file:///tmp/image.png', 'ftp://example.com/image.png', 'custom:payload'].forEach((url) => {
+            rt.safeNavigate(url);
+            assert.equal(window.location.href, '');
+            assert.equal(opened, null);
+        });
+
         rt.safeNavigate('https://example.com/x');
         assert.equal(opened, 'https://example.com/x');
 
         rt.safeNavigate('/local/path');
         assert.equal(window.location.href, '/local/path');
+
+        rt.safeNavigate('mailto:hello@example.com');
+        assert.equal(window.location.href, 'mailto:hello@example.com');
+
+        rt.safeNavigate('blob:https://example.com/id');
+        assert.equal(window.location.href, 'blob:https://example.com/id');
+    });
+
+    it('identifies non-link controls that already own an image action', () => {
+        const { rt } = harness;
+        let selector = '';
+        const control = {};
+        const controlledImage = {
+            closest(value) {
+                selector = value;
+                return control;
+            }
+        };
+        assert.equal(rt.hasConflictingImageAction(controlledImage), true);
+        assert.match(selector, /button/);
+        assert.match(selector, /\[role="button"\]/);
+
+        const plainImage = { closest: () => null };
+        assert.equal(rt.hasConflictingImageAction(plainImage), false);
+        assert.equal(rt.hasConflictingImageAction(null), false);
     });
 
     it('navigateFromImage prefers original href then src', () => {

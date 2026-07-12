@@ -3,13 +3,14 @@
 // Pure HTML post-processing for code/highlight surfaces (no Hexo registration).
 
 const {
+    HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
     findHtmlAttribute,
     replaceHtmlAttributeValue
 } = require('./html-scanner');
 
-const CODE_SAMPLE_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
+const CODE_SAMPLE_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
 
 /**
  * Opt highlight/gist blocks out of Typography (`not-prose`) so feature code CSS

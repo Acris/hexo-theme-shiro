@@ -4,12 +4,13 @@ const { escapeHtml, decodeHtmlEntities, plainHeadingText } = require('./util');
 const { isFeatureEnabled } = require('./features');
 const { pageAnalysis, tocHeadingLevels } = require('./html-analysis');
 const {
+    HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
     htmlAttributeValue
 } = require('./html-scanner');
 
-const TOC_SKIPPED_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
+const TOC_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
 
 function slugifyHeading(text) {
     return String(text).trim()

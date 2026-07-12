@@ -4,13 +4,14 @@
 
 const path = require('path');
 const {
+    HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
     parseHtmlAttributes
 } = require('./html-scanner');
 
 const DEFAULT_IMAGE_SIZES = '(min-width: 768px) 672px, calc(100vw - 2rem)';
-const IMAGE_SKIPPED_ELEMENTS = new Set(['script', 'style', 'textarea', 'template', 'pre', 'code']);
+const IMAGE_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
 
 // Lightweight HTML attribute parsing for <img> tags in rendered Hexo output.
 function parseAttrs(source) {

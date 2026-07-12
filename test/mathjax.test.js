@@ -305,6 +305,21 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[0], '$y$');
         });
 
+        it('does not treat a quoted closing tag as the end of an HTML code block', () => {
+            const source = '<code title="</code>">$x$</code>$y$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.ok(protectedMath.segments);
+            assert.deepEqual(protectedMath.segments, ['$y$']);
+        });
+
+        it('skips math-like text in opaque HTML fallback containers', () => {
+            const source = '<noscript>\\(fallback\\)</noscript>'
+                + '<iframe>$$frame$$</iframe>\\(visible\\)';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: false });
+            assert.ok(protectedMath.segments);
+            assert.deepEqual(protectedMath.segments, ['\\(visible\\)']);
+        });
+
         it('does not protect single $ when inlineDollars is off', () => {
             const protectedMath = protectMarkdownMath('$x$ and \\(y\\)', { inlineDollars: false });
             assert.ok(protectedMath.segments);

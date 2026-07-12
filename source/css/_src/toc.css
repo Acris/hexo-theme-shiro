@@ -4,7 +4,7 @@
 /* Fixed sidebar pinned to the right of the 56rem paper card: a 12.5rem panel
    with a 1.25rem gap to the card and a 1rem minimum viewport margin.
    Templates only show it from the `toc` breakpoint (--breakpoint-toc, 85.5rem
-   in source/css/_tailwind.css) — the exact width where this geometry first
+   in source/css/_core/tokens.css) — the exact width where this geometry first
    fits — so the panel never overlaps the card; keep both in sync. */
 
 /* Participates in the same cascade layers as style.min.css (see _tailwind.css).

@@ -11,6 +11,7 @@ const { hasUrlControlChars } = require('./urls');
 const { isFeatureEnabled } = require('./features');
 const {
     HTML_VOID_ELEMENTS,
+    HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
     htmlAttributeValue,
@@ -23,10 +24,9 @@ const pageAnalysisCache = new WeakMap();
 const excerptCache = new WeakMap();
 
 const CODE_CLASS_TOKENS = new Set(['highlight', 'gist']);
-const RAW_CONTENT_ELEMENTS = new Set(['script', 'style', 'textarea', 'template']);
-const ANALYSIS_SKIPPED_ELEMENTS = new Set([
-    'script', 'style', 'textarea', 'template', 'pre', 'code'
-]);
+const RAW_CONTENT_ELEMENTS = new Set(HTML_TOKEN_OPAQUE_ELEMENTS);
+const ANALYSIS_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
+const DESCRIPTION_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre']);
 
 function hasClassToken(attrs, tokens) {
     const classValue = decodeHtmlEntities(imageAttrValue(attrs || '', 'class'));
@@ -58,10 +58,7 @@ function strippedHtml(content) {
 }
 
 function htmlWithoutCodeContent(content) {
-    const withoutRawBlocks = stripElementBlocks(
-        content,
-        new Set(['script', 'style', 'textarea', 'template', 'pre'])
-    );
+    const withoutRawBlocks = stripElementBlocks(content, DESCRIPTION_SKIPPED_ELEMENTS);
 
     return stripClassTokenBlocks(withoutRawBlocks, CODE_CLASS_TOKENS);
 }

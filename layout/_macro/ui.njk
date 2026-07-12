@@ -12,7 +12,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% macro menu_link(item, className="") %}
 {% set item_url = safe_url_for(item.url) %}
 {% set item_target = link_target(item.target) %}
-<a class="{{ className }}"
+<a class="{{ escape_attr(className) }}"
     href="{{ attr_url(item_url) }}"{% if item_target %} target="{{ escape_attr(item_target) }}"{% if is_blank_target(item_target) %} rel="noopener noreferrer"{% endif %}{% endif %}>{{ escape_html(item.name) }}</a>
 {% endmacro %}
 
@@ -46,7 +46,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% endmacro %}
 
 {% macro divider(class="my-4") %}
-<div class="{{ class }} flex items-center justify-center gap-3" aria-hidden="true">
+<div class="{{ escape_attr(class) }} flex items-center justify-center gap-3" aria-hidden="true">
     <div class="h-px flex-1 bg-linear-to-r from-transparent to-text-faint max-w-divider"></div>
     <svg class="h-4 w-10 shrink-0 text-text-faint" viewBox="0 0 40 10">
         <circle cx="20" cy="5" r="3" fill="currentColor" opacity="0.9" />
@@ -69,7 +69,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% endmacro %}
 
 {% macro icon_chevron_down(class="size-4", id="") %}
-<svg class="{{ class }} text-text-chrome transition-transform duration-200"{% if id %} id="{{ id }}"{% endif %}
+<svg class="{{ escape_attr(class) }} text-text-chrome transition-transform duration-200"{% if id %} id="{{ escape_attr(id) }}"{% endif %}
     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path fill-rule="evenodd"
         d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.94l3.71-3.71a.75.75 0 1 1 1.06 1.06l-4.24 4.24a.75.75 0 0 1-1.06 0L5.21 8.29a.75.75 0 0 1 .02-1.08z"
@@ -78,52 +78,52 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% endmacro %}
 
 {% macro icon_folder(class="size-4 text-text-subtle shrink-0", id="") %}
-<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}"{% if id %} id="{{ escape_attr(id) }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
 </svg>
 {% endmacro %}
 
 {% macro icon_nav_arrow(class="size-4 text-text-subtle shrink-0", id="") %}
-<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}"{% if id %} id="{{ escape_attr(id) }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 </svg>
 {% endmacro %}
 
 {% macro icon_book(class="size-4 text-text-subtle shrink-0", id="") %}
-<svg class="{{ class }}"{% if id %} id="{{ id }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}"{% if id %} id="{{ escape_attr(id) }}"{% endif %} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
 </svg>
 {% endmacro %}
 
 {% macro icon_theme_system(class="size-3.5") %}
-<svg data-icon="system" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg data-icon="system" class="{{ escape_attr(class) }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <rect x="2" y="3" width="20" height="14" rx="2" stroke-width="1.5"/>
     <path d="M8 21h8M12 17v4" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
 {% endmacro %}
 
 {% macro icon_theme_light(class="size-3.5") %}
-<svg data-icon="light" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg data-icon="light" class="{{ escape_attr(class) }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
     <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
 {% endmacro %}
 
 {% macro icon_theme_dark(class="size-3.5") %}
-<svg data-icon="dark" class="{{ class }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+<svg data-icon="dark" class="{{ escape_attr(class) }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 {% endmacro %}
 
 {% macro icon_search(class="size-3.5") %}
-<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <circle cx="11" cy="11" r="7"></circle>
     <path d="M21 21l-4.35-4.35"></path>
 </svg>
 {% endmacro %}
 
 {% macro icon_rss(class="size-3.5") %}
-<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M4 11a9 9 0 0 1 9 9"></path>
     <path d="M4 4a16 16 0 0 1 16 16"></path>
     <circle cx="5" cy="19" r="1"></circle>
@@ -131,7 +131,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {% endmacro %}
 
 {% macro icon_empty(class="size-10 mx-auto opacity-30") %}
-<svg class="{{ class }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+<svg class="{{ escape_attr(class) }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
 </svg>
 {% endmacro %}
@@ -150,7 +150,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 {# ~3 clusters when word count is on (date • category • count/time). Sibling
    bullets + gap-x keep separators visually centered between chips. #}
 {# text-chrome: AA-safe idle on dark paper for small meta chips (see DESIGN.md). #}
-<div class="{{ class }} flex flex-wrap items-center justify-center gap-y-1 text-text-chrome {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
+<div class="{{ escape_attr(class) }} flex flex-wrap items-center justify-center gap-y-1 text-text-chrome {% if meta_dense %}gap-x-3 text-xs sm:gap-x-4 sm:text-sm{% else %}gap-x-4 text-sm{% endif %}">
     <div class="flex items-center gap-1.5">
         {{ icon_nav_arrow(class=meta_icon) }}
         <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-chrome"><time datetime="{{ escape_attr(post_date_attr) }}">{{ escape_html(post_date_text) }}</time></a>

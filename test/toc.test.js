@@ -65,6 +65,17 @@ describe('scripts/lib/toc', () => {
             assert.equal(result.html.includes('Code heading'), false);
         });
 
+        it('ignores headings inside opaque fallback containers', () => {
+            const src = '<noscript><h2>No-script heading</h2></noscript>'
+                + '<iframe><h2>Frame heading</h2></iframe>'
+                + '<h2>Real one</h2><h2>Real two</h2><h2>Real three</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.equal((result.html.match(/toc-link/g) || []).length, 3);
+            assert.equal(result.html.includes('No-script heading'), false);
+            assert.equal(result.html.includes('Frame heading'), false);
+        });
+
         it('escapes titles in toc html', () => {
             const src = '<h2>A &amp; B &lt;C&gt;</h2><h2>Two</h2><h2>Three</h2>';
             const result = buildToc(src, { depth: 3, min_headings: 3 });

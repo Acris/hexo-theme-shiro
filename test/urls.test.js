@@ -187,6 +187,14 @@ describe('scripts/lib/urls', () => {
                 normalizeAbsoluteResourceUrl('', 'https://fallback'),
                 'https://fallback'
             );
+            assert.equal(
+                normalizeAbsoluteResourceUrl('', 'javascript:alert(1)'),
+                ''
+            );
+            assert.equal(
+                normalizeAbsoluteResourceUrl('data:text/html,x', 'file:///tmp/fallback.js'),
+                ''
+            );
         });
     });
 

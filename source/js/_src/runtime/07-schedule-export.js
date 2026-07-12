@@ -29,6 +29,7 @@
         bindIntentWarm,
         isSafeImageUrl,
         isDecorativeImg,
+        hasConflictingImageAction,
         imageSource,
         isModifiedClick,
         safeNavigate,

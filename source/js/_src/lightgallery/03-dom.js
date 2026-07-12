@@ -125,6 +125,7 @@
         if (!isSafeImageUrl(src)) return null;
 
         if (isDecorativeImg(img)) return null;
+        if (hasConflictingImageAction(img)) return null;
 
         let existing = img.parentElement;
         while (existing && existing !== container && existing.tagName !== 'A') {

@@ -16,6 +16,7 @@
         bindIntentWarm,
         isSafeImageUrl,
         isDecorativeImg,
+        hasConflictingImageAction,
         imageSource,
         isModifiedClick,
         navigateFromImage,
@@ -69,7 +70,9 @@
 
     function shouldHandleImage(img) {
         const src = imageSource(img);
-        return isSafeImageUrl(src) && !isDecorativeImg(img);
+        return isSafeImageUrl(src)
+            && !isDecorativeImg(img)
+            && !hasConflictingImageAction(img);
     }
 
     function qualifyingImage(target) {

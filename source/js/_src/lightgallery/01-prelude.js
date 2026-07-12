@@ -42,6 +42,7 @@
         loadAsset,
         isSafeImageUrl,
         isDecorativeImg,
+        hasConflictingImageAction,
         imageSource,
         safeNavigate,
         navigateFromImage,

@@ -4,7 +4,14 @@ const HTML_VOID_ELEMENTS = new Set([
     'area', 'base', 'br', 'col', 'embed', 'hr', 'img',
     'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'
 ]);
-const HTML_RAW_TEXT_ELEMENTS = new Set(['script', 'style', 'textarea', 'title']);
+const HTML_RAW_TEXT_ELEMENTS = new Set([
+    'script', 'style', 'textarea', 'title', 'iframe', 'noembed',
+    'noframes', 'xmp', 'plaintext'
+]);
+const HTML_TOKEN_OPAQUE_ELEMENTS = new Set([
+    ...HTML_RAW_TEXT_ELEMENTS,
+    'template', 'noscript'
+]);
 
 function findTagEnd(source, start) {
     let quote = '';
@@ -100,6 +107,7 @@ function findElementClose(value, openingToken) {
         return null;
     }
 
+    if (openingToken.name === 'plaintext') return null;
     if (HTML_RAW_TEXT_ELEMENTS.has(openingToken.name)) {
         const closeRe = new RegExp('</\\s*' + escapedRegExp(openingToken.name) + '\\s*>', 'ig');
         closeRe.lastIndex = openingToken.end;
@@ -261,6 +269,7 @@ function htmlTextContent(value, options) {
 
 module.exports = {
     HTML_VOID_ELEMENTS,
+    HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
     parseHtmlAttributes,

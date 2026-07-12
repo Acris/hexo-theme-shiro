@@ -29,6 +29,12 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(pageHasCode(page, {}, { is_post: () => true }), true);
             assert.equal(pageHasCode({ content: '<p>hi</p>' }, {}, { is_post: () => true }), false);
         });
+
+        it('ignores code-like markup in opaque fallback containers', () => {
+            const content = '<noscript><figure class="highlight">fallback</figure></noscript>'
+                + '<iframe><code>frame fallback</code></iframe>';
+            assert.equal(hasCodeContent(content), false);
+        });
     });
 
     describe('firstImageInfo / pageAnalysis', () => {
@@ -61,6 +67,18 @@ describe('scripts/lib/html-analysis', () => {
             const b = pageAnalysis(page);
             assert.equal(a, b);
             assert.equal(a.imageCount, 1);
+        });
+
+        it('ignores fallback images when selecting and counting content images', () => {
+            const content = '<noscript><img src="/noscript.png"></noscript>'
+                + '<iframe><img src="/frame.png"></iframe>'
+                + '<img src="/visible.png" width="80" height="40">';
+            assert.deepEqual(firstImageInfo(content), {
+                src: '/visible.png',
+                width: 80,
+                height: 40
+            });
+            assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
     });
 

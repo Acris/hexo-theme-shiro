@@ -303,7 +303,6 @@
         user-select: none;
     }
 
-    /* Dark: one theme gate; nested for maintainability (feature CSS is not Tailwind-scanned). */
     /* Dark theme overrides (flat selectors — feature CSS is not Tailwind-scanned). */
     html[data-theme="dark"] .prose-shiro .highlight {
         border-color: var(--color-border-strong);

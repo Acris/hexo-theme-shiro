@@ -53,13 +53,16 @@ function safeResourceUrl(value, context, fallback, options) {
  * Scheme-safe resource URL without Hexo url_for (CDN / absolute / site-relative).
  * Blocks control chars and non-http schemes (except protocol-relative //).
  */
-function normalizeAbsoluteResourceUrl(value, fallback) {
+function normalizedResourceUrlValue(value) {
     const text = normalizedUrlText(value);
-    const safeFallback = normalizedUrlText(fallback);
-    if (!text) return safeFallback;
+    if (!text) return '';
     if (/^(?:https?:)?\/\//i.test(text)) return text;
-    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return safeFallback;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return '';
     return text;
+}
+
+function normalizeAbsoluteResourceUrl(value, fallback) {
+    return normalizedResourceUrlValue(value) || normalizedResourceUrlValue(fallback);
 }
 
 // HTML target attribute allowlist only. Empty / unknown → "" (omit the attribute).

@@ -16,6 +16,14 @@
         return false;
     }
 
+    function hasConflictingImageAction(img) {
+        if (!img || typeof img.closest !== 'function') return false;
+        return !!img.closest(
+            'button, input, select, textarea, summary, label, '
+            + '[role="button"], [role="link"], [contenteditable]:not([contenteditable="false"])'
+        );
+    }
+
     function imageSource(img) {
         const attrSrc = (img.getAttribute('src') || '').trim();
         const attrSrcset = (img.getAttribute('srcset') || '').trim();
@@ -37,20 +45,20 @@
     }
 
     /**
-     * Navigate to a same-site path or open absolute http(s) in a new tab.
-     * Blocks javascript:/data:/control chars.
+     * Navigate to an allowlisted URL; open absolute http(s) in a new tab.
+     * Blob URLs support image fallbacks. Unknown schemes and control chars are blocked.
      */
     function safeNavigate(href) {
         const value = String(href || '').trim();
         if (!value) return;
-        if (/^(?:javascript|vbscript|data):/i.test(value) || /[\u0000-\u001F\u007F]/.test(value)) {
-            return;
-        }
+        if (/[\u0000-\u001F\u007F]/.test(value)) return;
         if (/^https?:\/\//i.test(value) || value.indexOf('//') === 0) {
             window.open(value, '_blank', 'noopener,noreferrer');
             return;
         }
-        window.location.href = value;
+        if (/^(?:mailto|tel|blob):/i.test(value) || !/^[a-z][a-z0-9+.-]*:/i.test(value)) {
+            window.location.href = value;
+        }
     }
 
     // Prefer original page href (pre-gallery), then image src — shared by LG bootstrap/feature.

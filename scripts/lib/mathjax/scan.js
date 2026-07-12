@@ -1,6 +1,11 @@
 'use strict';
 
 const { escapeRegExp } = require('../util');
+const {
+    HTML_TOKEN_OPAQUE_ELEMENTS,
+    nextHtmlToken,
+    findElementClose
+} = require('../html-scanner');
 
 // Longest names first so the open-pattern prefers alignedat over aligned over align.
 const MATH_ENV_NAMES = [
@@ -16,7 +21,7 @@ const MATH_ENV_OPEN_RE = new RegExp(
     '^\\\\begin\\s*\\{((?:' + MATH_ENV_NAMES.join('|') + ')\\*?)\\}'
 );
 
-const HTML_SKIP_OPEN_RE = /^<(script|style|textarea|template|pre|code)\b/i;
+const HTML_SKIP_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
 
 function isEscaped(source, index) {
     let slashes = 0;
@@ -116,19 +121,16 @@ function skipCodeSpan(source, start) {
 }
 
 function skipHtmlNoise(source, start) {
-    if (source.startsWith('<!--', start)) {
-        const end = source.indexOf('-->', start + 4);
-        return end === -1 ? source.length : end + 3;
+    const token = nextHtmlToken(source, start);
+    if (!token || token.start !== start) return start;
+    if (token.type === 'comment') return token.end;
+    if (token.type !== 'tag' || token.closing || !HTML_SKIP_ELEMENTS.has(token.name)) {
+        return start;
     }
+    if (token.selfClosing) return token.end;
 
-    const open = HTML_SKIP_OPEN_RE.exec(source.slice(start, start + 32));
-    if (!open) return start;
-
-    const tag = open[1];
-    const closeRe = new RegExp('</' + tag + '\\s*>', 'i');
-    const close = closeRe.exec(source.slice(start + open[0].length));
-    if (!close) return source.length;
-    return start + open[0].length + close.index + close[0].length;
+    const close = findElementClose(source, token);
+    return close ? close.end : source.length;
 }
 
 function findUnescapedClose(source, from, close) {

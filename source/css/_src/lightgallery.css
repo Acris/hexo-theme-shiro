@@ -46,14 +46,14 @@
     .lg-toolbar .lg-icon,
     .lg-next,
     .lg-prev {
-        color: var(--color-text-body, #d4d0cc);
+        color: #d4d0cc;
         opacity: 0.85;
     }
 
     .lg-toolbar .lg-icon:hover,
     .lg-next:hover,
     .lg-prev:hover {
-        color: var(--color-text-heading, #e8e5e1);
+        color: #e8e5e1;
         opacity: 1;
     }
 }

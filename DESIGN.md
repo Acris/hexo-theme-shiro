@@ -22,7 +22,6 @@ colors:
   on-seal: "#fffffff2"
   code-bg: "#f8fafc"
   code-gutter: "#f1f5f9"
-  code-line-number: "#475569"
   # Surfaces & type (dark · 夜の白)
   paper-dark: "#1f1e1d"
   fog-dark: "#181817"
@@ -31,8 +30,6 @@ colors:
   body-dark: "#b0ada9"
   seal-dark: "#e16a60"
   seal-fill-dark: "#b7352e"
-  # Dark idle chrome (text-chrome token); AA-safe on paper-dark
-  chrome-idle-dark: "#918e8a"
   # Semantic type/chrome (CSS: --color-text-*); not via inverted slate utilities
   text-chrome: "#6b7280"
   text-chrome-dark: "#918e8a"
@@ -212,7 +209,7 @@ components:
     textColor: "{colors.seal}"
   header-pill-dark:
     backgroundColor: "{colors.paper-dark}"
-    textColor: "{colors.chrome-idle-dark}"
+    textColor: "{colors.text-chrome-dark}"
   tag-pill:
     backgroundColor: "{colors.code-bg}"
     textColor: "{colors.chrome}"
@@ -280,10 +277,10 @@ components:
     textColor: "{colors.body-dark}"
   code-gutter:
     backgroundColor: "{colors.code-gutter}"
-    textColor: "{colors.code-line-number}"
+    textColor: "{colors.text-chrome}"
   code-gutter-dark:
     backgroundColor: "{colors.code-gutter-dark}"
-    textColor: "{colors.chrome-idle-dark}"
+    textColor: "{colors.text-chrome-dark}"
   link-chrome:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.chrome}"
@@ -359,11 +356,11 @@ Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`
 **Naming:** Spec aliases (`primary` / `secondary` / `tertiary` / `neutral`) equal `ink` / `chrome` / `seal` / `fog` and exist only for design.md tooling. **New UI, components, and theme CSS always use Shiro names** — never a parallel `text-primary` / `--color-primary` track. (`neutral` may lint as orphaned; that is intentional.)
 
 - **Seal (朱):** `seal` is the foreground accent for hovers, active page, progress, inline code, and focus; `seal-fill` is reserved for surfaces carrying `on-seal` text, including buttons and the stamp. Never use either for large solid section fills.
-- **Line numbers:** Light `code-line-number` (`#475569` ≈ Tailwind light `slate-600`); dark `chrome-idle-dark` (`#918e8a`, remapped dark `slate-600`).
-- **Chrome idle dark:** Operable idle icons/labels on paper-dark when contrast would fail ~4.5:1.
-- **CSS-only (not decision tokens):** `subtle` / `faint` (+ dark) — decorative only, never body/controls; borders (`soft-border`, `border-strong`, `border-decorative`, `focus-ring`); alpha `bg-panel` / `bg-inset` / `bg-overlay` (+ dark); fog gradient mids (`#f1f0ee` light, `#191918` dark); scrollbar track/thumb greys. Full list: `source/css/_tailwind.css`.
+- **Line numbers:** Use semantic `text-chrome` in both themes (`#6b7280` light / `#918e8a` dark); do not maintain a separate line-number palette.
+- **Chrome idle dark:** `text-chrome-dark` keeps operable idle icons/labels AA-safe on paper-dark.
+- **CSS-only (not decision tokens):** `subtle` / `faint` (+ dark) — decorative only, never body/controls; borders (`soft-border`, `border-strong`, `border-decorative`, `focus-ring`); alpha `bg-panel` / `bg-inset` / `bg-overlay` (+ dark); fog gradient mids (`#f1f0ee` light, `#191918` dark); scrollbar track/thumb greys. Full list: `source/css/_core/tokens.css` and `source/css/_core/dark.css`.
 - **Alpha / composite fills:** Paint over paper/fog. Contrast-check against the composite surface (often documented as `paper`), not raw rgba on black. Header pills may use near-paper translucent slate fills in CSS while tokens list solid `paper` for AA pairs.
-- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light and dark UI secondary/idle text use **`text-chrome`** (`text-text-chrome` / `--color-text-chrome`). Dark chrome is AA on paper (`chrome-idle-dark`); dark `seal` is readable on paper, while `seal-fill` keeps `on-seal` readable on solid accents.
+- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light and dark UI secondary/idle text use **`text-chrome`** (`text-text-chrome` / `--color-text-chrome`). Dark chrome is AA on paper (`text-chrome-dark`); dark `seal` is readable on paper, while `seal-fill` keeps `on-seal` readable on solid accents.
 
 Tailwind `slate-*` is not remapped in dark mode; theme chrome uses semantic text, border, and surface tokens instead.
 
@@ -386,7 +383,7 @@ Weights loaded: Cardo 400/700; Zen Old Mincho 400/600; Cormorant 400/600; Fira C
 
 **Site note:** Under the paper card, a decorative Japanese line (default copy: 「白は、余白の名。」), title face, wide tracking, chrome/faint opacity — `aria-hidden`, not content or SEO text.
 
-**Icons:** Line icons, ~2px stroke, round caps/joins; inherit `chrome` / `chrome-idle-dark` idle and `seal` on hover. No separate icon palette or filled glyph sets as default chrome.
+**Icons:** Line icons, ~2px stroke, round caps/joins; inherit `text-chrome` / `text-chrome-dark` idle and `seal` on hover. No separate icon palette or filled glyph sets as default chrome.
 
 No geometric sans as primary UI. Title face only for branding moments.
 
@@ -465,7 +462,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 ### Buttons & chrome
 
 - **`.btn-ink`:** Idle = paper-like surface + visible border + ink text (not a filled primary). Hover = seal fill + on-seal + ink shadow. Active = slight press. Shared by home “read more” and category “view all”; optional `.btn-ink-meta` is quieter count text that tracks idle/hover ink.
-- **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `chrome` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `chrome-idle-dark`. Hover seal.
+- **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `text-chrome` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `text-chrome-dark`. Hover seal.
 - **`.tag-pill`:** Soft chip; hover seal border/text.
 - **`.menu-panel`:** Collapsible sheet, `2xl`, paper surface; mobile nav list.
 - **Focus:** `.focus-elegant` uses a 2px solid seal outline with a 2px offset in both themes.
@@ -484,7 +481,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 - **`.prose-shiro`:** Ink/slate prose; code + link hover seal; dark quote border may use seal on purpose.
 - **Reading measure (intentional):** body copy is locked to **~65ch** (`max-w-[65ch]`, Typography’s optimal line length). Do **not** switch to `max-w-none` / full paper width for “wider content” — that is the long-form contract. The paper card may be wider than the column; empty side 余白 is expected.
 - **Code full-bleed:** on large viewports, highlight blocks expand past the 65ch measure by `--shiro-code-bleed` (default `3.5rem` each side), defined on `.prose-shiro` and consumed in `source/css/_src/code.css`. Adjust the token, not magic `7rem` margins, when retuning the layout.
-- **Code:** `code-bg`; gutters use `code-line-number` / `chrome-idle-dark`. Gate CSS when unused.
+- **Code:** `code-bg`; gutters use semantic `text-chrome` in both themes. Gate CSS when unused.
 - **Tables:** Markdown tables stay within the reading measure and scroll horizontally when their data is wider than the column.
 - **MathJax:** Formulas sit inside prose and **inherit** reading colors (`mjx-container { color: inherit }`). No separate MathJax brand palette. Theme chrome uses `html[data-theme]` (not OS preference); MathJax is loaded with `ui/no-dark-mode` so Explorer/dialogs do not follow `prefers-color-scheme` against a forced theme — dialog surfaces use paper/body tokens instead.
 - **Search:** Pagefind modal reuses Shiro colors; same header-pill trigger. No third-party default rainbow skin.
@@ -502,7 +499,7 @@ Three-state control: **system / light / dark**. Switching cross-fades; it does n
 - Use **one** seal accent; keep it scarce.
 - Serif reading on the paper card; full CJK fallbacks.
 - Warm neutrals in both day fog and 夜の白.
-- AA idle: `chrome` (light) / `chrome-idle-dark` (dark).
+- AA idle: `text-chrome` (light) / `text-chrome-dark` (dark).
 - Name tokens in CSS as Shiro (`paper`, `ink`, `seal`, …).
 
 **Don't**
@@ -519,7 +516,7 @@ Three-state control: **system / light / dark**. Switching cross-fades; it does n
 
 For agents editing this repo (visual rules above still govern look-and-feel):
 
-1. **CSS source of truth:** `source/css/_tailwind.css` and `source/css/_src/*`. Full alpha/border/subtle/scrollbar variables live there — DESIGN.md keeps the **decision palette** only. Update both when visuals change.
+1. **CSS source of truth:** `source/css/_tailwind.css` is the entry; core variables live in `source/css/_core/tokens.css` and `source/css/_core/dark.css`, with feature styles in `source/css/_src/*`. DESIGN.md keeps the **decision palette** only. Update both when visuals change.
 2. **Class/token names:** `--color-paper|ink|seal|fog|…` only. Never a parallel `primary`/`tertiary` system in theme CSS or templates.
 3. **Export:** `npx @google/design.md export` may emit both alias and Shiro color variables (same hex). Prefer consuming Shiro names; merge or ignore aliases so templates do not dual-track.
 4. **Gate** optional assets (code, TOC, search, lightbox, comments, MathJax) per page.

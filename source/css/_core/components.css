@@ -436,7 +436,6 @@
            length for long-form prose — do not replace with max-w-none / full paper
            width. Code blocks may expand past this measure via --shiro-code-bleed
            (see source/css/_src/code.css); keep both in sync. */
-        /* Measure owned here (prose default is also ~65ch; keep a single explicit cap). */
         @apply mx-auto max-w-[65ch] font-serif leading-relaxed prose;
         --shiro-code-bleed: 3.5rem;
         --tw-prose-body: var(--color-text-body);
@@ -493,6 +492,10 @@
 
         :where(body[data-shiro-lightgallery="true"]) & :where(img[role="presentation"], img.emoji) {
             cursor: default;
+        }
+
+        :where(body[data-shiro-lightgallery="true"]) & :where(button, input, select, textarea, summary, label, [role="button"], [role="link"], [contenteditable]:not([contenteditable="false"])) img {
+            cursor: inherit;
         }
     }
 

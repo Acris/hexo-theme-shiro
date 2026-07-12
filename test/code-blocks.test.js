@@ -28,6 +28,14 @@ describe('scripts/lib/code-blocks', () => {
             assert.equal((out.match(/not-prose/g) || []).length, 1);
         });
 
+        it('does not rewrite code-like markup in opaque fallback containers', () => {
+            const hidden = '<noscript><figure class="highlight">fallback</figure></noscript>'
+                + '<iframe><div class="gist">frame fallback</div></iframe>';
+            const out = markCodeBlocksNotProse(hidden + '<figure class="highlight">visible</figure>');
+            assert.ok(out.startsWith(hidden));
+            assert.equal((out.match(/not-prose/g) || []).length, 1);
+        });
+
         it('handles single-quoted and unquoted class attributes', () => {
             const html = "<div class='highlight js'>a</div>"
                 + '<div class=highlight>b</div>'
