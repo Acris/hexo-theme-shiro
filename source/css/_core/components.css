@@ -188,7 +188,7 @@
         @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-border-strong px-4 py-2.5 text-sm text-text-body shadow-xs duration-200 ease-soft transition-interactive;
 
         &:hover {
-            @apply border-seal bg-seal text-on-seal saturate-105 shadow-ink;
+            @apply border-seal-fill bg-seal-fill text-on-seal saturate-105 shadow-ink;
         }
 
         &:active {
@@ -202,7 +202,7 @@
     }
 
     .btn-ink:hover .btn-ink-meta {
-        @apply text-on-seal/85;
+        @apply text-on-seal;
     }
 
     .header-pill-btn {
@@ -348,7 +348,7 @@
 
     /* Home meta: parallel category overflow next to primary name. */
     .meta-cat-more {
-        @apply text-text-subtle;
+        @apply text-text-chrome;
     }
 
     .post-nav-link {
@@ -515,24 +515,17 @@
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
         color: var(--color-text-heading);
-        box-shadow: var(--shadow-ink);
-        outline: 2px solid transparent;
+        outline: 2px solid var(--color-focus-ring);
         outline-offset: 2px;
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-seal) 40%, transparent), var(--shadow-ink);
+        box-shadow: var(--shadow-ink);
     }
 }
 
 @layer utilities {
     .focus-elegant:focus-visible {
-        @apply border-border-strong outline-none ring-2 ring-white/85 ring-offset-2 ring-offset-focus-ring;
-
-        /* Kept in @layer utilities so it shares the same cascade layer as the
-           base focus rule and can override its `--tw-ring-*` tokens. */
-        @variant dark {
-            border-color: color-mix(in srgb, var(--color-seal) 30%, transparent);
-            --tw-ring-color: var(--color-bg-panel);
-            --tw-ring-offset-color: var(--color-border-strong);
-        }
+        @apply border-border-strong;
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
     }
 }
 

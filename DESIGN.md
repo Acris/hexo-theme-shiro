@@ -17,6 +17,7 @@ colors:
   heading: "#1a1a2e"
   body: "#2b3036"
   seal: "#b0171a"
+  seal-fill: "#b0171a"
   chrome: "#6b7280"
   on-seal: "#fffffff2"
   code-bg: "#f8fafc"
@@ -28,7 +29,8 @@ colors:
   ink-dark: "#d4d0cc"
   heading-dark: "#e8e5e1"
   body-dark: "#b0ada9"
-  seal-dark: "#d4453a"
+  seal-dark: "#e16a60"
+  seal-fill-dark: "#b7352e"
   # Dark idle chrome (text-chrome token); AA-safe on paper-dark
   chrome-idle-dark: "#918e8a"
   # Semantic type/chrome (CSS: --color-text-*); not via inverted slate utilities
@@ -191,10 +193,13 @@ components:
     rounded: "{rounded.xl}"
     padding: 10px 16px
   button-ink-hover:
-    backgroundColor: "{colors.seal}"
+    backgroundColor: "{colors.seal-fill}"
     textColor: "{colors.on-seal}"
   button-ink-active:
-    backgroundColor: "{colors.seal}"
+    backgroundColor: "{colors.seal-fill}"
+    textColor: "{colors.on-seal}"
+  button-ink-hover-dark:
+    backgroundColor: "{colors.seal-fill-dark}"
     textColor: "{colors.on-seal}"
   header-pill:
     backgroundColor: "{colors.paper}"
@@ -319,7 +324,7 @@ components:
     rounded: "{rounded.full}"
   # Color/type only — real mark uses seal SVG path, not a plain circle chip.
   seal-stamp:
-    backgroundColor: "{colors.seal}"
+    backgroundColor: "{colors.seal-fill}"
     textColor: "{colors.on-seal}"
     typography: "{typography.seal-mark}"
     rounded: "{rounded.full}"
@@ -345,21 +350,22 @@ Ink-on-paper with one interactive accent. **Canonical names match theme CSS** (`
 |:-----|:-----------|:-----------|:------|:-----|
 | Core ink | `primary` | `ink` (chrome) · `body` (reading) | both `#2b3036` | ink `#d4d0cc` · body `#b0ada9` |
 | Metadata / idle chrome | `secondary` | **`chrome`** | light `#6b7280` | dark `#918e8a` (AA idle). CSS `--color-text-chrome` / `text-text-chrome` |
-| Accent | `tertiary` | `seal` | `#b0171a` | `#d4453a` |
+| Accent foreground | `tertiary` | `seal` | `#b0171a` | `#e16a60` |
+| Accent fill | — | `seal-fill` | `#b0171a` | `#b7352e` |
 | Atmosphere | `neutral` | `fog` | `#f5f4f2` | `#181817` |
 | Surface | — | `paper` | `#ffffff` | `#1f1e1d` |
 | Titles | — | `heading` | `#1a1a2e` | `#e8e5e1` |
 
 **Naming:** Spec aliases (`primary` / `secondary` / `tertiary` / `neutral`) equal `ink` / `chrome` / `seal` / `fog` and exist only for design.md tooling. **New UI, components, and theme CSS always use Shiro names** — never a parallel `text-primary` / `--color-primary` track. (`neutral` may lint as orphaned; that is intentional.)
 
-- **Seal (朱):** Hovers, active page, progress bar, inline code, stamp, preloader mark. Never large solid section fills.
+- **Seal (朱):** `seal` is the foreground accent for hovers, active page, progress, inline code, and focus; `seal-fill` is reserved for surfaces carrying `on-seal` text, including buttons and the stamp. Never use either for large solid section fills.
 - **Line numbers:** Light `code-line-number` (`#475569` ≈ Tailwind light `slate-600`); dark `chrome-idle-dark` (`#918e8a`, remapped dark `slate-600`).
 - **Chrome idle dark:** Operable idle icons/labels on paper-dark when contrast would fail ~4.5:1.
 - **CSS-only (not decision tokens):** `subtle` / `faint` (+ dark) — decorative only, never body/controls; borders (`soft-border`, `border-strong`, `border-decorative`, `focus-ring`); alpha `bg-panel` / `bg-inset` / `bg-overlay` (+ dark); fog gradient mids (`#f1f0ee` light, `#191918` dark); scrollbar track/thumb greys. Full list: `source/css/_tailwind.css`.
 - **Alpha / composite fills:** Paint over paper/fog. Contrast-check against the composite surface (often documented as `paper`), not raw rgba on black. Header pills may use near-paper translucent slate fills in CSS while tokens list solid `paper` for AA pairs.
-- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light and dark UI secondary/idle text use **`text-chrome`** (`text-text-chrome` / `--color-text-chrome`). Dark chrome is AA on paper (`chrome-idle-dark`).
+- **AA:** Readable text and controls ≥ 4.5:1 on paper. Light and dark UI secondary/idle text use **`text-chrome`** (`text-text-chrome` / `--color-text-chrome`). Dark chrome is AA on paper (`chrome-idle-dark`); dark `seal` is readable on paper, while `seal-fill` keeps `on-seal` readable on solid accents.
 
-Tailwind `slate-*` is remapped under `html[data-theme=dark]` so one class set serves both themes.
+Tailwind `slate-*` is not remapped in dark mode; theme chrome uses semantic text, border, and surface tokens instead.
 
 ## Typography
 
@@ -462,7 +468,7 @@ Front matter lists **product UI** only. Variants: `*-hover`, `*-dark`, `*-active
 - **`.header-pill-btn`:** `full` pills (search, theme, RSS). Light idle `chrome` on near-paper translucent fill (token AA pair uses solid `paper`); dark idle `chrome-idle-dark`. Hover seal.
 - **`.tag-pill`:** Soft chip; hover seal border/text.
 - **`.menu-panel`:** Collapsible sheet, `2xl`, paper surface; mobile nav list.
-- **Focus:** `.focus-elegant` ring + offset; dark may lean seal.
+- **Focus:** `.focus-elegant` uses a 2px solid seal outline with a 2px offset in both themes.
 - **Empty state:** Muted readable copy — never faint.
 
 ### Navigation & reading

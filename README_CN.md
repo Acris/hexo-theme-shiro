@@ -141,11 +141,11 @@ category_index:
   preview_limit: 5
 
 # 摘要设置
-# 优先级：<!-- more --> 标签 > 自动截断（当 fallback.enabled 为 true 时）> 全文显示。
+# 优先级：<!-- more --> 标签 > 自动截断（当 fallback.enabled 为 true 时）> 空摘要。
 # 为了更好的阅读性，推荐在文章中手动添加 <!-- more -->。
 excerpt:
   # 如果文章有 <!-- more --> 标签，则使用它。
-  # 否则回退到自动截断摘要。
+  # 启用后，若没有该标签，则使用自动截断摘要。
   fallback:
     enabled: true
     # 截断的字符数（非单词数）
@@ -424,15 +424,15 @@ npx serve public
 
 | 功能 | 默认 URL 所需的指令补充 |
 | ---- | ----------------------- |
-| 主题核心 / Pagefind | `script-src 'self' 'nonce-<每请求 nonce>'`；`style-src 'self'`；`style-src-attr 'unsafe-inline'`；`font-src 'self' data:`；`img-src 'self' data:` |
-| Google Fonts | `style-src https://fonts.googleapis.com`；`font-src https://fonts.gstatic.com` |
-| LightGallery | `script-src https://cdn.jsdelivr.net`；`style-src https://cdn.jsdelivr.net` |
-| MathJax | `script-src https://cdn.jsdelivr.net`；`font-src https://cdn.jsdelivr.net` |
+| 主题核心 / Pagefind | `script-src 'self' 'nonce-<每请求 nonce>'`；`style-src 'self'`；`style-src-elem 'self'`；`style-src-attr 'unsafe-inline'`；`font-src 'self' data:`；`img-src 'self' data:` |
+| Google Fonts | `style-src https://fonts.googleapis.com`；`style-src-elem https://fonts.googleapis.com`；`font-src https://fonts.gstatic.com` |
+| LightGallery | `script-src https://cdn.jsdelivr.net`；`style-src https://cdn.jsdelivr.net`；`style-src-elem https://cdn.jsdelivr.net` |
+| MathJax | `script-src https://cdn.jsdelivr.net`；`style-src-elem 'unsafe-inline'`；`font-src https://cdn.jsdelivr.net` |
 | giscus | `script-src https://giscus.app`；`frame-src https://giscus.app` |
 | Disqus | `script-src https://*.disqus.com https://*.disquscdn.com`；`frame-src https://*.disqus.com`；并在 `connect-src` / `img-src` 加入相同主机 |
 | Google Analytics | `script-src https://www.googletagmanager.com`；`connect-src https://www.google-analytics.com https://region1.google-analytics.com` |
 
-交互元素状态与分类深度需要 `style-src-attr 'unsafe-inline'`；不支持 CSP Level 3 的浏览器需改在 `style-src` 中加入 `'unsafe-inline'`。自定义 CDN、图片、评论或统计域名也必须加入对应指令。`security.csp_nonce` 只是静态配置钩子；真正的 nonce 防护必须由宿主为每个响应生成新值，并同时注入 CSP 响应头与主题配置。
+交互元素状态与分类深度需要 `style-src-attr 'unsafe-inline'`。MathJax CommonHTML 还会创建内联样式元素，因此 `style-src-elem` 必须加入 `'unsafe-inline'`；脚本 nonce 不会授权这些样式。`style-src-elem` 会覆盖样式元素的 `style-src`，所以必须合并所有已启用的样式表来源。不支持 CSP Level 3 的浏览器需改在 `style-src` 中加入所需内联许可与来源。自定义 CDN、图片、评论或统计域名也必须加入对应指令。`security.csp_nonce` 只是静态配置钩子；真正的 nonce 防护必须由宿主为每个响应生成新值，并同时注入 CSP 响应头与主题配置。
 
 ## 开发
 

@@ -2,11 +2,12 @@
     --color-paper: #ffffff;
     --color-ink: #2b3036;
     --color-seal: #b0171a;
+    --color-seal-fill: #b0171a;
     /* Page fog / preloader wash (keep in sync with dark.css swaps). */
     --color-fog: #f5f4f2;
     --color-fog-mid: #f1f0ee;
     --color-soft-border: rgba(17, 24, 39, 0.06);
-    --color-focus-ring: rgba(31, 35, 40, 0.18);
+    --color-focus-ring: #b0171a;
     --color-scrollbar-track: #f5f6f7;
     --color-scrollbar-thumb: rgba(43, 48, 54, 0.32);
     --color-scrollbar-thumb-hover: rgba(43, 48, 54, 0.5);
@@ -40,11 +41,11 @@
     --color-code-gutter: #f1f5f9;
 
     /* Syntax highlighting (Hexo highlight / gist). Dark swaps in dark.css. */
-    --color-code-comment: #a8a29e;
+    --color-code-comment: var(--color-text-chrome);
     --color-code-string: #5b6e3a;
     --color-code-number: #a85a1f;
     --color-code-attr: #8a4a1a;
-    --color-code-meta: #8a8278;
+    --color-code-meta: var(--color-text-chrome);
     --color-code-title: var(--color-ink);
     --color-code-keyword: var(--color-seal);
     --color-code-addition: #4a6b2a;

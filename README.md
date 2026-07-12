@@ -144,11 +144,11 @@ category_index:
   preview_limit: 5
 
 # Excerpt settings
-# Priority: <!-- more --> tag > auto-truncation (when fallback.enabled: true) > full content.
+# Priority: <!-- more --> tag > auto-truncation (when fallback.enabled: true) > empty excerpt.
 # For better readability, prefer adding <!-- more --> manually in posts.
 excerpt:
   # If post has <!-- more -->, use it.
-  # Otherwise fallback to auto-truncated excerpt.
+  # When enabled and no marker is present, use an auto-truncated excerpt.
   fallback:
     enabled: true
     # Number of characters to truncate (not words)
@@ -432,15 +432,15 @@ Set CSP as an HTTP response header at the host or edge. Start with a request-spe
 
 | Feature | Directive additions for the default URLs |
 | ------- | ---------------------------------------- |
-| Core theme / Pagefind | `script-src 'self' 'nonce-<request-nonce>'`; `style-src 'self'`; `style-src-attr 'unsafe-inline'`; `font-src 'self' data:`; `img-src 'self' data:` |
-| Google Fonts | `style-src https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com` |
-| LightGallery | `script-src https://cdn.jsdelivr.net`; `style-src https://cdn.jsdelivr.net` |
-| MathJax | `script-src https://cdn.jsdelivr.net`; `font-src https://cdn.jsdelivr.net` |
+| Core theme / Pagefind | `script-src 'self' 'nonce-<request-nonce>'`; `style-src 'self'`; `style-src-elem 'self'`; `style-src-attr 'unsafe-inline'`; `font-src 'self' data:`; `img-src 'self' data:` |
+| Google Fonts | `style-src https://fonts.googleapis.com`; `style-src-elem https://fonts.googleapis.com`; `font-src https://fonts.gstatic.com` |
+| LightGallery | `script-src https://cdn.jsdelivr.net`; `style-src https://cdn.jsdelivr.net`; `style-src-elem https://cdn.jsdelivr.net` |
+| MathJax | `script-src https://cdn.jsdelivr.net`; `style-src-elem 'unsafe-inline'`; `font-src https://cdn.jsdelivr.net` |
 | giscus | `script-src https://giscus.app`; `frame-src https://giscus.app` |
 | Disqus | `script-src https://*.disqus.com https://*.disquscdn.com`; `frame-src https://*.disqus.com`; `connect-src` / `img-src` for the same hosts |
 | Google Analytics | `script-src https://www.googletagmanager.com`; `connect-src https://www.google-analytics.com https://region1.google-analytics.com` |
 
-`style-src-attr 'unsafe-inline'` is required for interactive element state and category depth; on browsers without CSP Level 3 support, place `'unsafe-inline'` in `style-src` instead. Add any custom CDN, image, comment, or analytics hosts you configure. `security.csp_nonce` is a static config hook only—real nonce protection requires the host to inject a fresh nonce into both the CSP header and rendered theme config for every response.
+`style-src-attr 'unsafe-inline'` is required for interactive element state and category depth. MathJax CommonHTML also creates inline style elements, so it requires `'unsafe-inline'` in `style-src-elem`; a script nonce does not authorize those styles. Merge every enabled stylesheet origin into `style-src-elem`, which overrides `style-src` for style elements. On browsers without CSP Level 3 support, place the required inline allowance and origins in `style-src` instead. Add any custom CDN, image, comment, or analytics hosts you configure. `security.csp_nonce` is a static config hook only—real nonce protection requires the host to inject a fresh nonce into both the CSP header and rendered theme config for every response.
 
 ## Development
 

@@ -38,7 +38,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
 <svg width="52" height="52" viewBox="0 0 100 100" aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg">
     <path d="{{ seal_path_d() }}"
-        fill="var(--color-seal)" filter="url(#seal-roughness)" opacity="0.92" />
+        fill="var(--color-seal-fill)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
         font-size="42" fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)"
         class="seal-text select-none">{{ escape_html(title) }}</text>
@@ -205,7 +205,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
     </svg>
     {{ escape_html(tag.name) }}
     {% if show_count %}
-        <span class="text-text-subtle ml-1 text-xs">{{ tag.length }}</span>
+        <span class="text-text-chrome ml-1 text-xs">{{ tag.length }}</span>
     {% endif %}
 </a>
 {% endmacro %}

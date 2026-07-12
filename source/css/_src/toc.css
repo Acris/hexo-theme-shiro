@@ -43,7 +43,7 @@
         flex-shrink: 0;
         margin: 0;
         padding: 1rem 1rem 0.75rem;
-        color: var(--color-text-subtle);
+        color: var(--color-text-chrome);
         font-family: var(--font-title);
         font-size: 0.75rem;
         line-height: 1rem;
@@ -206,7 +206,7 @@
     }
 
     html[data-theme="dark"] .toc-sidebar-title {
-        color: var(--color-text-subtle);
+        color: var(--color-text-chrome);
     }
 
     html[data-theme="dark"] .toc-sidebar-title::before,

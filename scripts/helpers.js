@@ -135,8 +135,6 @@ hexo.extend.helper.register('safe_resource_url_for', function (value, fallback, 
     return safeResourceUrl(value, this, fallback, options);
 });
 
-// resource_origin_for removed: layout uses gates.lightgalleryPreconnectUrl only.
-
 hexo.extend.helper.register('link_target', function (value) {
     return normalizedLinkTarget(value);
 });
@@ -320,8 +318,6 @@ hexo.extend.helper.register('versioned_url', function (assetPath) {
 hexo.extend.helper.register('has_images', function (page) {
     return pageAnalysis(page).imageCount > 0;
 });
-
-// first_image removed: OG path uses resolveOpenGraphImage / pageAnalysis internally.
 
 hexo.extend.helper.register('excerpt_for', function (post, length) {
     return excerptFor(post, length);

@@ -240,7 +240,7 @@
         border: 1px solid color-mix(in srgb, var(--color-border-strong) 60%, transparent);
         border-radius: 2px;
         background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
-        color: var(--color-text-faint);
+        color: var(--color-text-chrome);
         cursor: pointer;
         /* Hidden until hover/focus on pointer devices; always discoverable on touch. */
         opacity: 0;
@@ -269,7 +269,7 @@
     .highlight-wrapper:hover > .copy-btn,
     .highlight-wrapper:focus-within > .copy-btn,
     .highlight-wrapper > .copy-btn:focus-visible {
-        opacity: 0.7;
+        opacity: 0.85;
     }
 
     .highlight-wrapper:hover > .copy-btn:hover,
@@ -278,7 +278,7 @@
     }
 
     .highlight-wrapper > .copy-btn:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--color-seal) 55%, transparent);
+        outline: 2px solid var(--color-focus-ring);
         outline-offset: 2px;
         border-color: color-mix(in srgb, var(--color-seal) 40%, transparent);
         color: var(--color-seal);
@@ -287,7 +287,7 @@
     /* Touch / no-hover: keep the control visible so it is discoverable. */
     @media (hover: none) {
         .highlight-wrapper > .copy-btn {
-            opacity: 0.7;
+            opacity: 0.85;
         }
     }
 
@@ -295,7 +295,7 @@
         position: absolute;
         right: 0.5rem;
         bottom: 0.5rem;
-        color: var(--color-text-faint);
+        color: var(--color-text-chrome);
         font-family: var(--font-code);
         font-size: 0.65rem;
         letter-spacing: 0.04em;
@@ -367,7 +367,7 @@
     html[data-theme="dark"] .highlight-wrapper > .copy-btn {
         border-color: var(--color-border-decorative);
         background-color: var(--color-bg-overlay);
-        color: var(--color-text-subtle);
+        color: var(--color-text-chrome);
     }
 
     html[data-theme="dark"] .highlight-wrapper > .copy-btn:hover,
@@ -378,7 +378,7 @@
     }
 
     html[data-theme="dark"] .highlight-wrapper > .code-lang {
-        color: var(--color-text-faint);
+        color: var(--color-text-chrome);
     }
 
 }

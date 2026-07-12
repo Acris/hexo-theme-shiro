@@ -69,7 +69,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 - Archive year groups: helper `posts_by_year` / `scripts/lib/archive.js` (do not re-open/close year `<div>`s in Nunjucks loops).
 - Tag/category detail post lists: shared `_partial/common/paginated-posts.njk` (caller imports `render_list`).
 - Syntax highlight colors: tokens `--color-code-*` in `tokens.css` / dark swaps in `dark.css`; feature `code.css` consumes tokens only (no parallel dark hex palette).
-- Dark mode does **not** invert the Tailwind slate scale. Prefer semantic tokens over `text-slate-*`. UI idle / secondary text uses **`text-chrome`** only (`text-text-chrome` / `--color-text-chrome`). There is no `--color-text-muted` token.
+- Dark mode does **not** invert the Tailwind slate scale. Prefer semantic tokens over `text-slate-*`. UI idle / secondary text uses **`text-chrome`** only (`text-text-chrome` / `--color-text-chrome`). Use `--color-seal` for foreground accents and `--color-seal-fill` for surfaces carrying `--color-on-seal`; there is no `--color-text-muted` token.
 - Comments boot: stub enqueue in `comments/bootstrap.njk` (`__shiro.commentsReadyQueue`); `comments-bootstrap.js` installs `runtime.comments` and drains. Missing runtime aborts. Providers use `runtime.comments` only; immediate load if `onNearViewport` missing.
 - Pagefind indexes only when **theme** `search.enabled` is on (not `hexo.config.search`).
 - Home cards: `excerpt_for_card` — no manual excerpt + fallback off → empty body + read-more (never full post HTML).
