@@ -122,6 +122,60 @@ describe('runtime build contract', () => {
         assert.match(lightgallerySource, /^;\(\(\)\s*=>\s*\{/);
         assert.match(lightgallerySource, /\}\)\(\);\s*$/);
     });
+
+    it('preserves safe relative image links in LightGallery captions', () => {
+        const { window, document } = createHarness();
+        const anchorAttrs = { href: '/posts/linked/' };
+        const container = {
+            contains: (node) => node === image,
+            querySelectorAll: () => anchorAttrs['data-lg-item'] ? [anchor] : []
+        };
+        const anchor = {
+            tagName: 'A',
+            isConnected: true,
+            parentElement: container,
+            getAttribute: (name) => anchorAttrs[name] || null,
+            setAttribute: (name, value) => {
+                anchorAttrs[name] = String(value);
+            },
+            hasAttribute: (name) => Object.prototype.hasOwnProperty.call(anchorAttrs, name),
+            removeAttribute: (name) => {
+                delete anchorAttrs[name];
+            }
+        };
+        const imageAttrs = { src: '/images/preview.jpg', alt: 'Preview' };
+        const image = {
+            tagName: 'IMG',
+            parentElement: anchor,
+            parentNode: anchor,
+            naturalWidth: 800,
+            naturalHeight: 600,
+            currentSrc: '',
+            classList: { contains: () => false },
+            getAttribute: (name) => imageAttrs[name] || '',
+            closest(selector) {
+                if (selector === '.prose-shiro') return container;
+                return null;
+            }
+        };
+
+        window.__shiro.lightgallery = {
+            css: '/vendor/lightgallery.css',
+            js: '/vendor/lightgallery.js'
+        };
+        window.lightGallery = () => ({ refresh() {}, openGallery() {} });
+        vm.runInNewContext(lightgallerySource, {
+            window,
+            document,
+            console,
+            setTimeout,
+            clearTimeout,
+            queueMicrotask
+        });
+
+        assert.equal(window.__shiro.lightGalleryOpen(image), true);
+        assert.match(anchorAttrs['data-sub-html'], /href="\/posts\/linked\/"/);
+    });
 });
 
 describe('client accessibility contracts', () => {
@@ -148,6 +202,14 @@ describe('client accessibility contracts', () => {
         const source = clientSource('toc.js');
         assert.match(source, /setAttribute\(['"]aria-current['"],\s*['"]location['"]\)/);
         assert.match(source, /removeAttribute\(['"]aria-current['"]\)/);
+    });
+
+    it('keeps geometry-based TOC tracking active while scrolling', () => {
+        const source = clientSource('toc.js');
+        assert.match(
+            source,
+            /if \('IntersectionObserver' in window\)[\s\S]*?\n\s*}\n\s*window\.addEventListener\('scroll', scheduleGeometryUpdate/
+        );
     });
 
     it('hides the inactive back-to-top button from keyboard focus', () => {

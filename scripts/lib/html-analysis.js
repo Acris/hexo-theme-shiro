@@ -327,6 +327,12 @@ function imageDimensionAttr(attrs, name) {
     return Number.isFinite(number) && number > 0 ? number : 0;
 }
 
+function firstSrcsetUrl(value) {
+    const text = decodeHtmlEntities(String(value || '')).replace(/^[\s,]+/, '');
+    const match = /^([^\s]+)/.exec(text);
+    return match ? match[1].replace(/,+$/, '') : '';
+}
+
 function firstImageInfo(content) {
     const empty = { src: '', width: 0, height: 0 };
     if (!content) return empty;
@@ -343,8 +349,12 @@ function firstImageInfo(content) {
         }
         if (token.name !== 'img') continue;
         const attrs = token.attrs;
-        for (const name of ['src', 'data-src']) {
-            const value = imageAttrValue(attrs, name);
+        const candidates = [
+            imageAttrValue(attrs, 'src'),
+            imageAttrValue(attrs, 'data-src'),
+            firstSrcsetUrl(imageAttrValue(attrs, 'srcset'))
+        ];
+        for (const value of candidates) {
             if (isUsableImageSrcCandidate(value)) {
                 return {
                     src: String(value).trim(),
@@ -363,7 +373,8 @@ function imageAttrValue(attrs, name) {
 
 function imageHasLightboxSource(attrs) {
     return isLightboxImageSrcCandidate(imageAttrValue(attrs, 'src'))
-        || isLightboxImageSrcCandidate(imageAttrValue(attrs, 'data-src'));
+        || isLightboxImageSrcCandidate(imageAttrValue(attrs, 'data-src'))
+        || isLightboxImageSrcCandidate(firstSrcsetUrl(imageAttrValue(attrs, 'srcset')));
 }
 
 function isUsableImageSrcCandidate(value) {

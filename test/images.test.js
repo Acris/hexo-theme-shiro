@@ -99,6 +99,16 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /sizes="/);
         });
 
+        it('optimizes responsive images that rely on srcset only', () => {
+            const out = pureOptimize(
+                '<img srcset="https://cdn.example/a.png 640w, https://cdn.example/a-large.png 1280w" alt="a">',
+                { firstImageEager: true }
+            );
+            assert.match(out, /decoding="async"/);
+            assert.match(out, /loading="eager"/);
+            assert.match(out, /sizes="/);
+        });
+
         it('does not add sizes to density-descriptor srcset', () => {
             const out = pureOptimize(
                 '<img src="https://cdn.example/a.png" srcset="https://cdn.example/a.png 1x, https://cdn.example/a-2x.png 2x">',
@@ -144,6 +154,17 @@ describe('scripts/lib/image-optimize', () => {
             });
             assert.match(out, /width="12"/);
             assert.match(out, /height="8"/);
+        });
+
+        it('preserves the intrinsic ratio when one dimension already exists', () => {
+            const getLocalSize = () => ({ width: 12, height: 8 });
+            const widthOnly = pureOptimize('<img src="/a.png" width="6">', { getLocalSize });
+            const heightOnly = pureOptimize('<img src="/a.png" height="4">', { getLocalSize });
+
+            assert.match(widthOnly, /width="6"/);
+            assert.match(widthOnly, /height="4"/);
+            assert.match(heightOnly, /width="6"/);
+            assert.match(heightOnly, /height="4"/);
         });
 
         it('does not treat class tokens as existing loading/width attrs', () => {

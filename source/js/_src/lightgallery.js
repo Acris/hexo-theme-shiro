@@ -124,10 +124,12 @@
     };
 
     // Meaningful navigable page link for the "view source" caption button.
-    // Absolute http(s) only (opens in a new tab); relative site paths stay on href.
+    // Keep http(s), protocol-relative, and site-relative links; block other schemes.
     const normalizedSourceUrl = (url) => {
         const value = String(url || '').trim();
-        return !/[\u0000-\u001F\u007F]/.test(value) && /^https?:\/\//i.test(value) ? value : null;
+        if (!value || /[\u0000-\u001F\u007F]/.test(value)) return null;
+        if (/^(?:https?:)?\/\//i.test(value)) return value;
+        return /^[a-z][a-z0-9+.-]*:/i.test(value) ? null : value;
     };
 
     const ORIGINAL_HREF_ATTR = 'data-shiro-original-href';

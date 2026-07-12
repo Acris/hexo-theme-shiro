@@ -68,6 +68,19 @@ function hasWidthDescriptor(srcset) {
     );
 }
 
+function positiveDimension(value) {
+    const text = decodeHtmlEntities(String(value || '')).trim();
+    if (!/^\d+$/.test(text)) return 0;
+    const number = Number(text);
+    return Number.isSafeInteger(number) && number > 0 ? number : 0;
+}
+
+function scaledDimension(rendered, intrinsic, opposite) {
+    if (!rendered || !intrinsic || !opposite) return 0;
+    const scaled = Math.round(rendered * opposite / intrinsic);
+    return Number.isSafeInteger(scaled) && scaled > 0 ? scaled : 0;
+}
+
 function decodeUrlPath(value) {
     try {
         return decodeURIComponent(value);
@@ -180,7 +193,8 @@ function optimizeImages(html, options) {
         const attrs = parseAttrs(rawAttrs);
         const lookup = attrLookup(attrs);
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
-        if (!src) continue;
+        const srcset = getAttr(attrs, lookup, 'srcset');
+        if (!src && !srcset) continue;
 
         const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
         imageIndex += 1;
@@ -201,18 +215,25 @@ function optimizeImages(html, options) {
             ensure('loading', 'lazy');
         }
         // The HTML standard permits `sizes` only with width (`w`) descriptors.
-        const srcset = getAttr(attrs, lookup, 'srcset');
         if (hasWidthDescriptor(srcset)) {
             ensure('sizes', DEFAULT_IMAGE_SIZES);
         }
 
         const hasWidth = present.has('width');
         const hasHeight = present.has('height');
-        if ((!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
+        if (src && (!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = getLocalSize(src, opts.post);
             if (size) {
-                if (!hasWidth) ensure('width', String(size.width));
-                if (!hasHeight) ensure('height', String(size.height));
+                const authoredWidth = hasWidth ? positiveDimension(getAttr(attrs, lookup, 'width')) : 0;
+                const authoredHeight = hasHeight ? positiveDimension(getAttr(attrs, lookup, 'height')) : 0;
+                const width = hasHeight
+                    ? scaledDimension(authoredHeight, size.height, size.width)
+                    : size.width;
+                const height = hasWidth
+                    ? scaledDimension(authoredWidth, size.width, size.height)
+                    : size.height;
+                if (!hasWidth && width) ensure('width', String(width));
+                if (!hasHeight && height) ensure('height', String(height));
             }
         }
 

@@ -178,27 +178,16 @@
     const scheduleGeometryUpdate = () => scheduleActiveUpdate(rebuildPassedFromGeometry);
 
     if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                const id = entry.target.id;
-                if (!id) return;
-                if (entry.boundingClientRect.top <= OFFSET && !entry.isIntersecting) {
-                    passedHeadings.add(id);
-                } else {
-                    passedHeadings.delete(id);
-                }
-            });
-            scheduleActiveUpdate(() => setActiveHeading(currentPassedHeadingId()));
-        }, {
+        // Observer catches layout shifts; scrolling uses the same exact top-edge
+        // geometry model instead of waiting for an entire heading to leave.
+        const observer = new IntersectionObserver(scheduleGeometryUpdate, {
             rootMargin: '-' + OFFSET + 'px 0px 0px 0px',
             threshold: 0
         });
         headingArr.forEach(heading => observer.observe(heading));
-        scheduleGeometryUpdate();
-    } else {
-        window.addEventListener('scroll', scheduleGeometryUpdate, { passive: true });
-        scheduleGeometryUpdate();
     }
+    window.addEventListener('scroll', scheduleGeometryUpdate, { passive: true });
+    scheduleGeometryUpdate();
 
     const handleViewportChange = () => {
         scheduleGeometryUpdate();

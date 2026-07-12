@@ -219,6 +219,8 @@ describe('scripts/lib/urls', () => {
             assert.equal(normalizeCspNonce('abc123XYZ'), 'abc123XYZ');
             assert.equal(normalizeCspNonce('  token  '), 'token');
             assert.equal(normalizeCspNonce('bad quote"'), '');
+            assert.equal(normalizeCspNonce('bad\u0000token'), '');
+            assert.equal(normalizeCspNonce('bad\u007ftoken'), '');
             assert.equal(cspNonceAttrHtml('abc123XYZ'), ' nonce="abc123XYZ"');
             assert.equal(cspNonceAttrHtml('  token  '), ' nonce="token"');
             assert.equal(cspNonceAttrHtml(''), '');

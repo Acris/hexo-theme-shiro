@@ -315,6 +315,12 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[0], '$y$');
         });
 
+        it('skips indented code blocks that follow prose', () => {
+            const source = 'paragraph\n\n    $x$\n\n$y$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.deepEqual(protectedMath.segments, ['$y$']);
+        });
+
         it('does not treat escaped backticks as a code span', () => {
             const protectedMath = protectMarkdownMath('\\` $x$ \\`', { inlineDollars: true });
             assert.deepEqual(protectedMath.segments, ['$x$']);

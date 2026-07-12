@@ -75,6 +75,16 @@ describe('scripts/lib/html-analysis', () => {
             });
         });
 
+        it('recognizes responsive images that rely on srcset only', () => {
+            const content = '<img srcset="/small.png 640w, /large.png 1280w" width="640" height="360">';
+            assert.deepEqual(firstImageInfo(content), {
+                src: '/small.png',
+                width: 640,
+                height: 360
+            });
+            assert.equal(pageAnalysis({ content }).imageCount, 1);
+        });
+
         it('does not leak quoted tag attributes into extracted text', () => {
             assert.equal(
                 htmlTextFromHtml('<p title="not > text">Visible text</p>', 200),

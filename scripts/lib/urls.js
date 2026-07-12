@@ -191,16 +191,16 @@ function sriAttrsHtml(integrity, options) {
     return ' integrity="' + hash + '" crossorigin="anonymous"';
 }
 
-// Safe CSP nonce value only (no whitespace / quotes). Empty when unused/invalid.
+// Safe CSP nonce value only (no controls, whitespace, or quotes). Empty when invalid.
 function normalizeCspNonce(nonce) {
     const text = String(nonce == null ? '' : nonce).trim();
-    if (!text || /[\s"'<>`]/.test(text)) return '';
+    if (!text || hasUrlControlChars(text) || /[\s"'<>`]/.test(text)) return '';
     return text;
 }
 
 /**
  * HTML nonce="…" attribute when a host CSP nonce is configured.
- * Rejects values with whitespace or quote characters (cannot be attribute-safe).
+ * Rejects values with control, whitespace, or quote characters.
  */
 function cspNonceAttrHtml(nonce) {
     const text = normalizeCspNonce(nonce);

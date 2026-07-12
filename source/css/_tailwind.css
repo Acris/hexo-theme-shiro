@@ -10,9 +10,9 @@
  * Optional feature styles under source/css/_src/ (code, toc, search,
  * comments) are minified separately without Tailwind and wrap rules in
  * `@layer components` so they share this layer order and do not win as
- * unlayered CSS over utilities. LightGallery overrides stay unlayered so they
- * outrank its unlayered vendor CSS. (giscus.min.css is an iframe theme served
- * to giscus — not part of the site cascade.)
+ * unlayered CSS over utilities. LightGallery and Gist overrides stay unlayered
+ * so they outrank their unlayered vendor CSS. (giscus.min.css is an iframe
+ * theme served to giscus — not part of the site cascade.)
  * Feature dark overrides use `html[data-theme=dark]` (same contract as the
  * custom `dark` variant below) because those files are not Tailwind-scanned.
  *

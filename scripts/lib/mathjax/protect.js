@@ -69,6 +69,12 @@ function protectMarkdownMath(content, options) {
 
         const ch = source[cursor];
 
+        if (ch === '\n') {
+            result += ch;
+            cursor += 1;
+            continue;
+        }
+
         if (ch === '`') {
             const spanEnd = skipCodeSpan(source, cursor);
             if (spanEnd > cursor) {

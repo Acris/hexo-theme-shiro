@@ -72,4 +72,18 @@ describe('scripts/lib/code-blocks', () => {
             /\.prose-shiro \.highlight pre\s*\{[^}]*padding:\s*0\.75rem 1rem;/s
         );
     });
+
+    it('keeps Gist overrides unlayered so they outrank injected vendor CSS', () => {
+        const css = fs.readFileSync(
+            path.join(__dirname, '../source/css/_src/code.css'),
+            'utf8'
+        );
+        const selector = '.prose-shiro .gist {';
+        const selectorAt = css.indexOf(selector);
+        assert.notEqual(selectorAt, -1);
+
+        const prefix = css.slice(0, selectorAt);
+        const depth = (prefix.match(/\{/g) || []).length - (prefix.match(/\}/g) || []).length;
+        assert.equal(depth, 0);
+    });
 });
