@@ -9,6 +9,7 @@ const {
     categoryPathLabel,
     categoryDomId,
     primaryPostCategory,
+    postCategoryPaths,
     postMetaCategorySummary,
     materializeCategoryPosts,
     materializeExclusiveCategoryPosts,
@@ -39,6 +40,34 @@ describe('scripts/lib/categories', () => {
         assert.equal(categoryPathLabel(cats[3], cats), 'A / B / C');
         assert.equal(categoryPathLabel(cats[2], cats, ' › '), 'A › B');
         assert.equal(categoryPathLabel(null, cats), '');
+    });
+
+    it('groups parallel article categories separately from hierarchical paths', () => {
+        const essay = {
+            _id: 'essay',
+            name: 'Essay',
+            parent: null,
+            path: 'categories/Essay/'
+        };
+        const paths = postCategoryPaths(
+            [essay, cats[1], cats[2], cats[3]],
+            cats.concat([essay])
+        );
+
+        assert.deepEqual(
+            paths.map((chain) => chain.map((cat) => cat.name)),
+            [['Essay'], ['A', 'B', 'C']]
+        );
+        assert.equal(categoryPathLabel(paths[1][2], cats), 'A / B / C');
+    });
+
+    it('handles empty and duplicate article category assignments', () => {
+        assert.deepEqual(postCategoryPaths(null, cats), []);
+        assert.deepEqual(
+            postCategoryPaths([cats[3], cats[3]], cats)
+                .map((chain) => chain.map((cat) => cat.name)),
+            [['A', 'B', 'C']]
+        );
     });
 
     it('picks deepest post category by parent chain (not array order alone)', () => {

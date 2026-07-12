@@ -156,16 +156,23 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
         <a href="{{ attr_url(archive_url(post_year)) }}" class="oldstyle-nums link-chrome"><time datetime="{{ escape_attr(post_date_attr) }}">{{ escape_html(post_date_text) }}</time></a>
     </div>
     {% if post.categories and post.categories.length > 0 %}
-        {% set post_categories = post.categories.toArray() %}
         <span class="select-none text-text-faint" aria-hidden="true">•</span>
         <div class="flex items-center gap-1.5">
             {{ icon_folder(class=meta_icon) }}
             {% if show_all_cats %}
-                {# Article header: full hierarchy / all assigned categories. #}
-                {% for cat in post_categories %}
-                    <a class="link-chrome" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
-                    {% if not loop.last %}<span class="text-text-faint">/</span>{% endif %}
-                {% endfor %}
+                {# Article header: slash within a hierarchy; middot between independent paths. #}
+                {% set category_paths = post_category_paths(post) %}
+                <span class="flex flex-wrap items-center gap-x-1.5 gap-y-0.5" role="list">
+                    {% for category_path in category_paths %}
+                    <span class="inline-flex items-center gap-1.5" role="listitem">
+                        {% if not loop.first %}<span class="select-none text-text-faint" aria-hidden="true">·</span>{% endif %}
+                        {% for cat in category_path %}
+                        <a class="link-chrome" href="{{ href_for(cat.path) }}" title="{{ escape_attr(category_path_label(cat)) }}">{{ escape_html(cat.name) }}</a>
+                        {% if not loop.last %}<span class="select-none text-text-faint" aria-hidden="true">/</span>{% endif %}
+                        {% endfor %}
+                    </span>
+                    {% endfor %}
+                </span>
             {% else %}
                 {# List cards: deepest primary + parallel overflow (+N); title lists all topic paths. #}
                 {% set cat_meta = post_meta_category(post) %}

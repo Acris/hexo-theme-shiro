@@ -48,6 +48,7 @@ const {
     buildCategoryIndexCards,
     categoryPathLabel,
     primaryPostCategory,
+    postCategoryPaths,
     postMetaCategorySummary,
     resolveCategoryForPage
 } = require('./lib/categories');
@@ -231,6 +232,13 @@ hexo.extend.helper.register('post_primary_category', function (post) {
     const cats = post && post.categories;
     const list = cats && typeof cats.toArray === 'function' ? cats.toArray() : cats;
     return primaryPostCategory(list, this.site && this.site.categories);
+});
+
+// Full article meta: one root → leaf chain per independent category assignment.
+hexo.extend.helper.register('post_category_paths', function (post) {
+    const cats = post && post.categories;
+    const list = cats && typeof cats.toArray === 'function' ? cats.toArray() : cats;
+    return postCategoryPaths(list, this.site && this.site.categories);
 });
 
 // Home meta: deepest primary + parallel moreCount + hover title of all topic paths.

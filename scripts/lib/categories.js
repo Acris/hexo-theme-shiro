@@ -103,7 +103,10 @@ function categoryChainWithIndex(category, byId) {
             nodes.unshift({
                 name,
                 path: current.path != null ? String(current.path) : '',
-                _id: String(current._id)
+                _id: String(current._id),
+                parent: current.parent != null && current.parent !== ''
+                    ? String(current.parent)
+                    : null
             });
         }
         if (current.parent == null || current.parent === '') break;
@@ -116,7 +119,10 @@ function categoryChainWithIndex(category, byId) {
             nodes.push({
                 name: fallback,
                 path: category.path != null ? String(category.path) : '',
-                _id: category._id != null ? String(category._id) : ''
+                _id: category._id != null ? String(category._id) : '',
+                parent: category.parent != null && category.parent !== ''
+                    ? String(category.parent)
+                    : null
             });
         }
     }
@@ -132,6 +138,47 @@ function categoryPathLabel(category, categories, separator) {
     const chain = categoryChainWithIndex(category, buildCategoryIdIndex(list));
     const sep = separator == null ? ' / ' : String(separator);
     return chain.map((node) => node.name).join(sep);
+}
+
+/**
+ * Independent root → leaf paths for full article category meta.
+ * Assigned ancestors collapse into their descendant path; parallel assignments
+ * remain separate and preserve post order.
+ */
+function postCategoryPaths(postCategories, allCategories) {
+    const assigned = collectionToArray(postCategories).filter(Boolean);
+    if (!assigned.length) return [];
+
+    const tree = categoriesToArray(allCategories).concat(assigned);
+    const byId = buildCategoryIdIndex(tree);
+    const entries = [];
+    const seen = new Set();
+
+    for (let i = 0; i < assigned.length; i += 1) {
+        const category = assigned[i];
+        const id = category._id != null ? String(category._id) : '';
+        const path = category.path != null ? String(category.path).trim() : '';
+        const name = category.name != null ? String(category.name).trim() : '';
+        const key = id ? 'id:' + id : (path ? 'path:' + path : (name ? 'name:' + name : ''));
+        if (!key || seen.has(key)) continue;
+
+        const chain = categoryChainWithIndex(category, byId);
+        if (!chain.length) continue;
+        seen.add(key);
+        entries.push({ category, id, chain });
+    }
+
+    return entries
+        .filter((entry, index) => {
+            if (!entry.id) return true;
+            for (let i = 0; i < entries.length; i += 1) {
+                const other = entries[i];
+                if (i === index || !other.id || other.id === entry.id) continue;
+                if (isOnAncestorChain(entry.id, other.category, byId)) return false;
+            }
+            return true;
+        })
+        .map((entry) => entry.chain);
 }
 
 /**
@@ -471,6 +518,7 @@ module.exports = {
     categoryPathLabel,
     categoryDomId,
     primaryPostCategory,
+    postCategoryPaths,
     postMetaCategorySummary,
     materializeCategoryPosts,
     materializeExclusiveCategoryPosts,
