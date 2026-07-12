@@ -5,7 +5,6 @@ const assert = require('node:assert/strict');
 
 const {
     hasCodeContent,
-    hasBlockCodeContent,
     pageHasCode,
     pageCodeFlags,
     pageLooksLong,
@@ -24,13 +23,6 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(hasCodeContent('<figure class="highlight js">x</figure>'), true);
             assert.equal(hasCodeContent('<div class="gist">x</div>'), true);
             assert.equal(hasCodeContent('<p>plain</p>'), false);
-        });
-
-        it('distinguishes inline code from block-code feature targets', () => {
-            assert.equal(hasBlockCodeContent('<code>x</code>'), false);
-            assert.equal(hasBlockCodeContent('<pre><code>x</code></pre>'), true);
-            assert.equal(hasBlockCodeContent('<figure class="highlight js">x</figure>'), true);
-            assert.equal(hasBlockCodeContent('<div class="gist">x</div>'), true);
         });
 
         it('returns font and block-code flags from one page analysis', () => {
@@ -125,7 +117,15 @@ describe('scripts/lib/html-analysis', () => {
             const content = '<noscript><figure class="highlight">fallback</figure></noscript>'
                 + '<iframe><code>frame fallback</code></iframe>';
             assert.equal(hasCodeContent(content), false);
-            assert.equal(hasBlockCodeContent(content), false);
+            assert.deepEqual(pageCodeFlags(
+                { content },
+                {},
+                { is_post: () => true }
+            ), {
+                hasCode: false,
+                hasCodeBlocks: false,
+                hasClipboardTargets: false
+            });
         });
     });
 

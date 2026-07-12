@@ -65,10 +65,6 @@ function hasCodeContent(content) {
     return codeContentFlags(content).hasCode;
 }
 
-function hasBlockCodeContent(content) {
-    return codeContentFlags(content).hasCodeBlocks;
-}
-
 function strippedHtml(content) {
     return stripElementBlocks(content, ANALYSIS_SKIPPED_ELEMENTS);
 }
@@ -493,7 +489,6 @@ function excerptFor(post, length) {
 module.exports = {
     pageAnalysis,
     hasCodeContent,
-    hasBlockCodeContent,
     htmlTextFromHtml,
     htmlWithoutCodeContent,
     pageHasCode,

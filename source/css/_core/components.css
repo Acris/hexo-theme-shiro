@@ -204,7 +204,7 @@
     }
 
     .btn-ink {
-        @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl border border-border-strong px-4 py-2.5 text-sm text-text-body shadow-xs duration-200 ease-soft transition-interactive;
+        @apply inline-flex items-center justify-center gap-2 rounded-xl border border-border-strong px-4 py-2.5 text-sm text-text-body shadow-xs duration-200 ease-soft transition-interactive;
 
         &:hover {
             @apply border-seal-fill bg-seal-fill text-on-seal saturate-105 shadow-ink;
@@ -446,7 +446,6 @@
 
         &[data-visible="true"] {
             @apply opacity-100 pointer-events-auto;
-            cursor: pointer;
         }
     }
 

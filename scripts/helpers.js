@@ -176,21 +176,8 @@ hexo.extend.helper.register('page_feature_gates', function () {
     const menu = theme.menu || [];
 
     // One TOC build per page (cachedToc); gates + article share this result.
-    const toc = typeof this.build_toc === 'function'
-        ? this.build_toc(page, tocConfig)
-        : { shouldRender: false, content: (page && page.content) || '', html: '' };
-    const codeFlags = typeof this.page_code_flags === 'function'
-        ? this.page_code_flags(page, theme)
-        : (() => {
-            const hasCode = typeof this.page_has_code === 'function'
-                ? this.page_has_code(page, theme)
-                : false;
-            return {
-                hasCode,
-                hasCodeBlocks: hasCode,
-                hasClipboardTargets: hasCode
-            };
-        })();
+    const toc = this.build_toc(page, tocConfig);
+    const codeFlags = this.page_code_flags(page, theme);
 
     const gates = resolveFeatureGates({
         theme,
@@ -202,8 +189,8 @@ hexo.extend.helper.register('page_feature_gates', function () {
         hasCode: codeFlags.hasCode,
         hasCodeBlocks: codeFlags.hasCodeBlocks,
         hasClipboardTargets: codeFlags.hasClipboardTargets,
-        hasImages: typeof this.has_images === 'function' ? this.has_images(page) : false,
-        looksLong: typeof this.page_looks_long === 'function' ? this.page_looks_long(page) : false,
+        hasImages: this.has_images(page),
+        looksLong: this.page_looks_long(page),
         shouldRenderToc: !!toc.shouldRender,
         menuLength: menu.length,
         resolveResourceUrl: (value, fallback) => safeResourceUrl(value, this, fallback),
@@ -416,10 +403,8 @@ hexo.extend.helper.register('structured_data', function (page, config) {
     const cfg = config || this.config || {};
     return structuredData(page, cfg, {
         pageUrl: resolveAbsolutePageUrl(this, page, cfg.url || ''),
-        description: typeof this.clean_description === 'function'
-            ? this.clean_description(page, cfg)
-            : '',
-        image: typeof this.og_image === 'function' ? this.og_image(page) : '',
+        description: this.clean_description(page, cfg),
+        image: this.og_image(page),
         isPost: typeof this.is_post === 'function' && this.is_post(),
         isHome: typeof this.is_home === 'function' && this.is_home(),
         fullUrlFor: typeof this.full_url_for === 'function'

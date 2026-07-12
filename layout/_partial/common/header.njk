@@ -1,9 +1,9 @@
 {% from "_macro/ui.njk" import seal, icon_rss, icon_search, icon_chevron_down, icon_theme_system, icon_theme_light, icon_theme_dark, menu_link with context %}
 {% set site_config = gates.siteConfig %}
 {% set menu_items = gates.menuItems %}
-<header class="relative" data-pagefind-ignore>
+<header data-pagefind-ignore>
 
-    <div class="relative flex items-start justify-center">
+    <div class="flex items-start justify-center">
         <div class="text-center">
             <div class="relative inline-block">
                 {% if is_home() %}
