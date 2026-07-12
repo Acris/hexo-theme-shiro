@@ -54,9 +54,9 @@ toc:
   min_headings: 3
 
 # Optional security hooks for host CSP / SRI. Empty defaults keep current behavior.
-# csp_nonce: when set (e.g. from your host CSP middleware), added as nonce="…" on
-# theme-injected <script> tags and passed to runtime-created scripts (feature
-# loaders, comment embeds) so strict script-src 'nonce-…' policies work.
+# csp_nonce is a static build-time value, not a per-request nonce. When set, it
+# is added to theme scripts and runtime-created loaders. Real nonce security
+# requires the host/edge to replace it in markup and the header on every request.
 # CDN integrity: optional Subresource Integrity hashes for pinned MathJax /
 # LightGallery CDN URLs (sha256-/sha384-/sha512-…). Leave empty if unused;
 # when set, crossorigin="anonymous" is emitted automatically.

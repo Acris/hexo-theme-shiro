@@ -3,6 +3,7 @@
 // Pure image HTML optimization (no Hexo / fs). Path candidates accept injected dirs.
 
 const path = require('path');
+const { decodeHtmlEntities } = require('./util');
 const {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
@@ -93,7 +94,7 @@ function localImageCandidates(src, post, ctx) {
     const sourceDir = ctx && ctx.sourceDir;
     if (!sourceDir) return [];
 
-    const urlPath = decodeUrlPath(cleanUrl(src));
+    const urlPath = decodeUrlPath(cleanUrl(decodeHtmlEntities(src)));
     if (!urlPath || isRemoteUrl(urlPath)) return [];
 
     const candidates = new Set();

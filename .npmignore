@@ -13,8 +13,6 @@ DESIGN.md
 coverage/
 test/
 tools/
-scripts/lib/lightgallery-source.js
-scripts/lib/runtime-source.js
 source/css/_core/
 source/css/_src/
 source/css/_tailwind.css

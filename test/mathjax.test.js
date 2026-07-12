@@ -305,6 +305,25 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[0], '$y$');
         });
 
+        it('does not treat escaped backticks as a code span', () => {
+            const protectedMath = protectMarkdownMath('\\` $x$ \\`', { inlineDollars: true });
+            assert.deepEqual(protectedMath.segments, ['$x$']);
+        });
+
+        it('requires complete backtick runs of equal length for code spans', () => {
+            for (const source of ['`` $x$ `', '` $x$ ``']) {
+                const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+                assert.deepEqual(protectedMath.segments, ['$x$']);
+            }
+        });
+
+        it('does not close a fenced block with a four-space-indented fence', () => {
+            const source = '```\n$x$\n    ```\n$y$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.equal(protectedMath.segments, null);
+            assert.equal(protectedMath.content, source);
+        });
+
         it('does not treat a quoted closing tag as the end of an HTML code block', () => {
             const source = '<code title="</code>">$x$</code>$y$';
             const protectedMath = protectMarkdownMath(source, { inlineDollars: true });

@@ -6,7 +6,6 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { transform } = require('lightningcss');
 const terser = require('terser');
-const { concatLightgallerySource } = require('../scripts/lib/lightgallery-source');
 
 const root = path.resolve(__dirname, '..');
 const tailwindPackage = require.resolve('@tailwindcss/cli/package.json', { paths: [root] });
@@ -106,22 +105,13 @@ async function minifyJs() {
         .filter((file) => file.endsWith('.js') && !file.endsWith('.min.js'))
         .sort();
     const outputs = [];
-    // LightGallery is assembled from its ordered source parts below.
-    const forbiddenTopLevel = new Set(['lightgallery.js']);
 
     for (const file of files) {
-        if (forbiddenTopLevel.has(file)) {
-            throw new Error('Stale source/js/_src/' + file + ' found; use the parts directory');
-        }
         const base = file.slice(0, -3);
         const output = 'source/js/' + base + '.min.js';
         outputs.push(output);
         await minifyJsFile('source/js/_src/' + file, output);
     }
-
-    const lightgalleryOutput = 'source/js/lightgallery.min.js';
-    outputs.push(lightgalleryOutput);
-    await minifyJsCode(concatLightgallerySource(), lightgalleryOutput);
 
     removeStaleGeneratedFiles('source/js', outputs, '.min.js');
 }

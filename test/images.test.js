@@ -180,6 +180,15 @@ describe('scripts/lib/image-optimize', () => {
             assert.ok(list.some((p) => p.includes('source/img/x.png')));
         });
 
+        it('decodes HTML entities in rendered local image paths', () => {
+            const sourceDir = '/site/source';
+            const list = pureCandidates('/images/rock&amp;roll.png', null, {
+                sourceDir,
+                root: '/'
+            });
+            assert.ok(list.some((p) => p.endsWith('images/rock&roll.png')));
+        });
+
         it('ignores remote urls', () => {
             assert.deepEqual(
                 pureCandidates('https://cdn.example/a.png', null, {

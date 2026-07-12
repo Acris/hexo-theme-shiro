@@ -41,13 +41,12 @@ function collectExistingIds(source) {
     while ((token = nextHtmlToken(source, position))) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
+        const id = headingId(token.attrs);
+        if (id) ids.add(id);
         if (TOC_SKIPPED_ELEMENTS.has(token.name)) {
             const close = findElementClose(source, token);
             position = close ? close.end : source.length;
-            continue;
         }
-        const id = headingId(token.attrs);
-        if (id) ids.add(id);
     }
     return ids;
 }

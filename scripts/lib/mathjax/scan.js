@@ -59,7 +59,7 @@ function hasBlankLineBetween(source, from, to) {
 function closingFenceLine(line, marker, minLength) {
     let cursor = 0;
     let spaces = 0;
-    while (line[cursor] === ' ' && spaces < 4) {
+    while (line[cursor] === ' ' && spaces < 3) {
         cursor += 1;
         spaces += 1;
     }
@@ -108,16 +108,23 @@ function skipIndentedCodeBlock(source, start) {
 }
 
 function skipCodeSpan(source, start) {
-    if (source[start] !== '`') return start;
+    if (source[start] !== '`' || source[start - 1] === '`' || isEscaped(source, start)) return start;
 
     let length = 1;
     while (source[start + length] === '`') length += 1;
 
     const marker = '`'.repeat(length);
-    const end = source.indexOf(marker, start + length);
-    if (end === -1) return start;
-    if (hasBlankLineBetween(source, start + length, end)) return start;
-    return end + length;
+    let searchFrom = start + length;
+    let end;
+    while ((end = source.indexOf(marker, searchFrom)) !== -1) {
+        if (source[end - 1] !== '`' && source[end + length] !== '`') {
+            if (hasBlankLineBetween(source, start + length, end)) return start;
+            return end + length;
+        }
+        searchFrom = end + length;
+        while (source[searchFrom] === '`') searchFrom += 1;
+    }
+    return start;
 }
 
 function skipHtmlNoise(source, start) {

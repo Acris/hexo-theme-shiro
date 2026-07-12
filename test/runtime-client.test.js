@@ -11,6 +11,10 @@ const runtimeSource = fs.readFileSync(
     path.join(__dirname, '../source/js/_src/runtime.js'),
     'utf8'
 );
+const lightgallerySource = fs.readFileSync(
+    path.join(__dirname, '../source/js/_src/lightgallery.js'),
+    'utf8'
+);
 
 function createHarness() {
     const elements = [];
@@ -106,6 +110,18 @@ describe('runtime build contract', () => {
         assert.match(runtimeSource, /^;\(\(\)\s*=>\s*\{/);
         assert.match(runtimeSource, /\}\)\(\);\s*$/);
     });
+
+    it('keeps the LightGallery feature in one complete IIFE', () => {
+        const openCount = (lightgallerySource.match(/;\(\(\)\s*=>\s*\{/g) || []).length;
+        const closeCount = (lightgallerySource.match(/\}\)\(\);/g) || []).length;
+        assert.equal(openCount, 1);
+        assert.equal(closeCount, 1);
+        ['lightGalleryOpen', 'ensureLightGalleryAssets', 'openFromElement'].forEach((token) => {
+            assert.ok(lightgallerySource.includes(token), 'missing LightGallery symbol: ' + token);
+        });
+        assert.match(lightgallerySource, /^;\(\(\)\s*=>\s*\{/);
+        assert.match(lightgallerySource, /\}\)\(\);\s*$/);
+    });
 });
 
 describe('client accessibility contracts', () => {
@@ -179,6 +195,64 @@ describe('client accessibility contracts', () => {
             requestAnimationFrame: (callback) => callback()
         });
         assert.equal(bar.style.transform, 'scaleX(0)');
+    });
+
+    it('keeps cycling themes when localStorage is unavailable', () => {
+        const listeners = {};
+        const attributes = {};
+        const resolved = [];
+        const button = {
+            dataset: { labelLight: 'Light', labelDark: 'Dark' },
+            addEventListener(name, callback) {
+                listeners[name] = callback;
+            },
+            setAttribute() {}
+        };
+        const html = {
+            style: {},
+            classList: { add() {}, remove() {} },
+            getAttribute(name) {
+                return attributes[name] || null;
+            },
+            setAttribute(name, value) {
+                attributes[name] = String(value);
+            }
+        };
+        const storage = {
+            getItem() {
+                throw new Error('blocked');
+            },
+            setItem() {
+                throw new Error('blocked');
+            }
+        };
+        const document = {
+            documentElement: html,
+            getElementById: () => button
+        };
+        const window = {
+            __shiro: {
+                themeDefault: 'light',
+                applyResolvedTheme(dark) {
+                    resolved.push(dark);
+                }
+            },
+            matchMedia(query) {
+                return { matches: query.includes('reduced-motion') };
+            }
+        };
+
+        vm.runInNewContext(clientSource('theme-toggle.js'), {
+            window,
+            document,
+            localStorage: storage,
+            setTimeout
+        });
+        listeners.click();
+        listeners.click();
+
+        assert.equal(attributes['data-theme-state'], 'light');
+        assert.deepEqual(resolved, [true, false]);
     });
 
     it('does not steal focus when a pointer click closes the mobile menu', () => {

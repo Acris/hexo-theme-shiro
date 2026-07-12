@@ -2,17 +2,23 @@
 
 // Pure image header size parsers (no FS / Hexo). Used by scripts/images.js.
 
+const { nextHtmlToken, htmlAttributeValue } = require('./html-scanner');
+
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
 function readUInt24LE(buffer, offset) {
     return buffer[offset] + (buffer[offset + 1] << 8) + (buffer[offset + 2] << 16);
 }
 
 function pngSize(buffer) {
-    if (buffer.length < 24 || buffer.toString('ascii', 1, 4) !== 'PNG') return null;
+    if (buffer.length < 24 || !buffer.subarray(0, 8).equals(PNG_SIGNATURE)
+        || buffer.toString('ascii', 12, 16) !== 'IHDR') return null;
     return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
 
 function gifSize(buffer) {
-    if (buffer.length < 10 || buffer.toString('ascii', 0, 3) !== 'GIF') return null;
+    const signature = buffer.toString('ascii', 0, 6);
+    if (buffer.length < 10 || (signature !== 'GIF87a' && signature !== 'GIF89a')) return null;
     return { width: buffer.readUInt16LE(6), height: buffer.readUInt16LE(8) };
 }
 
@@ -46,10 +52,6 @@ function roundedPositiveNumber(value) {
     return Number.isFinite(number) && number > 0 ? Math.round(number) : 0;
 }
 
-function svgAttributeValue(match) {
-    return match ? (match[1] || match[2] || match[3] || '') : '';
-}
-
 function svgDimension(value) {
     const match = String(value || '').trim().match(/^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/i);
     return match ? roundedPositiveNumber(match[1]) : 0;
@@ -57,18 +59,39 @@ function svgDimension(value) {
 
 function svgSize(buffer) {
     const head = buffer.toString('utf8', 0, Math.min(buffer.length, 2048));
-    if (!/<svg\b/i.test(head)) return null;
-    const width = svgDimension(svgAttributeValue(head.match(/\bwidth\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i)));
-    const height = svgDimension(svgAttributeValue(head.match(/\bheight\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i)));
+    let position = 0;
+    let root;
+    let token;
+    while ((token = nextHtmlToken(head, position))) {
+        position = token.end;
+        if (token.type === 'tag' && !token.closing && token.name === 'svg') {
+            root = token;
+            break;
+        }
+    }
+    if (!root) return null;
+
+    const width = svgDimension(htmlAttributeValue(root.attrs, 'width'));
+    const height = svgDimension(htmlAttributeValue(root.attrs, 'height'));
     if (width && height) {
         return { width, height };
     }
-    const viewBoxValue = svgAttributeValue(head.match(/\bviewBox\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i));
+    const viewBoxValue = htmlAttributeValue(root.attrs, 'viewBox');
     const viewBox = viewBoxValue.trim().split(/[\s,]+/).map(Number);
     if (viewBox.length === 4 && viewBox.every(Number.isFinite)) {
+        if (viewBox[2] <= 0 || viewBox[3] <= 0) return null;
+        if (width) {
+            const inferredHeight = roundedPositiveNumber(width * viewBox[3] / viewBox[2]);
+            return inferredHeight ? { width, height: inferredHeight } : null;
+        }
+        if (height) {
+            const inferredWidth = roundedPositiveNumber(height * viewBox[2] / viewBox[3]);
+            return inferredWidth ? { width: inferredWidth, height } : null;
+        }
         const viewBoxWidth = roundedPositiveNumber(viewBox[2]);
         const viewBoxHeight = roundedPositiveNumber(viewBox[3]);
-        return viewBoxWidth && viewBoxHeight ? { width: viewBoxWidth, height: viewBoxHeight } : null;
+        if (!viewBoxWidth || !viewBoxHeight) return null;
+        return { width: viewBoxWidth, height: viewBoxHeight };
     }
     return null;
 }
@@ -79,9 +102,11 @@ function webpSize(buffer) {
     }
     const type = buffer.toString('ascii', 12, 16);
     if (type === 'VP8 ' && buffer.length >= 30) {
+        if (buffer[23] !== 0x9d || buffer[24] !== 0x01 || buffer[25] !== 0x2a) return null;
         return { width: buffer.readUInt16LE(26) & 0x3fff, height: buffer.readUInt16LE(28) & 0x3fff };
     }
     if (type === 'VP8L' && buffer.length >= 25) {
+        if (buffer[20] !== 0x2f) return null;
         const b0 = buffer[21];
         const b1 = buffer[22];
         const b2 = buffer[23];

@@ -37,6 +37,8 @@
         let saved;
         try { saved = localStorage.getItem('theme'); } catch (_) {}
         if (saved && states.includes(saved)) return saved;
+        const current = html.getAttribute('data-theme-state');
+        if (current && states.includes(current)) return current;
         return defaultTheme;
     }
 
