@@ -163,16 +163,16 @@ main .gsc-loading-image {
 
     /* Primary button — vermilion accent */
     --color-btn-primary-text: #fff;
-    --color-btn-primary-bg: #b0171a;
+    --color-btn-primary-bg: #b7352e;
     --color-btn-primary-border: rgb(200 195 190 / 10%);
     --color-btn-primary-shadow: 0 0 transparent;
     --color-btn-primary-inset-shadow: 0 0 transparent;
-    --color-btn-primary-hover-bg: #c41b1e;
+    --color-btn-primary-hover-bg: #c94a42;
     --color-btn-primary-hover-border: rgb(200 195 190 / 10%);
-    --color-btn-primary-selected-bg: #b0171a;
+    --color-btn-primary-selected-bg: #b7352e;
     --color-btn-primary-selected-shadow: 0 0 transparent;
     --color-btn-primary-disabled-text: rgb(255 255 255 / 50%);
-    --color-btn-primary-disabled-bg: rgb(176 23 26 / 60%);
+    --color-btn-primary-disabled-bg: rgb(183 53 46 / 60%);
     --color-btn-primary-disabled-border: rgb(200 195 190 / 10%);
 
     --color-action-list-item-default-hover-bg: rgb(200 195 190 / 8%);
@@ -197,11 +197,11 @@ main .gsc-loading-image {
 
     --color-neutral-muted: rgb(200 195 190 / 12%);
 
-    /* Accent — vermilion matching Shiro dark --color-seal: #d4453a */
-    --color-accent-fg: #d4453a;
-    --color-accent-emphasis: #d4453a;
-    --color-accent-muted: rgb(212 69 58 / 40%);
-    --color-accent-subtle: rgb(212 69 58 / 10%);
+    /* Accent — matching Shiro dark semantic seal tokens */
+    --color-accent-fg: #e16a60;
+    --color-accent-emphasis: #b7352e;
+    --color-accent-muted: rgb(225 106 96 / 40%);
+    --color-accent-subtle: rgb(225 106 96 / 10%);
 
     --color-success-fg: #3fb950;
     --color-attention-fg: #d29922;
@@ -213,7 +213,7 @@ main .gsc-loading-image {
     --color-primer-shadow-inset: 0 0 transparent;
     --color-scale-gray-7: #2f2e2c;
     /* Repurposed: vermilion instead of blue, used for reaction hover backgrounds */
-    --color-scale-blue-8: rgb(212 69 58 / 20%);
+    --color-scale-blue-8: rgb(225 106 96 / 20%);
 
     /*! Extensions from @primer/css/alerts/flash.scss */
     --color-social-reaction-bg-hover: var(--color-scale-gray-7);

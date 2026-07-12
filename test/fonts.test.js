@@ -52,5 +52,26 @@ describe('scripts/lib/fonts', () => {
             assert.doesNotMatch(styles, /attr_url\(google_fonts_url\)/);
             assert.doesNotMatch(prefetch, /attr_url\(google_fonts\[0\]\)/);
         });
+
+        it('avoids synthetic weights in theme-owned font contexts', () => {
+            const layout = [
+                'layout/_layout.njk',
+                'layout/_macro/archive.njk',
+                'layout/_partial/common/pagination.njk'
+            ].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n');
+            const components = fs.readFileSync(
+                path.join(root, 'source/css/_core/components.css'),
+                'utf8'
+            );
+            const code = fs.readFileSync(path.join(root, 'source/css/_src/code.css'), 'utf8');
+            const search = fs.readFileSync(path.join(root, 'source/css/_src/search.css'), 'utf8');
+            const toc = fs.readFileSync(path.join(root, 'source/css/_src/toc.css'), 'utf8');
+
+            assert.doesNotMatch(layout, /\bfont-(?:light|medium)\b/);
+            assert.doesNotMatch(components, /\bfont-medium\b/);
+            assert.doesNotMatch(code, /font-weight:\s*600\b/);
+            assert.doesNotMatch(search, /font-weight:\s*600\b/);
+            assert.doesNotMatch(toc, /font-weight:\s*500\b/);
+        });
     });
 });

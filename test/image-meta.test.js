@@ -85,6 +85,12 @@ describe('scripts/lib/image-meta', () => {
         assert.deepEqual(imageSizeFromBuffer(buf), { width: 100, height: 50 });
     });
 
+    it('finds an SVG root after a long valid preamble', () => {
+        const preamble = '<?xml version="1.0"?><!--' + 'x'.repeat(3000) + '-->';
+        const buf = Buffer.from(preamble + '<svg viewBox="0 0 120 60"></svg>');
+        assert.deepEqual(imageSizeFromBuffer(buf), { width: 120, height: 60 });
+    });
+
     it('infers a missing SVG dimension from the root viewBox ratio', () => {
         assert.deepEqual(
             imageSizeFromBuffer(Buffer.from('<svg width="200" viewBox="0 0 100 50"></svg>')),

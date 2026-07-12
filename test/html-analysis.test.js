@@ -95,6 +95,14 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(result.truncated, false);
         });
 
+        it('invalidates manual excerpt cache when full content changes', () => {
+            const post = { excerpt: '<p>same</p>', content: '<p>same</p>' };
+            assert.equal(excerptFor(post, 200).truncated, false);
+
+            post.content = '<p>same</p><p>new body</p>';
+            assert.equal(excerptFor(post, 200).truncated, true);
+        });
+
         it('auto-truncates long content', () => {
             const content = '<p>' + 'word '.repeat(80) + '</p>';
             const result = excerptFor({ content }, 40);

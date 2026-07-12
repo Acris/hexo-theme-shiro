@@ -85,6 +85,16 @@ describe('scripts/lib/toc', () => {
             assert.equal(result.html.includes('Frame heading'), false);
         });
 
+        it('excludes opaque fallback text from heading labels', () => {
+            const src = '<h2><noscript>Fallback</noscript>Visible</h2>'
+                + '<h2>Two</h2><h2>Three</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.match(result.content, /id="visible"/);
+            assert.match(result.html, />Visible<\/a>/);
+            assert.equal(result.html.includes('Fallback'), false);
+        });
+
         it('escapes titles in toc html', () => {
             const src = '<h2>A &amp; B &lt;C&gt;</h2><h2>Two</h2><h2>Three</h2>';
             const result = buildToc(src, { depth: 3, min_headings: 3 });

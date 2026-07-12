@@ -90,7 +90,7 @@
     .prose-shiro .highlight .class .title,
     .prose-shiro .highlight .params {
         color: var(--color-code-title);
-        font-weight: 600;
+        font-weight: 500;
     }
 
     .prose-shiro .highlight .attribute,
@@ -118,7 +118,7 @@
     }
 
     .prose-shiro .highlight .strong {
-        font-weight: 600;
+        font-weight: 500;
     }
 
     .prose-shiro .highlight figcaption {

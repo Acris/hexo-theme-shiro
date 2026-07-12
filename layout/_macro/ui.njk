@@ -40,7 +40,7 @@ window.__shiro.i18n[{{ js_value(key) | safe }}] = {{ js_value(value) | safe }};
     <path d="{{ seal_path_d() }}"
         fill="var(--color-seal-fill)" filter="url(#seal-roughness)" opacity="0.92" />
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
-        font-size="42" fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)"
+        font-size="42" fill="var(--color-on-seal)" filter="url(#text-erosion)"
         class="seal-text select-none">{{ escape_html(title) }}</text>
 </svg>
 {% endmacro %}

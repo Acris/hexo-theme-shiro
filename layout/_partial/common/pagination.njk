@@ -1,5 +1,5 @@
 {% if page.total > 1 %}
-<nav class="pagination mt-8 flex flex-wrap items-center justify-center gap-6 text-sm font-medium sm:gap-8 md:mt-10 md:text-base"
+<nav class="pagination mt-8 flex flex-wrap items-center justify-center gap-6 text-sm sm:gap-8 md:mt-10 md:text-base"
     aria-label="{{ escape_attr(__('page.pagination')) }}">
         {% set pagination_html = paginator({
             prev_text: __('page.prev'),

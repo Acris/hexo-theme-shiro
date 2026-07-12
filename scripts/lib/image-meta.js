@@ -5,6 +5,7 @@
 const { nextHtmlToken, htmlAttributeValue } = require('./html-scanner');
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const SVG_SCAN_BYTES = 16 * 1024;
 
 function readUInt24LE(buffer, offset) {
     return buffer[offset] + (buffer[offset + 1] << 8) + (buffer[offset + 2] << 16);
@@ -58,7 +59,7 @@ function svgDimension(value) {
 }
 
 function svgSize(buffer) {
-    const head = buffer.toString('utf8', 0, Math.min(buffer.length, 2048));
+    const head = buffer.toString('utf8', 0, Math.min(buffer.length, SVG_SCAN_BYTES));
     let position = 0;
     let root;
     let token;

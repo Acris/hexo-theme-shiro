@@ -163,6 +163,7 @@ describe('scripts/lib/seo', () => {
             const svg = faviconSvg('<x>');
             assert.match(svg, /&lt;x&gt;/);
             assert.match(svg, /seal-roughness/);
+            assert.match(svg, /fill="rgba\(255,255,255,0\.95\)"/);
         });
     });
 });

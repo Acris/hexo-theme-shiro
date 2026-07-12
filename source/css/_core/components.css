@@ -198,7 +198,7 @@
 
     /* Optional meta inside button-ink (e.g. remaining post count on category index). */
     .btn-ink-meta {
-        @apply text-xs font-medium tracking-wide text-text-chrome;
+        @apply text-xs tracking-wide text-text-chrome;
     }
 
     .btn-ink:hover .btn-ink-meta {
@@ -324,7 +324,7 @@
     }
 
     .category-block--branch .category-node-name {
-        @apply text-sm font-medium text-text-chrome;
+        @apply text-sm text-text-chrome;
     }
 
     .category-block--has-posts .category-node-name {
@@ -333,7 +333,7 @@
 
     /* Count only on leaves — avoids triple “7” on A / B / C chains. */
     .category-node-count {
-        @apply ml-auto shrink-0 text-sm font-medium tabular-nums text-text-chrome;
+        @apply ml-auto shrink-0 text-sm tabular-nums text-text-chrome;
     }
 
     /* Align post list with leaf title (no extra indent stack). */

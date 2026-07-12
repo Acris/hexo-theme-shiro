@@ -211,7 +211,7 @@ function faviconSvg(sealText) {
         + '<path d="' + SEAL_PATH_D + '" fill="#b0171a" filter="url(#seal-roughness)" opacity="0.92"/>'
         + '<text x="50" y="50" text-anchor="middle" dominant-baseline="central" '
         + 'font-family="\'Yuji Syuku\',\'Zen Old Mincho\',\'Noto Serif JP\',serif" font-size="42" '
-        + 'fill="rgba(255,255,255,0.92)" filter="url(#text-erosion)" style="user-select:none">'
+        + 'fill="rgba(255,255,255,0.95)" filter="url(#text-erosion)" style="user-select:none">'
         + escapeHtml(text)
         + '</text></svg>';
 }

@@ -395,17 +395,17 @@ function excerptFor(post, length) {
 
     const limit = Math.max(0, Number(length) || 0);
     const source = post.excerpt || post.content || '';
+    const fullSource = post.excerpt ? String(post.content || '') : '';
     const cacheKey = limit + '|' + (post.excerpt ? 'manual' : 'fallback');
     const postCache = excerptCache.get(post);
     const cached = postCache && postCache.get(cacheKey);
-    if (cached && cached.source === source) return cached.result;
+    if (cached && cached.source === source && cached.fullSource === fullSource) return cached.result;
 
     let result;
     if (post.excerpt) {
         // Manual excerpt: "Read more" only when excerpt is not the full body.
-        const full = String(post.content || '');
         const manual = String(post.excerpt);
-        result = { content: post.excerpt, truncated: !full || manual !== full };
+        result = { content: post.excerpt, truncated: !fullSource || manual !== fullSource };
     } else if (limit > 0) {
         const plain = htmlTextFromHtml(post.content);
         if (graphemeLength(plain) > limit) {
@@ -418,7 +418,7 @@ function excerptFor(post, length) {
     }
 
     const nextPostCache = postCache || new Map();
-    nextPostCache.set(cacheKey, { source, result });
+    nextPostCache.set(cacheKey, { source, fullSource, result });
     if (!postCache) excerptCache.set(post, nextPostCache);
     return result;
 }

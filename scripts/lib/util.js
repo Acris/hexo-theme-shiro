@@ -1,7 +1,7 @@
 'use strict';
 
 const { decodeHTML } = require('entities');
-const { htmlTextContent } = require('./html-scanner');
+const { HTML_TOKEN_OPAQUE_ELEMENTS, htmlTextContent } = require('./html-scanner');
 
 function collectionToArray(value) {
     if (!value) return [];
@@ -45,7 +45,7 @@ function normalizePlainText(value) {
 
 function plainHeadingText(html) {
     return decodeHtmlEntities(htmlTextContent(html, {
-        skipElements: ['script', 'style', 'textarea', 'template']
+        skipElements: HTML_TOKEN_OPAQUE_ELEMENTS
     })
         .replace(/\s+/g, ' ')
         .trim());

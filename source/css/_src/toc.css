@@ -89,7 +89,6 @@
         cursor: pointer;
         font-size: 0.875rem;
         line-height: 1.25rem;
-        font-weight: 500;
         transition: color 0.15s var(--ease-soft);
     }
 
@@ -190,9 +189,6 @@
         color: var(--color-seal);
     }
 
-    .toc-link.active {
-        font-weight: 500;
-    }
 
     .toc-link.active::before {
         opacity: 1;
