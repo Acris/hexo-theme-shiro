@@ -88,10 +88,9 @@ hexo.extend.helper.register('js_value', function (value) {
     return safeScriptJson(value);
 });
 
-// Canonical bag key for window.__shiro (optional leading __ stripped).
+// Canonical bag key for window.__shiro (bare names only).
 hexo.extend.helper.register('shiro_bag_key', function (key) {
-    const text = String(key == null ? '' : key);
-    return text.indexOf('__') === 0 ? text.slice(2) : text;
+    return String(key == null ? '' : key);
 });
 
 // HTML text / attribute escaping (hexo-renderer-nunjucks sets autoescape: false).

@@ -72,6 +72,5 @@
 
     // Panel is already collapsed before paint via html.js + data-open="false".
     setOpen(false);
-    btn.hidden = false;
     btn.disabled = false;
 })();

@@ -95,5 +95,12 @@
             {% endfor %}
         </ul>
     </div>
+    {# Immediate inert while collapsed under html.js — before deferred menu script (tab order). #}
+    <script{{ csp_nonce_attr(gates.shiroCspNonce) }} data-cfasync="false">
+    if (document.documentElement.classList.contains('js')) {
+        var menuPanel = document.getElementById('mobileMenu');
+        if (menuPanel) menuPanel.inert = true;
+    }
+    </script>
 </nav>
 {% endif %}

@@ -15,15 +15,13 @@
     const featureChannels = new Map();
 
     /**
-     * Read config/handoff from window.__shiro bare keys only.
-     * Accepts bare names (`clipboardScript`) or legacy `__clipboardScript` (strips once).
+     * Read config/handoff from window.__shiro bare keys only (e.g. clipboardScript).
      */
     function get(name) {
         if (name == null || name === '') return undefined;
         const key = String(name);
-        const bare = key.indexOf('__') === 0 ? key.slice(2) : key;
-        if (Object.prototype.hasOwnProperty.call(root, bare) && root[bare] != null) {
-            return root[bare];
+        if (Object.prototype.hasOwnProperty.call(root, key) && root[key] != null) {
+            return root[key];
         }
         return undefined;
     }

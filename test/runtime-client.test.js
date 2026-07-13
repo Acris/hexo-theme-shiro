@@ -221,6 +221,7 @@ describe('client accessibility contracts', () => {
         assert.match(components, /html\.js \.menu-panel/);
         assert.match(components, /html\.js #menuBtn:not\(\[hidden\]\)/);
         assert.doesNotMatch(components, /mobile-menu-ready|mobile-menu-initializing/);
+        assert.match(header, /menuPanel\.inert\s*=\s*true|getElementById\(['"]mobileMenu['"]\)[\s\S]*inert/);
     });
 
     it('paints the search trigger early and enables it when the handler is ready', () => {
@@ -294,6 +295,7 @@ describe('client accessibility contracts', () => {
         assert.match(tocCss, /html\.js \.toc-inline \.toc-body/);
         assert.doesNotMatch(tocCss, /data-enhanced/);
         assert.doesNotMatch(source, /dataset\.enhanced/);
+        assert.match(tocTemplate, /tocBody\.inert\s*=\s*true|getElementById\(['"]tocInlineBody['"]\)[\s\S]*inert/);
     });
 
     it('announces the current TOC location', () => {
@@ -648,7 +650,7 @@ describe('client runtime protocol', () => {
         assert.equal(window.__shiro.get, undefined);
         window.__shiro.clipboardScript = '/js/clipboard.min.js';
         assert.equal(rt.get('clipboardScript'), '/js/clipboard.min.js');
-        assert.equal(rt.get('__clipboardScript'), '/js/clipboard.min.js');
+        assert.equal(rt.get('__clipboardScript'), undefined);
     });
 
     it('passes the idle deadline through to scheduled tasks', () => {
