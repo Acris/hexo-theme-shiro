@@ -37,7 +37,7 @@
 - **RSS**：Atom 订阅支持（需要 [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)）。
 - **SEO 友好**：元信息、社交卡片与结构化数据。
 - **印章**：可选的装饰性朱红印章显示在页头，可通过 `seal_text` 自定义文字。
-- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——生成完成后或部署前自动生成索引，无需外部服务；客户端处理器就绪前隐藏搜索入口。
+- **站内搜索**：内置基于 [Pagefind](https://pagefind.app/) 的静态站内搜索——生成完成后或部署前自动生成索引，无需外部服务；有 JS 时搜索入口首绘即显示，处理器绑定后才可点击。
 - **快速**：注重性能，JavaScript 精简，资源按需加载。
 
 ## 安装

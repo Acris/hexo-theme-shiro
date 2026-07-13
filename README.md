@@ -39,7 +39,7 @@ Made by Acris with ❤️
 - **RSS**: Atom feed support (requires [hexo-generator-feed](https://github.com/hexojs/hexo-generator-feed)).
 - **SEO-friendly**: Meta tags, social cards, and structured data.
 - **Seal Stamp**: Optional decorative vermilion seal (印章) in the header; customize the character with `seal_text`.
-- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after generation or immediately before deployment, with no external service; the trigger stays hidden until its client handler is ready.
+- **Static Site Search**: Built-in static search powered by [Pagefind](https://pagefind.app/) — the index is generated automatically after generation or immediately before deployment, with no external service; with JS the trigger paints from first paint and is enabled once its client handler is ready.
 - **Fast**: Performance-focused with minimal JavaScript and careful asset loading.
 
 ## Installation
