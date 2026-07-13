@@ -44,7 +44,9 @@
 
 ### 安装主题
 
-Shiro 要求 Node.js 20 或更高版本。如果你使用 Hexo 5.0 或更高版本，最简单的安装方式是通过 npm：
+Shiro 要求 Node.js 24.11 或更高版本（Node.js 24 LTS）。如果你使用 Hexo 5.0 或更高版本，最简单的安装方式是通过 npm：
+
+主题已内置 Nunjucks 3 布局渲染器，无需另行配置 Nunjucks renderer。
 
 生成的 CSS 采用 Tailwind CSS v4 的浏览器基线：Safari 16.4+、Chrome 111+、Firefox 128+。
 
@@ -457,7 +459,7 @@ hexo-theme-shiro/
 
 ### 快速开始
 
-开发与资源构建要求 Node.js 20.19 或更高版本；`.node-version` 推荐当前的 Node.js 24 LTS。
+开发与资源构建要求 Node.js 24.11 或更高版本；`.node-version` 选择 Node.js 24 LTS。`npm test` 包含真实临时 Hexo/Nunjucks 生成冒烟测试。
 
 1. 在主题目录安装依赖：
 

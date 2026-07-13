@@ -46,7 +46,9 @@ Made by Acris with ❤️
 
 ### Install
 
-Shiro requires Node.js 20 or later. If you're using Hexo 5.0 or later, the simplest way to install is through npm:
+Shiro requires Node.js 24.11 or later (Node.js 24 LTS). If you're using Hexo 5.0 or later, the simplest way to install is through npm:
+
+The theme includes its Nunjucks 3 layout renderer, so no separate Nunjucks renderer setup is required.
 
 The generated CSS targets the Tailwind CSS v4 browser baseline: Safari 16.4+, Chrome 111+, and Firefox 128+.
 
@@ -465,7 +467,7 @@ hexo-theme-shiro/
 
 ### Getting Started
 
-Development and asset builds require Node.js 20.19 or later; `.node-version` recommends the current Node.js 24 LTS.
+Development and asset builds require Node.js 24.11 or later; `.node-version` selects Node.js 24 LTS. `npm test` includes a real temporary Hexo/Nunjucks generation smoke test.
 
 1. Install dependencies in the theme directory:
 

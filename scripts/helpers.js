@@ -13,6 +13,7 @@ const {
     safeScriptJson,
     normalizedLinkTarget,
     normalizeLangAttr,
+    normalizeOpenGraphImageUrl,
     resolveAbsolutePageUrl,
     sriAttrsHtml,
     cspNonceAttrHtml
@@ -24,7 +25,8 @@ const {
     pageCodeFlags,
     pageLooksLong,
     excerptFor,
-    excerptForCard
+    excerptForCard,
+    buildPostCardViewModels
 } = require('./lib/html-analysis');
 const { cachedToc } = require('./lib/toc');
 const {
@@ -350,6 +352,14 @@ hexo.extend.helper.register('excerpt_for_card', function (post, firstCard) {
     };
 });
 
+hexo.extend.helper.register('post_card_view_models', function (posts) {
+    return buildPostCardViewModels(posts, this.theme || {});
+});
+
+hexo.extend.helper.register('default_image_loading', function (html, value) {
+    return defaultFirstImageLoading(html, value);
+});
+
 hexo.extend.helper.register('clean_description', function (page, config) {
     const isReadingPage = (typeof this.is_post === 'function' && this.is_post())
         || (typeof this.is_page === 'function' && this.is_page());
@@ -417,14 +427,24 @@ hexo.extend.helper.register('og_locale', function (page, config) {
 // pageUrl is absolutized the same way as OG image URLs (full_url_for / permalink).
 hexo.extend.helper.register('structured_data', function (page, config) {
     const cfg = config || this.config || {};
+    const themeSite = (this.theme && this.theme.site) || {};
+    const favicon = String(themeSite.favicon || '/favicon.svg').trim();
+    const defaultPublisherLogo = normalizeOpenGraphImageUrl('/favicon.svg', this, null);
+    const configuredPublisherLogo = normalizeOpenGraphImageUrl(favicon, this, null);
+    const publisherLogoUrl = configuredPublisherLogo
+        || (/^data:image\//i.test(favicon) ? '' : defaultPublisherLogo);
     return structuredData(page, cfg, {
         pageUrl: resolveAbsolutePageUrl(this, page, cfg.url || ''),
         description: this.clean_description(page, cfg),
         image: this.og_image(page),
         isPost: typeof this.is_post === 'function' && this.is_post(),
         isHome: typeof this.is_home === 'function' && this.is_home(),
-        fullUrlFor: typeof this.full_url_for === 'function'
-            ? (path) => this.full_url_for(path)
+        publisherLogo: publisherLogoUrl
+            ? {
+                url: publisherLogoUrl,
+                width: publisherLogoUrl === defaultPublisherLogo ? 112 : 0,
+                height: publisherLogoUrl === defaultPublisherLogo ? 112 : 0
+            }
             : null
     });
 });

@@ -1,10 +1,9 @@
 ;(() => {
     'use strict';
 
-    // Comments CSS + near-viewport helpers, then drain the parse-time boot queue.
-    // Stub in comments/bootstrap.njk only enqueues onto __shiro.commentsReadyQueue.
+    // Comments CSS + near-viewport helpers. Deferred script order guarantees the
+    // provider runs after this bootstrap installs runtime.comments.
     // Canonical live API: runtime.comments.{whenReady,loadCss,onNearViewport}.
-    // Bag whenCommentsReady is retired after drain (no-op / abort no-op).
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime;
@@ -13,9 +12,6 @@
         const message = reason || 'comments bootstrap aborted';
         console.error('[shiro-comments]', message);
         const fail = function () { /* permanent no-op after abort */ };
-        shiro.commentsReadyQueue = [];
-        // Retire bag stub so late callers never re-queue forever.
-        shiro.whenCommentsReady = fail;
         if (rt) {
             rt.comments = {
                 failed: true,
@@ -84,12 +80,4 @@
         onNearViewport: onNearViewport
     };
 
-    const queued = Array.isArray(shiro.commentsReadyQueue)
-        ? shiro.commentsReadyQueue.slice()
-        : [];
-    shiro.commentsReadyQueue = [];
-    // Retire bag surface: providers must use runtime.comments.whenReady only.
-    shiro.whenCommentsReady = function () { /* retired parse-time stub */ };
-
-    queued.forEach(runCommentBoot);
 })();

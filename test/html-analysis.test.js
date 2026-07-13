@@ -10,6 +10,7 @@ const {
     pageLooksLong,
     excerptFor,
     excerptForCard,
+    buildPostCardViewModels,
     pageAnalysis,
     firstImageInfo,
     htmlTextFromHtml
@@ -183,11 +184,12 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
 
-        it('does not count decorative images as LightGallery targets', () => {
+        it('does not select or count decorative images as content images', () => {
             const content = '<img src="/presentation.png" role="presentation">'
                 + '<img src="/emoji.png" class="inline emoji">'
                 + '<img src="/pixel.png" width="1" height="1">'
                 + '<img src="/photo.png" width="800" height="600">';
+            assert.equal(firstImageInfo(content).src, '/photo.png');
             assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
     });
@@ -256,6 +258,32 @@ describe('scripts/lib/html-analysis', () => {
             );
             assert.equal(result.content, '<p>manual</p>');
             assert.equal(result.truncated, true);
+        });
+
+        it('prioritizes the first rendered content image across all cards', () => {
+            const posts = [
+                { excerpt: '<p>No image</p>', content: '<p>No image</p>' },
+                {
+                    excerpt: '<img class="emoji" src="/emoji.png"><img src="/hero.png">',
+                    content: '<p>Body</p>'
+                },
+                { excerpt: '<img src="/later.png">', content: '<p>Later</p>' }
+            ];
+            const cards = buildPostCardViewModels({ toArray: () => posts }, {});
+
+            assert.doesNotMatch(cards[0].excerpt.content, /loading=/);
+            assert.doesNotMatch(cards[1].excerpt.content.match(/<img class="emoji"[^>]*>/)[0], /loading=/);
+            assert.match(cards[1].excerpt.content, /hero\.png" loading="eager"/);
+            assert.match(cards[2].excerpt.content, /later\.png" loading="lazy"/);
+        });
+
+        it('preserves an authored loading value on the first rendered image', () => {
+            const cards = buildPostCardViewModels([
+                { excerpt: '<img src="/hero.png" loading="lazy">', content: '' },
+                { excerpt: '<img src="/later.png">', content: '' }
+            ], {});
+            assert.match(cards[0].excerpt.content, /loading="lazy"/);
+            assert.match(cards[1].excerpt.content, /loading="lazy"/);
         });
     });
 

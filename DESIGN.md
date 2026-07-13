@@ -403,6 +403,7 @@ No geometric sans as primary UI. Title face only for branding moments.
 - Shell: full-height fog; `page-gutter` 16px; top ~3.5rem.
 - Paper: `paper-max` **56rem**, `rounded.xl`. **Horizontal padding is stepped**, not one value: 20 → 32 → 48 → 56px (`card-padding-x-*`). Vertical ~40px mobile / ~48px desktop top (`card-padding-y-*`). Component `padding` on `paper-card` documents desktop vertical only.
 - Measure: article lists often tighten to `content-max` / `archive-max` inside the card — prefer a comfortable reading column over full-bleed text.
+- Lists: unbroken archive titles wrap inside the measure; category indentation is capped at 3.75rem on mobile and 6.25rem from 40rem upward.
 - Rhythm: header → soft section divider → main → footer.
 - TOC: width 12.5rem, gap 1.25rem, 1rem viewport margin; never overlap the card.
 - Search modal max **38rem**; colors from Shiro tokens only (`--pf-*`).

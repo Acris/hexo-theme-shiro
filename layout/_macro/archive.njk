@@ -4,12 +4,12 @@
 {% macro archive_item(post) %}
 {% set post_date_attr = date(post.date, 'YYYY-MM-DD') %}
 {% set post_date_text = date(post.date, 'YYYY/MM/DD') %}
-<article class="group flex items-baseline gap-6">
+<article class="group flex min-w-0 items-baseline gap-6">
     <time datetime="{{ escape_attr(post_date_attr) }}" class="w-24 shrink-0 text-right text-sm text-text-chrome oldstyle-nums">
         {{ escape_html(post_date_text) }}
     </time>
-    <h3 class="text-base font-normal text-text-body transition-colors group-hover:text-seal">
-        <a href="{{ href_for(post.path) }}" class="link-underline">{{ escape_html(post.title) }}</a>
+    <h3 class="min-w-0 text-base font-normal text-text-body transition-colors group-hover:text-seal">
+        <a href="{{ href_for(post.path) }}" class="link-underline break-words">{{ escape_html(post.title) }}</a>
     </h3>
 </article>
 {% endmacro %}

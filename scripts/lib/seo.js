@@ -130,7 +130,9 @@ function structuredData(page, config, options) {
     const image = opts.image || '';
     const isPost = !!opts.isPost;
     const isHome = !!opts.isHome;
-    const fullUrlFor = typeof opts.fullUrlFor === 'function' ? opts.fullUrlFor : null;
+    const publisherLogo = opts.publisherLogo && opts.publisherLogo.url
+        ? opts.publisherLogo
+        : null;
 
     if (isPost) {
         const node = {
@@ -152,14 +154,13 @@ function structuredData(page, config, options) {
 
         if (siteName) {
             const publisher = { '@type': 'Organization', name: siteName };
-            const logo = fullUrlFor ? fullUrlFor('/favicon.svg') : '';
-            if (logo) {
+            if (publisherLogo) {
                 publisher.logo = {
                     '@type': 'ImageObject',
-                    url: logo,
-                    width: 112,
-                    height: 112
+                    url: publisherLogo.url
                 };
+                if (publisherLogo.width) publisher.logo.width = publisherLogo.width;
+                if (publisherLogo.height) publisher.logo.height = publisherLogo.height;
             }
             node.publisher = publisher;
         }

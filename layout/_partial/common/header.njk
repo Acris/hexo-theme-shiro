@@ -46,7 +46,7 @@
                 {% endif %}
                 {% if gates.searchEnabled %}
                 {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-controls="shiroSearchDialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}" hidden>
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}" hidden>
                     {{ icon_search() }}
                 </button>
                 {% endif %}

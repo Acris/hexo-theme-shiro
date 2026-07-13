@@ -24,7 +24,7 @@
     {% endif %}
 
     <div class="prose-shiro" data-pagefind-body>
-        {{ article_toc.content | safe }}
+        {{ default_image_loading(article_toc.content, 'eager') | safe }}
     </div>
 
     <!-- Tags -->

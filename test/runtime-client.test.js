@@ -123,6 +123,12 @@ describe('runtime build contract', () => {
         assert.match(lightgallerySource, /\}\)\(\);\s*$/);
     });
 
+    it('wraps a responsive picture instead of moving its fallback image', () => {
+        assert.match(lightgallerySource, /tagName === 'PICTURE'[\s\S]*?\? img\.parentElement[\s\S]*?: img/);
+        assert.match(lightgallerySource, /insertBefore\(link, linkTarget\);\s*link\.appendChild\(linkTarget\)/);
+        assert.doesNotMatch(lightgallerySource, /link\.appendChild\(img\)/);
+    });
+
     it('preserves safe relative image links in LightGallery captions', () => {
         const { window, document } = createHarness();
         const anchorAttrs = { href: '/posts/linked/' };
@@ -212,6 +218,19 @@ describe('client accessibility contracts', () => {
             bootstrap,
             /toggle\.addEventListener\('click', openModal\);[\s\S]*?toggle\.hidden\s*=\s*false/
         );
+        assert.doesNotMatch(header, /id="searchToggle"[^>]*aria-controls=/);
+        assert.match(
+            bootstrap,
+            /if \(dialog && toggle\) toggle\.setAttribute\('aria-controls', DIALOG_ID\)/
+        );
+    });
+
+    it('uses server-normalized giscus binary attributes directly', () => {
+        const giscus = clientSource('comments-giscus.js');
+        assert.doesNotMatch(giscus, /binaryAttr/);
+        assert.match(giscus, /'data-strict': g\.strict/);
+        assert.match(giscus, /'data-reactions-enabled': g\.reactions_enabled/);
+        assert.match(giscus, /'data-emit-metadata': g\.emit_metadata/);
     });
 
     it('keeps the theme trigger hidden until its handler is ready', () => {
@@ -1052,19 +1071,12 @@ describe('comments-bootstrap.js contract', () => {
         'utf8'
     );
 
-    it('drains queue, installs runtime.comments, and retires bag whenCommentsReady', () => {
+    it('installs runtime.comments without a redundant bag queue', () => {
         const harness = createHarness();
         const { window, rt } = harness;
         const calls = [];
         const shiro = window.__shiro;
         shiro.commentsCss = '';
-        shiro.commentsReadyQueue = [
-            () => calls.push('a'),
-            () => calls.push('b')
-        ];
-        shiro.whenCommentsReady = (fn) => {
-            shiro.commentsReadyQueue.push(fn);
-        };
 
         vm.runInNewContext(commentsBootstrapSource, {
             window,
@@ -1074,27 +1086,14 @@ describe('comments-bootstrap.js contract', () => {
 
         assert.ok(rt.comments);
         assert.equal(rt.comments.failed, false);
-        // Avoid cross-realm Array deepEqual (vm.runInNewContext vs host []).
-        assert.equal(calls.join(','), 'a,b');
-        assert.equal(shiro.commentsReadyQueue.length, 0);
-
-        // Bag surface is retired (no-op); live API is runtime.comments only.
-        shiro.whenCommentsReady(() => calls.push('bag-late'));
-        assert.equal(calls.join(','), 'a,b');
         rt.comments.whenReady(() => calls.push('c'));
-        assert.equal(calls.join(','), 'a,b,c');
+        assert.equal(calls.join(','), 'c');
+        assert.equal('commentsReadyQueue' in shiro, false);
+        assert.equal('whenCommentsReady' in shiro, false);
     });
 
-    it('aborts with no-op whenReady when runtime is missing', () => {
-        const calls = [];
-        const window = {
-            __shiro: {
-                commentsReadyQueue: [() => calls.push('should-not-run')],
-                whenCommentsReady: (fn) => {
-                    window.__shiro.commentsReadyQueue.push(fn);
-                }
-            }
-        };
+    it('aborts cleanly when runtime is missing', () => {
+        const window = { __shiro: {} };
         window.window = window;
 
         vm.runInNewContext(commentsBootstrapSource, {
@@ -1103,9 +1102,8 @@ describe('comments-bootstrap.js contract', () => {
             console: { error() {}, warn() {} }
         });
 
-        assert.equal(window.__shiro.commentsReadyQueue.length, 0);
-        window.__shiro.whenCommentsReady(() => calls.push('late'));
-        assert.equal(calls.length, 0);
+        assert.equal('commentsReadyQueue' in window.__shiro, false);
+        assert.equal('whenCommentsReady' in window.__shiro, false);
     });
 });
 

@@ -299,8 +299,12 @@
     }
 
     .category-block {
-        /* depth 0 = root; each level adds 1.25rem — hierarchy without repeating full path */
-        padding-left: calc(var(--category-depth, 0) * 1.25rem);
+        /* Preserve hierarchy without letting deep trees consume the mobile column. */
+        padding-left: clamp(0rem, calc(var(--category-depth, 0) * 1.25rem), 3.75rem);
+
+        @media (min-width: 40rem) {
+            padding-left: clamp(0rem, calc(var(--category-depth, 0) * 1.25rem), 6.25rem);
+        }
     }
 
     .category-block--branch {
@@ -370,7 +374,7 @@
     }
 
     .post-nav-link {
-        @apply flex items-center gap-2 text-text-chrome transition-colors hover:text-seal max-w-[45%];
+        @apply flex min-w-0 items-center gap-2 text-text-chrome transition-colors hover:text-seal max-w-[45%];
     }
 
     .link-chrome {

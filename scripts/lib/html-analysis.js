@@ -9,12 +9,17 @@ const {
 } = require('./util');
 const { hasUrlControlChars } = require('./urls');
 const { isFeatureEnabled } = require('./features');
+const { defaultFirstImageLoading } = require('./image-optimize');
+const {
+    imageAttributeValue,
+    imageDimensionAttribute,
+    isDecorativeImageAttributes
+} = require('./image-content');
 const {
     HTML_VOID_ELEMENTS,
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
-    htmlAttributeValue,
     htmlTextContent
 } = require('./html-scanner');
 
@@ -30,7 +35,7 @@ const ANALYSIS_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre',
 const DESCRIPTION_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre']);
 
 function hasClassToken(attrs, tokens) {
-    const classValue = decodeHtmlEntities(imageAttrValue(attrs || '', 'class'));
+    const classValue = decodeHtmlEntities(imageAttributeValue(attrs || '', 'class'));
     if (!classValue) return false;
     return classValue.split(/\s+/).some(token => tokens.has(token));
 }
@@ -356,13 +361,6 @@ function countTocHeadingsFromAnalysis(analysis, tocConfig) {
     return levels.reduce((count, level) => count + (analysis.headingCounts.get(level) || 0), 0);
 }
 
-function imageDimensionAttr(attrs, name) {
-    const value = decodeHtmlEntities(imageAttrValue(attrs, name)).trim();
-    if (!/^\d+$/.test(value)) return 0;
-    const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? number : 0;
-}
-
 function firstSrcsetUrl(value) {
     const text = decodeHtmlEntities(String(value || '')).replace(/^[\s,]+/, '');
     const match = /^([^\s]+)/.exec(text);
@@ -385,18 +383,19 @@ function firstImageInfo(content) {
         }
         if (token.name !== 'img') continue;
         const attrs = token.attrs;
+        if (isDecorativeImageAttributes(attrs)) continue;
         const candidates = [
-            imageAttrValue(attrs, 'src'),
-            imageAttrValue(attrs, 'data-src'),
-            firstSrcsetUrl(imageAttrValue(attrs, 'srcset'))
+            imageAttributeValue(attrs, 'src'),
+            imageAttributeValue(attrs, 'data-src'),
+            firstSrcsetUrl(imageAttributeValue(attrs, 'srcset'))
         ];
         for (const value of candidates) {
             if (isUsableImageSrcCandidate(value)) {
                 return {
                     src: String(value).trim(),
-                    width: imageDimensionAttr(attrs, 'width'),
-                    height: imageDimensionAttr(attrs, 'height'),
-                    alt: decodeHtmlEntities(imageAttrValue(attrs, 'alt')).trim()
+                    width: imageDimensionAttribute(attrs, 'width'),
+                    height: imageDimensionAttribute(attrs, 'height'),
+                    alt: decodeHtmlEntities(imageAttributeValue(attrs, 'alt')).trim()
                 };
             }
         }
@@ -404,21 +403,11 @@ function firstImageInfo(content) {
     return empty;
 }
 
-function imageAttrValue(attrs, name) {
-    return htmlAttributeValue(attrs, name);
-}
-
 function imageHasLightboxSource(attrs) {
-    const role = decodeHtmlEntities(imageAttrValue(attrs, 'role')).trim().toLowerCase();
-    if (role === 'presentation') return false;
-    const classes = decodeHtmlEntities(imageAttrValue(attrs, 'class')).split(/\s+/);
-    if (classes.includes('emoji')) return false;
-    const width = imageDimensionAttr(attrs, 'width');
-    const height = imageDimensionAttr(attrs, 'height');
-    if (width && height && width <= 3 && height <= 3) return false;
-    return isLightboxImageSrcCandidate(imageAttrValue(attrs, 'src'))
-        || isLightboxImageSrcCandidate(imageAttrValue(attrs, 'data-src'))
-        || isLightboxImageSrcCandidate(firstSrcsetUrl(imageAttrValue(attrs, 'srcset')));
+    if (isDecorativeImageAttributes(attrs)) return false;
+    return isLightboxImageSrcCandidate(imageAttributeValue(attrs, 'src'))
+        || isLightboxImageSrcCandidate(imageAttributeValue(attrs, 'data-src'))
+        || isLightboxImageSrcCandidate(firstSrcsetUrl(imageAttributeValue(attrs, 'srcset')));
 }
 
 function isUsableImageSrcCandidate(value) {
@@ -452,6 +441,23 @@ function excerptForCard(post, themeConfig) {
     }
     const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
     return excerptFor(post, excerptFallbackLength(fallback));
+}
+
+function buildPostCardViewModels(posts, themeConfig) {
+    let firstContentImagePending = true;
+    return collectionToArray(posts).map((post) => {
+        const excerpt = excerptForCard(post, themeConfig);
+        const hasContentImage = !!firstImageInfo(excerpt.content).src;
+        const loading = firstContentImagePending && hasContentImage ? 'eager' : 'lazy';
+        if (hasContentImage) firstContentImagePending = false;
+        return {
+            post,
+            excerpt: {
+                ...excerpt,
+                content: defaultFirstImageLoading(excerpt.content, loading)
+            }
+        };
+    });
 }
 
 function excerptFor(post, length) {
@@ -498,5 +504,6 @@ module.exports = {
     tocHeadingLevels,
     firstImageInfo,
     excerptFor,
-    excerptForCard
+    excerptForCard,
+    buildPostCardViewModels
 };

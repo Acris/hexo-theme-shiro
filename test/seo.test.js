@@ -136,7 +136,9 @@ describe('scripts/lib/seo', () => {
                 pageUrl: 'https://example.com/p/',
                 description: 'Desc',
                 image: 'https://example.com/img.png',
-                fullUrlFor: (p) => 'https://example.com' + p
+                publisherLogo: {
+                    url: 'https://cdn.example/brand.png'
+                }
             });
             assert.equal(nodes.length, 1);
             assert.equal(nodes[0]['@type'], 'BlogPosting');
@@ -144,6 +146,8 @@ describe('scripts/lib/seo', () => {
             assert.equal(nodes[0].author.name, 'Ada');
             assert.equal(nodes[0].keywords, 'a, b');
             assert.equal(nodes[0].mainEntityOfPage['@id'], 'https://example.com/p/');
+            assert.equal(nodes[0].publisher.logo.url, 'https://cdn.example/brand.png');
+            assert.equal('width' in nodes[0].publisher.logo, false);
 
             const home = structuredData({}, config, {
                 isHome: true,
@@ -181,6 +185,22 @@ describe('scripts/lib/seo', () => {
             assert.equal(fromContent.width, 640);
             assert.equal(fromContent.height, 360);
             assert.equal(fromContent.alt, 'A quiet lake & trees');
+        });
+
+        it('skips decorative images before resolving the social image', () => {
+            const context = {
+                url_for: (v) => v,
+                full_url_for: (v) => 'https://example.com' + v,
+                config: { url: 'https://example.com' }
+            };
+            const image = resolveOpenGraphImage(context, {
+                content: '<img class="emoji" src="/emoji.png">'
+                    + '<img role="presentation" src="/presentation.png">'
+                    + '<img width="1" height="1" src="/pixel.png">'
+                    + '<img src="/cover.png" width="1200" height="630">'
+            });
+            assert.equal(image.url, 'https://example.com/cover.png');
+            assert.equal(image.width, 1200);
         });
     });
 

@@ -179,11 +179,14 @@ function registerPagefindHooks(context, indexer) {
 
 registerPagefindHooks(hexo);
 
-// Pure surface for unit tests (filter registration stays the side effect).
+// Testable surface (filter registration stays the side effect).
 module.exports = {
     MIN_PAGEFIND_VERSION,
     versionAtLeast,
     uniqueDirs,
     installHint,
+    resolveLocalPagefind,
+    runPagefind,
+    buildPagefindIndex,
     registerPagefindHooks
 };

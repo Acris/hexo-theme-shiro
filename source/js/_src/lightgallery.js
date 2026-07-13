@@ -259,13 +259,17 @@
             return existing;
         }
 
+        // Keep <picture> valid: its fallback <img> must remain a direct child.
+        const linkTarget = img.parentElement && img.parentElement.tagName === 'PICTURE'
+            ? img.parentElement
+            : img;
         // Detached / racing DOM: refuse so openFromElement returns false → navigate.
-        if (!img.parentNode) return null;
+        if (!linkTarget.parentNode) return null;
 
         const link = document.createElement('a');
         link.setAttribute('href', src);
-        img.parentNode.insertBefore(link, img);
-        link.appendChild(img);
+        linkTarget.parentNode.insertBefore(link, linkTarget);
+        link.appendChild(linkTarget);
 
         const viewText = i18nGallery().view_image || 'View image';
         link.setAttribute('aria-label', caption ? viewText + ': ' + caption : viewText);

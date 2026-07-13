@@ -2,6 +2,9 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
 // Mock Hexo before loading the side-effect registrar.
 global.hexo = {
@@ -23,8 +26,24 @@ const {
     versionAtLeast,
     uniqueDirs,
     installHint,
+    resolveLocalPagefind,
+    runPagefind,
+    buildPagefindIndex,
     registerPagefindHooks
 } = require('../scripts/pagefind.js');
+
+function fakePagefind(version, script) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'shiro-pagefind-'));
+    const packageDir = path.join(root, 'node_modules/pagefind');
+    fs.mkdirSync(packageDir, { recursive: true });
+    fs.mkdirSync(path.join(root, 'public'));
+    fs.writeFileSync(path.join(packageDir, 'package.json'), JSON.stringify({
+        version,
+        bin: 'bin.cjs'
+    }));
+    fs.writeFileSync(path.join(packageDir, 'bin.cjs'), script || 'process.exit(0);');
+    return root;
+}
 
 function lifecycleHarness(cmd) {
     const events = {};
@@ -103,6 +122,62 @@ describe('scripts/pagefind.js', () => {
         it('dedupes and resolves paths', () => {
             const dirs = uniqueDirs([process.cwd(), process.cwd() + '/.', null, '']);
             assert.equal(dirs.length, 1);
+        });
+    });
+
+    describe('local command and index build', () => {
+        it('resolves and executes a site-local Pagefind package', () => {
+            const root = fakePagefind('1.5.0');
+            try {
+                const command = resolveLocalPagefind([root]);
+                assert.equal(command.command, process.execPath);
+                assert.equal(command.version, '1.5.0');
+                assert.ok(command.args[0].endsWith('pagefind/bin.cjs'));
+                assert.doesNotThrow(() => runPagefind(['--site', path.join(root, 'public')], command));
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
+        });
+
+        it('runs the full enabled index path and rejects old Pagefind versions', () => {
+            const root = fakePagefind('1.5.0');
+            const logs = [];
+            const context = {
+                base_dir: root,
+                config: { public_dir: 'public' },
+                theme: { config: { search: { enabled: true, force_language: 'en' } } },
+                log: {
+                    info: message => logs.push(message),
+                    error: message => logs.push(message)
+                }
+            };
+            try {
+                assert.doesNotThrow(() => buildPagefindIndex(context));
+                assert.ok(logs.some(message => /index ready/.test(message)));
+
+                const pkgPath = path.join(root, 'node_modules/pagefind/package.json');
+                fs.writeFileSync(pkgPath, JSON.stringify({ version: '1.4.9', bin: 'bin.cjs' }));
+                assert.throws(() => buildPagefindIndex(context), /too old/);
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
+        });
+
+        it('reports subprocess failures and missing public output', () => {
+            const root = fakePagefind('1.5.0', 'process.exit(3);');
+            try {
+                const command = resolveLocalPagefind([root]);
+                assert.throws(() => runPagefind([], command), /exited with code 3/);
+                fs.rmSync(path.join(root, 'public'), { recursive: true, force: true });
+                assert.throws(() => buildPagefindIndex({
+                    base_dir: root,
+                    config: { public_dir: 'public' },
+                    theme: { config: { search: { enabled: true } } },
+                    log: { info() {}, error() {} }
+                }), /public dir not found/);
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
         });
     });
 

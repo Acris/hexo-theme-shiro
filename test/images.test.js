@@ -6,13 +6,17 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
+const registeredFilters = new Map();
+
 // images.js registers a Hexo filter on load — stub the global first.
 global.hexo = {
     source_dir: '/tmp/shiro-source-does-not-need-to-exist',
     config: { root: '/' },
     extend: {
         filter: {
-            register() {}
+            register(name, fn) {
+                registeredFilters.set(name, fn);
+            }
         }
     }
 };
@@ -33,6 +37,7 @@ const {
     attrLookup,
     localImageCandidates: pureCandidates
 } = require('../scripts/lib/image-optimize');
+const { buildPostCardViewModels } = require('../scripts/lib/html-analysis');
 
 describe('scripts/lib/image-optimize', () => {
     describe('parseAttrs', () => {
@@ -160,6 +165,20 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /visible\.png"[^>]*loading="eager"/);
         });
 
+        it('does not let decorative images consume content-image priority', () => {
+            const html = '<img class="emoji" src="/emoji.png">'
+                + '<img src="/pixel.png">'
+                + '<img src="https://cdn.example/hero.png">';
+            const out = pureOptimize(html, {
+                firstImageEager: true,
+                getLocalSize: src => src === '/pixel.png' ? { width: 1, height: 1 } : null
+            });
+            const images = out.match(/<img[^>]*>/g);
+            assert.doesNotMatch(images[0], /loading=/);
+            assert.doesNotMatch(images[1], /loading=/);
+            assert.match(images[2], /loading="eager"/);
+        });
+
         it('leaves tags without src untouched', () => {
             const html = '<img alt="no-src">';
             assert.equal(pureOptimize(html, {}), html);
@@ -267,6 +286,33 @@ describe('scripts/images.js (orchestrator)', () => {
 
     it('exposes localImageCandidates for path resolution', () => {
         assert.equal(typeof localImageCandidates, 'function');
+    });
+
+    it('defers the first content-image loading policy to the rendered view', () => {
+        const filter = registeredFilters.get('after_post_render');
+        const data = filter({
+            content: '<img class="emoji" src="/emoji.png"><img src="/hero.png"><img src="/later.png">',
+            excerpt: ''
+        });
+        const images = data.content.match(/<img[^>]*>/g);
+        assert.doesNotMatch(images[0], /loading=/);
+        assert.doesNotMatch(images[1], /loading=/);
+        assert.match(images[2], /loading="lazy"/);
+    });
+
+    it('keeps fallback excerpts consistent across filter and home-card stages', () => {
+        const filter = registeredFilters.get('after_post_render');
+        const posts = [
+            filter({ content: '<p>No image</p>', excerpt: '' }),
+            filter({ content: '<p>Short</p><img src="/hero.png">', excerpt: '' }),
+            filter({ content: '<p>Later</p><img src="/later.png">', excerpt: '' })
+        ];
+        const cards = buildPostCardViewModels(posts, {
+            excerpt: { fallback: { enabled: true, length: 1000 } }
+        });
+
+        assert.match(cards[1].excerpt.content, /hero\.png"[^>]*loading="eager"/);
+        assert.match(cards[2].excerpt.content, /later\.png"[^>]*loading="lazy"/);
     });
 
     it('discovers an image created after an earlier missing lookup', () => {

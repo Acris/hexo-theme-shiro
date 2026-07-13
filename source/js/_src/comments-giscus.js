@@ -46,14 +46,6 @@
             if (loaded) return;
             loaded = true;
 
-            const binaryAttr = (value, fallback) => {
-                if (value === true) return '1';
-                if (value === false) return '0';
-                const text = String(value == null ? fallback : value).trim().toLowerCase();
-                if (text === 'true') return '1';
-                if (text === 'false') return '0';
-                return text || fallback;
-            };
             // g.src is always set and scheme-normalized in buildCommentsClientConfig.
             const src = String(g.src || '').trim();
             if (!src) {
@@ -72,9 +64,9 @@
                 'data-category': g.category || '',
                 'data-category-id': g.category_id || '',
                 'data-mapping': g.mapping || 'pathname',
-                'data-strict': binaryAttr(g.strict, '0'),
-                'data-reactions-enabled': binaryAttr(g.reactions_enabled, '1'),
-                'data-emit-metadata': binaryAttr(g.emit_metadata, '0'),
+                'data-strict': g.strict,
+                'data-reactions-enabled': g.reactions_enabled,
+                'data-emit-metadata': g.emit_metadata,
                 'data-input-position': g.input_position || 'bottom',
                 'data-theme': g.theme || 'preferred_color_scheme',
                 'data-lang': g.lang || 'en'

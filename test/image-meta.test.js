@@ -77,6 +77,42 @@ describe('scripts/lib/image-meta', () => {
         assert.equal(imageSizeFromBuffer(lossless), null);
     });
 
+    it('reads JPEG start-of-frame dimensions and rejects truncated segments', () => {
+        const jpeg = Buffer.alloc(21);
+        jpeg.set([0xff, 0xd8, 0xff, 0xc0], 0);
+        jpeg.writeUInt16BE(17, 4);
+        jpeg[6] = 8;
+        jpeg.writeUInt16BE(360, 9);
+        jpeg.writeUInt16BE(640, 11);
+        assert.deepEqual(imageSizeFromBuffer(jpeg), { width: 640, height: 360 });
+
+        assert.equal(imageSizeFromBuffer(jpeg.subarray(0, 12)), null);
+    });
+
+    it('reads AVIF ispe dimensions from nested BMFF boxes', () => {
+        const avif = Buffer.alloc(68);
+        avif.writeUInt32BE(20, 0);
+        avif.write('ftyp', 4);
+        avif.write('avif', 8);
+        avif.write('avif', 16);
+
+        avif.writeUInt32BE(48, 20);
+        avif.write('meta', 24);
+        avif.writeUInt32BE(36, 32);
+        avif.write('iprp', 36);
+        avif.writeUInt32BE(28, 40);
+        avif.write('ipco', 44);
+        avif.writeUInt32BE(20, 48);
+        avif.write('ispe', 52);
+        avif.writeUInt32BE(1200, 60);
+        avif.writeUInt32BE(630, 64);
+
+        assert.deepEqual(imageSizeFromBuffer(avif), { width: 1200, height: 630 });
+        avif.write('mif1', 8);
+        avif.write('mif1', 16);
+        assert.equal(imageSizeFromBuffer(avif), null);
+    });
+
     it('uses SVG root dimensions instead of child element attributes', () => {
         const buf = Buffer.from(
             '<svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">'

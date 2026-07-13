@@ -8,7 +8,6 @@
     </header>
     {# Policy in excerpt_for_card (theme.excerpt.fallback). MathJax is not loaded
        on list pages — formulas in excerpts stay as TeX source. #}
-    {% set excerpt = excerpt_for_card(post, first_card) %}
     <div class="prose-shiro">
         {{ excerpt.content | safe }}
     </div>

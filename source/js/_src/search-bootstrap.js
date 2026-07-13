@@ -57,6 +57,7 @@
         if (!modal) return null;
         const dialog = modal.querySelector('dialog');
         if (dialog && dialog.id !== DIALOG_ID) dialog.id = DIALOG_ID;
+        if (dialog && toggle) toggle.setAttribute('aria-controls', DIALOG_ID);
         return dialog;
     }
 

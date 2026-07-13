@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "tailwindcss -i ./source/css/_tailwind.css -o ./source/css/style.min.css --watch",
     "build": "node tools/build-assets.js",
-    "test": "node --test test/**/*.js"
+    "test": "node --test"
   },
   "keywords": [
     "hexo",
@@ -23,23 +23,31 @@
   "author": "Acris Liu",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=24.11.0"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=20.19.0",
+      "version": ">=24.11.0",
       "onFail": "error"
     }
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",
     "@tailwindcss/typography": "^0.5.20",
+    "hexo": "^8.1.2",
+    "hexo-generator-archive": "^2.0.0",
+    "hexo-generator-category": "^2.0.0",
+    "hexo-generator-index": "^4.0.0",
+    "hexo-generator-tag": "^2.0.0",
+    "hexo-renderer-marked": "^7.0.1",
+    "hexo-renderer-nunjucks": "^2.0.0",
     "lightningcss": "^1.32.0",
     "tailwindcss": "^4.3.2",
     "terser": "^5.49.0"
   },
   "dependencies": {
-    "entities": "^6.0.1"
+    "entities": "^6.0.1",
+    "nunjucks": "^3.2.4"
   }
 }

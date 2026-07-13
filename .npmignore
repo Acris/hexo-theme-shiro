@@ -3,6 +3,7 @@ CLAUDE.md
 DESIGN.md
 .idea/
 .junie/
+.github/
 .node-version
 .DS_Store
 .env

@@ -19,7 +19,9 @@ const darkCss = fs.readFileSync(path.join(root, 'source/css/_core/dark.css'), 'u
 const tokensCss = fs.readFileSync(path.join(root, 'source/css/_core/tokens.css'), 'utf8');
 const giscusCss = fs.readFileSync(path.join(root, 'source/css/_src/giscus.css'), 'utf8');
 const uiMacros = fs.readFileSync(path.join(root, 'layout/_macro/ui.njk'), 'utf8');
+const archiveTemplate = fs.readFileSync(path.join(root, 'layout/_macro/archive.njk'), 'utf8');
 const pkg = require('../package.json');
+const lock = require('../package-lock.json');
 
 function configContainsUrl(url) {
     return configYml.indexOf(url) !== -1;
@@ -45,6 +47,13 @@ function contrastRatio(first, second) {
 }
 
 describe('CDN / package defaults stay in sync', () => {
+    it('uses the Node 24 LTS baseline and portable test discovery', () => {
+        assert.equal(pkg.engines.node, '>=24.11.0');
+        assert.equal(pkg.devEngines.runtime.version, '>=24.11.0');
+        assert.equal(lock.packages[''].engines.node, pkg.engines.node);
+        assert.equal(pkg.scripts.test, 'node --test');
+        assert.equal(pkg.dependencies.nunjucks, '^3.2.4');
+    });
     it('LightGallery code defaults appear in _config.yml', () => {
         assert.ok(configContainsUrl(DEFAULT_LIGHTGALLERY_JS), DEFAULT_LIGHTGALLERY_JS);
         assert.ok(configContainsUrl(DEFAULT_LIGHTGALLERY_CSS), DEFAULT_LIGHTGALLERY_CSS);
@@ -109,5 +118,11 @@ describe('CDN / package defaults stay in sync', () => {
     it('keeps semantic prose list markers out of decorative faint colors', () => {
         assert.match(componentsCss, /--tw-prose-bullets:\s*var\(--color-text-chrome\)/);
         assert.doesNotMatch(componentsCss, /--tw-prose-bullets:\s*var\(--color-text-faint\)/);
+    });
+
+    it('caps deep category indentation and wraps archive titles', () => {
+        assert.match(componentsCss, /padding-left:\s*clamp\(0rem,[^;]+3\.75rem\)/);
+        assert.match(componentsCss, /padding-left:\s*clamp\(0rem,[^;]+6\.25rem\)/);
+        assert.match(archiveTemplate, /class="link-underline break-words"/);
     });
 });

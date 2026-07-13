@@ -10,6 +10,7 @@ const {
     findElementClose,
     parseHtmlAttributes
 } = require('./html-scanner');
+const { isDecorativeImageAttributes } = require('./image-content');
 
 const DEFAULT_IMAGE_SIZES = '(min-width: 768px) 672px, calc(100vw - 2rem)';
 const IMAGE_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
@@ -173,7 +174,7 @@ function optimizeImages(html, options) {
         ? opts.getLocalSize
         : () => null;
     const source = String(html || '');
-    let imageIndex = 0;
+    let contentImageIndex = 0;
     let cursor = 0;
     let position = 0;
     let output = '';
@@ -198,9 +199,6 @@ function optimizeImages(html, options) {
         const srcset = getAttr(attrs, lookup, 'srcset');
         if (!src && !srcset) continue;
 
-        const isFirstContentImage = opts.firstImageEager && imageIndex === 0;
-        imageIndex += 1;
-
         let out = rawAttrs;
         const present = new Set(lookup.keys());
         const ensure = (name, value) => {
@@ -210,34 +208,40 @@ function optimizeImages(html, options) {
             out = appendAttr(out, name, value);
         };
 
-        ensure('decoding', 'async');
-        if (isFirstContentImage) {
-            ensure('loading', 'eager');
-        } else if (!(opts.deferFirstImageLoading && imageIndex === 1)) {
-            ensure('loading', 'lazy');
-        }
-        // The HTML standard permits `sizes` only with width (`w`) descriptors.
-        if (hasWidthDescriptor(srcset)) {
-            ensure('sizes', DEFAULT_IMAGE_SIZES);
-        }
-
         const hasWidth = present.has('width');
         const hasHeight = present.has('height');
+        const authoredWidth = hasWidth ? positiveDimension(getAttr(attrs, lookup, 'width')) : 0;
+        const authoredHeight = hasHeight ? positiveDimension(getAttr(attrs, lookup, 'height')) : 0;
+        let width = authoredWidth;
+        let height = authoredHeight;
         if (src && (!hasWidth || !hasHeight) && !isRemoteUrl(src)) {
             const size = getLocalSize(src, opts.post);
             if (size) {
-                const authoredWidth = hasWidth ? positiveDimension(getAttr(attrs, lookup, 'width')) : 0;
-                const authoredHeight = hasHeight ? positiveDimension(getAttr(attrs, lookup, 'height')) : 0;
-                const width = hasHeight
+                width = hasHeight
                     ? scaledDimension(authoredHeight, size.height, size.width)
                     : size.width;
-                const height = hasWidth
+                height = hasWidth
                     ? scaledDimension(authoredWidth, size.width, size.height)
                     : size.height;
-                if (!hasWidth && width) ensure('width', String(width));
-                if (!hasHeight && height) ensure('height', String(height));
             }
         }
+
+        const isContentImage = !isDecorativeImageAttributes(rawAttrs, { width, height });
+        const isFirstContentImage = isContentImage && contentImageIndex === 0;
+        if (isContentImage) contentImageIndex += 1;
+
+        ensure('decoding', 'async');
+        if (isContentImage) {
+            if (opts.firstImageEager && isFirstContentImage) {
+                ensure('loading', 'eager');
+            } else if (!(opts.deferFirstImageLoading && isFirstContentImage)) {
+                ensure('loading', 'lazy');
+            }
+        }
+        // The HTML standard permits `sizes` only with width (`w`) descriptors.
+        if (hasWidthDescriptor(srcset)) ensure('sizes', DEFAULT_IMAGE_SIZES);
+        if (!hasWidth && width) ensure('width', String(width));
+        if (!hasHeight && height) ensure('height', String(height));
 
         const replacement = source.slice(token.start, token.attrsStart)
             + out
@@ -269,6 +273,7 @@ function defaultFirstImageLoading(html, value) {
         const src = getAttr(attrs, lookup, 'src') || getAttr(attrs, lookup, 'data-src');
         const srcset = getAttr(attrs, lookup, 'srcset');
         if (!src && !srcset) continue;
+        if (isDecorativeImageAttributes(token.attrs)) continue;
         if (lookup.has('loading')) return source;
 
         const nextAttrs = appendAttr(token.attrs, 'loading', loading);

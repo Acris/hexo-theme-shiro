@@ -87,4 +87,51 @@ describe('scripts/helpers', () => {
         post.excerpt = '<img src="/cover.png" loading="lazy">';
         assert.match(excerptForCard.call(context, post, true).content, /loading="lazy"/);
     });
+
+    it('builds home card models and reading-image defaults', () => {
+        const cardsFor = helpers.get('post_card_view_models');
+        const defaultLoading = helpers.get('default_image_loading');
+        const context = { theme: {} };
+        const cards = cardsFor.call(context, [
+            { excerpt: '<p>No image</p>', content: '' },
+            { excerpt: '<img src="/hero.png">', content: '' }
+        ]);
+
+        assert.match(cards[1].excerpt.content, /loading="eager"/);
+        assert.match(defaultLoading('<img src="/article.png">', 'eager'), /loading="eager"/);
+    });
+
+    it('uses the configured favicon for publisher structured data', () => {
+        const structuredData = helpers.get('structured_data');
+        const context = {
+            theme: { site: { favicon: '/brand.png' } },
+            config: { title: 'Site', url: 'https://example.com' },
+            full_url_for: value => 'https://example.com' + value,
+            url_for: value => value,
+            og_image: () => '',
+            clean_description: () => '',
+            is_post: () => true,
+            is_home: () => false
+        };
+        const nodes = structuredData.call(context, { title: 'Post' }, context.config);
+        assert.equal(nodes[0].publisher.logo.url, 'https://example.com/brand.png');
+        assert.equal('width' in nodes[0].publisher.logo, false);
+    });
+
+    it('falls back safely for an invalid publisher favicon URL', () => {
+        const structuredData = helpers.get('structured_data');
+        const context = {
+            theme: { site: { favicon: 'javascript:alert(1)' } },
+            config: { title: 'Site', url: 'https://example.com' },
+            full_url_for: value => 'https://example.com' + value,
+            url_for: value => value,
+            og_image: () => '',
+            clean_description: () => '',
+            is_post: () => true,
+            is_home: () => false
+        };
+        const nodes = structuredData.call(context, { title: 'Post' }, context.config);
+        assert.equal(nodes[0].publisher.logo.url, 'https://example.com/favicon.svg');
+        assert.equal(nodes[0].publisher.logo.width, 112);
+    });
 });

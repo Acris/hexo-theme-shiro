@@ -125,7 +125,7 @@ function optimizeImages(html, options) {
 hexo.extend.filter.register('after_post_render', function (data) {
     if (!data) return data;
     data.content = markCodeBlocksNotProse(
-        optimizeImages(data.content, { post: data, firstImageEager: true })
+        optimizeImages(data.content, { post: data, deferFirstImageLoading: true })
     );
     if (data.excerpt) {
         data.excerpt = markCodeBlocksNotProse(
