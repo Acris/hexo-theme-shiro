@@ -77,9 +77,14 @@
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 
     if (rtReady && typeof rtReady.featureReady === 'function') {
+        const root = document.documentElement;
+        if (root) root.classList.add('mobile-menu-initializing');
         setOpen(false);
-        if (document.documentElement) {
-            document.documentElement.classList.add('mobile-menu-ready');
+        if (root) {
+            root.classList.add('mobile-menu-ready');
+            // Commit the collapsed state without animating the no-JS fallback.
+            void panel.offsetHeight;
+            root.classList.remove('mobile-menu-initializing');
         }
         rtReady.featureReady('mobile-menu');
     }

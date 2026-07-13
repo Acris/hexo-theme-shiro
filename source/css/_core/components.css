@@ -250,6 +250,11 @@
         }
     }
 
+    /* First JS takeover: commit fallback-open → enhanced-closed without a flash. */
+    html.mobile-menu-initializing .menu-panel {
+        transition: none;
+    }
+
     /* Reset transform positions for reduced-motion (base layer only disables transitions, not transforms) */
     @media (prefers-reduced-motion: reduce) {
         .menu-panel {

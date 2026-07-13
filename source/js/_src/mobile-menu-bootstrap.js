@@ -7,6 +7,7 @@
     function restoreFallbackMenu() {
         if (document.documentElement) {
             document.documentElement.classList.remove('mobile-menu-ready');
+            document.documentElement.classList.remove('mobile-menu-initializing');
         }
         if (panel) {
             panel.inert = false;

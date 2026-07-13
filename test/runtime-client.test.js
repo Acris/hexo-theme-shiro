@@ -193,6 +193,9 @@ describe('client accessibility contracts', () => {
         const feature = clientSource('mobile-menu.js');
         assert.match(feature, /panel\.inert\s*=\s*!open/);
         assert.match(feature, /classList\.add\('mobile-menu-ready'\)/);
+        assert.match(feature, /classList\.add\('mobile-menu-initializing'\)/);
+        assert.match(feature, /void panel\.offsetHeight/);
+        assert.match(feature, /classList\.remove\('mobile-menu-initializing'\)/);
         const header = fs.readFileSync(
             path.join(__dirname, '../layout/_partial/common/header.njk'),
             'utf8'
@@ -201,9 +204,18 @@ describe('client accessibility contracts', () => {
         const bootstrap = clientSource('mobile-menu-bootstrap.js');
         assert.doesNotMatch(bootstrap, /panel\.inert\s*=\s*true/);
         assert.match(bootstrap, /classList\.remove\('mobile-menu-ready'\)/);
+        assert.match(bootstrap, /classList\.remove\('mobile-menu-initializing'\)/);
         assert.match(bootstrap, /restoreFallbackMenu\(\)/);
         assert.match(bootstrap, /button\.hidden\s*=\s*true/);
         assert.match(bootstrap, /button\.hidden\s*=\s*false/);
+        const components = fs.readFileSync(
+            path.join(__dirname, '../source/css/_core/components.css'),
+            'utf8'
+        );
+        assert.match(
+            components,
+            /html\.mobile-menu-initializing \.menu-panel\s*\{\s*transition:\s*none;/
+        );
     });
 
     it('keeps the search trigger hidden until its handler is ready', () => {
