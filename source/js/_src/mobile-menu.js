@@ -1,17 +1,11 @@
 ;(() => {
     'use strict';
 
-    const rtReady = (window.__shiro && window.__shiro.runtime);
+    // Plain deferred foot script (same-origin). No feature loader / bag URL.
     const btn = document.getElementById('menuBtn');
     const panel = document.getElementById('mobileMenu');
     const chevron = document.getElementById('menuChevron');
-
-    if (!btn || !panel || !chevron) {
-        if (rtReady && typeof rtReady.featureAbort === 'function') {
-            rtReady.featureAbort('mobile-menu', new Error('mobile menu DOM missing'));
-        }
-        return;
-    }
+    if (!btn || !panel || !chevron) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -77,9 +71,7 @@
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 
     // Panel is already collapsed before paint via html.js + data-open="false".
-    // Commit inert/aria/chevron and signal the bootstrap loader.
     setOpen(false);
-    if (rtReady && typeof rtReady.featureReady === 'function') {
-        rtReady.featureReady('mobile-menu');
-    }
+    btn.hidden = false;
+    btn.disabled = false;
 })();

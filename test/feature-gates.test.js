@@ -85,7 +85,7 @@ describe('scripts/lib/feature-gates', () => {
                 'js/progress.min.js',
                 'js/back-to-top.min.js',
                 'js/theme-toggle.min.js',
-                'js/mobile-menu-bootstrap.min.js'
+                'js/mobile-menu.min.js'
             ]);
         });
 

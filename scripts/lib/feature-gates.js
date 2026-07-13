@@ -48,7 +48,8 @@ function buildFootScripts(flags) {
     if (flags.needsProgressBar) scripts.push('js/progress.min.js');
     if (flags.needsBackToTop) scripts.push('js/back-to-top.min.js');
     if (flags.darkModeToggle) scripts.push('js/theme-toggle.min.js');
-    if (flags.needsMobileMenu) scripts.push('js/mobile-menu-bootstrap.min.js');
+    // Local menu script only — not createFeatureLoader (no CDN / ready channel).
+    if (flags.needsMobileMenu) scripts.push('js/mobile-menu.min.js');
     return scripts;
 }
 
@@ -169,10 +170,11 @@ function resolveFeatureGates(input) {
     const comments = resolveCommentsState(theme, page, { isPost, isPage });
     const needsComments = comments.shouldRender;
 
+    // Bag + runtime foot: only features that inject __shiro keys or use runtime APIs.
+    // Mobile menu is a plain deferred script and does not need either.
     const needsFeatureRuntime = searchEnabled
         || needsLightgallery
-        || needsClipboard
-        || needsMobileMenu;
+        || needsClipboard;
     const needsRuntimeFoot = needsFeatureRuntime || needsComments;
     const shiroCspNonce = normalizeCspNonce(input.cspNonce);
 

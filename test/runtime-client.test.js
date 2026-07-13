@@ -189,12 +189,17 @@ describe('client accessibility contracts', () => {
         return fs.readFileSync(path.join(__dirname, '../source/js/_src', name), 'utf8');
     }
 
-    it('removes collapsed mobile navigation from the tab order and restores fallback', () => {
+    it('loads mobile menu as a plain deferred script and enables the first-paint toggle', () => {
         const feature = clientSource('mobile-menu.js');
         assert.match(feature, /panel\.inert\s*=\s*!open/);
         assert.match(feature, /setOpen\(false\)/);
-        assert.match(feature, /featureReady\('mobile-menu'\)/);
+        assert.match(feature, /btn\.disabled\s*=\s*false/);
+        assert.doesNotMatch(feature, /createFeatureLoader|featureReady|featureAbort|mobileMenuScript/);
         assert.doesNotMatch(feature, /mobile-menu-ready|mobile-menu-initializing/);
+        assert.ok(
+            !fs.existsSync(path.join(__dirname, '../source/js/_src/mobile-menu-bootstrap.js')),
+            'mobile-menu-bootstrap.js should be removed'
+        );
         const header = fs.readFileSync(
             path.join(__dirname, '../layout/_partial/common/header.njk'),
             'utf8'
@@ -207,15 +212,8 @@ describe('client accessibility contracts', () => {
             'utf8'
         );
         assert.match(headTheme, /classList\.add\(['"]js['"]\)/);
-        const bootstrap = clientSource('mobile-menu-bootstrap.js');
-        assert.doesNotMatch(bootstrap, /panel\.inert\s*=\s*true/);
-        assert.doesNotMatch(bootstrap, /mobile-menu-ready|mobile-menu-initializing/);
-        assert.match(bootstrap, /restoreFallbackMenu\(\)/);
-        assert.match(bootstrap, /dataset\.open\s*=\s*['"]true['"]/);
-        assert.match(bootstrap, /button\.hidden\s*=\s*true/);
-        assert.match(bootstrap, /button\.hidden\s*=\s*false/);
-        assert.match(bootstrap, /button\.disabled\s*=\s*false/);
-        assert.match(bootstrap, /button\.disabled\s*=\s*true/);
+        const layout = fs.readFileSync(path.join(__dirname, '../layout/_layout.njk'), 'utf8');
+        assert.doesNotMatch(layout, /mobileMenuScript/);
         const components = fs.readFileSync(
             path.join(__dirname, '../source/css/_core/components.css'),
             'utf8'
@@ -515,6 +513,8 @@ describe('client accessibility contracts', () => {
             contains: (target) => target === focusable
         };
         const button = {
+            hidden: false,
+            disabled: true,
             addEventListener(name, callback) {
                 buttonListeners[name] = callback;
             },
@@ -540,7 +540,6 @@ describe('client accessibility contracts', () => {
             }
         };
         const window = {
-            __shiro: { runtime: { featureReady() {} } },
             matchMedia: () => ({
                 matches: false,
                 addEventListener() {}
@@ -548,6 +547,7 @@ describe('client accessibility contracts', () => {
         };
 
         vm.runInNewContext(clientSource('mobile-menu.js'), { window, document });
+        assert.equal(button.disabled, false);
         buttonListeners.click({ stopPropagation() {} });
         assert.equal(panel.dataset.open, 'true');
 

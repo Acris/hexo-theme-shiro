@@ -114,9 +114,6 @@
         }) }}
         {{ feature_var('clipboardScript', versioned_url('js/clipboard.min.js')) }}
         {% endif %}
-        {% if gates.needsMobileMenu %}
-        {{ feature_var('mobileMenuScript', versioned_url('js/mobile-menu.min.js')) }}
-        {% endif %}
     </script>
     {% endif %}
     {% for script_path in gates.footScripts %}
