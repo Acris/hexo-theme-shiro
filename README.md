@@ -281,7 +281,7 @@ comments:
     # Language code (e.g., en, zh-CN, ja)
     lang: en
     # Theme CSS URL or built-in name (e.g. light, dark, preferred_color_scheme)
-    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.5.2/source/css/giscus.min.css
+    theme: https://cdn.jsdelivr.net/npm/hexo-theme-shiro@1.6.0/source/css/giscus.min.css
     # true to enable lazy loading
     lazy_loading: false
 
