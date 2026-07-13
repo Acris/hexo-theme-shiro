@@ -38,15 +38,16 @@
                 </a>
                 {% endif %}
                 {% if gates.darkModeToggle %}
-                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + gates.darkModeDefault)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}" hidden>
+                {# Visible from first paint when html.js is set; disabled until theme-toggle.js is ready. #}
+                <button id="themeToggle" type="button" class="focus-elegant header-pill-btn" aria-label="{{ escape_attr(__('theme.' + gates.darkModeDefault)) }}" data-label-system="{{ escape_attr(__('theme.system')) }}" data-label-light="{{ escape_attr(__('theme.light')) }}" data-label-dark="{{ escape_attr(__('theme.dark')) }}" disabled>
                     {{ icon_theme_system() }}
                     {{ icon_theme_light() }}
                     {{ icon_theme_dark() }}
                 </button>
                 {% endif %}
                 {% if gates.searchEnabled %}
-                {# Header pill; search-bootstrap opens pagefind-modal (dialog id=shiroSearchDialog). #}
-                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}" hidden>
+                {# Visible from first paint when html.js is set; disabled until search-bootstrap binds open. #}
+                <button id="searchToggle" type="button" class="focus-elegant header-pill-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="{{ escape_attr(__('search.trigger')) }}" disabled>
                     {{ icon_search() }}
                 </button>
                 {% endif %}
@@ -61,9 +62,10 @@
 <nav class="mt-8 md:mt-10" aria-label="{{ escape_attr(__('nav.menu')) }}" data-pagefind-ignore>
     <!-- Mobile Toggle -->
     <div class="flex items-center justify-center md:hidden">
+        {# Visible from first paint when html.js is set; disabled until the toggle handler is ready. #}
         <button id="menuBtn" type="button"
             class="focus-elegant inline-flex cursor-pointer items-center gap-2 rounded-full border border-border-strong bg-paper/95 px-4 py-2 text-sm text-text-body shadow-xs"
-            aria-expanded="false" aria-controls="mobileMenu" hidden>
+            aria-expanded="false" aria-controls="mobileMenu" disabled>
             <span class="text-base leading-none tracking-widest">{{ escape_html(__('nav.menu')) }}</span>
             {{ icon_chevron_down(id="menuChevron") }}
         </button>
@@ -81,8 +83,8 @@
         </ul>
     </div>
 
-    <!-- Mobile Menu Panel: open until the deferred toggle handler is ready. -->
-    <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="true">
+    <!-- Mobile Menu Panel: open without JS; html.js collapses before paint until toggled. -->
+    <div id="mobileMenu" class="menu-panel md:hidden mt-4" data-open="false">
         <ul
             class="mx-auto max-w-sm max-h-menu overflow-y-auto rounded-2xl border border-border-strong bg-paper/95 shadow-xs">
             {% for item in menu_items %}

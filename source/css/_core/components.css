@@ -233,14 +233,36 @@
         }
     }
 
-    /* Progressive enhancement: collapse only after the toggle handler is ready. */
+    /* JS-only header/nav controls. No-JS: hide. With JS: paint from first frame so
+       deferred scripts do not pop controls into the flex row later. */
+    #menuBtn,
+    #themeToggle,
+    #searchToggle {
+        display: none;
+    }
+
+    html.js #menuBtn:not([hidden]),
+    html.js #themeToggle:not([hidden]),
+    html.js #searchToggle:not([hidden]) {
+        display: inline-flex;
+    }
+
+    /* Keep first-paint disabled controls fully opaque (UA dimming would look like a flash). */
+    html.js #menuBtn:disabled,
+    html.js #themeToggle:disabled,
+    html.js #searchToggle:disabled {
+        opacity: 1;
+        cursor: default;
+    }
+
+    /* Progressive enhancement: open without JS; html.js (FOUC head) collapses before paint. */
     .menu-panel {
         @apply translate-y-0 opacity-100 transition-menu duration-[260ms] ease-out;
         max-height: 70vh;
         overflow-y: auto;
     }
 
-    html.mobile-menu-ready .menu-panel {
+    html.js .menu-panel {
         @apply max-h-0 -translate-y-1.5 overflow-hidden opacity-0;
 
         &[data-open="true"] {
@@ -248,11 +270,6 @@
             max-height: 70vh;
             overflow-y: auto;
         }
-    }
-
-    /* First JS takeover: commit fallback-open → enhanced-closed without a flash. */
-    html.mobile-menu-initializing .menu-panel {
-        transition: none;
     }
 
     /* Reset transform positions for reduced-motion (base layer only disables transitions, not transforms) */

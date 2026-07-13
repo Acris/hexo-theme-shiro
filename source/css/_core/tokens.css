@@ -72,7 +72,8 @@
 }
 
 @utility transition-menu {
-    transition-property: max-height, opacity, transform;
+    /* Include translate: Tailwind v4 utilities set the translate property, not transform. */
+    transition-property: max-height, opacity, transform, translate;
 }
 
 @utility transition-interactive {

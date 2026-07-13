@@ -7,7 +7,18 @@
 
     const shiro = window.__shiro || {};
     const rt = shiro.runtime;
+    // Resolve early so abort paths can hide the first-paint (html.js) control.
+    const toggle = document.getElementById('searchToggle');
+
+    function hideSearchToggle() {
+        if (toggle) {
+            toggle.hidden = true;
+            toggle.disabled = true;
+        }
+    }
+
     if (!rt || typeof rt.get !== 'function') {
+        hideSearchToggle();
         console.error('[shiro-search] runtime missing; search bootstrap aborted');
         return;
     }
@@ -15,6 +26,7 @@
     const pagefindBase = String(rt.get('pagefindBase') || '').replace(/\/?$/, '/');
     const searchCss = rt.get('searchCss') || '';
     if (!pagefindBase || pagefindBase === '/') {
+        hideSearchToggle();
         console.error('[shiro-search] pagefind base URL missing; search bootstrap aborted');
         return;
     }
@@ -33,7 +45,6 @@
     const MODAL_SELECTOR = '.shiro-search-components > pagefind-modal';
     const DIALOG_ID = 'shiroSearchDialog';
     // Chrome sync: MutationObserver + dialog close (no continuous poll).
-    const toggle = document.getElementById('searchToggle');
     const modal = document.querySelector(MODAL_SELECTOR);
 
     let loading = null;
@@ -256,7 +267,9 @@
 
     if (toggle) {
         toggle.addEventListener('click', openModal);
+        // Button was already painted (html.js CSS); only enable interaction now.
         toggle.hidden = false;
+        toggle.disabled = false;
         if (typeof bindIntentWarm === 'function') {
             unbindWarm = bindIntentWarm(warm, {
                 root: toggle,

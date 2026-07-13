@@ -82,5 +82,7 @@
 
     btn.addEventListener('click', cycle);
     apply(getState());
+    // Button was already painted (html.js CSS); only enable interaction now.
     btn.hidden = false;
+    btn.disabled = false;
 })();

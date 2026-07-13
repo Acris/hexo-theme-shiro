@@ -76,16 +76,10 @@
     if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', resetOnDesktop);
     else if (desktopQuery.addListener) desktopQuery.addListener(resetOnDesktop);
 
+    // Panel is already collapsed before paint via html.js + data-open="false".
+    // Commit inert/aria/chevron and signal the bootstrap loader.
+    setOpen(false);
     if (rtReady && typeof rtReady.featureReady === 'function') {
-        const root = document.documentElement;
-        if (root) root.classList.add('mobile-menu-initializing');
-        setOpen(false);
-        if (root) {
-            root.classList.add('mobile-menu-ready');
-            // Commit the collapsed state without animating the no-JS fallback.
-            void panel.offsetHeight;
-            root.classList.remove('mobile-menu-initializing');
-        }
         rtReady.featureReady('mobile-menu');
     }
 })();

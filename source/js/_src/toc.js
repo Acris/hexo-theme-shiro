@@ -54,16 +54,17 @@
             };
             toggleBtn.addEventListener('click', handleToggle);
             try {
+                // Body already collapsed before paint via html.js + data-open="false".
                 setInlineOpen(false);
                 toggleBtn.hidden = false;
-                tocInline.dataset.enhanced = 'true';
+                toggleBtn.disabled = false;
                 syncInlineHeight = () => {
                     if (body.dataset.open === 'true') body.style.maxHeight = body.scrollHeight + 'px';
                 };
             } catch (_) {
                 toggleBtn.removeEventListener('click', handleToggle);
                 toggleBtn.hidden = true;
-                delete tocInline.dataset.enhanced;
+                toggleBtn.disabled = true;
                 body.dataset.open = 'true';
                 body.inert = false;
                 body.style.removeProperty('max-height');
@@ -217,10 +218,5 @@
             hashTarget.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
             scheduleGeometryUpdate();
         }, 100);
-    }
-
-    if (tocSidebar && !reducedMotion.matches) {
-        tocSidebar.classList.add('toc-fade-in');
-        requestAnimationFrame(() => tocSidebar.classList.add('toc-visible'));
     }
 })();

@@ -4,17 +4,16 @@
     const panel = document.getElementById('mobileMenu');
     const button = document.getElementById('menuBtn');
 
+    // Load failed: keep html.js (JS is present) but force the panel open and hide
+    // the dead toggle so nav stays usable without the enhanced handler.
     function restoreFallbackMenu() {
-        if (document.documentElement) {
-            document.documentElement.classList.remove('mobile-menu-ready');
-            document.documentElement.classList.remove('mobile-menu-initializing');
-        }
         if (panel) {
             panel.inert = false;
             panel.dataset.open = 'true';
         }
         if (button) {
             button.hidden = true;
+            button.disabled = true;
             button.setAttribute('aria-expanded', 'true');
         }
     }
@@ -59,7 +58,11 @@
         id: 'mobile-menu',
         src: script,
         onReady: () => {
-            if (button) button.hidden = false;
+            if (button) {
+                // Button was already painted (html.js CSS); only enable interaction now.
+                button.hidden = false;
+                button.disabled = false;
+            }
             if (retryTimer) {
                 clearTimeout(retryTimer);
                 retryTimer = 0;

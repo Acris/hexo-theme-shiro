@@ -192,44 +192,58 @@ describe('client accessibility contracts', () => {
     it('removes collapsed mobile navigation from the tab order and restores fallback', () => {
         const feature = clientSource('mobile-menu.js');
         assert.match(feature, /panel\.inert\s*=\s*!open/);
-        assert.match(feature, /classList\.add\('mobile-menu-ready'\)/);
-        assert.match(feature, /classList\.add\('mobile-menu-initializing'\)/);
-        assert.match(feature, /void panel\.offsetHeight/);
-        assert.match(feature, /classList\.remove\('mobile-menu-initializing'\)/);
+        assert.match(feature, /setOpen\(false\)/);
+        assert.match(feature, /featureReady\('mobile-menu'\)/);
+        assert.doesNotMatch(feature, /mobile-menu-ready|mobile-menu-initializing/);
         const header = fs.readFileSync(
             path.join(__dirname, '../layout/_partial/common/header.njk'),
             'utf8'
         );
-        assert.match(header, /id="mobileMenu"[^>]*data-open="true"/);
+        assert.match(header, /id="mobileMenu"[^>]*data-open="false"/);
+        assert.match(header, /id="menuBtn"[^>]*\sdisabled(?:\s|>)/);
+        assert.doesNotMatch(header, /id="menuBtn"[^>]*\shidden(?:\s|>)/);
+        const headTheme = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/head-theme.njk'),
+            'utf8'
+        );
+        assert.match(headTheme, /classList\.add\(['"]js['"]\)/);
         const bootstrap = clientSource('mobile-menu-bootstrap.js');
         assert.doesNotMatch(bootstrap, /panel\.inert\s*=\s*true/);
-        assert.match(bootstrap, /classList\.remove\('mobile-menu-ready'\)/);
-        assert.match(bootstrap, /classList\.remove\('mobile-menu-initializing'\)/);
+        assert.doesNotMatch(bootstrap, /mobile-menu-ready|mobile-menu-initializing/);
         assert.match(bootstrap, /restoreFallbackMenu\(\)/);
+        assert.match(bootstrap, /dataset\.open\s*=\s*['"]true['"]/);
         assert.match(bootstrap, /button\.hidden\s*=\s*true/);
         assert.match(bootstrap, /button\.hidden\s*=\s*false/);
+        assert.match(bootstrap, /button\.disabled\s*=\s*false/);
+        assert.match(bootstrap, /button\.disabled\s*=\s*true/);
         const components = fs.readFileSync(
             path.join(__dirname, '../source/css/_core/components.css'),
             'utf8'
         );
-        assert.match(
-            components,
-            /html\.mobile-menu-initializing \.menu-panel\s*\{\s*transition:\s*none;/
-        );
+        assert.match(components, /html\.js \.menu-panel/);
+        assert.match(components, /html\.js #menuBtn:not\(\[hidden\]\)/);
+        assert.doesNotMatch(components, /mobile-menu-ready|mobile-menu-initializing/);
     });
 
-    it('keeps the search trigger hidden until its handler is ready', () => {
+    it('paints the search trigger early and enables it when the handler is ready', () => {
         const header = fs.readFileSync(
             path.join(__dirname, '../layout/_partial/common/header.njk'),
             'utf8'
         );
         const bootstrap = clientSource('search-bootstrap.js');
+        const components = fs.readFileSync(
+            path.join(__dirname, '../source/css/_core/components.css'),
+            'utf8'
+        );
 
-        assert.match(header, /<button id="searchToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(header, /id="searchToggle"[^>]*\sdisabled(?:\s|>)/);
+        assert.doesNotMatch(header, /id="searchToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(components, /html\.js #searchToggle:not\(\[hidden\]\)/);
         assert.match(
             bootstrap,
-            /toggle\.addEventListener\('click', openModal\);[\s\S]*?toggle\.hidden\s*=\s*false/
+            /toggle\.addEventListener\('click', openModal\);[\s\S]*?toggle\.disabled\s*=\s*false/
         );
+        assert.match(bootstrap, /hideSearchToggle/);
         assert.doesNotMatch(header, /id="searchToggle"[^>]*aria-controls=/);
         assert.match(
             bootstrap,
@@ -245,24 +259,43 @@ describe('client accessibility contracts', () => {
         assert.match(giscus, /'data-emit-metadata': g\.emit_metadata/);
     });
 
-    it('keeps the theme trigger hidden until its handler is ready', () => {
+    it('paints the theme trigger early and enables it when the handler is ready', () => {
         const header = fs.readFileSync(
             path.join(__dirname, '../layout/_partial/common/header.njk'),
             'utf8'
         );
         const toggle = clientSource('theme-toggle.js');
+        const components = fs.readFileSync(
+            path.join(__dirname, '../source/css/_core/components.css'),
+            'utf8'
+        );
 
-        assert.match(header, /<button id="themeToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(header, /id="themeToggle"[^>]*\sdisabled(?:\s|>)/);
+        assert.doesNotMatch(header, /id="themeToggle"[^>]*\shidden(?:\s|>)/);
+        assert.match(components, /html\.js #themeToggle:not\(\[hidden\]\)/);
         assert.match(
             toggle,
-            /btn\.addEventListener\('click', cycle\);[\s\S]*?btn\.hidden\s*=\s*false/
+            /btn\.addEventListener\('click', cycle\);[\s\S]*?btn\.disabled\s*=\s*false/
         );
     });
 
     it('removes the collapsed inline TOC from the tab order', () => {
         const source = clientSource('toc.js');
+        const tocTemplate = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/components/toc.njk'),
+            'utf8'
+        );
+        const tocCss = fs.readFileSync(
+            path.join(__dirname, '../source/css/_src/toc.css'),
+            'utf8'
+        );
         assert.match(source, /body\.inert\s*=\s*!open/);
-        assert.match(source, /toggleBtn\.hidden\s*=\s*false/);
+        assert.match(source, /toggleBtn\.disabled\s*=\s*false/);
+        assert.match(tocTemplate, /id="tocInlineBody"[^>]*data-open="false"/);
+        assert.match(tocTemplate, /class="toc-toggle"[^>]*\sdisabled(?:\s|>)/);
+        assert.match(tocCss, /html\.js \.toc-inline \.toc-body/);
+        assert.doesNotMatch(tocCss, /data-enhanced/);
+        assert.doesNotMatch(source, /dataset\.enhanced/);
     });
 
     it('announces the current TOC location', () => {
