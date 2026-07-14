@@ -876,25 +876,39 @@ describe('client runtime protocol', () => {
         assert.equal(rt.isModifiedClick({ button: 0, metaKey: true }), true);
         assert.equal(rt.isModifiedClick({ button: 1 }), true);
 
-        let opened = null;
-        window.open = (url) => {
-            opened = url;
-            return { closed: false };
+        let openCall = null;
+        const fakeWin = { opener: { sentinel: true }, closed: false };
+        window.open = (url, target, features) => {
+            openCall = { url, target, features };
+            // Real successful open (without noopener features) returns a Window.
+            return fakeWin;
         };
         window.location.href = '';
 
         rt.safeNavigate('javascript:alert(1)');
         assert.equal(window.location.href, '');
-        assert.equal(opened, null);
+        assert.equal(openCall, null);
 
         ['file:///tmp/image.png', 'ftp://example.com/image.png', 'custom:payload'].forEach((url) => {
+            openCall = null;
             rt.safeNavigate(url);
             assert.equal(window.location.href, '');
-            assert.equal(opened, null);
+            assert.equal(openCall, null);
         });
 
+        openCall = null;
+        fakeWin.opener = { sentinel: true };
         rt.safeNavigate('https://example.com/x');
-        assert.equal(opened, 'https://example.com/x');
+        assert.equal(openCall && openCall.url, 'https://example.com/x');
+        assert.equal(openCall && openCall.target, '_blank');
+        // noopener-in-features makes browsers return null even on success — never use it.
+        assert.ok(
+            openCall.features == null
+            || openCall.features === ''
+            || !/noopener/i.test(String(openCall.features)),
+            'must not pass noopener window features'
+        );
+        assert.equal(fakeWin.opener, null, 'must sever opener after a real Window is returned');
         assert.equal(window.location.href, '', 'successful window.open must not same-tab navigate');
 
         rt.safeNavigate('/local/path');
@@ -907,8 +921,9 @@ describe('client runtime protocol', () => {
         assert.equal(window.location.href, 'blob:https://example.com/id');
     });
 
-    it('falls back to same-tab navigation when window.open is blocked', () => {
+    it('falls back to same-tab navigation only when window.open is truly blocked', () => {
         const { rt, window } = harness;
+        // Genuine popup block returns null — not the historical noopener-success null.
         window.open = () => null;
         window.location.href = '';
 
@@ -918,6 +933,18 @@ describe('client runtime protocol', () => {
         window.location.href = '';
         rt.safeNavigate('//cdn.example/proto.png');
         assert.equal(window.location.href, 'https://cdn.example/proto.png');
+    });
+
+    it('opens absolute urls without noopener features so success is not null', () => {
+        // Modern browsers return null from window.open(..., 'noopener') even on
+        // success — treating null as "blocked" would always same-tab navigate.
+        assert.match(runtimeSource, /window\.open\(\s*absolute\s*,\s*['"]_blank['"]\s*\)/);
+        assert.doesNotMatch(
+            runtimeSource,
+            /window\.open\([^;]*noopener/i,
+            'safeNavigate must not pass noopener window features'
+        );
+        assert.match(runtimeSource, /opened\.opener\s*=\s*null/);
     });
 
     it('resolves imageSource from srcset when src is absent', () => {

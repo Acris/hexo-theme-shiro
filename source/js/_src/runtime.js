@@ -472,6 +472,11 @@
      * Absolute http(s) prefer a new tab when the gesture still allows window.open;
      * after async preventDefault (e.g. LightGallery load failure) open is often
      * blocked — fall back to same-tab navigation so the click is not a no-op.
+     *
+     * Do not pass the "noopener" window feature: modern browsers return null on
+     * *successful* opens with noopener, so null would be indistinguishable from a
+     * popup block and would always same-tab navigate (double navigation).
+     * Sever the opener link explicitly after a real Window is returned.
      * Blob URLs support image fallbacks. Unknown schemes and control chars are blocked.
      */
     function safeNavigate(href) {
@@ -482,11 +487,17 @@
             const absolute = value.indexOf('//') === 0 ? 'https:' + value : value;
             let opened = null;
             try {
-                opened = window.open(absolute, '_blank', 'noopener,noreferrer');
+                opened = window.open(absolute, '_blank');
             } catch (_) {
                 opened = null;
             }
-            if (!opened) window.location.href = absolute;
+            if (opened) {
+                try {
+                    opened.opener = null;
+                } catch (_) {}
+            } else {
+                window.location.href = absolute;
+            }
             return;
         }
         if (/^(?:mailto|tel|blob):/i.test(value) || !/^[a-z][a-z0-9+.-]*:/i.test(value)) {
