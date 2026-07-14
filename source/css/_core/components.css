@@ -137,11 +137,14 @@
         from {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
 
         to {
             opacity: 0;
             visibility: hidden;
+            /* Match JS .is-loaded dismiss: veil must not intercept after failsafe. */
+            pointer-events: none;
         }
     }
 

@@ -119,6 +119,21 @@ describe('scripts/lib/seo', () => {
                 }),
                 'Categories: Parent / Child | Site'
             );
+            assert.equal(
+                buildPageTitle({ tag: 'notes', title: 'notes' }, config, {
+                    isTag: true,
+                    t: (k) => (k === 'nav.tags' ? 'Tags' : k)
+                }),
+                'Tags: notes | Site'
+            );
+            assert.equal(
+                buildPageTitle({ year: 2024, title: '2024', current: 2 }, config, {
+                    isArchive: true,
+                    pageNumberLabel: (n) => 'Page ' + n,
+                    t: (k) => (k === 'nav.archives' ? 'Archives' : k)
+                }),
+                'Archives: 2024 - Page 2 | Site'
+            );
         });
     });
 

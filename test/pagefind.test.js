@@ -116,6 +116,24 @@ describe('scripts/pagefind.js', () => {
             harness.filters.before_exit();
             assert.equal(harness.builds(), 0);
         });
+
+        it('does not lock process dedupe when search is disabled (no-op index)', () => {
+            let calls = 0;
+            const events = {};
+            const filters = {};
+            const context = {
+                env: { cmd: 'generate' },
+                on(name, handler) { events[name] = handler; },
+                extend: { filter: { register(name, handler) { filters[name] = handler; } } }
+            };
+            registerPagefindHooks(context, () => {
+                calls += 1;
+                return false;
+            });
+            filters.before_exit();
+            filters.before_exit();
+            assert.equal(calls, 2, 'disabled no-op must not permanently skip later attempts');
+        });
     });
 
     describe('uniqueDirs', () => {
@@ -152,12 +170,27 @@ describe('scripts/pagefind.js', () => {
                 }
             };
             try {
-                assert.doesNotThrow(() => buildPagefindIndex(context));
+                assert.equal(buildPagefindIndex(context), true);
                 assert.ok(logs.some(message => /index ready/.test(message)));
 
                 const pkgPath = path.join(root, 'node_modules/pagefind/package.json');
                 fs.writeFileSync(pkgPath, JSON.stringify({ version: '1.4.9', bin: 'bin.cjs' }));
                 assert.throws(() => buildPagefindIndex(context), /too old/);
+            } finally {
+                fs.rmSync(root, { recursive: true, force: true });
+            }
+        });
+
+        it('returns false without running when search is disabled', () => {
+            const root = fakePagefind('1.5.0');
+            try {
+                const context = {
+                    base_dir: root,
+                    config: { public_dir: 'public' },
+                    theme: { config: { search: { enabled: false } } },
+                    log: { info() {}, error() {} }
+                };
+                assert.equal(buildPagefindIndex(context), false);
             } finally {
                 fs.rmSync(root, { recursive: true, force: true });
             }

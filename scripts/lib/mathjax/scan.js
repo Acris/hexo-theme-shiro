@@ -21,7 +21,15 @@ const MATH_ENV_OPEN_RE = new RegExp(
     '^\\\\begin\\s*\\{((?:' + MATH_ENV_NAMES.join('|') + ')\\*?)\\}'
 );
 
-const HTML_SKIP_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
+// Hexo's before_post_render backtick filter wraps fences in this private tag
+// (lowercased by the HTML token reader). Treat it as opaque so MathJax protect
+// does not rewrite TeX-looking tokens already captured inside code fences.
+const HTML_SKIP_ELEMENTS = new Set([
+    ...HTML_TOKEN_OPAQUE_ELEMENTS,
+    'pre',
+    'code',
+    'hexopostrendercodeblock'
+]);
 
 function isEscaped(source, index) {
     let slashes = 0;

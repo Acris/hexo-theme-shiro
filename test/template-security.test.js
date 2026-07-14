@@ -31,4 +31,24 @@ describe('template security contracts', () => {
         assert.match(source, /twitter:image:alt[^\n]*og_img_alt/);
         assert.doesNotMatch(source, /property="article:author"/);
     });
+
+    it('escapes paginator i18n labels (Hexo injects them as HTML)', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/pagination.njk'),
+            'utf8'
+        );
+        assert.match(source, /prev_text:\s*escape_html\(__\(['"]page\.prev['"]\)\)/);
+        assert.match(source, /next_text:\s*escape_html\(__\(['"]page\.next['"]\)\)/);
+    });
+
+    it('uses root-absolute pagefindBase for client asset loads', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../layout/_layout.njk'),
+            'utf8'
+        );
+        assert.match(
+            source,
+            /feature_var\(\s*['"]pagefindBase['"]\s*,\s*url_for\(\s*['"]\/pagefind\/['"]\s*,\s*\{\s*relative:\s*false\s*\}\s*\)\s*\)/
+        );
+    });
 });

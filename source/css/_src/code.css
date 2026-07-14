@@ -201,8 +201,10 @@
         background-color: color-mix(in srgb, var(--color-paper) 90%, transparent);
         color: var(--color-text-chrome);
         cursor: pointer;
-        /* Hidden until hover/focus on pointer devices; always discoverable on touch. */
+        /* Hidden until hover/focus on pointer devices; always discoverable on touch.
+           pointer-events:none while invisible so the hit box does not steal selection. */
         opacity: 0;
+        pointer-events: none;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
         transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft), color 0.3s var(--ease-soft), background-color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft), box-shadow 0.3s var(--ease-soft);
     }
@@ -229,6 +231,7 @@
     .highlight-wrapper:focus-within > .copy-btn,
     .highlight-wrapper > .copy-btn:focus-visible {
         opacity: 0.85;
+        pointer-events: auto;
     }
 
     .highlight-wrapper:hover > .copy-btn:hover,
@@ -247,6 +250,7 @@
     @media (hover: none) {
         .highlight-wrapper > .copy-btn {
             opacity: 0.85;
+            pointer-events: auto;
         }
     }
 

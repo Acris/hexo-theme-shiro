@@ -89,7 +89,7 @@
         (window.__shiro = window.__shiro || {}).i18n = window.__shiro.i18n || {};
         {% endif %}
         {% if gates.searchEnabled %}
-        {{ feature_var('pagefindBase', url_for('/pagefind/')) }}
+        {{ feature_var('pagefindBase', url_for('/pagefind/', { relative: false })) }}
         {{ feature_var('searchCss', versioned_url('css/search.min.css')) }}
         {% endif %}
         {% if gates.needsLightgallery %}

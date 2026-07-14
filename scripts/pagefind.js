@@ -120,11 +120,16 @@ function installHint() {
     return 'Install Pagefind ' + MIN_PAGEFIND_VERSION + '+ in your site root with `npm install pagefind --save-dev`, or set search.enabled: false.';
 }
 
+/**
+ * Build the Pagefind index when theme search is enabled.
+ * @returns {boolean} true when an index run completed; false when search is off
+ *   (so process-level dedupe does not permanently skip a later enabled run).
+ */
 function buildPagefindIndex(context) {
     // Theme search only (same gate as layout page_feature_gates / UI).
     const themeCfg = (context.theme && context.theme.config) || {};
     const cfg = themeCfg.search || {};
-    if (!isFeatureEnabled(cfg.enabled, false)) return;
+    if (!isFeatureEnabled(cfg.enabled, false)) return false;
 
     const publicDir = path.resolve(context.base_dir, context.config.public_dir || 'public');
     if (!fs.existsSync(publicDir)) {
@@ -153,6 +158,7 @@ function buildPagefindIndex(context) {
         context.log.error('[pagefind] ' + installHint());
         throw error;
     }
+    return true;
 }
 
 function registerPagefindHooks(context, indexer) {
@@ -164,6 +170,9 @@ function registerPagefindHooks(context, indexer) {
     function buildOnce() {
         if (indexed) return;
         const result = buildIndex();
+        // false = search disabled no-op; do not lock process-level dedupe.
+        // Custom indexers (tests) return undefined/non-false → lock after first call.
+        if (result === false) return result;
         indexed = true;
         return result;
     }

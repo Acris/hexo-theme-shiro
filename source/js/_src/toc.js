@@ -29,8 +29,9 @@
         }
         targetLinks.push(link);
     });
-    if (!headingArr.length) return;
 
+    // Wire the inline toggle before the scroll-spy early return so missing heading
+    // ids cannot leave the collapsed panel permanently disabled + inert.
     let syncInlineHeight = () => {};
     if (tocInline) {
         const toggleBtn = tocInline.querySelector('.toc-toggle');
@@ -100,6 +101,9 @@
 
     if (tocSidebar) tocSidebar.addEventListener('click', handleTocClick);
     if (tocInline) tocInline.addEventListener('click', handleTocClick);
+
+    // Links without matching headings: toggle + click navigation still work; skip spy.
+    if (!headingArr.length) return;
 
     let activeId = '';
     let updateQueued = false;

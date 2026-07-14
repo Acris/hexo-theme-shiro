@@ -315,6 +315,14 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[0], '$y$');
         });
 
+        it('skips Hexo backtick fence wrappers without protecting TeX inside them', () => {
+            // Hexo's before_post_render code-block filter may wrap fences first.
+            const source = '<hexoPostRenderCodeBlock>$x$ and \\(y\\)</hexoPostRenderCodeBlock>\n$z$';
+            const protectedMath = protectMarkdownMath(source, { inlineDollars: true });
+            assert.deepEqual(protectedMath.segments, ['$z$']);
+            assert.match(protectedMath.content, /\$x\$ and \\\(y\\\)/);
+        });
+
         it('skips indented code blocks that follow prose', () => {
             const source = 'paragraph\n\n    $x$\n\n$y$';
             const protectedMath = protectMarkdownMath(source, { inlineDollars: true });

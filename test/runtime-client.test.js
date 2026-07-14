@@ -327,7 +327,43 @@ describe('client accessibility contracts', () => {
         assert.match(components, /\.shiro-preloader[\s\S]*?pointer-events:\s*auto/);
         // Fading veil must not steal clicks after dismiss begins.
         assert.match(components, /\.shiro-preloader\.is-loaded[\s\S]*?pointer-events:\s*none/);
+        // CSS failsafe end state must also drop hit-testing (parity with .is-loaded).
+        assert.match(
+            components,
+            /@keyframes shiro-preloader-failsafe[\s\S]*?to\s*\{[\s\S]*?pointer-events:\s*none/
+        );
         assert.match(components, /shiro-preloader-content-failsafe/);
+    });
+
+    it('does not let an invisible copy control steal pointer hits', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../source/css/_src/code.css'),
+            'utf8'
+        );
+        assert.match(
+            source,
+            /\.highlight-wrapper > \.copy-btn \{[\s\S]*?pointer-events:\s*none/
+        );
+        assert.match(
+            source,
+            /\.highlight-wrapper:hover > \.copy-btn,[\s\S]*?pointer-events:\s*auto/
+        );
+        assert.match(
+            source,
+            /@media \(hover:\s*none\) \{[\s\S]*?\.highlight-wrapper > \.copy-btn \{[\s\S]*?pointer-events:\s*auto/
+        );
+    });
+
+    it('enables the inline TOC toggle before the missing-heading early return', () => {
+        const source = clientSource('toc.js');
+        const toggleEnable = source.indexOf("toggleBtn.disabled = false");
+        const spyGate = source.indexOf('if (!headingArr.length) return;');
+        assert.ok(toggleEnable !== -1, 'expected toggle enable');
+        assert.ok(spyGate !== -1, 'expected headingArr early return');
+        assert.ok(
+            toggleEnable < spyGate,
+            'toggle must be enabled even when no heading ids match in the DOM'
+        );
     });
 
     it('keeps LightGallery controls readable on its theme-independent dark stage', () => {

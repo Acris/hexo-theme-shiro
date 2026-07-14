@@ -1,9 +1,11 @@
 {% if page.total > 1 %}
 <nav class="pagination mt-8 flex flex-wrap items-center justify-center gap-6 text-sm sm:gap-8 md:mt-10 md:text-base"
     aria-label="{{ escape_attr(__('page.pagination')) }}">
+        {# Hexo injects prev_text/next_text as HTML — escape i18n labels so custom
+           locale strings cannot inject markup into the pagination chrome. #}
         {% set pagination_html = paginator({
-            prev_text: __('page.prev'),
-            next_text: __('page.next'),
+            prev_text: escape_html(__('page.prev')),
+            next_text: escape_html(__('page.next')),
             mid_size: 1,
             space: '&hellip;',
             show_all: false

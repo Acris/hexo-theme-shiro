@@ -198,16 +198,18 @@ function buildPageTitle(page, config, options) {
     const t = (key) => (typeof opts.t === 'function' ? opts.t(key) : key);
 
     if (opts.isHome) return pageLabel ? pageLabel + ' | ' + site : site;
+    // Taxonomy/archive flags beat a generic page.title so generators that also set
+    // title cannot skip nav.* formats and page-number suffixes.
     if (opts.isCategory) {
         const category = opts.categoryLabel || (page && page.category) || '';
         return t('nav.categories') + (category ? ': ' + category : '') + suffix + ' | ' + site;
     }
-    if (page && page.title) return page.title + ' | ' + site;
     if (opts.isArchive) {
         const period = archivePeriod(page);
         return t('nav.archives') + (period ? ': ' + period : '') + suffix + ' | ' + site;
     }
     if (opts.isTag) return t('nav.tags') + (page && page.tag ? ': ' + page.tag : '') + suffix + ' | ' + site;
+    if (page && page.title) return page.title + ' | ' + site;
     return site;
 }
 
