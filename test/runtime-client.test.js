@@ -366,6 +366,13 @@ describe('client accessibility contracts', () => {
         );
     });
 
+    it('disconnects the giscus iframe mount observer after a timeout', () => {
+        const source = clientSource('comments-giscus.js');
+        assert.match(source, /MutationObserver/);
+        assert.match(source, /setTimeout\([\s\S]*?watch\.disconnect\(\)[\s\S]*?,\s*30000\)/);
+        assert.match(source, /if \(!paintFrame\(\)\) return;[\s\S]*?watch\.disconnect\(\)/);
+    });
+
     it('keeps LightGallery controls readable on its theme-independent dark stage', () => {
         const source = fs.readFileSync(
             path.join(__dirname, '../source/css/_src/lightgallery.css'),

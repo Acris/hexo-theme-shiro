@@ -13,7 +13,9 @@ const {
 } = require('./lib/image-optimize');
 
 const DEFAULT_HEADER_BYTES = 64 * 1024;
-const JPEG_HEADER_BYTES = 512 * 1024;
+// Large APP1/EXIF/ICC/XMP blocks can sit before SOF; 512 KiB was not enough for
+// some camera JPEGs and silently dropped width/height injection (CLS risk).
+const JPEG_HEADER_BYTES = 2 * 1024 * 1024;
 const SVG_HEADER_BYTES = 16 * 1024;
 const imageMetaCache = new Map();
 const localImageSizeCache = new Map();
@@ -124,12 +126,13 @@ function optimizeImages(html, options) {
 
 hexo.extend.filter.register('after_post_render', function (data) {
     if (!data) return data;
-    data.content = markCodeBlocksNotProse(
-        optimizeImages(data.content, { post: data, deferFirstImageLoading: true })
-    );
-    if (data.excerpt) {
-        data.excerpt = markCodeBlocksNotProse(
-            optimizeImages(data.excerpt, { post: data, deferFirstImageLoading: true })
+    // Align with MathJax protect fields: content / excerpt / more.
+    const fields = ['content', 'excerpt', 'more'];
+    for (let i = 0; i < fields.length; i += 1) {
+        const field = fields[i];
+        if (typeof data[field] !== 'string' || !data[field]) continue;
+        data[field] = markCodeBlocksNotProse(
+            optimizeImages(data[field], { post: data, deferFirstImageLoading: true })
         );
     }
     return data;

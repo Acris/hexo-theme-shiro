@@ -9,6 +9,7 @@
 {% endif %}
 {% if gates.searchEnabled %}
 <link rel="prefetch" as="style" href="{{ attr_url(versioned_url('css/search.min.css')) }}" />
-<link rel="prefetch" as="style" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.css')) }}" />
-<link rel="prefetch" as="script" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.js')) }}" />
+{# Root-absolute Pagefind URLs match pagefind-config / pagefindBase (relative_link sites). #}
+<link rel="prefetch" as="style" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.css', { relative: false })) }}" />
+<link rel="prefetch" as="script" href="{{ attr_url(url_for('/pagefind/pagefind-component-ui.js', { relative: false })) }}" />
 {% endif %}

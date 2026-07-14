@@ -308,6 +308,63 @@ describe('scripts/images.js (orchestrator)', () => {
         assert.match(images[2], /loading="lazy"/);
     });
 
+    it('optimizes post.more the same way as content and excerpt', () => {
+        const filter = registeredFilters.get('after_post_render');
+        const data = filter({
+            content: '<p>body</p>',
+            excerpt: '',
+            // Two images: first defers loading (deferFirstImageLoading); second is lazy.
+            more: '<img src="https://cdn.example/more.png" alt="m">'
+                + '<img src="https://cdn.example/more2.png" alt="n">'
+        });
+        assert.match(data.more, /decoding="async"/);
+        const images = data.more.match(/<img[^>]*>/g);
+        assert.equal(images.length, 2);
+        assert.doesNotMatch(images[0], /loading=/);
+        assert.match(images[1], /loading="lazy"/);
+    });
+
+    it('reads JPEG dimensions when SOF sits after a large APP1 block', () => {
+        const sourceDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shiro-jpeg-'));
+        const imageDir = path.join(sourceDir, 'images');
+        const imagePath = path.join(imageDir, 'fat-exif.jpg');
+        const previousSourceDir = global.hexo.source_dir;
+        global.hexo.source_dir = sourceDir;
+
+        try {
+            fs.mkdirSync(imageDir);
+            // SOI + many max-size COM segments (~600 KiB total) + SOF0 + EOI.
+            // Segment length is 16-bit, so pad with repeated markers past the old 512 KiB probe.
+            const segmentPayload = 0xfffd; // length field = payload + 2, max 0xffff
+            const segments = 10; // ~640 KiB of marker payload
+            const parts = [Buffer.from([0xff, 0xd8])];
+            for (let i = 0; i < segments; i += 1) {
+                const seg = Buffer.alloc(2 + 2 + segmentPayload);
+                seg[0] = 0xff;
+                seg[1] = 0xfe; // COM
+                seg.writeUInt16BE(2 + segmentPayload, 2);
+                parts.push(seg);
+            }
+            // SOF0 layout matches scripts/lib/image-meta.js + image-meta tests
+            // (length field 17 requires 17 bytes from the length start).
+            const sof = Buffer.alloc(2 + 17);
+            sof[0] = 0xff;
+            sof[1] = 0xc0;
+            sof.writeUInt16BE(17, 2);
+            sof[4] = 8;
+            sof.writeUInt16BE(30, 7); // height at lengthOffset+5
+            sof.writeUInt16BE(40, 9); // width at lengthOffset+7
+            parts.push(sof);
+            parts.push(Buffer.from([0xff, 0xd9]));
+            fs.writeFileSync(imagePath, Buffer.concat(parts));
+
+            assert.deepEqual(localImageSize('/images/fat-exif.jpg'), { width: 40, height: 30 });
+        } finally {
+            global.hexo.source_dir = previousSourceDir;
+            fs.rmSync(sourceDir, { recursive: true, force: true });
+        }
+    });
+
     it('keeps fallback excerpts consistent across filter and home-card stages', () => {
         const filter = registeredFilters.get('after_post_render');
         const posts = [

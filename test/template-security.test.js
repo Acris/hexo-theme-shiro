@@ -51,4 +51,19 @@ describe('template security contracts', () => {
             /feature_var\(\s*['"]pagefindBase['"]\s*,\s*url_for\(\s*['"]\/pagefind\/['"]\s*,\s*\{\s*relative:\s*false\s*\}\s*\)\s*\)/
         );
     });
+
+    it('prefetches Pagefind component assets with root-absolute URLs', () => {
+        const source = fs.readFileSync(
+            path.join(__dirname, '../layout/_partial/common/head-prefetch.njk'),
+            'utf8'
+        );
+        assert.match(
+            source,
+            /url_for\(\s*['"]\/pagefind\/pagefind-component-ui\.css['"]\s*,\s*\{\s*relative:\s*false\s*\}\s*\)/
+        );
+        assert.match(
+            source,
+            /url_for\(\s*['"]\/pagefind\/pagefind-component-ui\.js['"]\s*,\s*\{\s*relative:\s*false\s*\}\s*\)/
+        );
+    });
 });

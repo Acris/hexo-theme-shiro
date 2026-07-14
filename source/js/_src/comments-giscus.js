@@ -78,10 +78,19 @@
             });
             const appendScript = () => {
                 container.appendChild(s);
+                // Paint color-scheme when the iframe mounts; stop watching if it
+                // never appears (failed/blocked load) so the observer is not sticky.
+                let watchTimer = 0;
                 const watch = new MutationObserver(() => {
-                    if (paintFrame()) watch.disconnect();
+                    if (!paintFrame()) return;
+                    if (watchTimer) clearTimeout(watchTimer);
+                    watch.disconnect();
                 });
                 watch.observe(container, { childList: true, subtree: true });
+                watchTimer = setTimeout(() => {
+                    watchTimer = 0;
+                    watch.disconnect();
+                }, 30000);
             };
             loadCommentsCss().then(appendScript).catch(appendScript);
         };
