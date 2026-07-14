@@ -345,15 +345,14 @@ describe('scripts/images.js (orchestrator)', () => {
                 seg.writeUInt16BE(2 + segmentPayload, 2);
                 parts.push(seg);
             }
-            // SOF0 layout matches scripts/lib/image-meta.js + image-meta tests
-            // (length field 17 requires 17 bytes from the length start).
+            // Standard SOF0: length@0, precision@2, height@3, width@5 (length field 17).
             const sof = Buffer.alloc(2 + 17);
             sof[0] = 0xff;
             sof[1] = 0xc0;
             sof.writeUInt16BE(17, 2);
             sof[4] = 8;
-            sof.writeUInt16BE(30, 7); // height at lengthOffset+5
-            sof.writeUInt16BE(40, 9); // width at lengthOffset+7
+            sof.writeUInt16BE(30, 5); // height at lengthOffset+3
+            sof.writeUInt16BE(40, 7); // width at lengthOffset+5
             parts.push(sof);
             parts.push(Buffer.from([0xff, 0xd9]));
             fs.writeFileSync(imagePath, Buffer.concat(parts));

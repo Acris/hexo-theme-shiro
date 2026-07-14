@@ -9,6 +9,17 @@ const {
     imageSizeFromBuffer
 } = require('../scripts/lib/image-meta');
 
+/** Minimal SOI + SOF0 using standard layout (P@+2, Y@+3, X@+5). */
+function standardSofJpeg(width, height) {
+    const jpeg = Buffer.alloc(21);
+    jpeg.set([0xff, 0xd8, 0xff, 0xc0], 0);
+    jpeg.writeUInt16BE(17, 4);
+    jpeg[6] = 8;
+    jpeg.writeUInt16BE(height, 7);
+    jpeg.writeUInt16BE(width, 9);
+    return jpeg;
+}
+
 describe('scripts/lib/image-meta', () => {
     it('reads PNG IHDR dimensions', () => {
         // Minimal PNG signature + IHDR chunk with 32x16
@@ -78,14 +89,18 @@ describe('scripts/lib/image-meta', () => {
     });
 
     it('reads JPEG start-of-frame dimensions and rejects truncated segments', () => {
+        // Standard SOF0: length@0, precision@2, height@3, width@5 (ITU T.81 / JFIF).
         const jpeg = Buffer.alloc(21);
         jpeg.set([0xff, 0xd8, 0xff, 0xc0], 0);
         jpeg.writeUInt16BE(17, 4);
         jpeg[6] = 8;
-        jpeg.writeUInt16BE(360, 9);
-        jpeg.writeUInt16BE(640, 11);
+        jpeg.writeUInt16BE(360, 7); // height at lengthOffset+3
+        jpeg.writeUInt16BE(640, 9); // width at lengthOffset+5
         assert.deepEqual(imageSizeFromBuffer(jpeg), { width: 640, height: 360 });
+        assert.deepEqual(imageSizeFromBuffer(standardSofJpeg(140, 140)), { width: 140, height: 140 });
+        assert.deepEqual(imageSizeFromBuffer(standardSofJpeg(800, 600)), { width: 800, height: 600 });
 
+        // length=17 requires 21 bytes from SOI; a short buffer fails the segment bound check.
         assert.equal(imageSizeFromBuffer(jpeg.subarray(0, 12)), null);
     });
 

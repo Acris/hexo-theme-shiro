@@ -40,8 +40,12 @@ function jpegSize(buffer) {
         if (length < 2 || offset + length > buffer.length) return null;
         if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7)
             || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf)) {
+            // SOF segment (length includes these 2 bytes): P@+2, height@+3, width@+5.
             if (length < 8) return null;
-            return { width: buffer.readUInt16BE(offset + 7), height: buffer.readUInt16BE(offset + 5) };
+            return {
+                width: buffer.readUInt16BE(offset + 5),
+                height: buffer.readUInt16BE(offset + 3)
+            };
         }
         offset += length;
     }
