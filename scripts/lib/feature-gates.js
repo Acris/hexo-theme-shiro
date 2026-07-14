@@ -70,6 +70,7 @@ function buildFootScripts(flags) {
  * @param {number} input.menuLength
  * @param {function(string, string): string} input.resolveResourceUrl safeResourceUrl(value, fallback)
  * @param {string} [input.cspNonce]
+ * @param {function(string): void} [input.warn] optional logger for invalid SRI digests
  * @returns {object} gates bound by layout templates
  */
 function resolveFeatureGates(input) {
@@ -83,6 +84,20 @@ function resolveFeatureGates(input) {
     const resolveResourceUrl = typeof input.resolveResourceUrl === 'function'
         ? input.resolveResourceUrl
         : (value, fallback) => String(value || fallback || '');
+    const warn = typeof input.warn === 'function' ? input.warn : null;
+
+    // Normalize optional SRI; warn once per invalid non-empty value (gates pre-normalize
+    // so layout sri_attrs / client bags never see rejected digests).
+    function integrityOrEmpty(raw, label) {
+        const text = String(raw == null ? '' : raw).trim();
+        if (!text) return '';
+        const hash = normalizeSriIntegrity(text);
+        if (!hash && warn) {
+            warn('[shiro] invalid SRI integrity ignored for ' + label
+                + ' (expected sha256|384|512-… base64)');
+        }
+        return hash;
+    }
 
     const site = theme.site || {};
     const lightGallery = theme.lightGallery || {};
@@ -129,7 +144,7 @@ function resolveFeatureGates(input) {
         ? resolveResourceUrl(mathjaxOpts.src, DEFAULT_MATHJAX_SRC)
         : '';
     const mathjaxIntegrity = needsMathjax
-        ? normalizeSriIntegrity(mathjaxOpts.integrity)
+        ? integrityOrEmpty(mathjaxOpts.integrity, 'mathjax')
         : '';
 
     const needsLightgallery = isFeatureEnabled(lightGallery.enabled, true)
@@ -152,10 +167,10 @@ function resolveFeatureGates(input) {
         )
         : '';
     const lightgalleryJsIntegrity = needsLightgallery
-        ? normalizeSriIntegrity(lightGallery.js_integrity)
+        ? integrityOrEmpty(lightGallery.js_integrity, 'lightGallery.js')
         : '';
     const lightgalleryCssIntegrity = needsLightgallery
-        ? normalizeSriIntegrity(lightGallery.css_integrity)
+        ? integrityOrEmpty(lightGallery.css_integrity, 'lightGallery.css')
         : '';
     const lightgalleryPreconnectUrl = needsLightgallery
         ? resourceOrigin(lightgalleryJsUrl)

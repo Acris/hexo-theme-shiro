@@ -196,7 +196,10 @@ hexo.extend.helper.register('page_feature_gates', function () {
         shouldRenderToc: !!toc.shouldRender,
         menuLength: menu.length,
         resolveResourceUrl: (value, fallback) => safeResourceUrl(value, this, fallback),
-        cspNonce: security.csp_nonce
+        cspNonce: security.csp_nonce,
+        warn: (msg) => {
+            if (hexo.log && typeof hexo.log.warn === 'function') hexo.log.warn(msg);
+        }
     });
 
     gates.toc = toc;

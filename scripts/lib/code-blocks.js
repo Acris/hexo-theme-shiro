@@ -6,7 +6,7 @@ const { decodeHtmlEntities } = require('./util');
 const {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
-    findElementClose,
+    elementScanEnd,
     findHtmlAttribute,
     replaceHtmlAttributeValue
 } = require('./html-scanner');
@@ -51,8 +51,7 @@ function markCodeBlocksNotProse(html) {
         }
 
         if (CODE_SAMPLE_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
         }
     }
 

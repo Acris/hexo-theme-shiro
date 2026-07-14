@@ -85,11 +85,14 @@
         display: none;
     }
 
-    /* JS-driven dismiss (fast path): cancel the failsafe and fade out. */
+    /* JS-driven dismiss (fast path): cancel the failsafe and fade out.
+       Drop pointer-events immediately so the fading veil does not steal clicks
+       while content is already revealed (shiro-preloader-dismissed). */
     .shiro-preloader.is-loaded {
         animation: none;
         opacity: 0;
         visibility: hidden;
+        pointer-events: none;
         transition:
             opacity 0.42s var(--ease-soft),
             visibility 0s linear 0.42s;

@@ -325,6 +325,8 @@ describe('client accessibility contracts', () => {
         assert.match(preloader, /classList\.add\(['"]shiro-preloader-dismissed['"]\)/);
         assert.match(components, /body > :not\(\.shiro-preloader\)[\s\S]*?visibility:\s*hidden/);
         assert.match(components, /\.shiro-preloader[\s\S]*?pointer-events:\s*auto/);
+        // Fading veil must not steal clicks after dismiss begins.
+        assert.match(components, /\.shiro-preloader\.is-loaded[\s\S]*?pointer-events:\s*none/);
         assert.match(components, /shiro-preloader-content-failsafe/);
     });
 
@@ -877,6 +879,7 @@ describe('client runtime protocol', () => {
         let opened = null;
         window.open = (url) => {
             opened = url;
+            return { closed: false };
         };
         window.location.href = '';
 
@@ -892,6 +895,7 @@ describe('client runtime protocol', () => {
 
         rt.safeNavigate('https://example.com/x');
         assert.equal(opened, 'https://example.com/x');
+        assert.equal(window.location.href, '', 'successful window.open must not same-tab navigate');
 
         rt.safeNavigate('/local/path');
         assert.equal(window.location.href, '/local/path');
@@ -901,6 +905,50 @@ describe('client runtime protocol', () => {
 
         rt.safeNavigate('blob:https://example.com/id');
         assert.equal(window.location.href, 'blob:https://example.com/id');
+    });
+
+    it('falls back to same-tab navigation when window.open is blocked', () => {
+        const { rt, window } = harness;
+        window.open = () => null;
+        window.location.href = '';
+
+        rt.safeNavigate('https://cdn.example/img.png');
+        assert.equal(window.location.href, 'https://cdn.example/img.png');
+
+        window.location.href = '';
+        rt.safeNavigate('//cdn.example/proto.png');
+        assert.equal(window.location.href, 'https://cdn.example/proto.png');
+    });
+
+    it('resolves imageSource from srcset when src is absent', () => {
+        const { rt } = harness;
+        const srcsetOnly = {
+            getAttribute(name) {
+                if (name === 'srcset') return '/small.png 640w, /large.png 1280w';
+                return '';
+            },
+            currentSrc: ''
+        };
+        assert.equal(rt.imageSource(srcsetOnly), '/small.png');
+
+        const withCurrent = {
+            getAttribute(name) {
+                if (name === 'srcset') return '/small.png 640w, /large.png 1280w';
+                return '';
+            },
+            currentSrc: 'https://cdn.example/large.png'
+        };
+        assert.equal(rt.imageSource(withCurrent), 'https://cdn.example/large.png');
+
+        const withSrc = {
+            getAttribute(name) {
+                if (name === 'src') return '/hero.png';
+                if (name === 'srcset') return '/small.png 640w';
+                return '';
+            },
+            currentSrc: ''
+        };
+        assert.equal(rt.imageSource(withSrc), '/hero.png');
     });
 
     it('identifies non-link controls that already own an image action', () => {

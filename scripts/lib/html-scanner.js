@@ -149,6 +149,26 @@ function findElementClose(value, openingToken) {
     return null;
 }
 
+/**
+ * Resume position after scanning past an open element (and its contents).
+ * - Closed → after the matching close tag
+ * - Unclosed opaque/raw (script/style/…) → EOF (body is not HTML markup)
+ * - Unclosed structural tags (pre/code/…) → after the open tag only
+ *   (browsers recover; later markup must still be scanned)
+ */
+function elementScanEnd(value, openingToken) {
+    const source = String(value || '');
+    if (!openingToken || openingToken.type !== 'tag') {
+        return openingToken && openingToken.end != null ? openingToken.end : 0;
+    }
+    if (openingToken.closing) return openingToken.end;
+
+    const close = findElementClose(source, openingToken);
+    if (close) return close.end;
+    if (HTML_TOKEN_OPAQUE_ELEMENTS.has(openingToken.name)) return source.length;
+    return openingToken.end;
+}
+
 function parseHtmlAttributes(value) {
     const source = String(value || '');
     const attrs = [];
@@ -255,8 +275,7 @@ function htmlTextContent(value, options) {
 
         let end = token.end;
         if (token.type === 'tag' && !token.closing && skipped.has(token.name)) {
-            const close = findElementClose(source, token);
-            end = close ? close.end : source.length;
+            end = elementScanEnd(source, token);
         }
         text += ' ';
         cursor = end;
@@ -272,6 +291,7 @@ module.exports = {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
+    elementScanEnd,
     parseHtmlAttributes,
     findHtmlAttribute,
     htmlAttributeValue,

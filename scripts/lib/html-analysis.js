@@ -19,7 +19,7 @@ const {
     HTML_VOID_ELEMENTS,
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
-    findElementClose,
+    elementScanEnd,
     htmlTextContent
 } = require('./html-scanner');
 
@@ -50,8 +50,7 @@ function codeContentFlags(content) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (RAW_CONTENT_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (hasClassToken(token.attrs, HIGHLIGHT_CLASS_TOKENS)) {
@@ -92,8 +91,7 @@ function stripElementBlocks(content, names) {
         let remove = token.type === 'comment';
         let end = token.end;
         if (token.type === 'tag' && !token.closing && names.has(token.name)) {
-            const close = findElementClose(source, token);
-            end = close ? close.end : source.length;
+            end = elementScanEnd(source, token);
             position = end;
             remove = true;
         }
@@ -116,8 +114,7 @@ function stripClassTokenBlocks(content, tokens) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (RAW_CONTENT_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (!hasClassToken(token.attrs, tokens)) continue;
@@ -126,10 +123,9 @@ function stripClassTokenBlocks(content, tokens) {
         if (start < cursor) continue;
 
         result += source.slice(cursor, start) + ' ';
-        const close = findElementClose(source, token);
         cursor = token.selfClosing || HTML_VOID_ELEMENTS.has(token.name)
             ? token.end
-            : (close ? close.end : source.length);
+            : elementScanEnd(source, token);
         position = cursor;
     }
 
@@ -165,8 +161,7 @@ function countImagesInHtml(html) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (token.name === 'img' && imageHasLightboxSource(token.attrs)) count += 1;
@@ -183,8 +178,7 @@ function countHeadingsInHtml(html) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (!/^h[2-6]$/.test(token.name)) continue;
@@ -377,8 +371,7 @@ function firstImageInfo(content) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (ANALYSIS_SKIPPED_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (token.name !== 'img') continue;

@@ -7,7 +7,10 @@ const {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
     findElementClose,
-    htmlAttributeValue
+    elementScanEnd,
+    findHtmlAttribute,
+    htmlAttributeValue,
+    replaceHtmlAttributeValue
 } = require('./html-scanner');
 
 const TOC_SKIPPED_ELEMENTS = new Set([...HTML_TOKEN_OPAQUE_ELEMENTS, 'pre', 'code']);
@@ -23,7 +26,7 @@ function slugifyHeading(text) {
 }
 
 function headingId(attrs) {
-    return decodeHtmlEntities(htmlAttributeValue(attrs, 'id'));
+    return decodeHtmlEntities(htmlAttributeValue(attrs, 'id')).trim();
 }
 
 function tocCacheKey(tocConfig) {
@@ -44,8 +47,7 @@ function collectExistingIds(source) {
         const id = headingId(token.attrs);
         if (id) ids.add(id);
         if (HTML_TOKEN_OPAQUE_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
         }
     }
     return ids;
@@ -76,8 +78,7 @@ function rewriteTocHeadings(source, levels) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (TOC_SKIPPED_ELEMENTS.has(token.name)) {
-            const skippedClose = findElementClose(source, token);
-            position = skippedClose ? skippedClose.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (!/^h[2-6]$/.test(token.name)) continue;
@@ -95,12 +96,19 @@ function rewriteTocHeadings(source, levels) {
         let id = headingId(token.attrs);
         if (!id) {
             id = uniqueHeadingId(title, existingIds);
+            const idAttr = findHtmlAttribute(token.attrs, 'id');
+            // Replace blank id="" rather than appending a second id attribute.
+            const nextOpen = idAttr && !idAttr.boolean
+                ? source.slice(token.start, token.attrsStart)
+                    + replaceHtmlAttributeValue(token.attrs, idAttr, escapeHtml(id))
+                    + source.slice(token.attrsEnd, token.end)
+                : source.slice(token.start, token.attrsEnd)
+                    + ' id="' + escapeHtml(id) + '"'
+                    + source.slice(token.attrsEnd, token.end);
             replacements.push({
                 start: token.start,
                 end: token.end,
-                value: source.slice(token.start, token.attrsEnd)
-                    + ' id="' + escapeHtml(id) + '"'
-                    + source.slice(token.attrsEnd, token.end)
+                value: nextOpen
             });
         }
 

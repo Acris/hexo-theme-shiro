@@ -70,6 +70,28 @@ describe('scripts/lib/toc', () => {
             assert.equal(result.html.includes('data-target="c"'), false);
         });
 
+        it('replaces empty heading ids instead of appending a second id', () => {
+            const src = '<h2 id="">Empty</h2><h2 id="  ">Spaces</h2><h2>Plain</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.match(result.content, /<h2 id="empty">Empty<\/h2>/);
+            assert.match(result.content, /<h2 id="spaces">Spaces<\/h2>/);
+            assert.match(result.content, /<h2 id="plain">Plain<\/h2>/);
+            assert.doesNotMatch(result.content, /id=""\s+id=/);
+            assert.match(result.html, /data-target="empty"/);
+            assert.match(result.html, /data-target="spaces"/);
+        });
+
+        it('still finds headings after an unclosed code tag', () => {
+            // Browsers recover from unclosed <code>; the scanner must not skip to EOF.
+            const src = '<p>Use <code>npm test</p>'
+                + '<h2>First</h2><h2>Second</h2><h2>Third</h2>';
+            const result = buildToc(src, { depth: 3, min_headings: 3 });
+            assert.equal(result.shouldRender, true);
+            assert.equal((result.html.match(/toc-link/g) || []).length, 3);
+            assert.match(result.html, /data-target="first"/);
+        });
+
         it('renders heading hierarchy as semantic nested lists', () => {
             const src = '<h2>Parent</h2><h3>Child</h3><h4>Grandchild</h4><h2>Sibling</h2>';
             const result = buildToc(src, { depth: 4, min_headings: 4 });

@@ -439,13 +439,21 @@
         );
     }
 
+    // First candidate URL from a srcset attribute (width/density descriptors).
+    function firstSrcsetUrl(srcset) {
+        const text = String(srcset || '').replace(/^[\s,]+/, '');
+        const match = /^([^\s,]+)/.exec(text);
+        return match ? match[1] : '';
+    }
+
     function imageSource(img) {
         const attrSrc = (img.getAttribute('src') || '').trim();
         const attrSrcset = (img.getAttribute('srcset') || '').trim();
         const dataSrc = (img.getAttribute('data-src') || '').trim();
         const selectedSrc = (img.currentSrc || '').trim();
         if (selectedSrc && (attrSrc || attrSrcset)) return selectedSrc;
-        return attrSrc || dataSrc;
+        // Prefer authored src/data-src; fall back to srcset for responsive-only markup.
+        return attrSrc || dataSrc || firstSrcsetUrl(attrSrcset);
     }
 
     function isModifiedClick(event) {
@@ -460,7 +468,10 @@
     }
 
     /**
-     * Navigate to an allowlisted URL; open absolute http(s) in a new tab.
+     * Navigate to an allowlisted URL.
+     * Absolute http(s) prefer a new tab when the gesture still allows window.open;
+     * after async preventDefault (e.g. LightGallery load failure) open is often
+     * blocked — fall back to same-tab navigation so the click is not a no-op.
      * Blob URLs support image fallbacks. Unknown schemes and control chars are blocked.
      */
     function safeNavigate(href) {
@@ -468,7 +479,14 @@
         if (!value) return;
         if (/[\u0000-\u001F\u007F]/.test(value)) return;
         if (/^https?:\/\//i.test(value) || value.indexOf('//') === 0) {
-            window.open(value, '_blank', 'noopener,noreferrer');
+            const absolute = value.indexOf('//') === 0 ? 'https:' + value : value;
+            let opened = null;
+            try {
+                opened = window.open(absolute, '_blank', 'noopener,noreferrer');
+            } catch (_) {
+                opened = null;
+            }
+            if (!opened) window.location.href = absolute;
             return;
         }
         if (/^(?:mailto|tel|blob):/i.test(value) || !/^[a-z][a-z0-9+.-]*:/i.test(value)) {

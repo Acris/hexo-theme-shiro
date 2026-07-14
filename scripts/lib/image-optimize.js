@@ -7,7 +7,7 @@ const { decodeHtmlEntities } = require('./util');
 const {
     HTML_TOKEN_OPAQUE_ELEMENTS,
     nextHtmlToken,
-    findElementClose,
+    elementScanEnd,
     parseHtmlAttributes
 } = require('./html-scanner');
 const { isDecorativeImageAttributes } = require('./image-content');
@@ -184,8 +184,7 @@ function optimizeImages(html, options) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (IMAGE_SKIPPED_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (token.name !== 'img') continue;
@@ -262,8 +261,7 @@ function defaultFirstImageLoading(html, value) {
         position = token.end;
         if (token.type !== 'tag' || token.closing) continue;
         if (IMAGE_SKIPPED_ELEMENTS.has(token.name)) {
-            const close = findElementClose(source, token);
-            position = close ? close.end : source.length;
+            position = elementScanEnd(source, token);
             continue;
         }
         if (token.name !== 'img') continue;

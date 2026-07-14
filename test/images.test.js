@@ -155,6 +155,14 @@ describe('scripts/lib/image-optimize', () => {
             assert.match(out, /cdn\.example\/y\.png"[^>]*decoding="async"/);
         });
 
+        it('still optimizes images after an unclosed code tag', () => {
+            const html = '<p>Use <code>npm test</p>'
+                + '<img src="https://cdn.example/after.png">';
+            const out = pureOptimize(html, { firstImageEager: true });
+            assert.match(out, /cdn\.example\/after\.png"[^>]*decoding="async"/);
+            assert.match(out, /loading="eager"/);
+        });
+
         it('skips fallback images and keeps the first visible image eager', () => {
             const hidden = '<noscript><img src="https://cdn.example/fallback.png"></noscript>'
                 + '<iframe><img src="https://cdn.example/frame.png"></iframe>';

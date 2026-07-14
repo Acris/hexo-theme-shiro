@@ -160,6 +160,34 @@ describe('scripts/lib/feature-gates', () => {
             assert.equal(g.lightgalleryJsUrl, '');
         });
 
+        it('warns and drops invalid SRI digests for MathJax and LightGallery', () => {
+            const warnings = [];
+            const valid = 'sha256-' + Buffer.alloc(32, 1).toString('base64');
+            const g = resolveFeatureGates({
+                ...base,
+                theme: {
+                    ...base.theme,
+                    mathjax: {
+                        enabled: true,
+                        every_page: true,
+                        integrity: 'not-a-real-digest'
+                    },
+                    lightGallery: {
+                        enabled: true,
+                        js_integrity: 'sha256-abc',
+                        css_integrity: valid
+                    }
+                },
+                warn: (msg) => warnings.push(msg)
+            });
+            assert.equal(g.mathjaxIntegrity, '');
+            assert.equal(g.lightgalleryJsIntegrity, '');
+            assert.equal(g.lightgalleryCssIntegrity, valid);
+            assert.equal(warnings.length, 2);
+            assert.match(warnings[0], /mathjax/);
+            assert.match(warnings[1], /lightGallery\.js/);
+        });
+
         it('gates analytics and RSS only when explicitly enabled', () => {
             const off = resolveFeatureGates(base);
             assert.equal(off.needsGoogleAnalytics, false);

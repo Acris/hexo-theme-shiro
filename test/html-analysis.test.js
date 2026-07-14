@@ -156,6 +156,12 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(pageAnalysis({ content }).imageCount, 1);
         });
 
+        it('still counts images after an unclosed code tag', () => {
+            const content = '<p>Run <code>npm test</p><img src="/after.png" width="10" height="10">';
+            assert.equal(pageAnalysis({ content }).imageCount, 1);
+            assert.equal(firstImageInfo(content).src, '/after.png');
+        });
+
         it('does not leak quoted tag attributes into extracted text', () => {
             assert.equal(
                 htmlTextFromHtml('<p title="not > text">Visible text</p>', 200),
