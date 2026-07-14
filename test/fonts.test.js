@@ -86,7 +86,7 @@ describe('scripts/lib/fonts', () => {
             titleStacks.forEach(stack => assert.match(stack, /^'Yuji Syuku',/));
         });
 
-        it('keeps query separators literal in Google Fonts link attributes', () => {
+        it('loads Google Fonts via stylesheet only (no link preload)', () => {
             const styles = fs.readFileSync(
                 path.join(root, 'layout/_partial/common/head-styles.njk'),
                 'utf8'
@@ -95,11 +95,19 @@ describe('scripts/lib/fonts', () => {
                 path.join(root, 'layout/_partial/common/head-prefetch.njk'),
                 'utf8'
             );
+            const head = fs.readFileSync(
+                path.join(root, 'layout/_partial/common/head.njk'),
+                'utf8'
+            );
 
+            assert.match(head, /rel="preconnect"[^>]*fonts\.googleapis\.com/);
+            assert.match(head, /rel="preconnect"[^>]*fonts\.gstatic\.com[^>]*crossorigin/);
+            assert.match(styles, /rel="stylesheet"[^>]*href="\{\{\s*google_fonts_url\s*\}\}"/);
             assert.match(styles, /href="\{\{\s*google_fonts_url\s*\}\}"/);
-            assert.match(prefetch, /href="\{\{\s*google_fonts\[0\]\s*\}\}"/);
             assert.doesNotMatch(styles, /attr_url\(google_fonts_url\)/);
-            assert.doesNotMatch(prefetch, /attr_url\(google_fonts\[0\]\)/);
+            assert.doesNotMatch(prefetch, /fonts\.googleapis/);
+            assert.doesNotMatch(prefetch, /rel="preload"/);
+            assert.doesNotMatch(styles, /rel="preload"/);
         });
 
         it('keeps the code font gate independent from block-code assets', () => {

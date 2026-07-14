@@ -1,4 +1,5 @@
-{# Stylesheets + preloader after FOUC/MathJax discovery. Expects google_fonts. #}
+{# Stylesheets + preloader after FOUC/MathJax discovery. Expects google_fonts.
+   Google Fonts: preconnect (head.njk) + stylesheet only — no link preload. #}
 {% for google_fonts_url in google_fonts %}
 {# Trusted theme URL stays raw so CDN optimizers preserve its query separators. #}
 <link rel="stylesheet" href="{{ google_fonts_url }}" />

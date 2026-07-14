@@ -42,7 +42,7 @@ Shiro (白) is a clean, minimalist, multilingual Hexo theme: Nunjucks templates,
 ### Pitfalls
 
 - No static `source/favicon.svg` — generator overwrites it; seal path is `SEAL_PATH_D` / `seal_path_d`.
-- Font family changes: update the family list in `google_font_urls` (shared preload / preloader token).
+- Font family changes: update the family list in `google_font_urls` (stylesheet + preloader token).
 - Pagefind is **not** a theme dependency; host needs Pagefind **1.5.0+** when `search.enabled`. Standalone generation indexes at `before_exit`; deployment indexes at `deployBefore`, with process-level deduplication for combined commands. It does **not** index during `hexo server`; there is no `npx` fallback.
 - Word count: theme `word_count.enabled` only controls display; counting needs host [hexo-word-counter](https://github.com/next-theme/hexo-word-counter). Missing plugin omits meta — does **not** fail generate.
 - Keep default LightGallery CDN versions in sync across `_config.yml` and `scripts/lib/feature-gates.js` (`DEFAULT_LIGHTGALLERY_*`). Client reads one bag object via `runtime.get('lightgallery')` (`css` / `js` / `themeCss` / `script` / integrities) — no hardcoded CDN fallback.
