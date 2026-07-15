@@ -257,6 +257,41 @@ describe('scripts/lib/html-analysis', () => {
             assert.equal(result.content, '');
         });
 
+        it('returns empty + truncated when fallback length is 0 (never full post HTML)', () => {
+            const content = '<p>' + 'word '.repeat(80) + '</p>';
+            const result = excerptForCard(
+                { content },
+                { excerpt: { fallback: { enabled: true, length: 0 } } }
+            );
+            assert.equal(result.truncated, true);
+            assert.equal(result.content, '');
+        });
+
+        it('uses default length when fallback length is invalid or negative', () => {
+            const content = '<p>' + 'word '.repeat(80) + '</p>';
+            for (const length of ['nope', null, false, -5, NaN, '', {}]) {
+                const result = excerptForCard(
+                    { content },
+                    { excerpt: { fallback: { enabled: true, length } } }
+                );
+                assert.equal(result.truncated, true, 'length=' + String(length));
+                assert.notEqual(result.content, content, 'length=' + String(length));
+                assert.match(result.content, /^<p>/, 'length=' + String(length));
+                assert.ok(result.content.length > 0, 'length=' + String(length));
+            }
+        });
+
+        it('accepts numeric string fallback lengths', () => {
+            const content = '<p>' + 'word '.repeat(80) + '</p>';
+            const result = excerptForCard(
+                { content },
+                { excerpt: { fallback: { enabled: true, length: '40' } } }
+            );
+            assert.equal(result.truncated, true);
+            assert.match(result.content, /^<p>/);
+            assert.ok(result.content.length < content.length);
+        });
+
         it('still uses manual excerpt when fallback is disabled', () => {
             const result = excerptForCard(
                 { excerpt: '<p>manual</p>', content: '<p>full</p>' },

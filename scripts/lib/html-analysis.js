@@ -284,10 +284,20 @@ function excerptFallbackEnabled(themeConfig) {
 }
 
 function excerptFallbackLength(fallbackConfig) {
-    if (fallbackConfig && fallbackConfig.length !== undefined) {
-        return Math.max(0, Number(fallbackConfig.length) || 0);
+    if (!fallbackConfig || fallbackConfig.length === undefined || fallbackConfig.length === null) {
+        return DEFAULT_EXCERPT_LENGTH;
     }
-    return DEFAULT_EXCERPT_LENGTH;
+    const raw = fallbackConfig.length;
+    // Accept numbers and digit strings only; reject booleans/objects/"nope".
+    if (typeof raw === 'string') {
+        if (!/^\s*\d+\s*$/.test(raw)) return DEFAULT_EXCERPT_LENGTH;
+    } else if (typeof raw !== 'number') {
+        return DEFAULT_EXCERPT_LENGTH;
+    }
+    const n = Number(raw);
+    // Invalid / negative → default; 0 is valid and means empty auto-excerpt.
+    if (!Number.isFinite(n) || n < 0) return DEFAULT_EXCERPT_LENGTH;
+    return Math.floor(n);
 }
 
 function renderedPostCardCodeFlags(post, themeConfig) {
@@ -423,8 +433,9 @@ function isLightboxImageSrcCandidate(value) {
 
 /**
  * Home / list card excerpt using theme.excerpt.fallback policy.
- * Manual <!-- more --> excerpts always win. When fallback is off and there is no
- * manual excerpt, return empty + truncated (read-more) — never dump full post HTML.
+ * Manual <!-- more --> excerpts always win. When fallback is off, length is 0, or
+ * there is no manual excerpt under those policies, return empty + truncated
+ * (read-more) — never dump full post HTML on the auto-fallback path.
  */
 function excerptForCard(post, themeConfig) {
     if (!post) return { content: '', truncated: false };
@@ -433,7 +444,10 @@ function excerptForCard(post, themeConfig) {
         return { content: '', truncated: true };
     }
     const fallback = themeConfig && themeConfig.excerpt && themeConfig.excerpt.fallback;
-    return excerptFor(post, excerptFallbackLength(fallback));
+    const length = excerptFallbackLength(fallback);
+    // length 0: empty + read-more — never dump full post HTML on auto-fallback.
+    if (length === 0) return { content: '', truncated: true };
+    return excerptFor(post, length);
 }
 
 function buildPostCardViewModels(posts, themeConfig) {
