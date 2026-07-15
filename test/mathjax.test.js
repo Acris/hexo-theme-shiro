@@ -315,6 +315,24 @@ describe('scripts/mathjax.js', () => {
             assert.equal(protectedMath.segments[0], '$y$');
         });
 
+        it('skips CRLF fenced code and still protects math after the fence', () => {
+            // lineEndIndex stops at \n; closing lines retain a trailing \r that
+            // must not prevent fence close (Windows / mixed-line-ending sources).
+            const protectedMath = protectMarkdownMath('```\r\n$x$\r\n```\r\n$y$', {
+                inlineDollars: true
+            });
+            assert.ok(protectedMath.segments);
+            assert.equal(protectedMath.segments.length, 1);
+            assert.equal(protectedMath.segments[0], '$y$');
+        });
+
+        it('skips CRLF tilde fences and still protects math after the fence', () => {
+            const protectedMath = protectMarkdownMath('~~~\r\n$x$\r\n~~~\r\n\\(y\\)', {
+                inlineDollars: false
+            });
+            assert.deepEqual(protectedMath.segments, ['\\(y\\)']);
+        });
+
         it('skips Hexo backtick fence wrappers without protecting TeX inside them', () => {
             // Hexo's before_post_render code-block filter may wrap fences first.
             const source = '<hexoPostRenderCodeBlock>$x$ and \\(y\\)</hexoPostRenderCodeBlock>\n$z$';

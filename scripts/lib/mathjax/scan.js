@@ -69,16 +69,18 @@ function startsBlankLine(source, index) {
 }
 
 function closingFenceLine(line, marker, minLength) {
+    // lineEndIndex stops at \n, so CRLF lines still carry a trailing \r.
+    const text = String(line || '').replace(/\r$/, '');
     let cursor = 0;
     let spaces = 0;
-    while (line[cursor] === ' ' && spaces < 3) {
+    while (text[cursor] === ' ' && spaces < 3) {
         cursor += 1;
         spaces += 1;
     }
 
     let count = 0;
-    while (line[cursor + count] === marker) count += 1;
-    return count >= minLength && /^[ \t]*$/.test(line.slice(cursor + count));
+    while (text[cursor + count] === marker) count += 1;
+    return count >= minLength && /^[ \t]*$/.test(text.slice(cursor + count));
 }
 
 function skipFenceBlock(source, start) {
