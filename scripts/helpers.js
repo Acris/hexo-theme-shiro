@@ -205,10 +205,12 @@ hexo.extend.helper.register('page_feature_gates', function () {
     gates.toc = toc;
 
     // Single comments resolve: client bag reuses gates.shiroComments.
+    // Absolutize pageUrl like structured_data — Disqus rejects relative URLs and
+    // a non-empty relative string blocks the client location.href fallback.
     gates.commentsClientConfig = buildCommentsClientConfig(theme, page, {
         isPost,
         isPage,
-        pageUrl: page.permalink || this.url || '',
+        pageUrl: resolveAbsolutePageUrl(this, page, (this.config && this.config.url) || ''),
         pageIdentifier: page.path || this.path || page.permalink || this.url || '',
         state: gates.shiroComments
     });
@@ -222,7 +224,7 @@ hexo.extend.helper.register('comments_client_config', function (page) {
     return buildCommentsClientConfig(this.theme, p, {
         isPost: typeof this.is_post === 'function' && this.is_post(),
         isPage: typeof this.is_page === 'function' && this.is_page(),
-        pageUrl: p.permalink || this.url || '',
+        pageUrl: resolveAbsolutePageUrl(this, p, (this.config && this.config.url) || ''),
         pageIdentifier: p.path || this.path || p.permalink || this.url || ''
     });
 });

@@ -46,6 +46,35 @@ describe('scripts/helpers', () => {
         assert.equal(versionedUrl.call(context, '../outside.js'), '/../outside.js');
     });
 
+    it('absolutizes comments pageUrl for Disqus client config', () => {
+        const commentsClientConfig = helpers.get('comments_client_config');
+        const context = {
+            theme: {
+                comments: {
+                    enabled: true,
+                    provider: 'disqus',
+                    disqus: { shortname: 'my-blog' }
+                }
+            },
+            config: { url: 'https://example.com' },
+            is_post: () => true,
+            is_page: () => false,
+            full_url_for(value) {
+                return 'https://example.com/' + String(value).replace(/^\/+/, '');
+            },
+            url_for(value) {
+                return '/' + String(value).replace(/^\/+/, '');
+            }
+        };
+
+        const cfg = commentsClientConfig.call(context, {
+            path: 'posts/hi/',
+            permalink: '/posts/hi/'
+        });
+        assert.equal(cfg.disqus.pageUrl, 'https://example.com/posts/hi/');
+        assert.equal(cfg.disqus.pageIdentifier, 'posts/hi/');
+    });
+
     it('uses the resolved hierarchical category label in page titles', () => {
         const buildPageTitle = helpers.get('build_page_title');
         const parent = { _id: 'a', name: 'Parent', path: 'categories/parent/' };
